@@ -1,0 +1,302 @@
+.siteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #0b1220;
+  color: #e8eefc;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.siteHeaderTop {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.brand:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.brandMark {
+  font-size: 22px;
+}
+
+.brandText {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.brandTextAccent {
+  color: #79d7ff;
+}
+
+.deliverTo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.deliverTo:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.deliverToText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.deliverToLabel {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.deliverToValue {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.searchWrap {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: stretch;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(121, 215, 255, 0.25);
+}
+
+.searchCategory {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #0f172a;
+  min-height: 40px;
+}
+
+.searchBtn {
+  width: 46px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #79d7ff 0%, #6ae4b4 100%);
+  color: #06101f;
+}
+
+.searchBtn:hover {
+  filter: brightness(0.98);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  color: inherit;
+}
+
+.headerLink:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.headerLinkTop {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.headerLinkBottom {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cartMini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  color: inherit;
+}
+
+.cartMini:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cartIconWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.cartCount {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #ff4d6d;
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+  border-radius: 999px;
+  padding: 2px 6px;
+  border: 2px solid #0b1220;
+}
+
+.cartLabel {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mobileMenuBtn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: inherit;
+}
+
+.mobileMenuBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.siteHeaderBottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f1a30;
+}
+
+.siteHeaderBottom.open {
+  display: block;
+}
+
+.categoryNav {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.categoryNav::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryLink {
+  white-space: nowrap;
+  color: rgba(232, 238, 252, 0.92);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.categoryLink:hover {
+  background: rgba(121, 215, 255, 0.12);
+  border-color: rgba(121, 215, 255, 0.25);
+}
+
+.topStrip {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px 10px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+@media (max-width: 1024px) {
+  .siteHeaderTop {
+    grid-template-columns: auto auto 1fr auto;
+  }
+
+  .headerRight {
+    gap: 6px;
+  }
+
+  .headerLink {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .siteHeaderTop {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'brand cart menu'
+      'search search search';
+  }
+
+  .brand {
+    grid-area: brand;
+  }
+
+  .cartMini {
+    grid-area: cart;
+  }
+
+  .mobileMenuBtn {
+    grid-area: menu;
+    display: grid;
+    place-items: center;
+  }
+
+  .deliverTo {
+    display: none;
+  }
+
+  .searchWrap {
+    grid-area: search;
+  }
+
+  .siteHeaderBottom {
+    display: none;
+  }
+
+  .siteHeaderBottom.open {
+    display: block;
+  }
+}
