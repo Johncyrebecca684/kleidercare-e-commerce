@@ -1,6 +1,6 @@
 .hero {
-  background: linear-gradient(180deg, #0f1a30 0%, #f5f7fa 70%);
-  padding: 22px 16px 28px;
+  background: linear-gradient(180deg, #001a4d 0%, #0f32a3 70%, #001a4d 100%);
+  padding: 12px 20px 12px;
 }
 
 .heroInner {
@@ -10,157 +10,219 @@
 
 .heroBanner {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 18px;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 14px;
   align-items: stretch;
   border-radius: 18px;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(121, 215, 255, 0.18), rgba(106, 228, 180, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(0, 168, 232, 0.1), rgba(0, 61, 122, 0.08));
+  border: 2px solid rgba(0, 168, 232, 0.2);
 }
 
 .heroCopy {
-  padding: 28px;
-  color: #e8eefc;
+  padding: 20px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .heroKicker {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.2px;
+  animation: pulseGlow 2.5s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
 }
 
 .heroTitle {
-  margin-top: 14px;
-  font-size: 44px;
+  margin: 0;
+  font-size: 32px;
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
 }
 
 .heroSubtitle {
-  margin-top: 12px;
-  font-size: 15px;
-  line-height: 1.6;
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.4;
   opacity: 0.95;
   max-width: 56ch;
 }
 
 .heroCtas {
   display: flex;
-  gap: 12px;
-  margin-top: 18px;
+  gap: 17px;
+  margin: 0;
   flex-wrap: wrap;
 }
 
 .ctaPrimary {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: #06101f;
-  background: linear-gradient(135deg, #79d7ff 0%, #6ae4b4 100%);
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #00a8e8 0%, #0078a8 100%);
   font-weight: 900;
+  font-size: 20px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 16px rgba(0, 168, 232, 0.3);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ctaPrimary:hover {
-  filter: brightness(0.98);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 168, 232, 0.5), 0 0 15px rgba(0, 168, 232, 0.3);
+  filter: brightness(1.1);
 }
 
 .ctaSecondary {
   display: inline-flex;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e8eefc;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
   font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(10px);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ctaSecondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 24px rgba(255, 255, 255, 0.15);
 }
 
 .heroMeta {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 18px;
+  margin: 0;
 }
 
 .metaItem {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 10px;
   background: rgba(11, 18, 32, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 700;
 }
 
 .heroVisual {
   position: relative;
-  min-height: 260px;
-  background: rgba(0, 0, 0, 0.12);
+  min-height: 70px;
+  background: linear-gradient(135deg, rgba(0, 26, 77, 0.8), rgba(15, 50, 163, 0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
 }
 
 .heroVisual img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: saturate(1.05) contrast(1.05);
+  height: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: saturate(1.1) contrast(1.08) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
 .promoRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .promoCard {
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(0, 26, 77, 0.08);
+  border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 16px rgba(0, 26, 77, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.promoCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 168, 232, 0.08), rgba(0, 61, 122, 0.04));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
 }
 
 .promoCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 168, 232, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 168, 232, 0.3);
+}
+
+.promoCard:hover::before {
+  opacity: 1;
 }
 
 .promoTop {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
-  color: #0b1220;
-  opacity: 0.7;
+  color: #001a4d;
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .promoTitle {
   margin-top: 8px;
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 900;
-  color: #0b1220;
+  color: #001a4d;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
 }
 
 .promoFoot {
   margin-top: 12px;
   font-size: 13px;
   font-weight: 800;
-  color: #0ea5e9;
+  color: #001a4d;
+  letter-spacing: 0.2px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.promoCard:hover .promoFoot {
+  color: #00a8e8;
+  transform: translateX(4px);
 }
 
 @media (max-width: 1024px) {

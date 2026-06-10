@@ -1,6 +1,6 @@
 .footer {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: #e0e0e0;
+  background: linear-gradient(135deg, #001a4d 0%, #00264d 100%);
+  color: #ffffff;
   padding-top: 60px;
 }
 
@@ -23,10 +23,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 900;
   color: white;
   margin-bottom: 10px;
+  letter-spacing: 0.3px;
 }
 
 .logo-icon {
@@ -34,42 +35,97 @@
 }
 
 .footer-description {
-  font-size: 13px;
-  line-height: 1.6;
-  color: #b0b0b0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
 }
 
-.social-links {
+.example-2 {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
 }
-
-.social-link {
+.example-2 .icon-content {
+  margin: 0 10px 0 0;
+  position: relative;
+}
+.example-2 .icon-content .tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  opacity: 0;
+  visibility: hidden;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+.example-2 .icon-content:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -50px;
+}
+.example-2 .icon-content a {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 40px;
   height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(102, 126, 234, 0.2);
   border-radius: 50%;
-  color: #667eea;
-  transition: all 0.3s ease;
+  color: #00a8e8;
+  background-color: rgba(0, 168, 232, 0.2);
+  transition: all 0.3s ease-in-out;
   text-decoration: none;
 }
-
-.social-link:hover {
-  background: #667eea;
+.example-2 .icon-content a:hover {
+  box-shadow: 3px 2px 45px 0px rgb(0 0 0 / 12%);
   color: white;
-  transform: translateY(-4px);
+}
+.example-2 .icon-content a svg {
+  position: relative;
+  z-index: 1;
+}
+.example-2 .icon-content a .filled {
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background-color: #000;
+  transition: all 0.3s ease-in-out;
+}
+.example-2 .icon-content a:hover .filled {
+  height: 100%;
+}
+.example-2 .icon-content a[data-social="facebook"] .filled,
+.example-2 .icon-content a[data-social="facebook"] ~ .tooltip {
+  background-color: #1877f2;
+}
+.example-2 .icon-content a[data-social="instagram"] .filled,
+.example-2 .icon-content a[data-social="instagram"] ~ .tooltip {
+  background-color: #e4405f;
+}
+.example-2 .icon-content a[data-social="linkedin"] .filled,
+.example-2 .icon-content a[data-social="linkedin"] ~ .tooltip {
+  background-color: #0077b5;
 }
 
 .footer-section h4 {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
   color: white;
   margin: 0;
+  letter-spacing: 0.2px;
 }
 
 .footer-links {
@@ -82,15 +138,33 @@
 }
 
 .footer-links a {
-  color: #b0b0b0;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.3s ease;
   display: inline-block;
 }
 
 .footer-links a:hover {
-  color: #667eea;
+  color: #00a8e8;
+  transform: translateX(4px);
+}
+
+.trackOrderLink {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: inline-block;
+  padding: 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.trackOrderLink:hover {
+  color: #00a8e8;
   transform: translateX(4px);
 }
 
@@ -154,8 +228,9 @@
 }
 
 .newsletter-form button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5), 0 0 15px rgba(118, 75, 162, 0.3);
+  filter: brightness(1.1);
 }
 
 .footer-bottom {
@@ -163,7 +238,7 @@
   padding: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;

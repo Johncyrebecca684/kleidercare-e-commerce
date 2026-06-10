@@ -1,0 +1,556 @@
+.ticketingPageContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #001a4d 0%, #003366 100%);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+}
+
+.ticketingHeader {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto 40px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 900;
+  color: white;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ticketingContent {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glassmorphism Card Style */
+.glassCard {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.searchCard {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 24px;
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  margin: 40px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.searchCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #00a8e8, #003366);
+}
+
+.searchTitle {
+  font-size: 28px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.searchSubtitle {
+  color: #555;
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+
+.searchForm {
+  margin-bottom: 24px;
+}
+
+.searchInputWrapper {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  max-width: 650px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 20px;
+  color: #888;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 18px 20px 18px 56px;
+  border: 2px solid rgba(0, 26, 77, 0.2);
+  border-radius: 16px;
+  font-size: 16px;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.searchInput::placeholder {
+  color: #64748b;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #00a8e8;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(0, 168, 232, 0.1);
+}
+
+.ticketSearchBtn {
+  padding: 18px 40px;
+  background: linear-gradient(135deg, #003366 0%, #001a4d 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 26, 77, 0.2);
+  flex-shrink: 0;
+}
+
+.ticketSearchBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 26, 77, 0.3);
+}
+
+.sampleTickets {
+  font-size: 14px;
+  color: #666;
+  background: #f1f5f9;
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 999px;
+}
+
+.sampleTickets strong {
+  color: #001a4d;
+}
+
+.noResults {
+  text-align: center;
+  padding: 60px 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  margin-top: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  color: #001a4d;
+}
+
+.customerCard {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 24px;
+  padding: 32px 40px;
+  margin-bottom: 32px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.customerCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, #00a8e8, #003366);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 24px;
+}
+
+.cardHeader h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: #001a4d;
+  margin: 0;
+}
+
+.downloadBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #001a4d;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.downloadBtn:hover {
+  background: #001a4d;
+  color: white;
+  border-color: #001a4d;
+}
+
+.customerDetails {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.detailItem.address {
+  grid-column: span 2;
+}
+
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+}
+
+.detailItem svg {
+  color: #00a8e8;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.detailText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 15px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.customerStats {
+  display: flex;
+  gap: 24px;
+}
+
+.statBox {
+  flex: 1;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.3s ease;
+}
+
+.statBox:hover {
+  transform: translateY(-4px);
+  border-color: #00a8e8;
+}
+
+.statNumber {
+  font-size: 36px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 8px;
+}
+
+.statLabel {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sectionTitle {
+  color: white;
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.orderCard {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.orderCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px dashed #e2e8f0;
+}
+
+.orderTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #001a4d;
+  margin: 0 0 8px;
+}
+
+.orderId {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  background: #f1f5f9;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.statusBadge {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge.delivered {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.statusBadge.in.transit {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+
+.orderGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.orderColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orderDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailLabel {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.detailValue {
+  font-size: 15px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.detailValue.expired {
+  color: #ef4444;
+}
+
+.warrantyStatus {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-block;
+}
+
+.warrantyStatus.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.warrantyStatus.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.supportActions {
+  margin-top: 48px;
+}
+
+.actionButtons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.actionBtn {
+  padding: 20px;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.actionBtn.primary {
+  background: linear-gradient(135deg, #00a8e8 0%, #0078a8 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
+}
+
+.actionBtn.primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(0, 168, 232, 0.4);
+}
+
+.actionBtn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.actionBtn.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 992px) {
+  .orderGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .ticketingPageContainer {
+    padding: 24px 16px;
+  }
+
+  .pageTitle {
+    position: static;
+    transform: none;
+    margin-left: auto;
+    font-size: 24px;
+  }
+  
+  .searchInputWrapper {
+    flex-direction: column;
+  }
+  
+  .ticketSearchBtn {
+    width: 100%;
+  }
+  
+  .orderGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .customerDetails {
+    grid-template-columns: 1fr;
+  }
+  
+  .detailItem.address {
+    grid-column: span 1;
+  }
+  
+  .actionButtons {
+    grid-template-columns: 1fr;
+  }
+  
+  .customerStats {
+    flex-direction: column;
+  }
+  
+  .customerCard, .orderCard, .searchCard {
+    padding: 24px;
+  }
+}

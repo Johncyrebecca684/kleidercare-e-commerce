@@ -13,14 +13,19 @@ export default function ProductList({
   const [sortBy, setSortBy] = useState('popular');
 
   const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    let matchesCategory;
+    if (selectedCategory === 'All') {
+      matchesCategory = product.category !== 'Genuine Spare Parts';
+    } else {
+      matchesCategory = product.category === selectedCategory;
+    }
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      product.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch(sortBy) {
+    switch (sortBy) {
       case 'price-low':
         return a.price - b.price;
       case 'price-high':
@@ -34,12 +39,12 @@ export default function ProductList({
   });
 
   return (
-    <section id="products" className="products-section">
+    <section id="products" className="products-section animate-fade-in">
       <div className="section-header">
         <div className="header-content">
-          <h2 className="section-title">Shop Laundry Products</h2>
+          <h2 className="section-title">Shop All Products</h2>
           <p className="section-subtitle">
-            Deals, essentials, and fabric-safe formulas — all in one place.
+            Machines, chemicals, detergents, and everything you need for complete laundry care.
           </p>
         </div>
       </div>
@@ -48,8 +53,8 @@ export default function ProductList({
         <div className="category-filters">
           <div className="filter-label">Categories:</div>
           <div className="category-buttons">
-            {['All', 'Powder', 'Liquid', 'Stain Remover', 'Softener'].map(category => (
-              <button 
+            {['All', 'LG Commercial Laundry Machines', 'Speed Queen Commercial Laundry Machines', 'PONY Finishing Equipments', 'Genuine Spare Parts'].map(category => (
+              <button
                 key={category}
                 className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
                 onClick={() => onCategoryChange(category)}
@@ -63,7 +68,7 @@ export default function ProductList({
         <div className="sort-container">
           <div className="sort-label">Sort by:</div>
           <div className="sort-dropdown">
-            <select 
+            <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="sort-select"
@@ -83,14 +88,47 @@ export default function ProductList({
       </div>
 
       {sortedProducts.length > 0 ? (
-        <div className="products-grid">
-          {sortedProducts.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product}
-              onAddToCart={onAddToCart}
-            />
-          ))}
+        <div className="products-container">
+          {selectedCategory === 'Genuine Spare Parts' ? (
+            <>
+              <div className="products-grid">
+                {sortedProducts.filter(p => p.subcategory !== 'Speed Queen').map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={onAddToCart}
+                  />
+                ))}
+              </div>
+
+              {sortedProducts.some(p => p.subcategory === 'Speed Queen') && (
+                <div className="subcategory-section">
+                  <div style={{ width: '100%', textAlign: 'center', margin: '60px 0 30px' }}>
+                    <h2 style={{ fontSize: '2rem', color: '#1a365d', fontWeight: 'bold' }}>Speed Queen Spare Parts</h2>
+                  </div>
+                  <div className="products-grid">
+                    {sortedProducts.filter(p => p.subcategory === 'Speed Queen').map(product => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onAddToCart={onAddToCart}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="products-grid">
+              {sortedProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={onAddToCart}
+                />
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="no-products">

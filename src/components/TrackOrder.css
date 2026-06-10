@@ -1,0 +1,611 @@
+.trackOrderContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  padding: 40px 16px;
+}
+
+.trackOrderInner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Form Section */
+.trackOrderForm {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 32px;
+  box-shadow: 0 8px 32px rgba(0, 26, 77, 0.12);
+  text-align: center;
+}
+
+.formHeader {
+  margin-bottom: 32px;
+}
+
+.formTitle {
+  font-size: 28px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.formSubtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 0;
+}
+
+.searchForm {
+  margin-bottom: 24px;
+}
+
+.searchInputWrapper {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+.trackSearchInput {
+  flex: 1;
+  min-width: 250px;
+  padding: 16px 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  background: #2d3436;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.trackSearchInput::placeholder {
+  color: #999;
+}
+
+.trackSearchInput:focus {
+  outline: none;
+  background: #1e2327;
+  box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.2);
+}
+
+.trackSearchBtn {
+  padding: 16px 40px;
+  background: linear-gradient(135deg, #00a8e8 0%, #0078a8 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.3);
+  white-space: nowrap;
+}
+
+.trackSearchBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 168, 232, 0.4);
+}
+
+.trackSearchBtn:active {
+  transform: translateY(0);
+}
+
+.sampleOrders {
+  font-size: 14px;
+  color: #666;
+  margin-top: 20px;
+}
+
+.sampleOrders p {
+  margin: 0;
+}
+
+.sampleOrders strong {
+  color: #00a8e8;
+  font-weight: 700;
+}
+
+/* No Results */
+.noResults {
+  text-align: center;
+  padding: 60px 24px;
+  background: white;
+  border-radius: 16px;
+  color: #666;
+  margin-top: 24px;
+}
+
+.noResults svg {
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.noResults h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 8px;
+}
+
+.noResults p {
+  margin: 0;
+  color: #999;
+}
+
+/* Tracking Results */
+.trackingResults {
+  display: grid;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Order Summary Card */
+.orderSummaryCard {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
+  border-top: 4px solid #00a8e8;
+}
+
+.orderImageSection {
+  display: none;
+}
+
+.productImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.orderDetailsSection {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px 24px;
+  align-items: center;
+}
+
+.orderDetailsSection h2 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 0;
+  margin-top: 0;
+  grid-column: 1 / -1;
+}
+
+.orderId,
+.seller,
+.orderPrice {
+  font-size: 13px;
+  margin-bottom: 0;
+  color: #666;
+  margin-top: 0;
+}
+
+.orderId span,
+.seller span {
+  font-weight: 700;
+  color: #001a4d;
+}
+
+.orderPrice {
+  font-size: 22px;
+  font-weight: 900;
+  color: #00a8e8;
+  margin-bottom: 0;
+  grid-column: 1 / -1;
+}
+
+.orderDates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  grid-column: 1 / -1;
+}
+
+.dateItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.dateItem svg {
+  color: #00a8e8;
+  flex-shrink: 0;
+}
+
+.statusBadgeSection {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  grid-column: 1 / -1;
+}
+
+.statusBadge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.statusBadge.in-transit {
+  background: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffc107;
+}
+
+.statusBadge.delivered {
+  background: #d4edda;
+  color: #155724;
+  border: 2px solid #28a745;
+}
+
+.statusBadge.processing {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 2px solid #17a2b8;
+}
+
+.currentLocation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #001a4d;
+  font-weight: 700;
+  background: #f5f7fa;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin: 0;
+}
+
+.currentLocation svg {
+  color: #00a8e8;
+}
+
+/* Tracking Timeline */
+.trackingTimeline {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
+}
+
+.timelineTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 30px;
+  margin-top: 0;
+}
+
+.timelineTrack {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.timelineTrack::before {
+  content: '';
+  position: absolute;
+  top: 19px;
+  left: 8.33%;
+  right: 8.33%;
+  height: 3px;
+  background: linear-gradient(to right, #28a745 0%, #28a745 var(--progress-percent, 0%), #e9ecef var(--progress-percent, 0%), #e9ecef 100%);
+  z-index: 0;
+}
+
+.timelineStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border-bottom: none;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.timelineStep:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.timelineStep:last-child .stepLine {
+  display: none;
+}
+
+.stepIndicator {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  width: 40px;
+  justify-content: center;
+  height: 40px;
+}
+
+.stepDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e9ecef;
+  border: 3px solid white;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+.timelineStep.completed .stepDot {
+  background: #28a745;
+  border-color: white;
+  box-shadow: 0 0 0 1px #28a745;
+}
+
+.stepLine {
+  display: none;
+}
+
+.stepName {
+  font-size: 13px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 4px;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.timelineStep.pending .stepName {
+  color: #999;
+}
+
+.stepDateTime,
+.stepTime {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 2px;
+  margin-top: 0;
+  justify-content: center;
+}
+
+.stepDateTime svg,
+.stepTime svg {
+  color: #00a8e8;
+  width: 12px;
+  height: 12px;
+}
+
+.stepTime {
+  display: none;
+}
+
+/* Additional Details */
+.additionalDetails {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.detailCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
+  transition: all 0.3s ease;
+  display: none;
+}
+
+.detailCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 26, 77, 0.12);
+}
+
+.detailCard svg {
+  color: #00a8e8;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+}
+
+.detailCard h4 {
+  font-size: 14px;
+  font-weight: 800;
+  color: #001a4d;
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.detailCard p {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Support Section */
+.supportSection {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
+  display: none;
+}
+
+.supportSection h3 {
+  font-size: 18px;
+  font-weight: 900;
+  color: #001a4d;
+  margin-bottom: 6px;
+  margin-top: 0;
+}
+
+.supportSection > p {
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 13px;
+  margin-top: 0;
+}
+
+.supportLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.supportLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: #f5f7fa;
+  border-radius: 10px;
+  color: #00a8e8;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  border: 2px solid #e9ecef;
+}
+
+.supportLink:hover {
+  background: #e9ecef;
+  border-color: #00a8e8;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trackOrderForm {
+    padding: 32px 20px;
+  }
+
+  .formTitle {
+    font-size: 22px;
+  }
+
+  .formSubtitle {
+    font-size: 13px;
+  }
+
+  .searchInputWrapper {
+    flex-direction: column;
+  }
+
+  .trackSearchInput,
+  .trackSearchBtn {
+    width: 100%;
+  }
+
+  .trackingTimeline {
+    padding: 18px;
+  }
+
+  .timelineStep {
+    grid-template-columns: 50px 1fr;
+    padding: 16px 0;
+    gap: 16px;
+  }
+
+  .stepName {
+    font-size: 14px;
+  }
+
+  .orderSummaryCard {
+    padding: 18px;
+  }
+
+  .orderDetailsSection {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .orderDates {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .statusBadgeSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .additionalDetails {
+    grid-template-columns: 1fr;
+  }
+
+  .supportLinks {
+    flex-direction: column;
+  }
+
+  .supportLink {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .trackOrderForm {
+    padding: 24px 16px;
+  }
+
+  .formTitle {
+    font-size: 20px;
+  }
+
+  .trackSearchInput {
+    font-size: 13px;
+    padding: 12px 14px;
+  }
+
+  .trackSearchBtn {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  .searchInputWrapper {
+    gap: 8px;
+  }
+
+  .timelineStep {
+    gap: 12px;
+  }
+
+  .stepName {
+    font-size: 13px;
+  }
+
+  .stepDot {
+    width: 16px;
+    height: 16px;
+    border-width: 3px;
+  }
+}

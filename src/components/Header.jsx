@@ -6,20 +6,24 @@ import {
   ShoppingCart,
   User,
   X,
+  Package,
+  Headset,
+  LayoutDashboard
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const categories = [
   { label: 'All', href: '#products' },
-  { label: 'Detergent Powder', href: '#products' },
-  { label: 'Liquid Detergent', href: '#products' },
-  { label: 'Stain Removers', href: '#products' },
-  { label: 'Fabric Softeners', href: '#products' },
-  { label: 'Value Packs', href: '#products' },
+  { label: 'LG Commercial Laundry Machines', href: '#products' },
+  { label: 'Speed Queen Commercial Laundry Machines', href: '#products' },
+  { label: 'PONY Finishing Equipments', href: '#products' },
+  { label: 'Genuine Spare Parts', href: '#products' },
 ];
 
-export default function Header({ cartCount, onCartClick, onSearchChange }) {
+export default function Header({ cartCount, onSearchChange, onSignupClick, loggedInUser, onProfileClick, onTrackOrderClick }) {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const cartBadge = useMemo(() => {
@@ -28,14 +32,14 @@ export default function Header({ cartCount, onCartClick, onSearchChange }) {
   }, [cartCount]);
 
   return (
-    <header className="siteHeader">
+    <header className="siteHeader animate-fade-in">
       <div className="siteHeaderTop">
         <a className="brand" href="#home" aria-label="Go to home">
           <span className="brandMark" aria-hidden="true">
-            🧼
+
           </span>
           <span className="brandText">
-            Laundry<span className="brandTextAccent">Mart</span>
+            Kleider<span className="brandTextAccent">Care</span>
           </span>
         </a>
 
@@ -43,46 +47,66 @@ export default function Header({ cartCount, onCartClick, onSearchChange }) {
           <MapPin size={18} />
           <span className="deliverToText">
             <span className="deliverToLabel">Deliver to</span>
-            <span className="deliverToValue">Mumbai 400001</span>
+            <span className="deliverToValue">Chennai 600130</span>
           </span>
         </button>
 
-        <div className="searchWrap" role="search">
-          <button className="searchCategory" type="button">
+        <div className="headerSearchWrap" role="search">
+          <button className="headerSearchCategory" type="button">
             <span>All</span>
             <ChevronDown size={16} />
           </button>
           <input
-            className="searchInput"
+            className="headerSearchInput"
             type="search"
-            placeholder="Search detergents, stain removers, softeners..."
+            placeholder="Search LG machines, Speed Queen, spare parts, and more..."
             onChange={(e) => onSearchChange(e.target.value)}
             aria-label="Search products"
           />
-          <button className="searchBtn" type="button" aria-label="Search">
-            <Search size={18} />
+          <button className="headerSearchBtn" type="button" aria-label="Search">
+            <Search size={20} />
           </button>
         </div>
 
         <div className="headerRight">
-          <button className="headerLink" type="button">
-            <span className="headerLinkTop">Hello, sign in</span>
-            <span className="headerLinkBottom">
-              <User size={16} />
-              Account
-            </span>
-          </button>
-          <button className="headerLink" type="button">
-            <span className="headerLinkTop">Easy</span>
-            <span className="headerLinkBottom">Returns</span>
-          </button>
-          <button className="cartMini" type="button" onClick={onCartClick}>
-            <span className="cartIconWrap">
-              <ShoppingCart size={22} />
-              {cartBadge ? <span className="cartCount">{cartBadge}</span> : null}
-            </span>
-            <span className="cartLabel">Cart</span>
-          </button>
+          {loggedInUser ? (
+            <button className="userProfileBtn" type="button" onClick={onProfileClick}>
+              <span className="userInitials">
+                {loggedInUser.firstName.charAt(0)}{loggedInUser.lastName.charAt(0)}
+              </span>
+              <span className="userName">{loggedInUser.firstName}</span>
+            </button>
+          ) : (
+            <>
+              <button className="authBtn signupBtn" type="button" onClick={onSignupClick}>
+                Sign Up
+              </button>
+            </>
+          )}
+          {loggedInUser?.role === 'admin' ? (
+            <button className="trackOrderBtn adminBtn" type="button" onClick={() => navigate('/admin')} title="Admin Dashboard">
+              <LayoutDashboard size={22} />
+              <span className="trackLabel">Dashboard</span>
+            </button>
+          ) : (
+            <>
+              <button className="trackOrderBtn" type="button" onClick={() => navigate('/support')} title="Support">
+                <Headset size={22} />
+                <span className="trackLabel">Support</span>
+              </button>
+              <button className="trackOrderBtn" type="button" onClick={() => navigate('/track-order')} title="Track Order">
+                <Package size={22} />
+                <span className="trackLabel">Track</span>
+              </button>
+              <button className="cartMini" type="button" onClick={() => navigate('/cart')}>
+                <span className="cartIconWrap">
+                  <ShoppingCart size={22} />
+                  {cartBadge ? <span className="cartCount">{cartBadge}</span> : null}
+                </span>
+                <span className="cartLabel">Cart</span>
+              </button>
+            </>
+          )}
         </div>
 
         <button

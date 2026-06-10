@@ -1,13 +1,11 @@
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  line-height: 1.5;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: #222;
-  background-color: #f5f7fa;
+  color: #001a4d;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,11 +23,12 @@ html,
 body {
   margin: 0;
   padding: 0;
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: #f5f7fa;
-  color: #222;
+  background-color: #ffffff;
+  color: #001a4d;
 }
 
 #root {
@@ -39,7 +38,12 @@ body {
   min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   line-height: 1.2;
   margin: 0;
 }
@@ -59,9 +63,16 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-input, select, textarea {
+button:active {
+  transform: scale(0.96) !important;
+}
+
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -78,25 +89,40 @@ img {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: #f8f9fa;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #667eea;
+  background: #003d7a;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #764ba2;
+  background: #001a4d;
 }
 
 /* Selection Styling */
 ::selection {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-color: rgba(0, 168, 232, 0.3);
+  color: inherit;
 }
 
 ::-moz-selection {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-color: rgba(0, 168, 232, 0.3);
+  color: inherit;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
 }

@@ -1,10 +1,11 @@
-import { Heart, ShoppingCart, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import './ProductCard.css';
 
 export default function ProductCard({ product, onAddToCart }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showAddedNotice, setShowAddedNotice] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const discount = Math.round((1 - product.price / product.originalPrice) * 100);
 
@@ -17,8 +18,12 @@ export default function ProductCard({ product, onAddToCart }) {
   return (
     <div className="product-card">
       <div className="product-image-container">
-        <img src={product.image} alt={product.name} className="product-image" />
-        
+        <img
+          src={product.image}
+          alt={product.name}
+          className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''}`}
+        />
+
         {product.badge && (
           <div className="badge-container">
             <span className={`badge badge-${product.badge.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -29,7 +34,7 @@ export default function ProductCard({ product, onAddToCart }) {
 
         <div className="discount-badge">{discount}% OFF</div>
 
-        <button 
+        <button
           className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
           onClick={() => setIsWishlisted(!isWishlisted)}
         >
@@ -37,7 +42,7 @@ export default function ProductCard({ product, onAddToCart }) {
         </button>
 
         <div className="overlay-actions">
-          <button 
+          <button
             className="quick-add-btn"
             onClick={handleAddToCart}
           >
@@ -55,9 +60,9 @@ export default function ProductCard({ product, onAddToCart }) {
         <div className="rating-section">
           <div className="stars">
             {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                size={14} 
+              <Star
+                key={i}
+                size={14}
                 fill={i < Math.floor(product.rating) ? '#FFD700' : '#E0E0E0'}
                 color={i < Math.floor(product.rating) ? '#FFD700' : '#E0E0E0'}
               />
@@ -66,12 +71,35 @@ export default function ProductCard({ product, onAddToCart }) {
           <span className="rating-text">{product.rating} ({product.reviews} reviews)</span>
         </div>
 
+        {product.specifications && (
+          <div className="specifications-container">
+            <button
+              className="toggle-specs-btn"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              {isExpanded ? 'Hide Specifications' : 'View Specifications'}
+              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {isExpanded && (
+              <ul className="specs-list">
+                {Object.entries(product.specifications).map(([key, value]) => (
+                  <li key={key}>
+                    <span className="spec-key">{key}:</span>
+                    <span className="spec-value">{value}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
         <div className="price-section">
           <span className="current-price">₹{product.price}</span>
           <span className="original-price">₹{product.originalPrice}</span>
         </div>
 
-        <button 
+        <button
           className="add-to-cart-btn"
           onClick={handleAddToCart}
         >

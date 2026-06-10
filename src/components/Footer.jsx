@@ -1,45 +1,66 @@
 import { Phone, Mail, MapPin, Globe } from 'lucide-react';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import './Footer.css';
 
 export default function Footer() {
+  const navigate = useNavigate();
   return (
-    <footer className="footer">
+    <footer className="footer animate-fade-in">
       <div className="footer-content">
         <div className="footer-section">
           <div className="footer-logo">
-            <span className="logo-icon">🧼</span>
-            <span>LaundryHub</span>
+            <span className="logo-icon"> </span>
+            <span>Kleider Care</span>
           </div>
           <p className="footer-description">
-            Your trusted partner for premium laundry care solutions since 2020.
+            Your trusted partner for complete laundry solutions — from machines to chemicals. Since 2020.
           </p>
-          <div className="social-links">
-            <a href="#" className="social-link" title="Facebook">f</a>
-            <a href="#" className="social-link" title="Twitter">𝕏</a>
-            <a href="#" className="social-link" title="Instagram">📷</a>
-            <a href="#" className="social-link" title="LinkedIn">in</a>
-          </div>
+          <ul className="example-2">
+            <li className="icon-content">
+              <a href="https://www.facebook.com/kleidercare" target="_blank" rel="noopener noreferrer" data-social="facebook" aria-label="Facebook">
+                <div className="filled"></div>
+                <FaFacebook size={20} />
+              </a>
+              <div className="tooltip">Facebook</div>
+            </li>
+            <li className="icon-content">
+              <a href="https://instagram.com/kleidercare" target="_blank" rel="noopener noreferrer" data-social="instagram" aria-label="Instagram">
+                <div className="filled"></div>
+                <FaInstagram size={20} />
+              </a>
+              <div className="tooltip">Instagram</div>
+            </li>
+            <li className="icon-content">
+              <a href="https://linkedin.com/company/kleidercare" target="_blank" rel="noopener noreferrer" data-social="linkedin" aria-label="LinkedIn">
+                <div className="filled"></div>
+                <FaLinkedin size={20} />
+              </a>
+              <div className="tooltip">LinkedIn</div>
+            </li>
+          </ul>
         </div>
 
         <div className="footer-section">
           <h4>Quick Links</h4>
           <ul className="footer-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#products">Products</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#blog">Blog</a></li>
-            <li><a href="#faq">FAQ</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#products">Products</a></li>
+            <li><a href="https://www.kleidercare.com/about-us" target="_blank" rel="noopener noreferrer">About Us</a></li>
+            <li><a href="https://www.kleidercare.com/blog" target="_blank" rel="noopener noreferrer">Blog</a></li>
+            <li><a href="https://www.kleidercare.com/faq" target="_blank" rel="noopener noreferrer">FAQ</a></li>
           </ul>
         </div>
 
         <div className="footer-section">
           <h4>Customer Service</h4>
           <ul className="footer-links">
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#shipping">Shipping Info</a></li>
-            <li><a href="#returns">Returns</a></li>
-            <li><a href="#privacy">Privacy Policy</a></li>
-            <li><a href="#terms">Terms & Conditions</a></li>
+            <li><a href="https://www.kleidercare.com/contact-us" target="_blank" rel="noopener noreferrer">Contact Us</a></li>
+            <li><a href="https://www.kleidercare.com/shipping-policy" target="_blank" rel="noopener noreferrer">Shipping Info</a></li>
+            <li><a href="https://www.kleidercare.com/return-policy" target="_blank" rel="noopener noreferrer">Returns</a></li>
+            <li><button onClick={() => navigate('/track-order')} className="trackOrderLink">Track Order</button></li>
+            <li><a href="https://www.kleidercare.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
+            <li><a href="https://www.kleidercare.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms & Conditions</a></li>
           </ul>
         </div>
 
@@ -48,35 +69,25 @@ export default function Footer() {
           <div className="contact-info">
             <div className="contact-item">
               <Phone size={18} />
-              <span>+91 9876 543 210</span>
+              <a href="tel:+919876543210">+91 9876 543 210</a>
             </div>
             <div className="contact-item">
               <Mail size={18} />
-              <span>support@laundryhub.com</span>
+              <a href="mailto:info@kleidercare.com">info@kleidercare.com</a>
             </div>
             <div className="contact-item">
               <MapPin size={18} />
-              <span>Mumbai, India 400001</span>
+              <a href="https://maps.google.com/?q=Mumbai,+India+400001" target="_blank" rel="noopener noreferrer">Mumbai, India 400001</a>
             </div>
           </div>
         </div>
 
-        <div className="footer-section">
-          <h4>Newsletter</h4>
-          <p>Subscribe for exclusive deals and tips</p>
-          <div className="newsletter-form">
-            <input type="email" placeholder="Your email" />
-            <button>Subscribe</button>
-          </div>
-        </div>
+
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; 2024 LaundryHub. All rights reserved.</p>
-        <div className="payment-methods">
-          <span>Payment Methods:</span>
-          <div className="payment-icons">💳 🏦 ₹ 📱</div>
-        </div>
+        <p>&copy; 2024 Kleider Care. All rights reserved.</p>
+
       </div>
     </footer>
   );
