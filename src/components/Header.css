@@ -2,12 +2,49 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(135deg, rgba(0, 26, 77, 0.85) 0%, rgba(0, 38, 77, 0.95) 100%);
+  background: #ffffff;
+  color: #1a4a8d;
+  box-shadow: 0 4px 15px rgba(26, 74, 141, 0.1), 0 8px 30px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(26, 74, 141, 0.1);
+}
+
+.topBannerStrip {
+  background: #1a4a8d;
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 26, 77, 0.3), 0 8px 30px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+.topBannerInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topBannerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topBannerRight .divider {
+  opacity: 0.5;
+}
+
+.topBannerLink {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.topBannerLink:hover {
+  text-decoration: underline;
 }
 
 .siteHeaderTop {
@@ -15,7 +52,7 @@
   margin: 0 auto;
   padding: 10px 16px;
   display: grid;
-  grid-template-columns: auto auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 14px;
   align-items: center;
 }
@@ -34,18 +71,10 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.brandMark {
-  font-size: 22px;
-}
-
-.brandText {
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-}
-
-.brandTextAccent {
-  color: #00a8e8;
+.brandLogo {
+  height: 54px;
+  width: auto;
+  object-fit: contain;
 }
 
 .deliverTo {
@@ -55,14 +84,14 @@
   padding: 8px 12px;
   border-radius: 12px;
   color: inherit;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(26, 74, 141, 0.05);
+  border: 1px solid #1a4a8d;
   transition: all 0.3s ease;
 }
 
 .deliverTo:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(26, 74, 141, 0.1);
+  border-color: rgba(26, 74, 141, 0.2);
 }
 
 .deliverToText {
@@ -82,41 +111,66 @@
 }
 
 .headerSearchWrap {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: stretch;
-  background: rgba(255, 255, 255, 0.08);
+  background: #f4f7fb;
   border-radius: 12px;
   overflow: hidden;
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1.5px solid #1a4a8d;
   transition: all 0.3s ease;
 }
 
 .headerSearchWrap:focus-within {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 15px rgba(0, 168, 232, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border-color: #1a4a8d;
+  box-shadow: 0 0 15px rgba(26, 74, 141, 0.1);
   transform: translateY(-1px);
 }
 
-.headerSearchCategory {
+.headerSearchCategoryWrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid rgba(26, 74, 141, 0.2);
   background: transparent;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
-  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.headerSearchCategory:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+.headerSearchCategoryWrapper:hover {
+  background: rgba(26, 74, 141, 0.05);
+}
+
+.headerSearchCategorySelect {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  color: #1a4a8d;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 28px 0 12px;
+  height: 100%;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  max-width: 130px;
+  text-overflow: ellipsis;
+}
+
+.headerSearchCategorySelect option {
+  background: #ffffff;
+  color: #1a4a8d;
+}
+
+.headerSearchCategoryIcon {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  color: #1a4a8d;
 }
 
 .headerSearchInput {
@@ -124,7 +178,7 @@
   outline: none !important;
   padding: 0 16px;
   font-size: 14px;
-  color: #ffffff !important;
+  color: #1a4a8d !important;
   min-height: 44px;
   font-weight: 400;
   background-color: transparent !important;
@@ -137,15 +191,15 @@
 }
 
 .headerSearchInput:-webkit-autofill,
-.headerSearchInput:-webkit-autofill:hover, 
-.headerSearchInput:-webkit-autofill:focus, 
+.headerSearchInput:-webkit-autofill:hover,
+.headerSearchInput:-webkit-autofill:focus,
 .headerSearchInput:-webkit-autofill:active {
-  -webkit-text-fill-color: #ffffff !important;
+  -webkit-text-fill-color: #1a4a8d !important;
   transition: background-color 5000s ease-in-out 0s !important;
 }
 
 .headerSearchInput::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(26, 74, 141, 0.5);
 }
 
 .headerSearchBtn {
@@ -153,15 +207,15 @@
   display: grid;
   place-items: center;
   background: transparent;
-  color: #ffffff;
+  color: #1a4a8d;
   transition: all 0.3s ease;
   cursor: pointer;
   border: none;
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 1px solid rgba(26, 74, 141, 0.2);
 }
 
 .headerSearchBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(26, 74, 141, 0.05);
 }
 
 .headerRight {
@@ -229,26 +283,25 @@
 }
 
 .loginBtn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(26, 74, 141, 0.05);
+  color: #1a4a8d;
+  border: 1.5px solid rgba(26, 74, 141, 0.3);
 }
 
 .loginBtn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3), 0 0 10px rgba(255, 255, 255, 0.2);
+  background: rgba(26, 74, 141, 0.1);
+  border-color: #1a4a8d;
   transform: translateY(-2px) scale(1.02);
 }
 
 .signupBtn {
-  background: linear-gradient(135deg, #00a8e8 0%, #0078a8 100%);
+  background: #1a4a8d;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.3);
+  box-shadow: 0 4px 12px rgba(26, 74, 141, 0.3);
 }
 
 .signupBtn:hover {
-  box-shadow: 0 10px 25px rgba(0, 168, 232, 0.5), 0 0 15px rgba(0, 168, 232, 0.3);
+  box-shadow: 0 10px 25px rgba(26, 74, 141, 0.5), 0 0 15px rgba(26, 74, 141, 0.3);
   transform: translateY(-3px) scale(1.02);
   filter: brightness(1.1);
 }
@@ -293,7 +346,7 @@
 }
 
 .cartMini:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(26, 74, 141, 0.08);
   transform: translateY(-2px) scale(1.02);
 }
 
@@ -311,7 +364,7 @@
 }
 
 .trackOrderBtn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(26, 74, 141, 0.06);
 }
 
 .trackLabel {
@@ -356,8 +409,8 @@
 }
 
 .siteHeaderBottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #0f1a30;
+  border-top: 1px solid rgba(26, 74, 141, 0.1);
+  background: #f4f7fb;
 }
 
 .siteHeaderBottom.open {
@@ -381,18 +434,18 @@
 
 .categoryLink {
   white-space: nowrap;
-  color: rgba(232, 238, 252, 0.92);
+  color: #1a4a8d;
   font-size: 13px;
   font-weight: 700;
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border: none;
+  background: #ffffff;
 }
 
 .categoryLink:hover {
-  background: rgba(121, 215, 255, 0.12);
-  border-color: rgba(121, 215, 255, 0.25);
+  background: #1a4a8d;
+  color: #ffffff;
 }
 
 .topStrip {
@@ -450,7 +503,8 @@
     grid-area: right;
   }
 
-  .trackOrderBtn, .authBtn {
+  .trackOrderBtn,
+  .authBtn {
     display: none;
   }
 

@@ -96,7 +96,7 @@
 }
 
 .badge-top-rated {
-  background: linear-gradient(135deg, #00a8e8 0%, #003d7a 100%);
+  background: linear-gradient(135deg, #00a8e8 0%, #1a4a8d 100%);
 }
 
 .badge-eco-friendly {
@@ -142,14 +142,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #001a4d;
+  color: #1a4a8d;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .wishlist-btn-card:hover,
 .wishlist-btn-card.wishlisted {
-  background: #001a4d;
+  background: #1a4a8d;
   color: white;
   transform: scale(1.1);
 }
@@ -173,7 +173,7 @@
 
 .quick-add-btn {
   background: white;
-  color: #001a4d;
+  color: #1a4a8d;
   border: none;
   padding: 10px 20px;
   border-radius: 20px;
@@ -187,7 +187,7 @@
 }
 
 .quick-add-btn:hover {
-  background: #001a4d;
+  background: #1a4a8d;
   color: white;
   transform: scale(1.05) translateY(-2px);
   box-shadow: 0 10px 20px rgba(0, 26, 77, 0.3);
@@ -205,7 +205,7 @@
 .product-category {
   font-size: 11px;
   font-weight: 700;
-  color: #001a4d;
+  color: #1a4a8d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -213,7 +213,7 @@
 .product-name {
   font-size: 15px;
   font-weight: 800;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0;
   line-height: 1.4;
   letter-spacing: 0.2px;
@@ -262,7 +262,7 @@
 .toggle-specs-btn {
   background: none;
   border: none;
-  color: #003d7a;
+  color: #1a4a8d;
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -275,7 +275,7 @@
 }
 
 .toggle-specs-btn:hover {
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 .specs-list {
@@ -324,7 +324,7 @@
 .current-price {
   font-size: 22px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   letter-spacing: -0.5px;
 }
 
@@ -336,7 +336,7 @@
 }
 
 .add-to-cart-btn {
-  background: linear-gradient(135deg, #001a4d 0%, #003d7a 100%);
+  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
   color: white;
   border: none;
   padding: 10px 16px;
@@ -357,7 +357,7 @@
 .add-to-cart-btn:hover {
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 10px 25px rgba(0, 168, 232, 0.4);
-  background: linear-gradient(135deg, #00264d 0%, #004d99 100%);
+  background: linear-gradient(135deg, #00264d 0%, #1a4a8d 100%);
 }
 
 .add-to-cart-btn:active {

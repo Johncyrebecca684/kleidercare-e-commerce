@@ -13,14 +13,11 @@ export default function ProductList({
   const [sortBy, setSortBy] = useState('popular');
 
   const filteredProducts = products.filter(product => {
-    let matchesCategory;
-    if (selectedCategory === 'All') {
-      matchesCategory = product.category !== 'Genuine Spare Parts';
-    } else {
-      matchesCategory = product.category === selectedCategory;
-    }
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' ? true : product.category === selectedCategory;
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
+      product.description.toLowerCase().includes(searchLower) ||
+      product.category.toLowerCase().includes(searchLower);
     return matchesCategory && matchesSearch;
   });
 
@@ -53,7 +50,7 @@ export default function ProductList({
         <div className="category-filters">
           <div className="filter-label">Categories:</div>
           <div className="category-buttons">
-            {['All', 'LG Commercial Laundry Machines', 'Speed Queen Commercial Laundry Machines', 'PONY Finishing Equipments', 'Genuine Spare Parts'].map(category => (
+            {['All', 'LG Commercial Laundry Machines', 'Speed Queen Commercial Laundry Machines', 'PONY Finishing Equipments', 'Genuine Spare Parts', 'Chemicals'].map(category => (
               <button
                 key={category}
                 className={`category-btn ${selectedCategory === category ? 'active' : ''}`}

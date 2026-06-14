@@ -9,7 +9,7 @@
 /* Sidebar */
 .adminSidebar {
   width: 280px;
-  background: linear-gradient(180deg, #001a4d 0%, #003366 100%);
+  background: linear-gradient(180deg, #1a4a8d 0%, #1a4a8d 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -292,7 +292,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #001a4d;
+  background: #1a4a8d;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -303,7 +303,7 @@
 }
 
 .addBtn:hover {
-  background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 10px 25px rgba(0, 26, 77, 0.3), 0 0 15px rgba(0, 168, 232, 0.2);
 }

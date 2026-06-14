@@ -4,7 +4,7 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: #001a4d;
+  color: #1a4a8d;
   background-color: #ffffff;
 
   font-synthesis: none;
@@ -28,7 +28,7 @@ body {
 
 body {
   background-color: #ffffff;
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 #root {
@@ -93,12 +93,12 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #003d7a;
+  background: #1a4a8d;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #001a4d;
+  background: #1a4a8d;
 }
 
 /* Selection Styling */

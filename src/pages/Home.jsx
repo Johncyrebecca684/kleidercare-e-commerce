@@ -40,6 +40,8 @@ export default function Home({
         onProfileClick={onProfileOpen}
         loggedInUser={loggedInUser}
         onSearchChange={onSearchChange}
+        selectedCategory={selectedCategory}
+        onCategoryChange={onCategoryChange}
       />
       <Hero />
       <ProductList 

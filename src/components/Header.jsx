@@ -20,9 +20,10 @@ const categories = [
   { label: 'Speed Queen Commercial Laundry Machines', href: '#products' },
   { label: 'PONY Finishing Equipments', href: '#products' },
   { label: 'Genuine Spare Parts', href: '#products' },
+  { label: 'Chemicals', href: '#products' },
 ];
 
-export default function Header({ cartCount, onSearchChange, onSignupClick, loggedInUser, onProfileClick, onTrackOrderClick }) {
+export default function Header({ cartCount, onSearchChange, onSignupClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -33,37 +34,58 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
 
   return (
     <header className="siteHeader animate-fade-in">
+      <div className="topBannerStrip">
+        <div className="topBannerInner">
+          <div className="topBannerLeft">Welcome to Kleider Care!</div>
+          <div className="topBannerRight">
+            <span>Deliver to 423651</span>
+            <span className="divider">|</span>
+            <button type="button" className="topBannerLink" onClick={() => navigate('/track-order')}>Track your order</button>
+          </div>
+        </div>
+      </div>
       <div className="siteHeaderTop">
         <a className="brand" href="#home" aria-label="Go to home">
-          <span className="brandMark" aria-hidden="true">
-
-          </span>
-          <span className="brandText">
-            Kleider<span className="brandTextAccent">Care</span>
-          </span>
+          <img src="/kc-logo.png" alt="Kleider Care" className="brandLogo" />
         </a>
 
-        <button className="deliverTo" type="button">
-          <MapPin size={18} />
-          <span className="deliverToText">
-            <span className="deliverToLabel">Deliver to</span>
-            <span className="deliverToValue">Chennai 600130</span>
-          </span>
-        </button>
+
 
         <div className="headerSearchWrap" role="search">
-          <button className="headerSearchCategory" type="button">
-            <span>All</span>
-            <ChevronDown size={16} />
-          </button>
+          <div className="headerSearchCategoryWrapper">
+            <select
+              className="headerSearchCategorySelect"
+              value={selectedCategory || "All"}
+              onChange={(e) => {
+                onCategoryChange(e.target.value);
+                document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              aria-label="Select category"
+            >
+              {categories.map(c => (
+                <option key={c.label} value={c.label}>{c.label}</option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="headerSearchCategoryIcon" />
+          </div>
           <input
             className="headerSearchInput"
             type="search"
             placeholder="Search LG machines, Speed Queen, spare parts, and more..."
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
             aria-label="Search products"
           />
-          <button className="headerSearchBtn" type="button" aria-label="Search">
+          <button
+            className="headerSearchBtn"
+            type="button"
+            aria-label="Search"
+            onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
+          >
             <Search size={20} />
           </button>
         </div>
@@ -94,10 +116,7 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
                 <Headset size={22} />
                 <span className="trackLabel">Support</span>
               </button>
-              <button className="trackOrderBtn" type="button" onClick={() => navigate('/track-order')} title="Track Order">
-                <Package size={22} />
-                <span className="trackLabel">Track</span>
-              </button>
+
               <button className="cartMini" type="button" onClick={() => navigate('/cart')}>
                 <span className="cartIconWrap">
                   <ShoppingCart size={22} />
@@ -127,9 +146,6 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
             </a>
           ))}
         </nav>
-        <div className="topStrip">
-          Free delivery above ₹500 • 7-day returns • Cash on delivery available
-        </div>
       </div>
     </header>
   );

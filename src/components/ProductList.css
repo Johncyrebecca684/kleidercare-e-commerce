@@ -31,10 +31,10 @@
 .section-title {
   font-size: 46px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0 0 16px 0;
   letter-spacing: -0.7px;
-  background: linear-gradient(135deg, #001a4d 0%, #003d7a 100%);
+  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -77,7 +77,7 @@
 
 .filter-label {
   font-weight: 800;
-  color: #001a4d;
+  color: #1a4a8d;
   font-size: 14px;
   letter-spacing: 0.2px;
   text-transform: uppercase;
@@ -97,22 +97,22 @@
   cursor: pointer;
   font-weight: 800;
   font-size: 13px;
-  color: #003d7a;
+  color: #1a4a8d;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   letter-spacing: 0.2px;
 }
 
 .category-btn:hover {
-  border-color: #001a4d;
-  color: #001a4d;
+  border-color: #1a4a8d;
+  color: #1a4a8d;
   background: #f0f4ff;
   box-shadow: 0 4px 12px rgba(0, 26, 77, 0.1);
   transform: translateY(-2px);
 }
 
 .category-btn.active {
-  background: linear-gradient(135deg, #001a4d 0%, #003d7a 100%);
+  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
   color: white;
   border-color: transparent;
   box-shadow: 0 6px 16px rgba(0, 26, 77, 0.25);
@@ -127,7 +127,7 @@
 
 .sort-label {
   font-weight: 700;
-  color: #001a4d;
+  color: #1a4a8d;
   font-size: 14px;
   white-space: nowrap;
 }
@@ -147,14 +147,14 @@
   cursor: pointer;
   font-weight: 600;
   font-size: 13px;
-  color: #001a4d;
+  color: #1a4a8d;
   appearance: none;
   transition: all 0.3s ease;
 }
 
 .sort-select:hover,
 .sort-select:focus {
-  border-color: #001a4d;
+  border-color: #1a4a8d;
   outline: none;
   box-shadow: 0 0 0 3px rgba(0, 26, 77, 0.1);
 }
@@ -164,7 +164,7 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #001a4d;
+  color: #1a4a8d;
   pointer-events: none;
 }
 

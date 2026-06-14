@@ -900,7 +900,103 @@ export const products = [
     image: "https://storage.googleapis.com/straitsdisk/img/site/products/assy-drain-pump-220-240-50hz-blue-mtwc-808194p/1.png",
     description: "808194P",
     badge: null
+  },
+  {
+    id: 67,
+    name: "KC PRO CP Color Inhibitor",
+    category: "Chemicals",
+    price: 999,
+    originalPrice: 1199,
+    rating: 4.8,
+    reviews: 45,
+    image: "/kc-pro-cp.png",
+    description: "Color Inhibitor for domestic and commercial laundry.",
+    badge: "New"
+  },
+  {
+    id: 68,
+    name: "KC CC HD Cuff and Collar Cleaner",
+    category: "Chemicals",
+    price: 1199,
+    originalPrice: 1399,
+    rating: 4.7,
+    reviews: 32,
+    image: "/kc-cc-hd.png",
+    description: "Cuff and Collar Cleaner.",
+    badge: null
+  },
+  {
+    id: 69,
+    name: "KC PRO WFA Conditioner",
+    category: "Chemicals",
+    price: 899,
+    originalPrice: 1099,
+    rating: 4.9,
+    reviews: 60,
+    image: "/kc-pro-wfa.png",
+    description: "Fabric conditioner for all types of clothes.",
+    badge: "Top Rated"
+  },
+  {
+    id: 70,
+    name: "KC AS 1071 Fabric Stiffner",
+    category: "Chemicals",
+    price: 1099,
+    originalPrice: 1299,
+    rating: 4.6,
+    reviews: 28,
+    image: "/kc-as-1071.png",
+    description: "Fabric stiffener for professional laundry.",
+    badge: null
+  },
+  {
+    id: 71,
+    name: "KC OXY Brightener cum Stain buster 25 Kgs",
+    category: "Chemicals",
+    price: 2499,
+    originalPrice: 2899,
+    rating: 4.8,
+    reviews: 15,
+    image: "/kc-oxy.png",
+    description: "Brightener and stain buster for heavy duty use.",
+    badge: "New"
+  },
+  {
+    id: 72,
+    name: "KC PRO WCD Wool/Silk Care Liquid Detergent 5Lts",
+    category: "Chemicals",
+    price: 1299,
+    originalPrice: 1499,
+    rating: 4.9,
+    reviews: 22,
+    image: "/kc-pro-wcd.png",
+    description: "Specialized liquid detergent for delicate fabrics like wool and silk.",
+    badge: "Premium"
+  },
+  {
+    id: 73,
+    name: "KC CC HD Cuff and Collar Cleaner",
+    category: "Chemicals",
+    price: 1199,
+    originalPrice: 1399,
+    rating: 4.7,
+    reviews: 32,
+    image: "/kc-cc-hd-new.png",
+    description: "Cuff and Collar Cleaner.",
+    badge: null
+  },
+  {
+    id: 74,
+    name: "KC OXY Brightener cum Stain buster (Twin Pack)",
+    category: "Chemicals",
+    price: 4899,
+    originalPrice: 5599,
+    rating: 5.0,
+    reviews: 18,
+    image: "/kc-oxy-twin.png",
+    description: "Twin pack of brightener and stain buster.",
+    badge: "Best Value"
   }
 ];
 
-export const categories = ["All", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts"];
+export const categories = ["All", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals"];

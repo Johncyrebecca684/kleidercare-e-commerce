@@ -52,7 +52,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #001a4d;
+  color: #1a4a8d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +101,7 @@
 }
 
 .tab:hover {
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 .tab.active {
@@ -126,7 +126,7 @@
 .welcome-title {
   font-size: 28px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0 0 8px;
   letter-spacing: 0.3px;
 }
@@ -140,7 +140,7 @@
 
 /* Profile Card */
 .profile-card {
-  background: linear-gradient(135deg, #001a4d 0%, #003366 100%);
+  background: #f4f7fb;
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 20px;
@@ -358,7 +358,7 @@
 
 .cancel-delete {
   background: #f0f4f8;
-  color: #001a4d;
+  color: #1a4a8d;
   border: 1px solid #e0e6f0;
 }
 
@@ -390,7 +390,7 @@
 .empty-orders h3 {
   font-size: 18px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0;
   letter-spacing: 0.3px;
 }
@@ -434,7 +434,7 @@
 
 .order-history-id {
   font-weight: 800;
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 .order-history-date {
@@ -481,7 +481,7 @@
 
 .order-history-total {
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 /* Scrollbar */

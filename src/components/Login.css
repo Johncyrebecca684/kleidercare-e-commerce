@@ -50,7 +50,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #001a4d;
+  color: #1a4a8d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +71,7 @@
 .auth-title {
   font-size: 24px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0 0 6px;
   letter-spacing: 0.3px;
 }
@@ -99,7 +99,7 @@
 .form-group label {
   font-size: 12px;
   font-weight: 700;
-  color: #001a4d;
+  color: #1a4a8d;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -152,7 +152,7 @@
 }
 
 .toggle-password:hover {
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 .error-message {
@@ -167,7 +167,7 @@
 
 .auth-btn {
   padding: 12px 14px;
-  background: linear-gradient(135deg, #001a4d 0%, #003d7a 100%);
+  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
   color: white;
   border: none;
   border-radius: 10px;

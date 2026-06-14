@@ -1,6 +1,6 @@
 .ticketingPageContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #001a4d 0%, #003366 100%);
+  background: #f4f7fb;
   padding: 40px 24px;
   display: flex;
   flex-direction: column;
@@ -90,13 +90,13 @@
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(90deg, #00a8e8, #003366);
+  background: linear-gradient(90deg, #00a8e8, #1a4a8d);
 }
 
 .searchTitle {
   font-size: 28px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin-bottom: 12px;
   letter-spacing: -0.5px;
 }
@@ -152,7 +152,7 @@
 
 .ticketSearchBtn {
   padding: 18px 40px;
-  background: linear-gradient(135deg, #003366 0%, #001a4d 100%);
+  background: #f4f7fb;
   color: white;
   border: none;
   border-radius: 16px;
@@ -180,7 +180,7 @@
 }
 
 .sampleTickets strong {
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 .noResults {
@@ -190,7 +190,7 @@
   border-radius: 20px;
   margin-top: 32px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  color: #001a4d;
+  color: #1a4a8d;
 }
 
 .customerCard {
@@ -210,7 +210,7 @@
   left: 0;
   width: 6px;
   height: 100%;
-  background: linear-gradient(180deg, #00a8e8, #003366);
+  background: linear-gradient(180deg, #00a8e8, #1a4a8d);
 }
 
 .cardHeader {
@@ -225,7 +225,7 @@
 .cardHeader h2 {
   font-size: 24px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0;
 }
 
@@ -237,7 +237,7 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  color: #001a4d;
+  color: #1a4a8d;
   font-weight: 800;
   font-size: 14px;
   cursor: pointer;
@@ -245,9 +245,9 @@
 }
 
 .downloadBtn:hover {
-  background: #001a4d;
+  background: #1a4a8d;
   color: white;
-  border-color: #001a4d;
+  border-color: #1a4a8d;
 }
 
 .customerDetails {
@@ -322,7 +322,7 @@
 .statNumber {
   font-size: 36px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin-bottom: 8px;
 }
 
@@ -368,7 +368,7 @@
 .orderTitle {
   font-size: 20px;
   font-weight: 800;
-  color: #001a4d;
+  color: #1a4a8d;
   margin: 0 0 8px;
 }
 

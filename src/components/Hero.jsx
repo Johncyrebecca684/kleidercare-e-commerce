@@ -1,67 +1,86 @@
-import { ArrowRight, ShieldCheck, Sparkles, Truck } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import './Hero.css';
 
+const slides = [
+  {
+    id: 1,
+    kicker: 'Best Deal',
+    title: '15KG LG TITAN WASHER',
+    subtitle: 'UP TO 15% OFF',
+    image: '/titanwasher.png'
+  },
+  {
+    id: 2,
+    kicker: 'New Arrival',
+    title: 'SPEED QUEEN QUANTUM TOUCH WASHER EXTRACTOR 18KG',
+    subtitle: 'PREMIUM WASHING SOLUTION',
+    image: '/queen-washer-transparent.png'
+  },
+  {
+    id: 3,
+    kicker: 'Top Quality',
+    title: 'PONY FINISHING EQUIPMENTS',
+    subtitle: 'EXPLORE NOW',
+    image: '/PONY FVC Utility Ironing Tables.png'
+  },
+  {
+    id: 4,
+    kicker: 'Essential',
+    title: 'KC PRO CP COLOR INHIBITOR',
+    subtitle: 'SHOP CHEMICALS',
+    image: '/chemicals-group-transparent.png'
+  }
+];
+
 export default function Hero() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+
+  const slide = slides[currentSlide];
+
   return (
     <section id="home" className="hero animate-fade-in">
       <div className="heroInner">
-        <div className="heroBanner">
-          <div className="heroCopy">
-            <div className="heroKicker">Complete Laundry Solutions</div>
-            <h1 className="heroTitle">Clean clothes. Fresh feels. Smarter prices.</h1>
-            <p className="heroSubtitle">
-              Shop LG machines, Speed Queen washers, PONY equipments, and genuine spare parts — everything you need for spotless results.
-            </p>
-
-            <div className="heroCtas">
-              <a className="ctaPrimary" href="#products">
-                Shop all products
-                <ArrowRight size={18} />
-              </a>
-              <a className="ctaSecondary" href="#products">View best sellers</a>
-            </div>
-
-            <div className="heroMeta">
-              <div className="metaItem">
-                <Truck size={18} />
-                Free delivery above ₹500
-              </div>
-              <div className="metaItem">
-                <ShieldCheck size={18} />
-                7-day returns
-              </div>
-              <div className="metaItem">
-                <Sparkles size={18} />
-                Premium quality products
+        <div className="carouselBanner">
+          <button className="carouselNavBtn prevBtn" aria-label="Previous slide" onClick={prevSlide}>
+            <ChevronLeft size={24} className="navIcon" />
+          </button>
+          
+          <div className="carouselContent">
+            <div className="carouselText animate-slide-up" key={`text-${slide.id}`}>
+              <div className="carouselKicker">{slide.kicker}</div>
+              <h1 className="carouselTitle">{slide.title}</h1>
+              <p className="carouselSubtitle">{slide.subtitle}</p>
+              
+              <div className="carouselIndicators">
+                {slides.map((_, index) => (
+                  <span 
+                    key={index} 
+                    className={`dot ${index === currentSlide ? 'active' : ''}`}
+                    onClick={() => setCurrentSlide(index)}
+                    style={{ cursor: 'pointer' }}
+                  ></span>
+                ))}
               </div>
             </div>
+            <div className="carouselImage animate-fade-in" key={`img-${slide.id}`}>
+              <img src={slide.image} alt={slide.title} />
+            </div>
           </div>
-
-          <div className="heroVisual" aria-hidden="true">
-            <img
-              src="/washing-machine.png.png"
-              alt=""
-              loading="eager"
-            />
-          </div>
-        </div>
-
-        <div className="promoRow">
-          <a className="promoCard" href="#products">
-            <div className="promoTop">Laundry Machines</div>
-            <div className="promoTitle">LG & Speed Queen Commercial Washers</div>
-            <div className="promoFoot">Shop all →</div>
-          </a>
-          <a className="promoCard" href="#products">
-            <div className="promoTop">Finishing Equipments</div>
-            <div className="promoTitle">PONY ironing & finishing solutions</div>
-            <div className="promoFoot">Explore equipments →</div>
-          </a>
-          <a className="promoCard" href="#products">
-            <div className="promoTop">Genuine Parts</div>
-            <div className="promoTitle">Authentic spare parts for all machines</div>
-            <div className="promoFoot">Browse parts →</div>
-          </a>
+          
+          <button className="carouselNavBtn nextBtn" aria-label="Next slide" onClick={nextSlide}>
+            <ChevronRight size={24} className="navIcon" />
+          </button>
         </div>
       </div>
     </section>

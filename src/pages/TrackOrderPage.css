@@ -1,6 +1,6 @@
 .trackOrderPageContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #001a4d 0%, #003366 100%);
+  background: #f4f7fb;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -68,7 +68,7 @@
 .formTitle {
   font-size: 28px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin-bottom: 6px;
   letter-spacing: -0.5px;
 }
@@ -116,7 +116,7 @@
 
 .trackSearchBtn {
   padding: 16px 40px;
-  background: #001a4d;
+  background: #1a4a8d;
   color: white;
   border: none;
   border-radius: 12px;
@@ -129,7 +129,7 @@
 }
 
 .trackSearchBtn:hover {
-  background: #002d7a;
+  background: #1a4a8d;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 26, 77, 0.2);
 }
@@ -165,7 +165,7 @@
 .noResults h2 {
   font-size: 24px;
   font-weight: 900;
-  color: #001a4d;
+  color: #1a4a8d;
   margin-bottom: 8px;
 }
 
