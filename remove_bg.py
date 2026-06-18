@@ -1,6 +1,7 @@
+# pyrefly: ignore [missing-import]
+# pyrefly: ignore [missing-import]
 from PIL import Image, ImageDraw
 import sys
-
 def remove_background(input_path, output_path):
     img = Image.open(input_path).convert("RGBA")
     

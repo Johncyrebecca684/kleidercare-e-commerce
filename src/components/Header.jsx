@@ -8,7 +8,8 @@ import {
   X,
   Package,
   Headset,
-  LayoutDashboard
+  LayoutDashboard,
+  Heart
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +24,7 @@ const categories = [
   { label: 'Chemicals', href: '#products' },
 ];
 
-export default function Header({ cartCount, onSearchChange, onSignupClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
+export default function Header({ cartCount, wishlistCount, onSearchChange, onSignupClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -31,6 +32,11 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
     if (!cartCount) return null;
     return cartCount > 99 ? '99+' : String(cartCount);
   }, [cartCount]);
+
+  const wishlistBadge = useMemo(() => {
+    if (!wishlistCount) return null;
+    return wishlistCount > 99 ? '99+' : String(wishlistCount);
+  }, [wishlistCount]);
 
   return (
     <header className="siteHeader animate-fade-in">
@@ -40,7 +46,7 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
           <div className="topBannerRight">
             <span>Deliver to 423651</span>
             <span className="divider">|</span>
-            <button type="button" className="topBannerLink" onClick={() => navigate('/track-order')}>Track your order</button>
+            <button type="button" className="topBannerLink" onClick={() => navigate('/track-order')} aria-label="Track your order">Track your order</button>
           </div>
         </div>
       </div>
@@ -92,7 +98,7 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
 
         <div className="headerRight">
           {loggedInUser ? (
-            <button className="userProfileBtn" type="button" onClick={onProfileClick}>
+            <button className="userProfileBtn" type="button" onClick={onProfileClick} aria-label={`Profile for ${loggedInUser.firstName}`}>
               <span className="userInitials">
                 {loggedInUser.firstName.charAt(0)}{loggedInUser.lastName.charAt(0)}
               </span>
@@ -100,24 +106,32 @@ export default function Header({ cartCount, onSearchChange, onSignupClick, logge
             </button>
           ) : (
             <>
-              <button className="authBtn signupBtn" type="button" onClick={onSignupClick}>
+              <button className="authBtn signupBtn" type="button" onClick={onSignupClick} aria-label="Sign up">
                 Sign Up
               </button>
             </>
           )}
           {loggedInUser?.role === 'admin' ? (
-            <button className="trackOrderBtn adminBtn" type="button" onClick={() => navigate('/admin')} title="Admin Dashboard">
+            <button className="trackOrderBtn adminBtn" type="button" onClick={() => navigate('/admin')} title="Admin Dashboard" aria-label="Admin Dashboard">
               <LayoutDashboard size={22} />
               <span className="trackLabel">Dashboard</span>
             </button>
           ) : (
             <>
-              <button className="trackOrderBtn" type="button" onClick={() => navigate('/support')} title="Support">
+              <button className="trackOrderBtn" type="button" onClick={() => navigate('/support')} title="Support" aria-label="Support">
                 <Headset size={22} />
                 <span className="trackLabel">Support</span>
               </button>
 
-              <button className="cartMini" type="button" onClick={() => navigate('/cart')}>
+              <button className="cartMini" type="button" onClick={() => navigate('/wishlist')} title="Wishlist" aria-label="Wishlist">
+                <span className="cartIconWrap">
+                  <Heart size={22} />
+                  {wishlistBadge ? <span className="cartCount">{wishlistBadge}</span> : null}
+                </span>
+                <span className="cartLabel">Wishlist</span>
+              </button>
+
+              <button className="cartMini" type="button" onClick={() => navigate('/cart')} aria-label={`Shopping Cart, ${cartCount || 0} items`}>
                 <span className="cartIconWrap">
                   <ShoppingCart size={22} />
                   {cartBadge ? <span className="cartCount">{cartBadge}</span> : null}

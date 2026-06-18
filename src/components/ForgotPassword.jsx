@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X, ArrowLeft } from 'lucide-react';
 import './ForgotPassword.css';
 
-export default function ForgotPassword({ isOpen, onClose, onSwitchToLogin, registeredUsers = [] }) {
+export default function ForgotPassword({ isOpen, onClose, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -21,13 +21,6 @@ export default function ForgotPassword({ isOpen, onClose, onSwitchToLogin, regis
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email');
-      return;
-    }
-
-    // Check if user is registered
-    const userExists = registeredUsers.some(user => user.email === email);
-    if (!userExists) {
-      setError('This email is not registered in our system');
       return;
     }
 

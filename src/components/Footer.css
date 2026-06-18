@@ -1,7 +1,21 @@
 .footer {
-  background: linear-gradient(135deg, #1a4a8d 0%, #00264d 100%);
+  background: #154c8f;
   color: #ffffff;
   padding-top: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer::after {
+  content: '';
+  position: absolute;
+  top: -150px;
+  right: -50px;
+  width: 500px;
+  height: 500px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .footer-content {
@@ -178,12 +192,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 13px;
-  color: #b0b0b0;
+  font-size: 14px;
+  color: white;
 }
 
 .contact-item svg {
-  color: #667eea;
+  color: white;
   flex-shrink: 0;
 }
 
@@ -234,21 +248,38 @@
 }
 
 .footer-bottom {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 20px;
+  padding: 20px 40px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-  text-align: center;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .footer-bottom p {
   font-size: 13px;
   margin: 0;
   color: #b0b0b0;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-bottom-links a {
+  color: #b0b0b0;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.3s ease;
+}
+
+.footer-bottom-links a:hover {
+  color: white;
+  text-decoration: underline;
 }
 
 .payment-methods {

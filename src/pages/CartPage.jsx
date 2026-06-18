@@ -14,10 +14,10 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem }) {
     <div className="cart-page-wrapper animate-fade-in">
       <div className="cart-page-container">
         <div className="cart-page-header">
-          <Link to="/" className="back-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none', marginBottom: '15px', fontWeight: '500' }}>
+          <Link to="/" className="back-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#1a4a8d', textDecoration: 'none', marginBottom: '15px', fontWeight: '600' }}>
             <ArrowLeft size={18} /> Continue Shopping
           </Link>
-          <h1 style={{ color: 'white' }}>Your Shopping Cart</h1>
+          <h1>Your Shopping Cart</h1>
         </div>
 
       {items.length === 0 ? (

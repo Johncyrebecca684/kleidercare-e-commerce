@@ -9,6 +9,8 @@ export default function ProductList({
   selectedCategory,
   onCategoryChange,
   searchTerm,
+  wishlistItems,
+  onToggleWishlist,
 }) {
   const [sortBy, setSortBy] = useState('popular');
 
@@ -94,6 +96,8 @@ export default function ProductList({
                     key={product.id}
                     product={product}
                     onAddToCart={onAddToCart}
+                    wishlistItems={wishlistItems}
+                    onToggleWishlist={onToggleWishlist}
                   />
                 ))}
               </div>
@@ -109,6 +113,8 @@ export default function ProductList({
                         key={product.id}
                         product={product}
                         onAddToCart={onAddToCart}
+                        wishlistItems={wishlistItems}
+                        onToggleWishlist={onToggleWishlist}
                       />
                     ))}
                   </div>
@@ -122,6 +128,8 @@ export default function ProductList({
                   key={product.id}
                   product={product}
                   onAddToCart={onAddToCart}
+                  wishlistItems={wishlistItems}
+                  onToggleWishlist={onToggleWishlist}
                 />
               ))}
             </div>

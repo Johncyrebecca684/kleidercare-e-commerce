@@ -96,44 +96,6 @@ export const products = [
       "Warranty": "1 Year"
     }
   },
-  {
-    id: 17,
-    name: "15kg LG Titan Electric Dryer",
-    category: "LG Commercial Laundry Machines",
-    price: 2199,
-    originalPrice: 2499,
-    rating: 4.9,
-    reviews: 112,
-    image: "/titanelectricdryer.png",
-    description: "Built for high performance, the LG Titan Electric Dryer offers fast drying with exceptional energy efficiency for your laundry needs.",
-    badge: null,
-    specifications: {
-      "Capacity": "15 Kg",
-      "Loading Type": "Front Loading",
-      "Automation Grade": "Automatic",
-      "Drum Volume": "300 L",
-      "Voltage": "220 V"
-    }
-  },
-  {
-    id: 18,
-    name: "15kg LG Titan Gas Dryer",
-    category: "LG Commercial Laundry Machines",
-    price: 2249,
-    originalPrice: 2599,
-    rating: 4.9,
-    reviews: 134,
-    image: "/titangasdryer.png",
-    description: "The LG Titan Gas Dryer provides energy-efficient drying with excellent performance for large laundry loads. Perfect for residential or commercial use.",
-    badge: "Top Rated",
-    specifications: {
-      "Capacity": "15 Kg",
-      "Function Type": "Dryer",
-      "Brand": "LG",
-      "Loading Type": "Front Loading",
-      "Model Name/Number": "RN1840CD7.ASSQEEU"
-    }
-  },
   // ROW 2: SPEED QUEEN MACHINES (4 products)
   {
     id: 5,

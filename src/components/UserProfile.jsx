@@ -163,7 +163,14 @@ export default function UserProfile({ isOpen, onClose, userData, onLogout, order
                       </div>
                       <div className="order-history-footer">
                         <span className={`order-status ${order.status.toLowerCase()}`}>{order.status}</span>
-                        <span className="order-history-total">Total: ₹{order.total}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          {order.paymentMethod && (
+                            <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>
+                              Paid via {order.paymentMethod}
+                            </span>
+                          )}
+                          <span className="order-history-total">Total: ₹{order.total}</span>
+                        </div>
                       </div>
                     </div>
                   ))}

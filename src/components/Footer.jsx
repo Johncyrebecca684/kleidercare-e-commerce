@@ -10,8 +10,7 @@ export default function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <div className="footer-logo">
-            <span className="logo-icon"> </span>
-            <span>Kleider Care</span>
+            <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" style={{height: '35px'}} />
           </div>
           <p className="footer-description">
             Your trusted partner for complete laundry solutions — from machines to chemicals. Since 2020.
@@ -42,25 +41,19 @@ export default function Footer() {
         </div>
 
         <div className="footer-section">
-          <h4>Quick Links</h4>
+          <h4>Quick links</h4>
           <ul className="footer-links">
             <li><a href="/">Home</a></li>
+            <li><a href="/cart">Cart</a></li>
             <li><a href="/#products">Products</a></li>
-            <li><a href="https://www.kleidercare.com/about-us" target="_blank" rel="noopener noreferrer">About Us</a></li>
-            <li><a href="https://www.kleidercare.com/blog" target="_blank" rel="noopener noreferrer">Blog</a></li>
-            <li><a href="https://www.kleidercare.com/faq" target="_blank" rel="noopener noreferrer">FAQ</a></li>
           </ul>
         </div>
 
         <div className="footer-section">
-          <h4>Customer Service</h4>
+          <h4>Support</h4>
           <ul className="footer-links">
             <li><a href="https://www.kleidercare.com/contact-us" target="_blank" rel="noopener noreferrer">Contact Us</a></li>
-            <li><a href="https://www.kleidercare.com/shipping-policy" target="_blank" rel="noopener noreferrer">Shipping Info</a></li>
-            <li><a href="https://www.kleidercare.com/return-policy" target="_blank" rel="noopener noreferrer">Returns</a></li>
             <li><button onClick={() => navigate('/track-order')} className="trackOrderLink">Track Order</button></li>
-            <li><a href="https://www.kleidercare.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
-            <li><a href="https://www.kleidercare.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms & Conditions</a></li>
           </ul>
         </div>
 
@@ -77,7 +70,7 @@ export default function Footer() {
             </div>
             <div className="contact-item">
               <MapPin size={18} />
-              <a href="https://maps.google.com/?q=Mumbai,+India+400001" target="_blank" rel="noopener noreferrer">Mumbai, India 400001</a>
+              <span>Mumbai, India 400001</span>
             </div>
           </div>
         </div>
@@ -86,8 +79,11 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; 2024 Kleider Care. All rights reserved.</p>
-
+        <p>&copy; 2026 All rights reserved. Kleider Care.</p>
+        <div className="footer-bottom-links">
+          <a href="https://www.kleidercare.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+          <a href="https://www.kleidercare.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+        </div>
       </div>
     </footer>
   );

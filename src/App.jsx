@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -10,11 +10,14 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import TicketingPage from './pages/TicketingPage';
 import AdminDashboard from './pages/AdminDashboard';
+import WishlistPage from './pages/WishlistPage';
 import { products } from './data/products';
+import { getCurrentUser, logout as authLogout } from './services/authService';
 import './App.css';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -24,25 +27,8 @@ function App() {
   
   // App Data States
   const [appProducts, setAppProducts] = useState(products);
-  const [registeredUsers, setRegisteredUsers] = useState([
-    {
-      firstName: 'Admin',
-      lastName: 'User',
-      email: 'admin@kami.com',
-      password: 'password123',
-      role: 'admin',
-      registeredAt: new Date().toISOString()
-    },
-    {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      password: 'password123',
-      role: 'customer',
-      registeredAt: new Date().toISOString()
-    }
-  ]);
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [userOrders, setUserOrders] = useState([
     {
       id: 'ORD-12345',
@@ -69,6 +55,69 @@ function App() {
       setup: 'Pending Installation'
     }
   ]);
+
+  // Restore session from JWT token on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setLoggedInUser(user);
+        }
+      } catch {
+        // Token invalid or expired, stay logged out
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+    restoreSession();
+  }, []);
+
+  // Fetch orders from database whenever the loggedInUser state changes
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!loggedInUser) {
+        setUserOrders([]);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('kc_auth_token');
+        const endpoint = loggedInUser.role === 'admin' ? '/api/orders/admin-all' : '/api/orders/my-orders';
+        
+        const response = await fetch(endpoint, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Format orders fetched from MongoDB to match frontend layout structure
+          const formattedOrders = data.map(order => ({
+            id: order._id,
+            orderId: order._id,
+            paymentId: order.razorpayPaymentId,
+            date: new Date(order.createdAt).toLocaleDateString(),
+            items: order.items,
+            total: order.totalAmount,
+            status: order.status,
+            userEmail: order.userEmail,
+            customerName: order.customerName,
+            paymentStatus: order.paymentStatus,
+            paymentMethod: order.paymentMethod,
+            warranty: 'Active (1 Year)',
+            setup: 'Pending Installation'
+          }));
+          setUserOrders(formattedOrders);
+        }
+      } catch (error) {
+        console.error('Error fetching database orders:', error);
+      }
+    };
+
+    fetchOrders();
+  }, [loggedInUser]);
 
   const handleAddToCart = (product) => {
     setCartItems(prevItems => {
@@ -110,6 +159,20 @@ function App() {
     setCartItems([]);
   };
 
+  const handleToggleWishlist = (product) => {
+    setWishlistItems(prevItems => {
+      const exists = prevItems.some(item => item.id === product.id);
+      if (exists) {
+        return prevItems.filter(item => item.id !== product.id);
+      }
+      return [...prevItems, product];
+    });
+  };
+
+  const handleRemoveFromWishlist = (productId) => {
+    setWishlistItems(prevItems => prevItems.filter(item => item.id !== productId));
+  };
+
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLoginSuccess = (user) => {
@@ -118,12 +181,12 @@ function App() {
   };
 
   const handleSignupSuccess = (user) => {
-    setRegisteredUsers([...registeredUsers, user]);
     setLoggedInUser(user);
     setIsSignupOpen(false);
   };
 
   const handleLogout = () => {
+    authLogout();
     setLoggedInUser(null);
   };
 
@@ -132,7 +195,7 @@ function App() {
       // Enhance order with admin details if missing
       const enhancedOrder = {
         ...order,
-        customerName: `${loggedInUser.firstName} ${loggedInUser.lastName}`,
+        customerName: `${loggedInUser.firstName} ${loggedInUser.lastName || ''}`.trim(),
         userEmail: loggedInUser.email,
         paymentStatus: 'Paid',
         warranty: 'Active (1 Year)',
@@ -172,12 +235,13 @@ function App() {
                 isProfileOpen={isProfileOpen}
                 onProfileOpen={() => setIsProfileOpen(true)}
                 onProfileClose={() => setIsProfileOpen(false)}
-                registeredUsers={registeredUsers}
                 loggedInUser={loggedInUser}
                 onLoginSuccess={handleLoginSuccess}
                 onSignupSuccess={handleSignupSuccess}
                 onLogout={handleLogout}
                 products={appProducts}
+                wishlistItems={wishlistItems}
+                onToggleWishlist={handleToggleWishlist}
               />
             }
           />
@@ -189,7 +253,7 @@ function App() {
               <AdminDashboard 
                 products={appProducts} 
                 setProducts={setAppProducts} 
-                users={registeredUsers} 
+                users={[]} 
                 orders={userOrders} 
                 loggedInUser={loggedInUser}
               />
@@ -217,6 +281,16 @@ function App() {
               />
             } 
           />
+          <Route 
+            path="/wishlist" 
+            element={
+              <WishlistPage 
+                wishlistItems={wishlistItems}
+                onRemoveFromWishlist={handleRemoveFromWishlist}
+                onAddToCart={handleAddToCart}
+              />
+            } 
+          />
         </Routes>
 
 
@@ -225,7 +299,6 @@ function App() {
           onClose={() => setIsLoginOpen(false)}
           onSwitchToSignup={() => setIsSignupOpen(true)}
           onSwitchToForgotPassword={() => setIsForgotPasswordOpen(true)}
-          registeredUsers={registeredUsers}
           onLoginSuccess={handleLoginSuccess}
         />
 
@@ -233,7 +306,6 @@ function App() {
           isOpen={isSignupOpen}
           onClose={() => setIsSignupOpen(false)}
           onSwitchToLogin={() => setIsLoginOpen(true)}
-          onRegisterUser={(user) => setRegisteredUsers([...registeredUsers, user])}
           onSignupSuccess={handleSignupSuccess}
         />
 
@@ -241,7 +313,6 @@ function App() {
           isOpen={isForgotPasswordOpen}
           onClose={() => setIsForgotPasswordOpen(false)}
           onSwitchToLogin={() => setIsLoginOpen(true)}
-          registeredUsers={registeredUsers}
         />
 
         <UserProfile 

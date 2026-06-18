@@ -51,7 +51,7 @@ export default function Hero() {
   return (
     <section id="home" className="hero animate-fade-in">
       <div className="heroInner">
-        <div className="carouselBanner">
+        <div className="carouselBanner" aria-roledescription="carousel" aria-label="Highlighted Products">
           <button className="carouselNavBtn prevBtn" aria-label="Previous slide" onClick={prevSlide}>
             <ChevronLeft size={24} className="navIcon" />
           </button>
@@ -62,13 +62,16 @@ export default function Hero() {
               <h1 className="carouselTitle">{slide.title}</h1>
               <p className="carouselSubtitle">{slide.subtitle}</p>
               
-              <div className="carouselIndicators">
+              <div className="carouselIndicators" role="tablist">
                 {slides.map((_, index) => (
                   <span 
                     key={index} 
                     className={`dot ${index === currentSlide ? 'active' : ''}`}
                     onClick={() => setCurrentSlide(index)}
                     style={{ cursor: 'pointer' }}
+                    role="tab"
+                    aria-selected={index === currentSlide}
+                    aria-label={`Slide ${index + 1}`}
                   ></span>
                 ))}
               </div>

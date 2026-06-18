@@ -7,7 +7,7 @@
 }
 
 .trackOrderPageHeader {
-  color: white;
+  color: #1a4a8d;
   padding: 20px 16px;
   display: flex;
   align-items: center;
@@ -20,7 +20,7 @@
 .backBtn {
   background: none;
   border: none;
-  color: white;
+  color: #1a4a8d;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -31,10 +31,12 @@
   border-radius: 8px;
   transition: all 0.3s ease;
   white-space: nowrap;
+  color: #1a4a8d !important;
+  text-shadow: none !important;
 }
 
 .backBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 74, 141, 0.1);
   transform: translateX(-2px);
 }
 
@@ -43,6 +45,8 @@
   font-weight: 900;
   margin: 0;
   letter-spacing: -0.5px;
+  color: #1a4a8d !important;
+  text-shadow: none !important;
 }
 
 .trackOrderPageContent {

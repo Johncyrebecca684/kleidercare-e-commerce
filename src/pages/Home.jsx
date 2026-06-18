@@ -25,12 +25,13 @@ export default function Home({
   isProfileOpen,
   onProfileOpen,
   onProfileClose,
-  registeredUsers,
   loggedInUser,
   onLoginSuccess,
   onSignupSuccess,
   onLogout,
-  products
+  products,
+  wishlistItems,
+  onToggleWishlist
 }) {
   return (
     <>
@@ -42,15 +43,20 @@ export default function Home({
         onSearchChange={onSearchChange}
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
+        wishlistCount={wishlistItems.length}
       />
-      <Hero />
-      <ProductList 
-        products={products}
-        onAddToCart={onAddToCart}
-        selectedCategory={selectedCategory}
-        onCategoryChange={onCategoryChange}
-        searchTerm={searchTerm}
-      />
+      <main role="main">
+        <Hero />
+        <ProductList 
+          products={products}
+          onAddToCart={onAddToCart}
+          selectedCategory={selectedCategory}
+          onCategoryChange={onCategoryChange}
+          searchTerm={searchTerm}
+          wishlistItems={wishlistItems}
+          onToggleWishlist={onToggleWishlist}
+        />
+      </main>
       <Footer />
     </>
   );

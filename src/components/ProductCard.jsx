@@ -2,12 +2,9 @@ import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react';
 import './ProductCard.css';
 
-export default function ProductCard({ product, onAddToCart }) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist }) {
   const [showAddedNotice, setShowAddedNotice] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const discount = Math.round((1 - product.price / product.originalPrice) * 100);
 
   const handleAddToCart = () => {
     onAddToCart(product);
@@ -15,8 +12,34 @@ export default function ProductCard({ product, onAddToCart }) {
     setTimeout(() => setShowAddedNotice(false), 2000);
   };
 
+  const isWishlisted = wishlistItems.some(item => item.id === product.id);
+
   return (
-    <div className="product-card">
+    <article className="product-card">
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          "name": product.name,
+          "image": `https://kleidercare.example.com${product.image}`,
+          "description": product.description,
+          "brand": {
+            "@type": "Brand",
+            "name": product.category
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": product.rating,
+            "reviewCount": product.reviews
+          },
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": "INR",
+            "price": product.price,
+            "availability": "https://schema.org/InStock"
+          }
+        })}
+      </script>
       <div className="product-image-container">
         <img
           src={product.image}
@@ -32,11 +55,10 @@ export default function ProductCard({ product, onAddToCart }) {
           </div>
         )}
 
-        <div className="discount-badge">{discount}% OFF</div>
-
         <button
           className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={() => onToggleWishlist(product)}
+          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
         >
           <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
         </button>
@@ -45,6 +67,7 @@ export default function ProductCard({ product, onAddToCart }) {
           <button
             className="quick-add-btn"
             onClick={handleAddToCart}
+            aria-label={`Quick add ${product.name} to cart`}
           >
             <ShoppingCart size={18} />
             Quick Add
@@ -76,6 +99,8 @@ export default function ProductCard({ product, onAddToCart }) {
             <button
               className="toggle-specs-btn"
               onClick={() => setIsExpanded(!isExpanded)}
+              aria-expanded={isExpanded}
+              aria-label="Toggle specifications"
             >
               {isExpanded ? 'Hide Specifications' : 'View Specifications'}
               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -102,6 +127,7 @@ export default function ProductCard({ product, onAddToCart }) {
         <button
           className="add-to-cart-btn"
           onClick={handleAddToCart}
+          aria-label={`Add ${product.name} to cart`}
         >
           <ShoppingCart size={18} />
           Add to Cart
@@ -111,6 +137,6 @@ export default function ProductCard({ product, onAddToCart }) {
           <div className="added-notice">✓ Added to cart!</div>
         )}
       </div>
-    </div>
+    </article>
   );
 }
