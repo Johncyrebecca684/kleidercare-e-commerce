@@ -2,9 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #1a4a8d;
-  box-shadow: 0 4px 15px rgba(26, 74, 141, 0.1), 0 8px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(26, 74, 141, 0.05), 0 8px 30px rgba(0, 0, 0, 0.02);
   border-bottom: 1px solid rgba(26, 74, 141, 0.1);
 }
 
@@ -230,20 +232,22 @@
   gap: 8px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: rgba(160, 61, 181, 0.15);
+  background: var(--btn-grad-primary);
   color: white;
-  border: 1.5px solid rgba(160, 61, 181, 0.3);
+  border: none;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   font-weight: 700;
   font-size: 12px;
   letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
 }
 
 .userProfileBtn:hover {
-  background: rgba(160, 61, 181, 0.25);
-  border-color: rgba(160, 61, 181, 0.5);
+  background: var(--btn-grad-primary-hover);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
 }
 
 .userInitials {
@@ -283,27 +287,29 @@
 }
 
 .loginBtn {
-  background: rgba(26, 74, 141, 0.05);
+  background: transparent;
   color: #1a4a8d;
-  border: 1.5px solid rgba(26, 74, 141, 0.3);
+  border: 1.5px solid rgba(26, 74, 141, 0.4);
 }
 
 .loginBtn:hover {
-  background: rgba(26, 74, 141, 0.1);
-  border-color: #1a4a8d;
+  background: var(--btn-grad-primary);
+  border-color: transparent;
+  color: #ffffff;
   transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 15px rgba(0, 168, 232, 0.2);
 }
 
 .signupBtn {
-  background: #1a4a8d;
+  background: var(--btn-grad-primary);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(26, 74, 141, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.2);
 }
 
 .signupBtn:hover {
-  box-shadow: 0 10px 25px rgba(26, 74, 141, 0.5), 0 0 15px rgba(26, 74, 141, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.35);
   transform: translateY(-3px) scale(1.02);
-  filter: brightness(1.1);
+  background: var(--btn-grad-primary-hover);
 }
 
 .headerLink {

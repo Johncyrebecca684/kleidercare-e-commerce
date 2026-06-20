@@ -1,20 +1,23 @@
 .adminContainer {
   display: flex;
   min-height: 100vh;
-  background: #f1f5f9;
-  font-family: 'Inter', sans-serif;
+  background: transparent;
+  font-family: inherit;
   color: #0f172a;
 }
 
 /* Sidebar */
 .adminSidebar {
   width: 280px;
-  background: linear-gradient(180deg, #1a4a8d 0%, #1a4a8d 100%);
+  background: rgba(26, 74, 141, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   display: flex;
   flex-direction: column;
   padding: 30px 0;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
   z-index: 10;
 }
 
@@ -94,9 +97,11 @@
 }
 
 .adminHeader {
-  background: white;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 30px 40px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(26, 74, 141, 0.1);
 }
 
 .adminHeader h2 {
@@ -136,19 +141,24 @@
 }
 
 .metricCard {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 20px;
   padding: 24px;
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s ease;
 }
 
 .metricCard:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 168, 232, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: var(--glass-bg-hover);
+  border-color: rgba(0, 168, 232, 0.3);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .metricIcon {
@@ -190,10 +200,13 @@
 
 /* SVG Line Chart */
 .chartsSection {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--glass-shadow);
 }
 
 .chartHeader {
@@ -292,7 +305,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #1a4a8d;
+  background: var(--btn-grad-primary);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -300,18 +313,22 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
 }
 
 .addBtn:hover {
-  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
+  background: var(--btn-grad-primary-hover);
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 25px rgba(0, 26, 77, 0.3), 0 0 15px rgba(0, 168, 232, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
 }
 
 .tableContainer {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--glass-shadow);
   overflow: hidden;
 }
 
@@ -321,7 +338,7 @@
 }
 
 .adminTable th {
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.15);
   padding: 16px 24px;
   text-align: left;
   font-size: 13px;
@@ -333,7 +350,7 @@
 
 .adminTable td {
   padding: 20px 24px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid rgba(26, 74, 141, 0.1);
   vertical-align: middle;
 }
 
@@ -406,12 +423,15 @@
 }
 
 .modalContent {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   width: 100%;
   max-width: 500px;
   border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .modalContent h3 {
@@ -474,13 +494,14 @@
 }
 
 .saveBtn {
-  background: #00a8e8;
+  background: var(--btn-grad-primary);
   color: white;
   border: none;
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
 }
 
 .saveBtn:hover {
-  background: linear-gradient(135deg, #0078a8 0%, #0096d6 100%);
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.4), 0 0 12px rgba(0, 168, 232, 0.2);
+  background: var(--btn-grad-primary-hover);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
   transform: translateY(-2px) scale(1.02);
 }

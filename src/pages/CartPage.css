@@ -1,6 +1,6 @@
 .cart-page-wrapper {
   min-height: 100vh;
-  background: #f4f7fb;
+  background: transparent;
   display: flex;
   flex-direction: column;
 }
@@ -32,17 +32,23 @@
 
 .cart-items-section {
   flex: 2;
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--glass-shadow);
   padding: 20px;
 }
 
 .cart-summary-section {
   flex: 1;
-  background: #f8fafc;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  box-shadow: var(--glass-shadow);
   padding: 24px;
   position: sticky;
   top: 100px;
@@ -55,9 +61,12 @@
   justify-content: center;
   padding: 80px 20px;
   text-align: center;
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--glass-shadow);
 }
 
 .empty-cart-page .empty-cart-icon {
@@ -79,7 +88,7 @@
 }
 
 .continue-shopping-btn-main {
-  background: #1a4a8d;
+  background: var(--btn-grad-primary);
   color: white;
   border: none;
   padding: 14px 30px;
@@ -92,12 +101,13 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
 }
 
 .continue-shopping-btn-main:hover {
-  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
+  background: var(--btn-grad-primary-hover);
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 25px rgba(0, 26, 77, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
 }
 
 /* Cart Items */
@@ -113,9 +123,9 @@
 }
 
 .cart-page-item:hover {
-  background: #f8fbff;
+  background: var(--glass-bg-hover);
   transform: scale(1.01) translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.1);
+  box-shadow: var(--glass-shadow);
   border-color: transparent;
 }
 
@@ -262,7 +272,7 @@
 }
 
 .checkout-btn-main {
-  background: #1a4a8d;
+  background: var(--btn-grad-primary);
   color: white;
   border: none;
   padding: 16px;
@@ -278,12 +288,13 @@
   transition: all 0.3s ease;
   width: 100%;
   margin-top: 24px;
+  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
 }
 
 .checkout-btn-main:hover {
-  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
+  background: var(--btn-grad-primary-hover);
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 28px rgba(0, 26, 77, 0.3), 0 0 15px rgba(0, 168, 232, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
 }
 
 .header-logo-container {

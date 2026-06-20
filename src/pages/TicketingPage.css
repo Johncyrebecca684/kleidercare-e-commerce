@@ -1,10 +1,10 @@
 .ticketingPageContainer {
   min-height: 100vh;
-  background: #f4f7fb;
+  background: transparent;
   padding: 40px 24px;
   display: flex;
   flex-direction: column;
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
 }
 
 .ticketingHeader {
@@ -64,19 +64,23 @@
 
 /* Glassmorphism Card Style */
 .glassCard {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .searchCard {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 24px;
   padding: 48px 32px;
   text-align: center;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--glass-shadow-hover);
   max-width: 800px;
   margin: 40px auto;
   position: relative;
@@ -152,7 +156,7 @@
 
 .ticketSearchBtn {
   padding: 18px 40px;
-  background: #f4f7fb;
+  background: var(--btn-grad-primary);
   color: white;
   border: none;
   border-radius: 16px;
@@ -161,13 +165,14 @@
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 15px rgba(0, 26, 77, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 168, 232, 0.2);
   flex-shrink: 0;
 }
 
 .ticketSearchBtn:hover {
+  background: var(--btn-grad-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 26, 77, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 168, 232, 0.3);
 }
 
 .sampleTickets {
@@ -186,19 +191,25 @@
 .noResults {
   text-align: center;
   padding: 60px 40px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 20px;
   margin-top: 32px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow-hover);
   color: #1a4a8d;
 }
 
 .customerCard {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 24px;
   padding: 32px 40px;
   margin-bottom: 32px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow-hover);
   position: relative;
   overflow: hidden;
 }
@@ -265,10 +276,10 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.25);
   padding: 16px;
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .detailItem svg {
@@ -306,11 +317,13 @@
 
 .statBox {
   flex: 1;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   padding: 24px;
   border-radius: 16px;
   text-align: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   transition: transform 0.3s ease;
 }
 
@@ -343,17 +356,22 @@
 }
 
 .orderCard {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: 20px;
   padding: 32px;
   margin-bottom: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--glass-shadow);
   transition: transform 0.3s ease;
 }
 
 .orderCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  background: var(--glass-bg-hover);
+  border-color: rgba(0, 168, 232, 0.3);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .orderHeader {
@@ -480,15 +498,16 @@
 }
 
 .actionBtn.primary {
-  background: linear-gradient(135deg, #00a8e8 0%, #0078a8 100%);
+  background: var(--btn-grad-primary);
   color: white;
   border: none;
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.2);
 }
 
 .actionBtn.primary:hover {
+  background: var(--btn-grad-primary-hover);
   transform: translateY(-4px);
-  box-shadow: 0 12px 25px rgba(0, 168, 232, 0.4);
+  box-shadow: 0 12px 25px rgba(0, 168, 232, 0.35);
 }
 
 .actionBtn.secondary {
