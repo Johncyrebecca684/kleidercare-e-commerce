@@ -170,7 +170,7 @@ router.post('/signup', async (req, res) => {
 
 // ─────────────────────────────────────────────
 // POST /api/auth/login
-// Verify credentials and send OTP for 2FA
+// Verify credentials and return JWT token
 // ─────────────────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
@@ -192,32 +192,14 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Incorrect password. Please try again.' });
     }
 
-    // Generate and store OTP for 2FA
-    const otpCode = generateOtp();
-
-    // Remove any existing OTPs for this email
-    await Otp.deleteMany({ email: email.toLowerCase() });
-
-    const otpDoc = new Otp({
-      email: email.toLowerCase(),
-      otp: otpCode,
-      purpose: 'login'
-    });
-    await otpDoc.save();
-
-    console.log(`📧 [DEV] Login OTP for ${email}: ${otpCode}`);
-
-    // Try sending real email
-    const emailSent = await sendOtpEmail(email.toLowerCase(), otpCode);
+    // Generate JWT
+    const token = generateToken(user._id);
 
     res.json({
       success: true,
-      message: emailSent 
-        ? 'Verification email sent! Please enter the OTP from your inbox.' 
-        : 'Credentials verified! Please enter the OTP to continue.',
-      email: email.toLowerCase(),
-      // Only return devOtp if email configuration is missing
-      ...((!process.env.SMTP_USER || !process.env.SMTP_PASS) && { devOtp: otpCode })
+      message: 'Login successful!',
+      token,
+      user: user.toJSON()
     });
 
   } catch (error) {

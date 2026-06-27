@@ -51,6 +51,11 @@ export async function login({ email, password }) {
     method: 'POST',
     body: JSON.stringify({ email, password })
   });
+
+  if (data.token) {
+    setToken(data.token);
+  }
+
   return data;
 }
 

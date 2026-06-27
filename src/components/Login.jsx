@@ -83,14 +83,12 @@ export default function Login({ isOpen, onClose, onSwitchToSignup, onSwitchToFor
     setLoading(true);
     try {
       const data = await apiLogin({ email, password });
-      if (data.success) {
-        setStep('otp');
-        setOtp(['', '', '', '', '', '']);
-        setResendCooldown(30);
-        // Focus first OTP input after animation
+      if (data.success && data.user) {
+        setStep('success');
         setTimeout(() => {
-          otpRefs.current[0]?.focus();
-        }, 400);
+          onLoginSuccess(data.user);
+          onClose();
+        }, 1200);
       }
     } catch (err) {
       setError(err.message);
