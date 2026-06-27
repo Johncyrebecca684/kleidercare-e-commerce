@@ -2,19 +2,19 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 80px 20px;
-  background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
+  background: #ffffff;
 }
 
 .section-header {
   text-align: center;
   margin-bottom: 50px;
-  animation: fadeInUp 0.6s ease;
+  animation: fadeInUp 0.4s ease;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
 
   to {
@@ -30,40 +30,36 @@
 
 .section-title {
   font-size: 46px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin: 0 0 16px 0;
-  letter-spacing: -0.7px;
-  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.5px;
 }
 
 .section-subtitle {
-  font-size: 17px;
-  color: rgba(0, 26, 77, 0.75);
+  font-size: 16px;
+  color: #6b7280;
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.2px;
 }
 
 .filters-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+  background: #ffffff;
   padding: 20px;
-  border-radius: 16px;
+  border-radius: 0;
   margin-bottom: 40px;
-  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.04), 0 4px 12px rgba(0, 26, 77, 0.06);
+  box-shadow: none;
   display: flex;
   flex-wrap: wrap;
   gap: 30px;
   align-items: center;
-  border: 1px solid rgba(0, 26, 77, 0.08);
-  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
 }
 
 .filters-container:hover {
-  box-shadow: 0 4px 16px rgba(0, 26, 77, 0.1);
+  box-shadow: none;
 }
 
 .category-filters {
@@ -76,10 +72,10 @@
 }
 
 .filter-label {
-  font-weight: 800;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #0f2b5c;
   font-size: 14px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
@@ -90,32 +86,32 @@
 }
 
 .category-btn {
-  padding: 10px 20px;
-  border: 2px solid #d4dce8;
-  background: white;
-  border-radius: 22px;
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 0;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 13px;
-  color: #1a4a8d;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #0f2b5c;
+  transition: all 0.2s ease;
   white-space: nowrap;
   letter-spacing: 0.2px;
 }
 
 .category-btn:hover {
-  border-color: #1a4a8d;
-  color: #1a4a8d;
-  background: #f0f4ff;
-  box-shadow: 0 4px 12px rgba(0, 26, 77, 0.1);
-  transform: translateY(-2px);
+  border-color: #0f2b5c;
+  color: #0f2b5c;
+  background: #f9fafb;
+  box-shadow: none;
+  transform: none;
 }
 
 .category-btn.active {
-  background: linear-gradient(135deg, #1a4a8d 0%, #1a4a8d 100%);
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 6px 16px rgba(0, 26, 77, 0.25);
+  background: #0f2b5c;
+  color: #ffffff;
+  border-color: #0f2b5c;
+  box-shadow: none;
 }
 
 .sort-container {
@@ -126,8 +122,8 @@
 }
 
 .sort-label {
-  font-weight: 700;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #0f2b5c;
   font-size: 14px;
   white-space: nowrap;
 }
@@ -141,22 +137,22 @@
 .sort-select {
   width: 100%;
   padding: 8px 12px;
-  border: 2px solid #e8eef7;
-  border-radius: 8px;
-  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  background: #ffffff;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 13px;
-  color: #1a4a8d;
+  color: #0f2b5c;
   appearance: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .sort-select:hover,
 .sort-select:focus {
-  border-color: #1a4a8d;
+  border-color: #0f2b5c;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 26, 77, 0.1);
+  box-shadow: none;
 }
 
 .select-icon {
@@ -164,14 +160,14 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #1a4a8d;
+  color: #0f2b5c;
   pointer-events: none;
 }
 
 .results-info {
   text-align: right;
   font-size: 13px;
-  color: #999;
+  color: #6b7280;
   margin-bottom: 20px;
 }
 
@@ -179,13 +175,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 28px;
-  animation: fadeInUp 0.6s ease;
+  animation: fadeInUp 0.4s ease;
 }
 
 .no-products {
   text-align: center;
   padding: 80px 20px;
-  animation: fadeInUp 0.6s ease;
+  animation: fadeInUp 0.4s ease;
 }
 
 .no-products-icon {
@@ -195,12 +191,12 @@
 
 .no-products h3 {
   font-size: 24px;
-  color: #333;
+  color: #0f2b5c;
   margin: 0 0 10px 0;
 }
 
 .no-products p {
-  color: #999;
+  color: #6b7280;
   font-size: 14px;
   margin: 0;
 }

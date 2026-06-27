@@ -20,33 +20,32 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  color: #0f2b5c;
+  border: 1px solid #e5e7eb;
   padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 0;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .backBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateX(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: #f9fafb;
+  border-color: #0f2b5c;
 }
 
 .pageTitle {
   font-size: 32px;
-  font-weight: 900;
-  color: white;
+  font-weight: 700;
+  color: #0f2b5c;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .ticketingContent {
@@ -54,7 +53,7 @@
   width: 100%;
   margin: 0 auto;
   flex: 1;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -62,25 +61,21 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Glassmorphism Card Style */
+/* Flat Card Style */
 .glassCard {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 20px;
-  box-shadow: var(--glass-shadow-hover);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .searchCard {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 48px 32px;
   text-align: center;
-  box-shadow: var(--glass-shadow-hover);
+  box-shadow: none;
   max-width: 800px;
   margin: 40px auto;
   position: relative;
@@ -88,25 +83,19 @@
 }
 
 .searchCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, #00a8e8, #1a4a8d);
+  display: none;
 }
 
 .searchTitle {
   font-size: 28px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 12px;
   letter-spacing: -0.5px;
 }
 
 .searchSubtitle {
-  color: #555;
+  color: #6b7280;
   margin-bottom: 32px;
   font-size: 15px;
 }
@@ -128,100 +117,89 @@
 .searchIcon {
   position: absolute;
   left: 20px;
-  color: #888;
+  color: #9ca3af;
 }
 
 .searchInput {
   flex: 1;
   padding: 18px 20px 18px 56px;
-  border: 2px solid rgba(0, 26, 77, 0.2);
-  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   font-size: 16px;
-  color: #0f172a;
-  background: #f8fafc;
-  transition: all 0.3s ease;
+  color: #111111;
+  background: #ffffff;
+  transition: all 0.2s ease;
   font-weight: 500;
 }
 
 .searchInput::placeholder {
-  color: #64748b;
+  color: #9ca3af;
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: #00a8e8;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(0, 168, 232, 0.1);
+  border-color: #0f2b5c;
+  background: #ffffff;
 }
 
 .ticketSearchBtn {
   padding: 18px 40px;
-  background: var(--btn-grad-primary);
+  background: #0f2b5c;
   color: white;
   border: none;
-  border-radius: 16px;
-  font-weight: 800;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 15px rgba(0, 168, 232, 0.2);
   flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .ticketSearchBtn:hover {
-  background: var(--btn-grad-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 168, 232, 0.3);
+  background: #1a365d;
 }
 
 .sampleTickets {
   font-size: 14px;
-  color: #666;
-  background: #f1f5f9;
+  color: #6b7280;
+  background: #f9fafb;
   display: inline-block;
   padding: 8px 20px;
-  border-radius: 999px;
+  border-radius: 0;
+  border: 1px solid #e5e7eb;
 }
 
 .sampleTickets strong {
-  color: #1a4a8d;
+  color: #0f2b5c;
 }
 
 .noResults {
   text-align: center;
   padding: 60px 40px;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   margin-top: 32px;
-  box-shadow: var(--glass-shadow-hover);
-  color: #1a4a8d;
+  box-shadow: none;
+  color: #0f2b5c;
 }
 
 .customerCard {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 32px 40px;
   margin-bottom: 32px;
-  box-shadow: var(--glass-shadow-hover);
+  box-shadow: none;
   position: relative;
   overflow: hidden;
 }
 
 .customerCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 100%;
-  background: linear-gradient(180deg, #00a8e8, #1a4a8d);
+  display: none;
 }
 
 .cardHeader {
@@ -229,14 +207,14 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
-  border-bottom: 2px solid #f1f5f9;
+  border-bottom: 1px solid #e5e7eb;
   padding-bottom: 24px;
 }
 
 .cardHeader h2 {
   font-size: 24px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin: 0;
 }
 
@@ -245,20 +223,21 @@
   align-items: center;
   gap: 10px;
   padding: 12px 24px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  color: #1a4a8d;
-  font-weight: 800;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  color: #0f2b5c;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .downloadBtn:hover {
-  background: #1a4a8d;
-  color: white;
-  border-color: #1a4a8d;
+  background: #f9fafb;
+  border-color: #0f2b5c;
 }
 
 .customerDetails {
@@ -276,14 +255,14 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.25);
+  background: #f9fafb;
   padding: 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0;
+  border: 1px solid #e5e7eb;
 }
 
 .detailItem svg {
-  color: #00a8e8;
+  color: #6b7280;
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -297,17 +276,17 @@
 .label {
   display: block;
   font-size: 11px;
-  color: #64748b;
+  color: #6b7280;
   text-transform: uppercase;
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: 6px;
   letter-spacing: 0.5px;
 }
 
 .value {
   font-size: 15px;
-  color: #0f172a;
-  font-weight: 700;
+  color: #111111;
+  font-weight: 600;
 }
 
 .customerStats {
@@ -317,61 +296,53 @@
 
 .statBox {
   flex: 1;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #ffffff;
   padding: 24px;
-  border-radius: 16px;
+  border-radius: 0;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: transform 0.3s ease;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
 }
 
 .statBox:hover {
-  transform: translateY(-4px);
-  border-color: #00a8e8;
+  border-color: #0f2b5c;
+  background: #f9fafb;
 }
 
 .statNumber {
   font-size: 36px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 8px;
 }
 
 .statLabel {
-  color: #64748b;
+  color: #6b7280;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .sectionTitle {
-  color: white;
+  color: #0f2b5c;
   font-size: 24px;
-  font-weight: 900;
+  font-weight: 700;
   margin-bottom: 24px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .orderCard {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 32px;
   margin-bottom: 24px;
-  box-shadow: var(--glass-shadow);
-  transition: transform 0.3s ease;
+  box-shadow: none;
+  transition: all 0.2s ease;
 }
 
 .orderCard:hover {
-  transform: translateY(-4px);
-  background: var(--glass-bg-hover);
-  border-color: rgba(0, 168, 232, 0.3);
-  box-shadow: var(--glass-shadow-hover);
+  border-color: #0f2b5c;
 }
 
 .orderHeader {
@@ -380,44 +351,45 @@
   align-items: flex-start;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px dashed #e2e8f0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .orderTitle {
   font-size: 20px;
-  font-weight: 800;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #0f2b5c;
   margin: 0 0 8px;
 }
 
 .orderId {
-  color: #64748b;
+  color: #6b7280;
   font-size: 14px;
-  font-weight: 600;
-  background: #f1f5f9;
+  font-weight: 500;
+  background: #f9fafb;
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: 0;
+  border: 1px solid #e5e7eb;
 }
 
 .statusBadge {
   padding: 8px 16px;
-  border-radius: 999px;
-  font-weight: 800;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .statusBadge.delivered {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .statusBadge.in.transit {
-  background: #fef9c3;
-  color: #854d0e;
-  border: 1px solid #fef08a;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .orderGrid {
@@ -440,33 +412,33 @@
 
 .detailLabel {
   font-size: 11px;
-  color: #64748b;
+  color: #6b7280;
   text-transform: uppercase;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.5px;
 }
 
 .detailValue {
   font-size: 15px;
-  color: #0f172a;
-  font-weight: 700;
+  color: #111111;
+  font-weight: 600;
 }
 
 .detailValue.expired {
-  color: #ef4444;
+  color: #dc2626;
 }
 
 .warrantyStatus {
   padding: 6px 14px;
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   display: inline-block;
 }
 
 .warrantyStatus.active {
-  background: #dcfce7;
-  color: #166534;
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .warrantyStatus.inactive {
@@ -486,41 +458,38 @@
 
 .actionBtn {
   padding: 20px;
-  border-radius: 16px;
-  font-weight: 800;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .actionBtn.primary {
-  background: var(--btn-grad-primary);
+  background: #0f2b5c;
   color: white;
   border: none;
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.2);
 }
 
 .actionBtn.primary:hover {
-  background: var(--btn-grad-primary-hover);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 25px rgba(0, 168, 232, 0.35);
+  background: #1a365d;
 }
 
 .actionBtn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  color: #0f2b5c;
+  border: 1px solid #e5e7eb;
 }
 
 .actionBtn.secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  background: #f9fafb;
+  border-color: #0f2b5c;
 }
 
 @media (max-width: 992px) {

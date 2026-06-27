@@ -384,18 +384,6 @@ export const products = [
     badge: null
   },
   {
-    id: 28,
-    name: "Gasket",
-    category: "Genuine Spare Parts",
-    price: 499,
-    originalPrice: 699,
-    rating: 4.9,
-    reviews: 145,
-    image: "https://storage.googleapis.com/straitsdisk/img/site/products/gasket-4036el3001a/1.png",
-    description: "4036EL3001A",
-    badge: "Top Rated"
-  },
-  {
     id: 29,
     name: "Belt Poly-V",
     category: "Genuine Spare Parts",

@@ -4,13 +4,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 26, 77, 0.7);
+  background: rgba(15, 43, 92, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -23,22 +22,20 @@
 }
 
 .auth-modal {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   width: 90%;
   max-width: 420px;
-  box-shadow: var(--glass-shadow-hover);
-  animation: slideUp 0.3s ease-out;
+  box-shadow: none;
+  animation: slideUp 0.2s ease-out;
   position: relative;
   overflow: hidden;
 }
 
 @keyframes slideUp {
   from {
-    transform: translateY(40px);
+    transform: translateY(20px);
     opacity: 0;
   }
   to {
@@ -54,19 +51,19 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #1a4a8d;
+  color: #0f2b5c;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  transition: background-color 0.3s ease;
+  border-radius: 0;
+  transition: background-color 0.2s ease;
   z-index: 10;
 }
 
 .close-btn:hover {
-  background-color: #f0f4f8;
+  background-color: #f3f4f6;
 }
 
 .auth-content {
@@ -82,7 +79,7 @@
 
 .auth-step.step-active {
   display: block;
-  animation: stepFadeIn 0.4s ease-out;
+  animation: stepFadeIn 0.3s ease-out;
 }
 
 .auth-step.step-exit {
@@ -90,7 +87,7 @@
 }
 
 .auth-step.step-enter {
-  animation: stepSlideIn 0.4s ease-out;
+  animation: stepSlideIn 0.3s ease-out;
 }
 
 @keyframes stepFadeIn {
@@ -105,7 +102,7 @@
 @keyframes stepSlideIn {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
@@ -116,15 +113,15 @@
 /* ─── Form Styles ─── */
 .auth-title {
   font-size: 24px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin: 0 0 6px;
-  letter-spacing: 0.3px;
+  letter-spacing: -0.5px;
 }
 
 .auth-subtitle {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: #6b7280;
   margin: 0 0 20px;
   line-height: 1.5;
 }
@@ -144,31 +141,30 @@
 
 .form-group label {
   font-size: 12px;
-  font-weight: 700;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #0f2b5c;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
 
 .form-group input {
   padding: 10px 12px;
-  border: 2px solid #e0e6f0;
-  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   font-size: 13px;
   font-family: inherit;
-  transition: all 0.3s ease;
-  background-color: #f8f9fc;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #00a8e8;
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
+  border-color: #0f2b5c;
+  background-color: #ffffff;
 }
 
 .form-group input:disabled {
-  background-color: #f0f4f8;
+  background-color: #f9fafb;
   cursor: not-allowed;
 }
 
@@ -189,7 +185,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: #9ca3af;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,47 +194,35 @@
 }
 
 .toggle-password:hover {
-  color: #1a4a8d;
+  color: #0f2b5c;
 }
 
 .error-message {
   padding: 12px 14px;
-  background-color: #fee;
-  border-left: 4px solid #e63946;
-  border-radius: 6px;
+  background-color: #fef2f2;
+  border-left: 2px solid #ef4444;
   font-size: 13px;
-  color: #c1121f;
+  color: #ef4444;
   font-weight: 600;
-  animation: shakeError 0.4s ease-out;
-}
-
-@keyframes shakeError {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
 }
 
 .auth-btn {
   padding: 12px 14px;
-  background: var(--btn-grad-primary);
+  background: #0f2b5c;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
+  letter-spacing: 0.5px;
+  box-shadow: none;
 }
 
 .auth-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  background: var(--btn-grad-primary-hover);
-  box-shadow: 0 6px 16px rgba(0, 168, 232, 0.3);
+  background: #1a365d;
 }
 
 .auth-btn:disabled {
@@ -268,12 +252,12 @@
   flex-direction: column;
   gap: 12px;
   padding-top: 20px;
-  border-top: 1px solid #e0e6f0;
+  border-top: 1px solid #e5e7eb;
 }
 
 .auth-footer p {
   font-size: 13px;
-  color: #666;
+  color: #6b7280;
   margin: 0;
   text-align: center;
 }
@@ -281,22 +265,21 @@
 .switch-auth-btn {
   background: none;
   border: none;
-  color: #00a8e8;
+  color: #0f2b5c;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   transition: color 0.2s ease;
   font-size: inherit;
 }
 
 .switch-auth-btn:hover {
-  color: #0078a8;
   text-decoration: underline;
 }
 
 .forgot-password-btn {
   font-size: 13px;
-  color: #00a8e8;
+  color: #0f2b5c;
   text-decoration: none;
   text-align: center;
   transition: color 0.2s ease;
@@ -308,7 +291,6 @@
 }
 
 .forgot-password-btn:hover {
-  color: #0078a8;
   text-decoration: underline;
 }
 
@@ -319,18 +301,18 @@
   gap: 6px;
   background: none;
   border: none;
-  color: #1a4a8d;
+  color: #0f2b5c;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: 0;
   transition: all 0.2s ease;
   margin-bottom: 16px;
 }
 
 .back-btn:hover {
-  background: #f0f4f8;
+  background: #f3f4f6;
 }
 
 /* ─── OTP Section ─── */
@@ -342,19 +324,13 @@
 .otp-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  border-radius: 50%;
+  background: #f9fafb;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 16px;
-  color: #0284c7;
-  animation: iconPulse 2s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.2); }
-  50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(2, 132, 199, 0); }
+  color: #0f2b5c;
 }
 
 .otp-header .auth-title {
@@ -369,8 +345,8 @@
 }
 
 .otp-email {
-  color: #0284c7;
-  font-weight: 700;
+  color: #0f2b5c;
+  font-weight: 600;
 }
 
 /* ─── Dev OTP Banner ─── */
@@ -380,33 +356,28 @@
   justify-content: center;
   gap: 10px;
   padding: 10px 16px;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  border: 1px solid #f59e0b;
-  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   margin-bottom: 20px;
-  animation: bannerSlideDown 0.4s ease-out;
-}
-
-@keyframes bannerSlideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .dev-label {
   font-size: 12px;
-  font-weight: 700;
-  color: #92400e;
+  font-weight: 600;
+  color: #6b7280;
 }
 
 .dev-code {
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   font-family: 'Courier New', monospace;
-  color: #92400e;
+  color: #0f2b5c;
   letter-spacing: 4px;
-  background: rgba(255,255,255,0.5);
+  background: #ffffff;
   padding: 2px 10px;
-  border-radius: 6px;
+  border-radius: 0;
+  border: 1px solid #e5e7eb;
 }
 
 /* ─── OTP Inputs ─── */
@@ -422,33 +393,29 @@
   height: 54px;
   text-align: center;
   font-size: 22px;
-  font-weight: 800;
-  color: #1a4a8d;
-  border: 2px solid #e0e6f0;
-  border-radius: 12px;
-  background: #f8f9fc;
-  transition: all 0.25s ease;
+  font-weight: 600;
+  color: #0f2b5c;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  background: #ffffff;
+  transition: all 0.2s ease;
   font-family: 'Courier New', monospace;
-  caret-color: #0284c7;
 }
 
 .otp-input:focus {
   outline: none;
-  border-color: #0284c7;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15), 0 4px 12px rgba(2, 132, 199, 0.1);
-  transform: translateY(-2px);
+  border-color: #0f2b5c;
+  background: #ffffff;
 }
 
 .otp-input.otp-filled {
-  border-color: #0284c7;
-  background: #f0f9ff;
+  border-color: #0f2b5c;
+  background: #f9fafb;
 }
 
 .otp-input.otp-error {
-  border-color: #e63946;
-  background: #fff5f5;
-  animation: shakeError 0.4s ease-out;
+  border-color: #ef4444;
+  background: #fef2f2;
 }
 
 .otp-input:disabled {
@@ -463,7 +430,7 @@
   justify-content: center;
   gap: 8px;
   padding: 10px;
-  color: #0284c7;
+  color: #0f2b5c;
   font-size: 13px;
   font-weight: 600;
 }
@@ -476,43 +443,43 @@
   gap: 12px;
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid #e0e6f0;
+  border-top: 1px solid #e5e7eb;
 }
 
 .otp-timer {
   font-size: 13px;
-  color: #666;
+  color: #6b7280;
 }
 
 .otp-timer strong {
-  color: #1a4a8d;
+  color: #0f2b5c;
   font-family: 'Courier New', monospace;
 }
 
 .timer-expired {
-  color: #e63946;
+  color: #ef4444;
   font-weight: 600;
 }
 
 .resend-btn {
   background: none;
   border: none;
-  color: #0284c7;
+  color: #0f2b5c;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 6px 16px;
-  border-radius: 8px;
+  border-radius: 0;
 }
 
 .resend-btn:hover:not(:disabled) {
-  background: #f0f9ff;
+  background: #f3f4f6;
   text-decoration: underline;
 }
 
 .resend-btn.resend-disabled {
-  color: #94a3b8;
+  color: #9ca3af;
   cursor: not-allowed;
 }
 
@@ -524,11 +491,11 @@
   justify-content: center;
   padding: 40px 20px;
   text-align: center;
-  animation: successFadeIn 0.5s ease-out;
+  animation: successFadeIn 0.3s ease-out;
 }
 
 @keyframes successFadeIn {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -548,7 +515,7 @@
   stroke-width: 2;
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
-  animation: checkmarkStroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  animation: checkmarkStroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
 .checkmark-check {
@@ -558,7 +525,7 @@
   stroke-linejoin: round;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  animation: checkmarkStroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+  animation: checkmarkStroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.3s forwards;
 }
 
 @keyframes checkmarkStroke {
@@ -569,13 +536,13 @@
 
 .success-title {
   font-size: 22px;
-  font-weight: 900;
+  font-weight: 700;
   color: #10b981;
   margin: 0 0 8px;
 }
 
 .success-text {
   font-size: 14px;
-  color: #666;
+  color: #6b7280;
   margin: 0;
 }

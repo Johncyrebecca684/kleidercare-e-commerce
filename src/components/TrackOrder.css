@@ -1,6 +1,6 @@
 .trackOrderContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  background: transparent;
   padding: 40px 16px;
 }
 
@@ -11,10 +11,11 @@
 
 /* Form Section */
 .trackOrderForm {
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 40px 32px;
-  box-shadow: 0 8px 32px rgba(0, 26, 77, 0.12);
+  box-shadow: none;
   text-align: center;
 }
 
@@ -24,15 +25,15 @@
 
 .formTitle {
   font-size: 28px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 6px;
   letter-spacing: -0.5px;
 }
 
 .formSubtitle {
   font-size: 14px;
-  color: #666;
+  color: #6b7280;
   margin-bottom: 0;
 }
 
@@ -53,41 +54,41 @@
   flex: 1;
   min-width: 250px;
   padding: 16px 18px;
-  border: none;
-  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   font-size: 15px;
-  background: #2d3436;
-  color: #ffffff;
-  transition: all 0.3s ease;
+  background: #ffffff;
+  color: #111111;
+  transition: all 0.2s ease;
 }
 
 .trackSearchInput::placeholder {
-  color: #999;
+  color: #9ca3af;
 }
 
 .trackSearchInput:focus {
   outline: none;
-  background: #1e2327;
-  box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.2);
+  border-color: #0f2b5c;
+  background: #ffffff;
 }
 
 .trackSearchBtn {
   padding: 16px 40px;
-  background: linear-gradient(135deg, #00a8e8 0%, #0078a8 100%);
+  background: #0f2b5c;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 900;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.3);
+  transition: all 0.2s ease;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .trackSearchBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 168, 232, 0.4);
+  background: #1a365d;
 }
 
 .trackSearchBtn:active {
@@ -96,7 +97,7 @@
 
 .sampleOrders {
   font-size: 14px;
-  color: #666;
+  color: #6b7280;
   margin-top: 20px;
 }
 
@@ -105,35 +106,36 @@
 }
 
 .sampleOrders strong {
-  color: #00a8e8;
-  font-weight: 700;
+  color: #0f2b5c;
+  font-weight: 600;
 }
 
 /* No Results */
 .noResults {
   text-align: center;
   padding: 60px 24px;
-  background: white;
-  border-radius: 16px;
-  color: #666;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  color: #6b7280;
   margin-top: 24px;
 }
 
 .noResults svg {
-  color: #ccc;
+  color: #d1d5db;
   margin-bottom: 20px;
 }
 
 .noResults h2 {
   font-size: 24px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 8px;
 }
 
 .noResults p {
   margin: 0;
-  color: #999;
+  color: #9ca3af;
 }
 
 /* Tracking Results */
@@ -145,15 +147,16 @@
 
 /* Order Summary Card */
 .orderSummaryCard {
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 24px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
   align-items: start;
-  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
-  border-top: 4px solid #00a8e8;
+  box-shadow: none;
+  border-top: 4px solid #0f2b5c;
 }
 
 .orderImageSection {
@@ -175,11 +178,13 @@
 
 .orderDetailsSection h2 {
   font-size: 16px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 0;
   margin-top: 0;
   grid-column: 1 / -1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .orderId,
@@ -187,20 +192,20 @@
 .orderPrice {
   font-size: 13px;
   margin-bottom: 0;
-  color: #666;
+  color: #6b7280;
   margin-top: 0;
 }
 
 .orderId span,
 .seller span {
-  font-weight: 700;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #111111;
 }
 
 .orderPrice {
   font-size: 22px;
-  font-weight: 900;
-  color: #00a8e8;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 0;
   grid-column: 1 / -1;
 }
@@ -217,12 +222,12 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #666;
+  color: #6b7280;
   margin: 0;
 }
 
 .dateItem svg {
-  color: #00a8e8;
+  color: #0f2b5c;
   flex-shrink: 0;
 }
 
@@ -236,8 +241,8 @@
 
 .statusBadge {
   padding: 6px 14px;
-  border-radius: 999px;
-  font-weight: 800;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -246,21 +251,21 @@
 }
 
 .statusBadge.in-transit {
-  background: #fff3cd;
-  color: #856404;
-  border: 2px solid #ffc107;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .statusBadge.delivered {
-  background: #d4edda;
-  color: #155724;
-  border: 2px solid #28a745;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .statusBadge.processing {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 2px solid #17a2b8;
+  background: #cffafe;
+  color: #164e63;
+  border: 1px solid #a5f3fc;
 }
 
 .currentLocation {
@@ -268,32 +273,36 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #1a4a8d;
-  font-weight: 700;
-  background: #f5f7fa;
+  color: #111111;
+  font-weight: 600;
+  background: #f9fafb;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 0;
+  border: 1px solid #e5e7eb;
   margin: 0;
 }
 
 .currentLocation svg {
-  color: #00a8e8;
+  color: #0f2b5c;
 }
 
 /* Tracking Timeline */
 .trackingTimeline {
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
+  box-shadow: none;
 }
 
 .timelineTitle {
   font-size: 18px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 30px;
   margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .timelineTrack {
@@ -313,8 +322,8 @@
   top: 19px;
   left: 8.33%;
   right: 8.33%;
-  height: 3px;
-  background: linear-gradient(to right, #28a745 0%, #28a745 var(--progress-percent, 0%), #e9ecef var(--progress-percent, 0%), #e9ecef 100%);
+  height: 2px;
+  background: linear-gradient(to right, #0f2b5c 0%, #0f2b5c var(--progress-percent, 0%), #e5e7eb var(--progress-percent, 0%), #e5e7eb 100%);
   z-index: 0;
 }
 
@@ -350,20 +359,19 @@
 }
 
 .stepDot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #e9ecef;
-  border: 3px solid white;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
   position: relative;
   z-index: 3;
   flex-shrink: 0;
 }
 
 .timelineStep.completed .stepDot {
-  background: #28a745;
-  border-color: white;
-  box-shadow: 0 0 0 1px #28a745;
+  background: #0f2b5c;
+  border-color: #0f2b5c;
 }
 
 .stepLine {
@@ -372,15 +380,15 @@
 
 .stepName {
   font-size: 13px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #111111;
   margin-bottom: 4px;
   margin-top: 0;
   white-space: nowrap;
 }
 
 .timelineStep.pending .stepName {
-  color: #999;
+  color: #6b7280;
 }
 
 .stepDateTime,
@@ -389,7 +397,7 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: #666;
+  color: #6b7280;
   margin-bottom: 2px;
   margin-top: 0;
   justify-content: center;
@@ -397,7 +405,7 @@
 
 .stepDateTime svg,
 .stepTime svg {
-  color: #00a8e8;
+  color: #0f2b5c;
   width: 12px;
   height: 12px;
 }
@@ -414,22 +422,22 @@
 }
 
 .detailCard {
-  background: white;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 16px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: none;
+  transition: all 0.2s ease;
   display: none;
 }
 
 .detailCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 26, 77, 0.12);
+  border-color: #0f2b5c;
 }
 
 .detailCard svg {
-  color: #00a8e8;
+  color: #0f2b5c;
   width: 32px;
   height: 32px;
   margin-bottom: 8px;
@@ -437,39 +445,44 @@
 
 .detailCard h4 {
   font-size: 14px;
-  font-weight: 800;
-  color: #1a4a8d;
+  font-weight: 600;
+  color: #0f2b5c;
   margin-bottom: 4px;
   margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .detailCard p {
   font-size: 12px;
-  color: #666;
+  color: #6b7280;
   line-height: 1.5;
   margin: 0;
 }
 
 /* Support Section */
 .supportSection {
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 24px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 26, 77, 0.08);
+  box-shadow: none;
   display: none;
 }
 
 .supportSection h3 {
   font-size: 18px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 6px;
   margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .supportSection > p {
-  color: #666;
+  color: #6b7280;
   margin-bottom: 16px;
   font-size: 13px;
   margin-top: 0;
@@ -486,20 +499,21 @@
   display: inline-flex;
   align-items: center;
   padding: 10px 16px;
-  background: #f5f7fa;
-  border-radius: 10px;
-  color: #00a8e8;
+  background: #ffffff;
+  border-radius: 0;
+  color: #0f2b5c;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 12px;
-  transition: all 0.3s ease;
-  border: 2px solid #e9ecef;
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .supportLink:hover {
-  background: #e9ecef;
-  border-color: #00a8e8;
-  transform: translateY(-2px);
+  background: #f9fafb;
+  border-color: #0f2b5c;
 }
 
 /* Responsive */
@@ -606,6 +620,6 @@
   .stepDot {
     width: 16px;
     height: 16px;
-    border-width: 3px;
+    border-width: 2px;
   }
 }

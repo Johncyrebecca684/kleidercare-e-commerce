@@ -7,7 +7,7 @@
 }
 
 .trackOrderPageHeader {
-  color: #1a4a8d;
+  color: #0f2b5c;
   padding: 20px 16px;
   display: flex;
   align-items: center;
@@ -20,32 +20,31 @@
 .backBtn {
   background: none;
   border: none;
-  color: #1a4a8d;
+  color: #0f2b5c;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  border-radius: 0;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  color: #1a4a8d !important;
+  color: #0f2b5c !important;
   text-shadow: none !important;
 }
 
 .backBtn:hover {
-  background: rgba(26, 74, 141, 0.1);
-  transform: translateX(-2px);
+  background: #f3f4f6;
 }
 
 .pageTitle {
   font-size: 28px;
-  font-weight: 900;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.5px;
-  color: #1a4a8d !important;
+  color: #0f2b5c !important;
   text-shadow: none !important;
 }
 
@@ -58,13 +57,11 @@
 }
 
 .trackOrderForm {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   padding: 40px 32px;
-  box-shadow: var(--glass-shadow);
+  box-shadow: none;
   text-align: center;
 }
 
@@ -74,15 +71,15 @@
 
 .formTitle {
   font-size: 28px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 6px;
   letter-spacing: -0.5px;
 }
 
 .formSubtitle {
   font-size: 14px;
-  color: #666;
+  color: #6b7280;
   margin-bottom: 0;
 }
 
@@ -103,43 +100,40 @@
   flex: 1;
   min-width: 250px;
   padding: 16px 18px;
-  border: none;
-  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
   font-size: 15px;
-  background: #2d3436;
-  color: #ffffff;
-  transition: all 0.3s ease;
+  background: #ffffff;
+  color: #111111;
+  transition: all 0.2s ease;
 }
 
 .trackSearchInput::placeholder {
-  color: #999;
+  color: #9ca3af;
 }
 
 .trackSearchInput:focus {
   outline: none;
-  background: #1e2327;
-  box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.2);
+  border-color: #0f2b5c;
 }
 
 .trackSearchBtn {
   padding: 16px 40px;
-  background: var(--btn-grad-primary);
+  background: #0f2b5c;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 800;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 15px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
+  letter-spacing: 0.5px;
 }
 
 .trackSearchBtn:hover {
-  background: var(--btn-grad-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
+  background: #1a365d;
 }
 
 .trackSearchBtn:active {
@@ -148,7 +142,7 @@
 
 .sampleOrders {
   font-size: 14px;
-  color: #666;
+  color: #6b7280;
   margin-top: 20px;
 }
 
@@ -157,33 +151,31 @@
 }
 
 .sampleOrders strong {
-  color: #00a8e8;
-  font-weight: 700;
+  color: #0f2b5c;
+  font-weight: 600;
 }
 
 .noResults {
   text-align: center;
   padding: 60px 24px;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: 16px;
-  color: #666;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  color: #6b7280;
   margin-top: 24px;
-  box-shadow: var(--glass-shadow);
+  box-shadow: none;
 }
 
 .noResults h2 {
   font-size: 24px;
-  font-weight: 900;
-  color: #1a4a8d;
+  font-weight: 700;
+  color: #0f2b5c;
   margin-bottom: 8px;
 }
 
 .noResults p {
   margin: 0;
-  color: #999;
+  color: #9ca3af;
 }
 
 .trackingResults {
@@ -244,7 +236,7 @@
 
   .trackOrderForm {
     padding: 20px 12px;
-    border-radius: 12px;
+    border-radius: 0;
   }
 
   .formTitle {

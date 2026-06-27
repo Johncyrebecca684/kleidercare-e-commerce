@@ -2,16 +2,13 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #1a4a8d;
-  box-shadow: 0 4px 15px rgba(26, 74, 141, 0.05), 0 8px 30px rgba(0, 0, 0, 0.02);
-  border-bottom: 1px solid rgba(26, 74, 141, 0.1);
+  background: #ffffff;
+  color: #0f2b5c;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .topBannerStrip {
-  background: #1a4a8d;
+  background: #0f2b5c;
   color: #ffffff;
   font-size: 13px;
   padding: 8px 16px;
@@ -66,11 +63,11 @@
   text-decoration: none;
   color: inherit;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 0;
 }
 
 .brand:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: #f3f4f6;
 }
 
 .brandLogo {
@@ -84,16 +81,15 @@
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: 0;
   color: inherit;
-  background: rgba(26, 74, 141, 0.05);
-  border: 1px solid #1a4a8d;
-  transition: all 0.3s ease;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
 }
 
 .deliverTo:hover {
-  background: rgba(26, 74, 141, 0.1);
-  border-color: rgba(26, 74, 141, 0.2);
+  border-color: #0f2b5c;
 }
 
 .deliverToText {
@@ -109,7 +105,7 @@
 
 .deliverToValue {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .headerSearchWrap {
@@ -119,31 +115,28 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: stretch;
-  background: #f4f7fb;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1.5px solid #1a4a8d;
-  transition: all 0.3s ease;
+  background: #f9fafb;
+  border-radius: 0;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
 }
 
 .headerSearchWrap:focus-within {
   background: #ffffff;
-  border-color: #1a4a8d;
-  box-shadow: 0 0 15px rgba(26, 74, 141, 0.1);
-  transform: translateY(-1px);
+  border-color: #0f2b5c;
 }
 
 .headerSearchCategoryWrapper {
   position: relative;
   display: flex;
   align-items: center;
-  border-right: 1px solid rgba(26, 74, 141, 0.2);
+  border-right: 1px solid #e5e7eb;
   background: transparent;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .headerSearchCategoryWrapper:hover {
-  background: rgba(26, 74, 141, 0.05);
+  background: #f3f4f6;
 }
 
 .headerSearchCategorySelect {
@@ -151,7 +144,7 @@
   -webkit-appearance: none;
   background: transparent;
   border: none;
-  color: #1a4a8d;
+  color: #0f2b5c;
   font-size: 13px;
   font-weight: 500;
   padding: 0 28px 0 12px;
@@ -165,14 +158,14 @@
 
 .headerSearchCategorySelect option {
   background: #ffffff;
-  color: #1a4a8d;
+  color: #0f2b5c;
 }
 
 .headerSearchCategoryIcon {
   position: absolute;
   right: 10px;
   pointer-events: none;
-  color: #1a4a8d;
+  color: #0f2b5c;
 }
 
 .headerSearchInput {
@@ -180,7 +173,7 @@
   outline: none !important;
   padding: 0 16px;
   font-size: 14px;
-  color: #1a4a8d !important;
+  color: #0f2b5c !important;
   min-height: 44px;
   font-weight: 400;
   background-color: transparent !important;
@@ -196,12 +189,12 @@
 .headerSearchInput:-webkit-autofill:hover,
 .headerSearchInput:-webkit-autofill:focus,
 .headerSearchInput:-webkit-autofill:active {
-  -webkit-text-fill-color: #1a4a8d !important;
+  -webkit-text-fill-color: #0f2b5c !important;
   transition: background-color 5000s ease-in-out 0s !important;
 }
 
 .headerSearchInput::placeholder {
-  color: rgba(26, 74, 141, 0.5);
+  color: #9ca3af;
 }
 
 .headerSearchBtn {
@@ -209,15 +202,15 @@
   display: grid;
   place-items: center;
   background: transparent;
-  color: #1a4a8d;
-  transition: all 0.3s ease;
+  color: #0f2b5c;
+  transition: all 0.2s ease;
   cursor: pointer;
   border: none;
-  border-left: 1px solid rgba(26, 74, 141, 0.2);
+  border-left: 1px solid #e5e7eb;
 }
 
 .headerSearchBtn:hover {
-  background: rgba(26, 74, 141, 0.05);
+  background: #f3f4f6;
 }
 
 .headerRight {
@@ -231,23 +224,18 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 10px;
-  background: var(--btn-grad-primary);
+  border-radius: 0;
+  background: #0f2b5c;
   color: white;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  font-weight: 700;
+  transition: all 0.2s ease;
+  font-weight: 600;
   font-size: 12px;
-  letter-spacing: 0.3px;
-  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.15);
 }
 
 .userProfileBtn:hover {
-  background: var(--btn-grad-primary-hover);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.3);
+  background: #1a365d;
 }
 
 .userInitials {
@@ -256,10 +244,10 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #3d0155 0%, #470363 100%);
+  border-radius: 0;
+  background: #1a365d;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 600;
   flex-shrink: 0;
 }
 
@@ -276,40 +264,32 @@
 .authBtn {
   padding: 8px 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .loginBtn {
   background: transparent;
-  color: #1a4a8d;
-  border: 1.5px solid rgba(26, 74, 141, 0.4);
+  color: #0f2b5c;
+  border: 1px solid #e5e7eb;
 }
 
 .loginBtn:hover {
-  background: var(--btn-grad-primary);
-  border-color: transparent;
-  color: #ffffff;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 15px rgba(0, 168, 232, 0.2);
+  border-color: #0f2b5c;
+  background: #f9fafb;
 }
 
 .signupBtn {
-  background: var(--btn-grad-primary);
+  background: #0f2b5c;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 168, 232, 0.2);
 }
 
 .signupBtn:hover {
-  box-shadow: 0 8px 20px rgba(0, 168, 232, 0.35);
-  transform: translateY(-3px) scale(1.02);
-  background: var(--btn-grad-primary-hover);
+  background: #1a365d;
 }
 
 .headerLink {
@@ -317,20 +297,18 @@
   flex-direction: column;
   gap: 2px;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 0;
   color: inherit;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .headerLink:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
-  color: #00a8e8;
+  background: #f3f4f6;
 }
 
 .headerLinkTop {
   font-size: 11px;
-  opacity: 0.85;
+  color: #6b7280;
 }
 
 .headerLinkBottom {
@@ -338,7 +316,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .cartMini {
@@ -346,14 +324,13 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 0;
   color: inherit;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .cartMini:hover {
-  background: rgba(26, 74, 141, 0.08);
-  transform: translateY(-2px) scale(1.02);
+  background: #f3f4f6;
 }
 
 .trackOrderBtn {
@@ -361,21 +338,21 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 0;
   color: inherit;
   cursor: pointer;
   border: none;
   background: transparent;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .trackOrderBtn:hover {
-  background: rgba(26, 74, 141, 0.06);
+  background: #f3f4f6;
 }
 
 .trackLabel {
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .cartIconWrap {
@@ -388,35 +365,35 @@
   position: absolute;
   top: -6px;
   right: -8px;
-  background: #ff4d6d;
+  background: #0f2b5c;
   color: white;
   font-size: 11px;
-  font-weight: 900;
-  border-radius: 999px;
+  font-weight: 600;
+  border-radius: 0;
   padding: 2px 6px;
-  border: 2px solid #0b1220;
+  border: 1px solid #ffffff;
 }
 
 .cartLabel {
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .mobileMenuBtn {
   display: none;
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 0;
   color: inherit;
 }
 
 .mobileMenuBtn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: #f3f4f6;
 }
 
 .siteHeaderBottom {
-  border-top: 1px solid rgba(26, 74, 141, 0.1);
-  background: #f4f7fb;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
 }
 
 .siteHeaderBottom.open {
@@ -440,18 +417,18 @@
 
 .categoryLink {
   white-space: nowrap;
-  color: #1a4a8d;
+  color: #0f2b5c;
   font-size: 13px;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: none;
-  background: #ffffff;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 0;
+  border: 1px solid transparent;
+  background: transparent;
 }
 
 .categoryLink:hover {
-  background: #1a4a8d;
-  color: #ffffff;
+  border-color: #e5e7eb;
+  background: #f9fafb;
 }
 
 .topStrip {
@@ -459,7 +436,7 @@
   margin: 0 auto;
   padding: 0 16px 10px;
   font-size: 12px;
-  opacity: 0.9;
+  color: #6b7280;
 }
 
 @media (max-width: 1024px) {
