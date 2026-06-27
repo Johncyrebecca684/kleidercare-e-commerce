@@ -24,7 +24,7 @@ const secureContext = tls.createSecureContext({
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://kleidercare-e-commerce.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
