@@ -945,7 +945,66 @@ export const products = [
     reviews: 18,
     image: "/kc-oxy-twin.png",
     description: "Twin pack of brightener and stain buster.",
-    badge: "Best Value"
+  },
+  {
+    id: 75,
+    name: "KC LD 373",
+    category: "Chemicals",
+    price: 287.5,
+    originalPrice: 287.5,
+    rating: 5.0,
+    reviews: 0,
+    image: "/chemical 1.png",
+    description: "Premium Liquid Detergent. HSN : 34029012. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    badge: "New"
+  },
+  {
+    id: 76,
+    name: "KC EML CONC PLUS",
+    category: "Chemicals",
+    price: 486.5,
+    originalPrice: 486.5,
+    rating: 5.0,
+    reviews: 0,
+    image: "/chemical 2.png",
+    description: "Emulsifier Conc. HSN : 34029042. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    badge: "New"
+  },
+  {
+    id: 77,
+    name: "KC CC HD",
+    category: "Chemicals",
+    price: 220.8,
+    originalPrice: 220.8,
+    rating: 5.0,
+    reviews: 0,
+    image: "/chemical 3.png",
+    description: "Cuff and Collar Cleaner Conc. HSN : 34029019. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    badge: "New"
+  },
+  {
+    id: 78,
+    name: "KC Oxy",
+    category: "Chemicals",
+    price: 228.85,
+    originalPrice: 228.85,
+    rating: 5.0,
+    reviews: 0,
+    image: "/chemical 4.png",
+    description: "Bleach for whites - liquid. Pkg Size : 25 Lts. Comment : only 25 lt package available",
+    badge: "New"
+  },
+  {
+    id: 79,
+    name: "KC SOFT K 4500 N",
+    category: "Chemicals",
+    price: 358.8,
+    originalPrice: 358.8,
+    rating: 5.0,
+    reviews: 0,
+    image: "/chemical 5.png",
+    description: "Premium Fabric Softener. HSN : 34029011. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    badge: "New"
   }
 ];
 
