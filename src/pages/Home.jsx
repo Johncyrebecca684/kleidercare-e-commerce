@@ -3,9 +3,9 @@ import Hero from '../components/Hero';
 import ProductList from '../components/ProductList';
 import Footer from '../components/Footer';
 
-export default function Home({ 
+export default function Home({
   cartItems,
-  selectedCategory, 
+  selectedCategory,
   onCategoryChange,
   searchTerm,
   onSearchChange,
@@ -35,11 +35,12 @@ export default function Home({
 }) {
   return (
     <>
-      <Header 
+      <Header
         cartCount={cartCount}
-        onSignupClick={onSignupOpen}
+        onSigninClick={onLoginOpen}
         onProfileClick={onProfileOpen}
         loggedInUser={loggedInUser}
+        searchTerm={searchTerm}
         onSearchChange={onSearchChange}
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
@@ -47,7 +48,7 @@ export default function Home({
       />
       <main role="main">
         <Hero />
-        <ProductList 
+        <ProductList
           products={products}
           onAddToCart={onAddToCart}
           selectedCategory={selectedCategory}

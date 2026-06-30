@@ -283,12 +283,14 @@
   background: #f9fafb;
 }
 
-.signupBtn {
+.signupBtn,
+.signinBtn {
   background: #0f2b5c;
   color: #ffffff;
 }
 
-.signupBtn:hover {
+.signupBtn:hover,
+.signinBtn:hover {
   background: #1a365d;
 }
 
@@ -429,6 +431,12 @@
 .categoryLink:hover {
   border-color: #e5e7eb;
   background: #f9fafb;
+}
+
+.categoryLink.active {
+  border-color: #0f2b5c;
+  background: #0f2b5c;
+  color: #ffffff;
 }
 
 .topStrip {

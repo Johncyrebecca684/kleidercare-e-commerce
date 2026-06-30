@@ -190,7 +190,7 @@ export default function Login({ isOpen, onClose, onSwitchToSignup, onSwitchToFor
 
   return (
     <div className="auth-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="auth-modal login-modal" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>
           <X size={24} />
         </button>
@@ -261,7 +261,7 @@ export default function Login({ isOpen, onClose, onSwitchToSignup, onSwitchToFor
                         onSwitchToSignup();
                       }}
                     >
-                      Sign up
+                      Create Account
                     </button>
                   </p>
                   <button

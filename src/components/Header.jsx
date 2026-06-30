@@ -24,7 +24,7 @@ const categories = [
   { label: 'Chemicals', href: '#products' },
 ];
 
-export default function Header({ cartCount, wishlistCount, onSearchChange, onSignupClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
+export default function Header({ cartCount, wishlistCount, searchTerm, onSearchChange, onSigninClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -78,9 +78,11 @@ export default function Header({ cartCount, wishlistCount, onSearchChange, onSig
             className="headerSearchInput"
             type="search"
             placeholder="Search LG machines, Speed Queen, spare parts, and more..."
+            value={searchTerm || ''}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
+                navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
                 document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
               }
             }}
@@ -90,7 +92,10 @@ export default function Header({ cartCount, wishlistCount, onSearchChange, onSig
             className="headerSearchBtn"
             type="button"
             aria-label="Search"
-            onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => {
+              navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
+              document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+            }}
           >
             <Search size={20} />
           </button>
@@ -106,8 +111,8 @@ export default function Header({ cartCount, wishlistCount, onSearchChange, onSig
             </button>
           ) : (
             <>
-              <button className="authBtn signupBtn" type="button" onClick={onSignupClick} aria-label="Sign up">
-                Sign Up
+              <button className="authBtn signinBtn" type="button" onClick={onSigninClick} aria-label="Sign in">
+                Sign In
               </button>
             </>
           )}
@@ -155,7 +160,14 @@ export default function Header({ cartCount, wishlistCount, onSearchChange, onSig
       <div className={`siteHeaderBottom ${isMenuOpen ? 'open' : ''}`}>
         <nav className="categoryNav" aria-label="Category navigation">
           {categories.map((c) => (
-            <a key={c.label} className="categoryLink" href={c.href}>
+            <a
+              key={c.label}
+              className={`categoryLink ${selectedCategory === c.label ? 'active' : ''}`}
+              href={c.href}
+              onClick={() => {
+                onCategoryChange(c.label);
+              }}
+            >
               {c.label}
             </a>
           ))}
