@@ -13,7 +13,10 @@ const ALLOWED_RESELLER_NUMBERS = [
   '9900398532',
   '8848526033',
   '7006325301',
-  '7904309363'
+  '7904309363',
+  '8148814205',
+  '4448606351',
+  '9901097311'
 ];
 
 // Configure Nodemailer SMTP transporter

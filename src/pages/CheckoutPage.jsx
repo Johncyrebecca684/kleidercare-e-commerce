@@ -51,13 +51,25 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [appliedCoupons, setAppliedCoupons] = useState([]);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
 
   // Calculate breakdown if not provided directly
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discountAmount = appliedDiscount;
+
+  const sparePartsSubtotal = items
+    .filter(item => item.category?.toLowerCase() === 'genuine spare parts')
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const chemicalsSubtotal = items
+    .filter(item => item.category?.toLowerCase() === 'chemicals')
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const discountAmount = 
+    (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
+    (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
+
   const shipping = subtotal > 500 ? 0 : 50;
   const tax = Math.round((subtotal - discountAmount) * 0.05);
   const finalTotal = subtotal - discountAmount + shipping + tax;
@@ -67,23 +79,65 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     setCouponError('');
     setCouponSuccess('');
 
-    if (!couponCode.trim()) {
+    const trimmedCode = couponCode.trim().toUpperCase();
+
+    if (!trimmedCode) {
       setCouponError('Please enter a coupon code.');
       return;
     }
 
-    if (couponCode.trim().toUpperCase() === 'RESELLER5') {
+    if (trimmedCode === 'RESELLER5') {
+      setCouponError('The RESELLER5 coupon code has been discontinued.');
+      return;
+    }
+
+    if (trimmedCode === 'KCSPARE') {
       if (loggedInUser?.role !== 'reseller') {
         setCouponError('Coupon codes are only available for authorized reseller accounts.');
-        setAppliedDiscount(0);
         return;
       }
-      setAppliedDiscount(Math.round(subtotal * 0.05));
-      setCouponSuccess('Coupon code applied successfully! 5% discount has been applied.');
+
+      if (appliedCoupons.includes('KCSPARE')) {
+        setCouponError('Coupon code KCSPARE has already been applied.');
+        return;
+      }
+
+      if (sparePartsSubtotal === 0) {
+        setCouponError('This coupon code is only applicable to KCSPARE Genuine Spare Parts.');
+        return;
+      }
+
+      setAppliedCoupons(prev => [...prev, 'KCSPARE']);
+      setCouponSuccess('Coupon code applied successfully! 20% discount on Genuine Spare Parts has been applied.');
+      setCouponCode('');
+    } else if (trimmedCode === 'KCCHM') {
+      if (loggedInUser?.role !== 'reseller') {
+        setCouponError('Coupon codes are only available for authorized reseller accounts.');
+        return;
+      }
+
+      if (appliedCoupons.includes('KCCHM')) {
+        setCouponError('Coupon code KCCHM has already been applied.');
+        return;
+      }
+
+      if (chemicalsSubtotal === 0) {
+        setCouponError('This coupon code is only applicable to Chemicals.');
+        return;
+      }
+
+      setAppliedCoupons(prev => [...prev, 'KCCHM']);
+      setCouponSuccess('Coupon code applied successfully! 25% discount on Chemicals has been applied.');
+      setCouponCode('');
     } else {
       setCouponError('Invalid coupon code.');
-      setAppliedDiscount(0);
     }
+  };
+
+  const handleRemoveCoupon = (couponToRemove) => {
+    setAppliedCoupons(prev => prev.filter(c => c !== couponToRemove));
+    setCouponSuccess(`Coupon code ${couponToRemove} removed.`);
+    setCouponError('');
   };
 
   const handleChange = (e) => {
@@ -453,10 +507,16 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                 <span>Tax (5%)</span>
                 <span>₹{tax}</span>
               </div>
-              {appliedDiscount > 0 && (
+              {appliedCoupons.includes('KCSPARE') && (
                 <div className="summary-row-page" style={{ color: '#22c55e', fontWeight: '700' }}>
-                  <span>Reseller Discount (5%)</span>
-                  <span>-₹{appliedDiscount}</span>
+                  <span>Reseller Genuine Spare Parts Discount (KCSPARE 20%)</span>
+                  <span>-₹{Math.round(sparePartsSubtotal * 0.20)}</span>
+                </div>
+              )}
+              {appliedCoupons.includes('KCCHM') && (
+                <div className="summary-row-page" style={{ color: '#22c55e', fontWeight: '700' }}>
+                  <span>Reseller Chemicals Discount (KCCHM 25%)</span>
+                  <span>-₹{Math.round(chemicalsSubtotal * 0.25)}</span>
                 </div>
               )}
               <div className="summary-row-page total">
@@ -470,14 +530,25 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                 backgroundColor: '#eff6ff',
                 border: '1px solid #bfdbfe',
                 color: '#1e40af',
-                padding: '12px',
+                padding: '15px',
                 borderRadius: '8px',
                 marginTop: '15px',
                 fontSize: '13px',
                 fontWeight: '500',
-                textAlign: 'left'
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
               }}>
-                💡 <strong>Reseller Discount Available!</strong> Use code <strong style={{ textDecoration: 'underline' }}>RESELLER5</strong> to get an extra 5% off your order.
+                <div>
+                  💡 <strong>Reseller Discounts Available! (Multiple codes can be applied)</strong>
+                </div>
+                <div style={{ paddingLeft: '12px' }}>
+                  • Use code <strong style={{ textDecoration: 'underline' }}>KCSPARE</strong> to get a 20% discount on Genuine Spare Parts.
+                </div>
+                <div style={{ paddingLeft: '12px' }}>
+                  • Use code <strong style={{ textDecoration: 'underline' }}>KCCHM</strong> to get a 25% discount on Chemicals.
+                </div>
               </div>
             )}
 
@@ -514,6 +585,43 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                   Apply
                 </button>
               </div>
+              {appliedCoupons.length > 0 && (
+                <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {appliedCoupons.map(coupon => (
+                    <span key={coupon} style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      backgroundColor: '#f0fdf4',
+                      border: '1px solid #bbf7d0',
+                      color: '#166534',
+                      padding: '4px 10px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      gap: '6px'
+                    }}>
+                      🏷️ {coupon}
+                      <button 
+                        type="button"
+                        onClick={() => handleRemoveCoupon(coupon)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#166534',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          lineHeight: 1,
+                          padding: 0,
+                          marginLeft: '4px',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
               {couponError && <p style={{ color: '#ef4444', fontSize: '12px', margin: '6px 0 0 0', fontWeight: '600' }}>{couponError}</p>}
               {couponSuccess && <p style={{ color: '#22c55e', fontSize: '12px', margin: '6px 0 0 0', fontWeight: '600' }}>{couponSuccess}</p>}
             </div>
