@@ -38,10 +38,10 @@ async function apiCall(endpoint, options = {}) {
 
 // ─── Auth API Functions ───
 
-export async function signup({ firstName, lastName, email, password, role }) {
+export async function signup({ firstName, lastName, email, password, role, mobileNumber }) {
   const data = await apiCall('/signup', {
     method: 'POST',
-    body: JSON.stringify({ firstName, lastName, email, password, role })
+    body: JSON.stringify({ firstName, lastName, email, password, role, mobileNumber })
   });
   return data;
 }

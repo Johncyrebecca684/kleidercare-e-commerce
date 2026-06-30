@@ -7,6 +7,7 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
+    mobileNumber: '',
     password: '',
     confirmPassword: '',
     role: 'customer'
@@ -63,7 +64,7 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
     if (!isOpen) {
       setTimeout(() => {
         setStep('form');
-        setFormData({ firstName: '', email: '', password: '', confirmPassword: '', role: 'customer' });
+        setFormData({ firstName: '', email: '', mobileNumber: '', password: '', confirmPassword: '', role: 'customer' });
         setOtp(['', '', '', '', '', '']);
         setSignupEmail('');
         setError('');
@@ -84,15 +85,20 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
     e.preventDefault();
     setError('');
 
-    const { firstName, email, password, confirmPassword, role } = formData;
+    const { firstName, email, password, confirmPassword, role, mobileNumber } = formData;
 
-    if (!firstName || !email || !password || !confirmPassword || !role) {
+    if (!firstName || !email || !password || !confirmPassword || !role || !mobileNumber) {
       setError('Please fill in all fields');
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email');
+      return;
+    }
+
+    if (!/^\d{10}$/.test(mobileNumber)) {
+      setError('Please enter a valid 10-digit mobile number');
       return;
     }
 
@@ -118,7 +124,8 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
         lastName: '',
         email,
         password,
-        role
+        role,
+        mobileNumber
       });
 
       if (data.success) {
@@ -266,22 +273,38 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
                         className="role-select"
                       >
                         <option value="customer">Customer</option>
+                        <option value="reseller">Reseller</option>
                         <option value="admin">Store Admin</option>
                       </select>
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="signup-email">Email Address</label>
-                    <input
-                      type="email"
-                      id="signup-email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter your email"
-                      disabled={loading}
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="signup-email">Email Address</label>
+                      <input
+                        type="email"
+                        id="signup-email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                        disabled={loading}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="signup-mobile">Mobile Number</label>
+                      <input
+                        type="tel"
+                        id="signup-mobile"
+                        name="mobileNumber"
+                        value={formData.mobileNumber}
+                        onChange={handleChange}
+                        placeholder="10-digit number"
+                        disabled={loading}
+                      />
+                    </div>
                   </div>
 
                   <div className="form-group">

@@ -105,11 +105,11 @@ export function authMiddleware(req, res, next) {
 // ─────────────────────────────────────────────
 router.post('/signup', async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password, role, mobileNumber } = req.body;
 
     // Validate required fields
-    if (!firstName || !email || !password) {
-      return res.status(400).json({ message: 'First name, email, and password are required' });
+    if (!firstName || !email || !password || !mobileNumber) {
+      return res.status(400).json({ message: 'First name, email, password, and mobile number are required' });
     }
 
     if (password.length < 6) {
@@ -129,6 +129,7 @@ router.post('/signup', async (req, res) => {
       email: email.toLowerCase(),
       password,
       role: role || 'customer',
+      mobileNumber,
       isVerified: false
     });
     await user.save();
