@@ -12,12 +12,57 @@ import TicketingPage from './pages/TicketingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import WishlistPage from './pages/WishlistPage';
 import { products } from './data/products';
-import { getCurrentUser, logout as authLogout } from './services/authService';
+import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import './App.css';
 
+const mergeCarts = (localCart, serverCart) => {
+  const server = serverCart || [];
+  if (server.length === 0) return localCart;
+  if (localCart.length === 0) return server;
+
+  const merged = [...server];
+  localCart.forEach(localItem => {
+    const existing = merged.find(i => i.id === localItem.id);
+    if (existing) {
+      existing.quantity = Math.max(existing.quantity, localItem.quantity);
+    } else {
+      merged.push(localItem);
+    }
+  });
+  return merged;
+};
+
+const mergeWishlists = (localWish, serverWish) => {
+  const server = serverWish || [];
+  if (server.length === 0) return localWish;
+  if (localWish.length === 0) return server;
+
+  const merged = [...server];
+  localWish.forEach(localItem => {
+    if (!merged.find(i => i.id === localItem.id)) {
+      merged.push(localItem);
+    }
+  });
+  return merged;
+};
+
 function App() {
-  const [cartItems, setCartItems] = useState([]);
-  const [wishlistItems, setWishlistItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const localCart = localStorage.getItem('kc_cart_items');
+      return localCart ? JSON.parse(localCart) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [wishlistItems, setWishlistItems] = useState(() => {
+    try {
+      const localWishlist = localStorage.getItem('kc_wishlist_items');
+      return localWishlist ? JSON.parse(localWishlist) : [];
+    } catch {
+      return [];
+    }
+  });
   const [selectedCategory, setSelectedCategory] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('category') || 'All';
@@ -98,6 +143,30 @@ function App() {
     }
   ]);
 
+  // Sync state changes with localStorage
+  useEffect(() => {
+    localStorage.setItem('kc_cart_items', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  useEffect(() => {
+    localStorage.setItem('kc_wishlist_items', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
+
+  // Sync cart/wishlist to MongoDB backend for logged-in users
+  useEffect(() => {
+    const syncCartAndWishlist = async () => {
+      if (!loggedInUser) return;
+      try {
+        await updateCartWishlist({ cart: cartItems, wishlist: wishlistItems });
+      } catch (error) {
+        console.error('Error syncing cart/wishlist to server:', error);
+      }
+    };
+
+    const timeoutId = setTimeout(syncCartAndWishlist, 500);
+    return () => clearTimeout(timeoutId);
+  }, [cartItems, wishlistItems, loggedInUser]);
+
   // Restore session from JWT token on mount
   useEffect(() => {
     const restoreSession = async () => {
@@ -105,6 +174,8 @@ function App() {
         const user = await getCurrentUser();
         if (user) {
           setLoggedInUser(user);
+          setCartItems(prev => mergeCarts(prev, user.cart));
+          setWishlistItems(prev => mergeWishlists(prev, user.wishlist));
         }
       } catch {
         // Token invalid or expired, stay logged out
@@ -220,16 +291,24 @@ function App() {
   const handleLoginSuccess = (user) => {
     setLoggedInUser(user);
     setIsLoginOpen(false);
+    setCartItems(prev => mergeCarts(prev, user.cart));
+    setWishlistItems(prev => mergeWishlists(prev, user.wishlist));
   };
 
   const handleSignupSuccess = (user) => {
     setLoggedInUser(user);
     setIsSignupOpen(false);
+    setCartItems(prev => mergeCarts(prev, user.cart));
+    setWishlistItems(prev => mergeWishlists(prev, user.wishlist));
   };
 
   const handleLogout = () => {
     authLogout();
     setLoggedInUser(null);
+    setCartItems([]);
+    setWishlistItems([]);
+    localStorage.removeItem('kc_cart_items');
+    localStorage.removeItem('kc_wishlist_items');
   };
 
   const handlePlaceOrder = (order) => {

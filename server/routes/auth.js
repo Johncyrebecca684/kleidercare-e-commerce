@@ -364,4 +364,27 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────
+// POST /api/auth/cart-wishlist
+// Save user's cart and wishlist to database
+// ─────────────────────────────────────────────
+router.post('/cart-wishlist', authMiddleware, async (req, res) => {
+  try {
+    const { cart, wishlist } = req.body;
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (cart !== undefined) user.cart = cart;
+    if (wishlist !== undefined) user.wishlist = wishlist;
+
+    await user.save();
+    res.json({ success: true, message: 'Cart and wishlist updated successfully' });
+  } catch (error) {
+    console.error('Error updating cart/wishlist:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;
