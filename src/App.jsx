@@ -320,6 +320,7 @@ function App() {
                   ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.05)
                   : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.05)}
                 onPlaceOrder={handlePlaceOrder}
+                loggedInUser={loggedInUser}
               />
             }
           />

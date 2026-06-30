@@ -6,6 +6,16 @@ import Otp from '../models/Otp.js';
 
 const router = express.Router();
 
+const ALLOWED_RESELLER_NUMBERS = [
+  '7797091919',
+  '7044428460',
+  '8822990080',
+  '9900398532',
+  '8848526033',
+  '7006325301',
+  '7904309363'
+];
+
 // Configure Nodemailer SMTP transporter
 const createTransporter = () => {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
@@ -112,6 +122,13 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'First name, email, password, and mobile number are required' });
     }
 
+    const normalizedRole = (role || 'customer').toLowerCase();
+    const cleanedMobile = mobileNumber.replace(/\D/g, '');
+    const isAllowedReseller = ALLOWED_RESELLER_NUMBERS.some(num => cleanedMobile.endsWith(num));
+    if (normalizedRole === 'reseller' && !isAllowedReseller) {
+      return res.status(400).json({ message: 'You are not an authorized reseller. Please register as a customer.' });
+    }
+
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
@@ -128,7 +145,7 @@ router.post('/signup', async (req, res) => {
       lastName: lastName || '',
       email: email.toLowerCase(),
       password,
-      role: role || 'customer',
+      role: normalizedRole,
       mobileNumber,
       isVerified: false
     });
@@ -185,6 +202,15 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).json({ message: 'No account found with this email. Please sign up first.' });
+    }
+
+    // Verify reseller contact if user is logging in as reseller
+    if (user.role === 'reseller') {
+      const userCleanedMobile = (user.mobileNumber || '').replace(/\D/g, '');
+      const isAllowedResellerLogin = ALLOWED_RESELLER_NUMBERS.some(num => userCleanedMobile.endsWith(num));
+      if (!isAllowedResellerLogin) {
+        return res.status(403).json({ message: 'You are not an authorized reseller. Please login as a customer.' });
+      }
     }
 
     // Check password

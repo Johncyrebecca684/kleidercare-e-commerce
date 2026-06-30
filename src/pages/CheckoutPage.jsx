@@ -27,7 +27,7 @@ function buildQrUrl(upiLink) {
   return `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(upiLink)}&choe=UTF-8`;
 }
 
-export default function CheckoutPage({ items, total, onPlaceOrder }) {
+export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser }) {
   const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,10 +49,42 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
     pincode: ''
   });
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+
   // Calculate breakdown if not provided directly
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const discountAmount = appliedDiscount;
   const shipping = subtotal > 500 ? 0 : 50;
-  const tax = Math.round(subtotal * 0.05);
+  const tax = Math.round((subtotal - discountAmount) * 0.05);
+  const finalTotal = subtotal - discountAmount + shipping + tax;
+
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    setCouponError('');
+    setCouponSuccess('');
+
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+
+    if (couponCode.trim().toUpperCase() === 'RESELLER5') {
+      if (loggedInUser?.role !== 'reseller') {
+        setCouponError('Coupon codes are only available for authorized reseller accounts.');
+        setAppliedDiscount(0);
+        return;
+      }
+      setAppliedDiscount(Math.round(subtotal * 0.05));
+      setCouponSuccess('Coupon code applied successfully! 5% discount has been applied.');
+    } else {
+      setCouponError('Invalid coupon code.');
+      setAppliedDiscount(0);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,7 +151,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
             price: item.price,
             quantity: item.quantity
           })),
-          totalAmount: total,
+          totalAmount: finalTotal,
           paymentMethod: paymentMethod,
           paymentStatus: 'Paid',
           razorpayOrderId: paymentResponse.razorpay_order_id,
@@ -185,7 +217,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
 
     try {
       // 1. Create order on backend (Amount in paise)
-      const amountInPaise = Math.round(total * 100);
+      const amountInPaise = Math.round(finalTotal * 100);
       const orderResponse = await fetch('/api/payment/create-order', {
         method: 'POST',
         headers: {
@@ -421,10 +453,69 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
                 <span>Tax (5%)</span>
                 <span>₹{tax}</span>
               </div>
+              {appliedDiscount > 0 && (
+                <div className="summary-row-page" style={{ color: '#22c55e', fontWeight: '700' }}>
+                  <span>Reseller Discount (5%)</span>
+                  <span>-₹{appliedDiscount}</span>
+                </div>
+              )}
               <div className="summary-row-page total">
                 <span>Total Amount</span>
-                <span>₹{total}</span>
+                <span>₹{finalTotal}</span>
               </div>
+            </div>
+
+            {loggedInUser?.role === 'reseller' && (
+              <div style={{
+                backgroundColor: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                color: '#1e40af',
+                padding: '12px',
+                borderRadius: '8px',
+                marginTop: '15px',
+                fontSize: '13px',
+                fontWeight: '500',
+                textAlign: 'left'
+              }}>
+                💡 <strong>Reseller Discount Available!</strong> Use code <strong style={{ textDecoration: 'underline' }}>RESELLER5</strong> to get an extra 5% off your order.
+              </div>
+            )}
+
+            <div style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px', textAlign: 'left' }}>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '700', color: '#001a4d' }}>Promo Code</h4>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input 
+                  type="text" 
+                  value={couponCode} 
+                  onChange={(e) => setCouponCode(e.target.value)} 
+                  placeholder="Enter coupon code" 
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+                <button 
+                  onClick={handleApplyCoupon}
+                  style={{
+                    backgroundColor: '#1a4a8d',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    fontSize: '13px'
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+              {couponError && <p style={{ color: '#ef4444', fontSize: '12px', margin: '6px 0 0 0', fontWeight: '600' }}>{couponError}</p>}
+              {couponSuccess && <p style={{ color: '#22c55e', fontSize: '12px', margin: '6px 0 0 0', fontWeight: '600' }}>{couponSuccess}</p>}
             </div>
 
             {paymentError && (
@@ -440,7 +531,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
               disabled={isProcessing}
               style={isProcessing ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#64748b' } : {}}
             >
-              {isProcessing ? 'Processing Payment...' : `Pay & Place Order (₹${total})`}
+              {isProcessing ? 'Processing Payment...' : `Pay & Place Order (₹${finalTotal})`}
             </button>
           </div>
       {showSimulatedModal && currentOrderData && (
@@ -471,7 +562,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
             </div>
             
             <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 10px 0' }}>Merchant: <strong>Kleider Care</strong></p>
-            <p style={{ fontSize: '24px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{total}</p>
+            <p style={{ fontSize: '24px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal}</p>
             
             <div style={{ fontSize: '13px', color: '#475569', backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'left', border: '1px solid #e2e8f0' }}>
               <p style={{ margin: '0 0 6px 0' }}><strong>Order ID:</strong> {currentOrderData.id}</p>
@@ -551,7 +642,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
                       setUpiError('Please enter a valid UPI ID (e.g. name@paytm)');
                       return;
                     }
-                    const link = buildUpiLink(trimmed, MERCHANT_NAME, total, `Payment to ${MERCHANT_NAME}`);
+                    const link = buildUpiLink(trimmed, MERCHANT_NAME, finalTotal, `Payment to ${MERCHANT_NAME}`);
                     setUpiLaunched(true);
                     setUpiError('');
                     if (isMobileDevice()) {
@@ -597,12 +688,12 @@ export default function CheckoutPage({ items, total, onPlaceOrder }) {
                       <QrCode size={16} /> Scan with any UPI App
                     </div>
                     <img
-                      src={buildQrUrl(buildUpiLink(upiId.trim(), MERCHANT_NAME, total, `Payment to ${MERCHANT_NAME}`))}
+                      src={buildQrUrl(buildUpiLink(upiId.trim(), MERCHANT_NAME, finalTotal, `Payment to ${MERCHANT_NAME}`))}
                       alt="UPI QR Code"
                       style={{ width: '160px', height: '160px', borderRadius: '6px', border: '2px solid #e0e7ff' }}
                     />
                     <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0 0' }}>
-                      Paying <strong>₹{total}</strong> to <strong style={{ color: '#4f46e5' }}>{MERCHANT_NAME}</strong>
+                      Paying <strong>₹{finalTotal}</strong> to <strong style={{ color: '#4f46e5' }}>{MERCHANT_NAME}</strong>
                     </p>
                     <p style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0 0 0' }}>
                       UPI: <code style={{ fontSize: '11px' }}>{upiId.trim()}</code>
