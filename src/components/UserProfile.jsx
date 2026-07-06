@@ -157,7 +157,7 @@ export default function UserProfile({ isOpen, onClose, userData, onLogout, order
                         {order.items.map((item, i) => (
                           <div key={i} className="order-history-item">
                             <span>{item.name} <span style={{color: '#888'}}>x{item.quantity}</span></span>
-                            <span>₹{item.price * item.quantity}</span>
+                            <span>₹{Math.round((item.price * item.quantity) * 100) / 100}</span>
                           </div>
                         ))}
                       </div>

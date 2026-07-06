@@ -56,15 +56,15 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   const [couponSuccess, setCouponSuccess] = useState('');
 
   // Calculate breakdown if not provided directly
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
-  const sparePartsSubtotal = items
+  const sparePartsSubtotal = Math.round(items
     .filter(item => item.category?.toLowerCase() === 'genuine spare parts')
-    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
-  const chemicalsSubtotal = items
+  const chemicalsSubtotal = Math.round(items
     .filter(item => item.category?.toLowerCase() === 'chemicals')
-    .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
   const discountAmount = 
     (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
@@ -72,7 +72,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
 
   const shipping = subtotal > 500 ? 0 : 50;
   const tax = Math.round((subtotal - discountAmount) * 0.05);
-  const finalTotal = subtotal - discountAmount + shipping + tax;
+  const finalTotal = Math.round((subtotal - discountAmount + shipping + tax) * 100) / 100;
 
   const handleApplyCoupon = (e) => {
     e.preventDefault();
@@ -489,7 +489,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               {items.map(item => (
                 <div key={item.id} className="summary-item-page">
                   <span className="summary-item-page-name">{item.name} <span style={{color: '#888'}}>x {item.quantity}</span></span>
-                  <span className="summary-item-page-price">₹{item.price * item.quantity}</span>
+                  <span className="summary-item-page-price">₹{Math.round((item.price * item.quantity) * 100) / 100}</span>
                 </div>
               ))}
             </div>

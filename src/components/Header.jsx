@@ -159,18 +159,101 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
 
       <div className={`siteHeaderBottom ${isMenuOpen ? 'open' : ''}`}>
         <nav className="categoryNav" aria-label="Category navigation">
-          {categories.map((c) => (
-            <a
-              key={c.label}
-              className={`categoryLink ${selectedCategory === c.label ? 'active' : ''}`}
-              href={c.href}
-              onClick={() => {
-                onCategoryChange(c.label);
-              }}
-            >
-              {c.label}
-            </a>
-          ))}
+          <div className="mobileNavSection categorySection">
+            <span className="mobileNavSectionTitle">Categories</span>
+            <div className="mobileCategoryLinks">
+              {categories.map((c) => (
+                <a
+                  key={c.label}
+                  className={`categoryLink ${selectedCategory === c.label ? 'active' : ''}`}
+                  href={c.href}
+                  onClick={() => {
+                    onCategoryChange(c.label);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {c.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="mobileNavDivider"></div>
+
+          <div className="mobileNavSection quickLinksSection">
+            <span className="mobileNavSectionTitle">Quick Links</span>
+            {loggedInUser?.role === 'admin' ? (
+              <button 
+                className="mobileNavLink adminBtn" 
+                type="button" 
+                onClick={() => {
+                  navigate('/admin');
+                  setIsMenuOpen(false);
+                }}
+              >
+                <LayoutDashboard size={18} />
+                <span>Admin Dashboard</span>
+              </button>
+            ) : (
+              <>
+                <button 
+                  className="mobileNavLink" 
+                  type="button" 
+                  onClick={() => {
+                    navigate('/support');
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <Headset size={18} />
+                  <span>Customer Support</span>
+                </button>
+                <button 
+                  className="mobileNavLink" 
+                  type="button" 
+                  onClick={() => {
+                    navigate('/track-order');
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <Package size={18} />
+                  <span>Track Your Order</span>
+                </button>
+              </>
+            )}
+          </div>
+
+          <div className="mobileNavDivider"></div>
+
+          <div className="mobileNavSection accountSection">
+            <span className="mobileNavSectionTitle">Account</span>
+            {loggedInUser ? (
+              <button 
+                className="mobileNavUserBtn" 
+                type="button" 
+                onClick={() => {
+                  onProfileClick();
+                  setIsMenuOpen(false);
+                }}
+              >
+                <span className="userInitials">
+                  {loggedInUser.firstName.charAt(0)}{loggedInUser.lastName.charAt(0)}
+                </span>
+                <span className="userNameText">{loggedInUser.firstName} {loggedInUser.lastName}</span>
+              </button>
+            ) : (
+              <button 
+                className="mobileNavAuthBtn" 
+                type="button" 
+                onClick={() => {
+                  onSigninClick();
+                  setIsMenuOpen(false);
+                }}
+              >
+                <User size={18} />
+                <span>Sign In / Register</span>
+              </button>
+            )}
+          </div>
         </nav>
       </div>
     </header>

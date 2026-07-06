@@ -505,3 +505,134 @@
 .saveBtn:hover {
   background: #1a365d;
 }
+
+@media (max-width: 768px) {
+  .adminContainer {
+    flex-direction: column;
+  }
+
+  .adminSidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #1a365d;
+    padding: 20px 0;
+  }
+
+  .adminProfile {
+    padding: 0 20px 20px;
+    margin-bottom: 15px;
+    justify-content: center;
+  }
+
+  .adminNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .navBtn {
+    padding: 10px 16px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 130px;
+    justify-content: center;
+  }
+
+  .adminHeader {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .adminHeader h2 {
+    font-size: 22px;
+  }
+
+  .adminContent {
+    padding: 20px;
+  }
+
+  .metricGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .metricCard {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .metricIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .metricData h2 {
+    font-size: 22px;
+  }
+
+  .chartsSection {
+    padding: 16px;
+  }
+
+  .chartHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .paneHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .paneHeader h3 {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .addBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .adminTable {
+    min-width: 700px;
+  }
+
+  .adminTable th,
+  .adminTable td {
+    padding: 12px 16px;
+  }
+
+  .modalContent {
+    width: 95%;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navBtn {
+    width: 100%;
+    flex: none;
+  }
+
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .adminTable {
+    min-width: 600px;
+  }
+}
