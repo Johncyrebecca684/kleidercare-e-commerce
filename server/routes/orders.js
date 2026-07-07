@@ -31,7 +31,8 @@ router.post('/', optionalAuth, async (req, res) => {
       razorpayPaymentId
     } = req.body;
 
-    if (!customerName || !userEmail || !phone || !shippingAddress || !items || !totalAmount || !paymentMethod || !razorpayOrderId) {
+    const isRazorpayRequired = paymentMethod !== 'Cash' && paymentMethod !== 'UPI';
+    if (!customerName || !userEmail || !phone || !shippingAddress || !items || !totalAmount || !paymentMethod || (isRazorpayRequired && !razorpayOrderId)) {
       return res.status(400).json({ message: 'Missing required order details' });
     }
 
@@ -43,8 +44,8 @@ router.post('/', optionalAuth, async (req, res) => {
       items,
       totalAmount,
       paymentMethod,
-      paymentStatus: paymentStatus || 'Paid',
-      razorpayOrderId,
+      paymentStatus: paymentStatus || (paymentMethod === 'Cash' || paymentMethod === 'UPI' ? 'Pending' : 'Paid'),
+      razorpayOrderId: razorpayOrderId || '',
       razorpayPaymentId: razorpayPaymentId || '',
       status: 'Processing'
     };
