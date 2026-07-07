@@ -5,10 +5,10 @@ import './CartPage.css';
 export default function CartPage({ items, onUpdateQuantity, onRemoveItem }) {
   const navigate = useNavigate();
   
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
   const shipping = subtotal > 500 ? 0 : 50;
   const tax = Math.round(subtotal * 0.05);
-  const total = subtotal + shipping + tax;
+  const total = Math.round((subtotal + shipping + tax) * 100) / 100;
 
   return (
     <div className="cart-page-wrapper animate-fade-in">
@@ -59,7 +59,7 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem }) {
                 </div>
 
                 <div className="cart-page-item-total">
-                  ₹{item.price * item.quantity}
+                  ₹{Math.round((item.price * item.quantity) * 100) / 100}
                 </div>
 
                 <button 

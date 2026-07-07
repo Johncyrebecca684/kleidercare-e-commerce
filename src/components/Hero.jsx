@@ -23,13 +23,6 @@ const slides = [
     title: 'PONY FINISHING EQUIPMENTS',
     subtitle: 'EXPLORE NOW',
     image: '/PONY FVC Utility Ironing Tables.png'
-  },
-  {
-    id: 4,
-    kicker: 'Essential',
-    title: 'KC PRO CP COLOR INHIBITOR',
-    subtitle: 'SHOP CHEMICALS',
-    image: '/chemicals-group-transparent.png'
   }
 ];
 
