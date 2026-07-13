@@ -1,5 +1,5 @@
 import { Phone, Mail, MapPin, Globe } from 'lucide-react';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './Footer.css';
 
@@ -13,11 +13,11 @@ export default function Footer() {
             <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" style={{height: '35px'}} />
           </div>
           <p className="footer-description">
-            Your trusted partner for complete laundry solutions — from machines to chemicals. Since 2020.
+            Your trusted partner for professional laundry services and franchise oppurtunities
           </p>
           <ul className="example-2">
             <li className="icon-content">
-              <a href="https://www.facebook.com/kleidercare" target="_blank" rel="noopener noreferrer" data-social="facebook" aria-label="Facebook">
+              <a href="https://www.facebook.com/profile.php?id=61570405707839" target="_blank" rel="noopener noreferrer" data-social="facebook" aria-label="Facebook">
                 <div className="filled"></div>
                 <FaFacebook size={20} />
               </a>
@@ -31,11 +31,11 @@ export default function Footer() {
               <div className="tooltip">Instagram</div>
             </li>
             <li className="icon-content">
-              <a href="https://linkedin.com/company/kleidercare" target="_blank" rel="noopener noreferrer" data-social="linkedin" aria-label="LinkedIn">
+              <a href="https://wa.me/919384814933" target="_blank" rel="noopener noreferrer" data-social="whatsapp" aria-label="WhatsApp">
                 <div className="filled"></div>
-                <FaLinkedin size={20} />
+                <FaWhatsapp size={20} />
               </a>
-              <div className="tooltip">LinkedIn</div>
+              <div className="tooltip">WhatsApp</div>
             </li>
           </ul>
         </div>
@@ -58,19 +58,29 @@ export default function Footer() {
         </div>
 
         <div className="footer-section">
-          <h4>Get in Touch</h4>
+          <h4>Contact Info</h4>
           <div className="contact-info">
-            <div className="contact-item">
-              <Phone size={18} />
-              <a href="tel:+919876543210">+91 9876 543 210</a>
-            </div>
-            <div className="contact-item">
-              <Mail size={18} />
-              <a href="mailto:info@kleidercare.com">info@kleidercare.com</a>
+            <div className="contact-item" style={{ color: '#ffffff', fontWeight: '600' }}>
+              Kleider Care Pvt Ltd
             </div>
             <div className="contact-item">
               <MapPin size={18} />
-              <span>Mumbai, India 400001</span>
+              <span>
+                91/1, Periyar Salai Signal,<br />
+                Palavakkam ECR, Chennai-600028
+              </span>
+            </div>
+            <div className="contact-item">
+              <Mail size={18} />
+              <a href="mailto:support@kleidercare.com">support@kleidercare.com</a>
+            </div>
+            <div className="contact-item">
+              <Phone size={18} />
+              <a href="tel:+919384814933">+919384814933</a>
+            </div>
+            <div className="contact-item">
+              <Phone size={18} />
+              <a href="tel:+919944328471">+919944328471</a>
             </div>
           </div>
         </div>

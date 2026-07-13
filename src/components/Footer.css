@@ -153,6 +153,16 @@
   flex-shrink: 0;
 }
 
+.contact-item a {
+  color: #9ca3af;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.contact-item a:hover {
+  color: #ffffff;
+}
+
 .newsletter-form {
   display: flex;
   gap: 8px;
