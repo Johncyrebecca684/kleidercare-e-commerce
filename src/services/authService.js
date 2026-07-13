@@ -95,6 +95,19 @@ export async function getCurrentUser() {
   }
 }
 
+export async function updateCartWishlist({ cart, wishlist }) {
+  try {
+    const data = await apiCall('/cart-wishlist', {
+      method: 'POST',
+      body: JSON.stringify({ cart, wishlist })
+    });
+    return data;
+  } catch (error) {
+    console.error('Error in updateCartWishlist api call:', error);
+    throw error;
+  }
+}
+
 export function logout() {
   removeToken();
 }

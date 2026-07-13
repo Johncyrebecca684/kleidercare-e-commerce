@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Smartphone, QrCode } from 'lucide-react';
 import './CheckoutPage.css';
 
 // Merchant UPI details – change to your actual VPA in production
-const MERCHANT_UPI_ID = 'kleidercare@upi';
+const MERCHANT_UPI_ID = 'hariharasudhan81-3@okhdfcbank';
 const MERCHANT_NAME  = 'Kleider Care';
 
 function isMobileDevice() {
@@ -23,8 +23,8 @@ function buildUpiLink(recipientVpa, name, amount, transactionNote) {
 }
 
 function buildQrUrl(upiLink) {
-  // Google Charts QR code API – no npm dependency needed
-  return `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(upiLink)}&choe=UTF-8`;
+  // QRServer API – fast, reliable, open-source and free
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 }
 
 export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser }) {
@@ -34,6 +34,9 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   const [paymentError, setPaymentError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Card');
   const [showSimulatedModal, setShowSimulatedModal] = useState(false);
+  const [showUpiModal, setShowUpiModal] = useState(false);
+  const [upiSessionId, setUpiSessionId] = useState('');
+  const [upiStatusText, setUpiStatusText] = useState('');
   const [currentOrderData, setCurrentOrderData] = useState(null);
   // Manual UPI entry state
   const [upiId, setUpiId] = useState('');
@@ -48,6 +51,114 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     state: '',
     pincode: ''
   });
+
+  // Inject spinner keyframes if not exists
+  useEffect(() => {
+    if (!document.getElementById('upi-spin-style')) {
+      const style = document.createElement('style');
+      style.id = 'upi-spin-style';
+      style.innerHTML = `
+        @keyframes upi-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
+  // Handle UPI verification polling
+  useEffect(() => {
+    let intervalId;
+    if (showUpiModal && upiSessionId) {
+      setUpiStatusText('Waiting for payment scan/receipt...');
+      
+      const checkStatus = async () => {
+        try {
+          const res = await fetch(`/api/payment/check-upi-status?sessionId=${upiSessionId}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          
+          if (data.status === 'Paid') {
+            clearInterval(intervalId);
+            setUpiStatusText('✅ Payment detected successfully!');
+            
+            // Automatically complete order and save to database
+            setIsProcessing(true);
+            const token = localStorage.getItem('kc_auth_token');
+            const orderPayload = {
+              customerName: formData.name,
+              userEmail: formData.email,
+              phone: formData.phone,
+              shippingAddress: {
+                address: formData.address,
+                city: formData.city,
+                state: formData.state,
+                pincode: formData.pincode
+              },
+              items: items.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+              })),
+              totalAmount: finalTotal,
+              paymentMethod: 'UPI',
+              paymentStatus: 'Paid',
+              razorpayPaymentId: data.transactionId
+            };
+
+            const orderSaveResponse = await fetch('/api/orders', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+              },
+              body: JSON.stringify(orderPayload)
+            });
+
+            if (!orderSaveResponse.ok) {
+              const saveErr = await orderSaveResponse.json();
+              throw new Error(saveErr.message || 'Failed to save order details in database');
+            }
+
+            const savedOrderData = await orderSaveResponse.json();
+            const savedOrder = savedOrderData.order;
+
+            setShowUpiModal(false);
+            setIsSuccess(true);
+            
+            const newOrder = {
+              id: savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
+              orderId: savedOrder._id,
+              date: new Date(savedOrder.createdAt).toLocaleDateString(),
+              items: savedOrder.items,
+              total: savedOrder.totalAmount,
+              status: savedOrder.status,
+              paymentMethod: savedOrder.paymentMethod
+            };
+
+            setTimeout(() => {
+              onPlaceOrder(newOrder);
+              navigate('/');
+            }, 4000);
+          } else {
+            setUpiStatusText(data.message || 'Waiting for payment scan/receipt...');
+          }
+        } catch (err) {
+          console.error('Error polling UPI status:', err);
+        }
+      };
+
+      // Poll every 2 seconds
+      intervalId = setInterval(checkStatus, 2000);
+      // Run once immediately
+      checkStatus();
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [showUpiModal, upiSessionId]);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -269,6 +380,78 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     setPaymentError('');
     setIsProcessing(true);
 
+    if (paymentMethod === 'Cash') {
+      try {
+        const token = localStorage.getItem('kc_auth_token');
+        const orderPayload = {
+          customerName: formData.name,
+          userEmail: formData.email,
+          phone: formData.phone,
+          shippingAddress: {
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode
+          },
+          items: items.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          totalAmount: finalTotal,
+          paymentMethod: 'Cash',
+          paymentStatus: 'Pending',
+        };
+
+        const orderSaveResponse = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: JSON.stringify(orderPayload)
+        });
+
+        if (!orderSaveResponse.ok) {
+          const saveErr = await orderSaveResponse.json();
+          throw new Error(saveErr.message || 'Failed to save order details in database');
+        }
+
+        const savedOrderData = await orderSaveResponse.json();
+        const savedOrder = savedOrderData.order;
+
+        setIsSuccess(true);
+        
+        const newOrder = {
+          id: savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
+          orderId: savedOrder._id,
+          date: new Date(savedOrder.createdAt).toLocaleDateString(),
+          items: savedOrder.items,
+          total: savedOrder.totalAmount,
+          status: savedOrder.status,
+          paymentMethod: savedOrder.paymentMethod
+        };
+
+        setTimeout(() => {
+          onPlaceOrder(newOrder);
+          navigate('/');
+        }, 4000);
+      } catch (err) {
+        console.error(err);
+        setPaymentError(err.message || 'An error occurred while placing the order.');
+        setIsProcessing(false);
+      }
+      return;
+    }
+
+    if (paymentMethod === 'UPI') {
+      const newSessionId = 'session_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      setUpiSessionId(newSessionId);
+      setShowUpiModal(true);
+      setIsProcessing(false);
+      return;
+    }
+
     try {
       // 1. Create order on backend (Amount in paise)
       const amountInPaise = Math.round(finalTotal * 100);
@@ -427,9 +610,34 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
 
               <div className="checkout-page-section" style={{ marginTop: '25px' }}>
                 <h3>Select Payment Method</h3>
-                <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
+                <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
                   <label style={{
-                    flex: 1,
+                    flex: '1 1 200px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '14px',
+                    border: paymentMethod === 'Cash' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: paymentMethod === 'Cash' ? '#f0f4ff' : '#ffffff',
+                    fontWeight: '700',
+                    transition: 'all 0.2s',
+                    boxSizing: 'border-box'
+                  }}>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="Cash" 
+                      checked={paymentMethod === 'Cash'} 
+                      onChange={() => setPaymentMethod('Cash')}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    💵 Cash on Delivery
+                  </label>
+
+                  <label style={{
+                    flex: '1 1 200px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
@@ -450,11 +658,11 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                       onChange={() => setPaymentMethod('Card')}
                       style={{ cursor: 'pointer' }}
                     />
-                    💳 Card Payment
+                    💳 Credit Card
                   </label>
                   
                   <label style={{
-                    flex: 1,
+                    flex: '1 1 200px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
@@ -639,7 +847,10 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               disabled={isProcessing}
               style={isProcessing ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#64748b' } : {}}
             >
-              {isProcessing ? 'Processing Payment...' : `Pay & Place Order (₹${finalTotal})`}
+              {isProcessing ? 'Processing...' : 
+               paymentMethod === 'Cash' ? `Confirm Order (₹${finalTotal})` : 
+               paymentMethod === 'UPI' ? `Pay via UPI & Place Order (₹${finalTotal})` : 
+               `Pay & Place Order (₹${finalTotal})`}
             </button>
           </div>
       {showSimulatedModal && currentOrderData && (
@@ -874,6 +1085,142 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                 }}
               >
                 Simulate Failure / Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showUpiModal && (
+        <div className="simulated-payment-modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          zIndex: 9999,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontFamily: 'sans-serif'
+        }}>
+          <div className="simulated-payment-modal" style={{
+            background: 'white',
+            borderRadius: '12px',
+            width: '420px',
+            padding: '24px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            textAlign: 'center',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+              <h3 style={{ margin: 0, color: '#1a4a8d', fontSize: '18px', fontWeight: '800' }}>UPI Payment</h3>
+              <button 
+                onClick={() => { setShowUpiModal(false); setUpiSessionId(''); }}
+                style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <p style={{ fontSize: '14px', color: '#475569', margin: '0 0 6px 0' }}>Payee: <strong>HARI HARA SUDHAN S</strong></p>
+            <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0' }}>UPI ID: <code>{MERCHANT_UPI_ID}</code></p>
+            <p style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal}</p>
+            
+            {isMobileDevice() ? (
+              <div style={{ marginBottom: '20px' }}>
+                <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px' }}>
+                  Click below to open your UPI app to pay the locked amount of <strong>₹{finalTotal}</strong>.
+                </p>
+                <a
+                  href={buildUpiLink(MERCHANT_UPI_ID, 'HARI HARA SUDHAN S', finalTotal, 'Order Payment')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    padding: '14px',
+                    borderRadius: '8px',
+                    fontWeight: '700',
+                    fontSize: '15px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Smartphone size={18} /> Open UPI App to Pay
+                </a>
+              </div>
+            ) : (
+              <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <p style={{ fontSize: '13px', color: '#475569', marginBottom: '14px' }}>
+                  Scan this QR code with GPay/PhonePe/Paytm.
+                </p>
+                <div style={{
+                  padding: '12px',
+                  background: '#f8fafc',
+                  border: '1.5px solid #e2e8f0',
+                  borderRadius: '12px',
+                  display: 'inline-block',
+                  marginBottom: '10px'
+                }}>
+                  <img
+                    src={buildQrUrl(buildUpiLink(MERCHANT_UPI_ID, 'HARI HARA SUDHAN S', finalTotal, 'Order Payment'))}
+                    alt="UPI QR Code"
+                    style={{ width: '200px', height: '200px', display: 'block' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div style={{ 
+              backgroundColor: '#eff6ff', 
+              border: '1px solid #bfdbfe', 
+              padding: '14px', 
+              borderRadius: '8px', 
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}>
+              <div className="upi-loading-spinner" style={{
+                width: '16px',
+                height: '16px',
+                border: '2px solid #1a4a8d',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'upi-spin 1s linear infinite'
+              }}></div>
+              <span style={{ fontSize: '13px', color: '#1e40af', fontWeight: '600' }}>
+                {upiStatusText}
+              </span>
+            </div>
+
+            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+              <button 
+                onClick={() => {
+                  setShowUpiModal(false);
+                  setUpiSessionId('');
+                  setIsProcessing(false);
+                }}
+                style={{
+                  background: 'none',
+                  border: '1px solid #cbd5e1',
+                  color: '#475569',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+              >
+                Cancel / Go Back
               </button>
             </div>
           </div>

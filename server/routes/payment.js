@@ -100,4 +100,43 @@ router.post('/verify-payment', (req, res) => {
   }
 });
 
+// Simple in-memory session store for tracking simulated direct UPI payments
+const upiSessions = new Map();
+
+// GET /api/payment/check-upi-status
+// Query params: sessionId
+router.get('/check-upi-status', (req, res) => {
+  const { sessionId } = req.query;
+  if (!sessionId) {
+    return res.status(400).json({ message: 'Session ID is required' });
+  }
+
+  const now = Date.now();
+  if (!upiSessions.has(sessionId)) {
+    // First time checking status for this session, store the start timestamp
+    upiSessions.set(sessionId, now);
+    return res.json({ status: 'Pending', message: 'Waiting for payment receipt confirmation...' });
+  }
+
+  const startTime = upiSessions.get(sessionId);
+  const elapsedSeconds = (now - startTime) / 1000;
+
+  // Simulate 8 seconds bank verification delay
+  if (elapsedSeconds >= 8) {
+    // Delete session from memory to clean up
+    upiSessions.delete(sessionId);
+    console.log(`💰 Direct UPI payment verified successfully for session ${sessionId}`);
+    return res.json({
+      status: 'Paid',
+      transactionId: `UPI${Math.floor(100000000000 + Math.random() * 900000000000)}`, // 12-digit UTR
+      message: 'Payment received. Order confirmed.'
+    });
+  }
+
+  return res.json({
+    status: 'Pending',
+    message: `Waiting for payment confirmation (${Math.round(8 - elapsedSeconds)}s remaining)...`
+  });
+});
+
 export default router;
