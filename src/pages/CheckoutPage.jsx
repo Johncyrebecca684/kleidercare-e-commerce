@@ -611,55 +611,6 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               <div className="checkout-page-section" style={{ marginTop: '25px' }}>
                 <h3>Select Payment Method</h3>
                 <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
-                  <label style={{
-                    flex: '1 1 200px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '14px',
-                    border: paymentMethod === 'Cash' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    background: paymentMethod === 'Cash' ? '#f0f4ff' : '#ffffff',
-                    fontWeight: '700',
-                    transition: 'all 0.2s',
-                    boxSizing: 'border-box'
-                  }}>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="Cash" 
-                      checked={paymentMethod === 'Cash'} 
-                      onChange={() => setPaymentMethod('Cash')}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    💵 Cash on Delivery
-                  </label>
-
-                  <label style={{
-                    flex: '1 1 200px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '14px',
-                    border: paymentMethod === 'Card' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    background: paymentMethod === 'Card' ? '#f0f4ff' : '#ffffff',
-                    fontWeight: '700',
-                    transition: 'all 0.2s',
-                    boxSizing: 'border-box'
-                  }}>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="Card" 
-                      checked={paymentMethod === 'Card'} 
-                      onChange={() => setPaymentMethod('Card')}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    💳 Credit Card
-                  </label>
                   
                   <label style={{
                     flex: '1 1 200px',
