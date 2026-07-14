@@ -128,8 +128,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
             setIsSuccess(true);
             
             const newOrder = {
-              id: savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
-              orderId: savedOrder._id,
+              id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
+              orderId: savedOrder.orderId || savedOrder._id,
               date: new Date(savedOrder.createdAt).toLocaleDateString(),
               items: savedOrder.items,
               total: savedOrder.totalAmount,
@@ -182,7 +182,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
 
   const shipping = subtotal > 500 ? 0 : 50;
-  const tax = Math.round((subtotal - discountAmount) * 0.05);
+  const tax = Math.round((subtotal - discountAmount) * 0.18);
   const finalTotal = Math.round((subtotal - discountAmount + shipping + tax) * 100) / 100;
 
   const handleApplyCoupon = (e) => {
@@ -343,8 +343,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
         setIsSuccess(true);
         
         const newOrder = {
-          id: savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
-          orderId: savedOrder._id,
+          id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
+          orderId: savedOrder.orderId || savedOrder._id,
           paymentId: savedOrder.razorpayPaymentId,
           date: new Date(savedOrder.createdAt).toLocaleDateString(),
           items: savedOrder.items,
@@ -423,8 +423,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
         setIsSuccess(true);
         
         const newOrder = {
-          id: savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
-          orderId: savedOrder._id,
+          id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
+          orderId: savedOrder.orderId || savedOrder._id,
           date: new Date(savedOrder.createdAt).toLocaleDateString(),
           items: savedOrder.items,
           total: savedOrder.totalAmount,
@@ -663,7 +663,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                 <span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
               </div>
               <div className="summary-row-page">
-                <span>Tax (5%)</span>
+                <span>Tax (18%)</span>
                 <span>₹{tax}</span>
               </div>
               {appliedCoupons.includes('KCSPARE') && (

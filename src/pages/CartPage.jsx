@@ -2,12 +2,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
 import './CartPage.css';
 
-export default function CartPage({ items, onUpdateQuantity, onRemoveItem }) {
+export default function CartPage({ items, onUpdateQuantity, onRemoveItem, loggedInUser, onLoginOpen }) {
   const navigate = useNavigate();
   
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
   const shipping = subtotal > 500 ? 0 : 50;
-  const tax = Math.round(subtotal * 0.05);
+  const tax = Math.round(subtotal * 0.18);
   const total = Math.round((subtotal + shipping + tax) * 100) / 100;
 
   return (
@@ -89,7 +89,7 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem }) {
               </span>
             </div>
             <div className="summary-row">
-              <span>Tax (5%)</span>
+              <span>Tax (18%)</span>
               <span>₹{tax}</span>
             </div>
             
@@ -106,7 +106,13 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem }) {
 
             <button 
               className="checkout-btn-main"
-              onClick={() => navigate('/checkout')}
+              onClick={() => {
+                if (!loggedInUser) {
+                  onLoginOpen();
+                } else {
+                  navigate('/checkout');
+                }
+              }}
             >
               Proceed to Checkout
               <ArrowRight size={20} />

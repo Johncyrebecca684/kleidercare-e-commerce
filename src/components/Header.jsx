@@ -103,7 +103,7 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
 
         <div className="headerRight">
           {loggedInUser ? (
-            <button className="userProfileBtn" type="button" onClick={onProfileClick} aria-label={`Profile for ${loggedInUser.firstName}`}>
+            <button className="userProfileBtn" type="button" onClick={() => navigate('/profile')} aria-label={`Profile for ${loggedInUser.firstName}`}>
               <span className="userInitials">
                 {loggedInUser.firstName.charAt(0)}{loggedInUser.lastName.charAt(0)}
               </span>

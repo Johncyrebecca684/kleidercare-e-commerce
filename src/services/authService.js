@@ -108,6 +108,46 @@ export async function updateCartWishlist({ cart, wishlist }) {
   }
 }
 
+export async function forgotPassword(email) {
+  const data = await apiCall('/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  });
+  return data;
+}
+
+export async function resetPassword({ email, otp, password }) {
+  const data = await apiCall('/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ email, otp, password })
+  });
+  return data;
+}
+
+export async function updateAddresses(addresses) {
+  const data = await apiCall('/addresses', {
+    method: 'POST',
+    body: JSON.stringify({ addresses })
+  });
+  return data;
+}
+
+export async function addWalletBalance(amount) {
+  const data = await apiCall('/wallet', {
+    method: 'POST',
+    body: JSON.stringify({ amount })
+  });
+  return data;
+}
+
+export async function updateProfile({ firstName, lastName, mobileNumber }) {
+  const data = await apiCall('/update-profile', {
+    method: 'POST',
+    body: JSON.stringify({ firstName, lastName, mobileNumber })
+  });
+  return data;
+}
+
 export function logout() {
   removeToken();
 }

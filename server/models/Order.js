@@ -57,6 +57,10 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  orderId: {
+    type: String,
+    unique: true
+  },
   status: {
     type: String,
     enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
@@ -64,6 +68,29 @@ const orderSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Pre-save hook to generate a unique tracking order ID (e.g., ORD123456)
+orderSchema.pre('save', async function(next) {
+  if (this.orderId) return next();
+
+  let unique = false;
+  let attempts = 0;
+  while (!unique && attempts < 10) {
+    const randomDigits = Math.floor(100000 + Math.random() * 900000);
+    const candidateId = `ORD${randomDigits}`;
+    const existing = await mongoose.models.Order.findOne({ orderId: candidateId });
+    if (!existing) {
+      this.orderId = candidateId;
+      unique = true;
+    }
+    attempts++;
+  }
+
+  if (!this.orderId) {
+    this.orderId = `ORD${Date.now()}`;
+  }
+  next();
 });
 
 const Order = mongoose.model('Order', orderSchema);

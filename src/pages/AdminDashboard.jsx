@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { addProduct, updateProduct, deleteProduct } from '../services/productService';
 import { 
   Users, 
   ShoppingBag, 
@@ -35,25 +36,104 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
   const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
   const totalOrders = orders.length;
 
-  const handleProductSubmit = (e) => {
-    e.preventDefault();
-    if (editingProduct) {
-      setProducts(prev => prev.map(p => p.id === productForm.id ? { ...p, ...productForm, price: Number(productForm.price) } : p));
-    } else {
-      const newProduct = {
-        ...productForm,
-        id: `PROD-${Date.now()}`,
-        price: Number(productForm.price),
-        specs: ['New Product']
-      };
-      setProducts(prev => [...prev, newProduct]);
+  // Dynamic Conversion Rate
+  const uniqueBuyers = new Set(orders.map(o => o.userEmail)).size;
+  const conversionRate = activeCustomers > 0 ? ((uniqueBuyers / activeCustomers) * 100).toFixed(1) : '0.0';
+
+  // Calculate last 6 months sales dynamically
+  const getMonthlySalesData = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const salesMap = {};
+    const now = new Date();
+    const last6Months = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = months[d.getMonth()];
+      const key = `${monthName} ${d.getFullYear()}`;
+      last6Months.push({ monthName, key, total: 0 });
+      salesMap[key] = 0;
     }
-    setIsProductModalOpen(false);
+
+    orders.forEach(order => {
+      try {
+        const orderDate = new Date(order.date);
+        if (!isNaN(orderDate.getTime())) {
+          const monthName = months[orderDate.getMonth()];
+          const key = `${monthName} ${orderDate.getFullYear()}`;
+          if (salesMap[key] !== undefined) {
+            salesMap[key] += order.total;
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing order date:', err);
+      }
+    });
+
+    return last6Months.map(m => ({
+      label: m.monthName,
+      total: salesMap[m.key]
+    }));
   };
 
-  const handleDeleteProduct = (id) => {
+  const monthlySales = getMonthlySalesData();
+  const maxSales = Math.max(...monthlySales.map(s => s.total), 100);
+  const xCoords = [50, 190, 330, 470, 610, 750];
+  const chartPoints = monthlySales.map((data, index) => {
+    const x = xCoords[index];
+    const y = 250 - (data.total / maxSales) * 180; // Keep within top/bottom padding
+    return { x, y, label: data.label, total: data.total };
+  });
+
+  const linePathStr = chartPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ');
+  const areaPathStr = `${linePathStr} L 750,250 L 50,250 Z`;
+
+  const handleProductSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingProduct) {
+        const payload = {
+          name: productForm.name,
+          category: productForm.category,
+          price: Number(productForm.price),
+          originalPrice: Number(productForm.originalPrice || productForm.price),
+          image: productForm.image,
+          description: productForm.description || '',
+          badge: productForm.badge || null,
+          specifications: productForm.specifications || {}
+        };
+        const updated = await updateProduct(editingProduct.id, payload);
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? updated : p));
+      } else {
+        const payload = {
+          name: productForm.name,
+          category: productForm.category,
+          price: Number(productForm.price),
+          originalPrice: Number(productForm.price),
+          image: productForm.image,
+          description: '',
+          badge: null,
+          specifications: { 'Status': 'New Product' }
+        };
+        const created = await addProduct(payload);
+        setProducts(prev => [created, ...prev]);
+      }
+      setIsProductModalOpen(false);
+    } catch (error) {
+      console.error('Error submitting product:', error);
+      alert('Failed to save product: ' + error.message);
+    }
+  };
+
+  const handleDeleteProduct = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      setProducts(prev => prev.filter(p => p.id !== id));
+      try {
+        await deleteProduct(id);
+        setProducts(prev => prev.filter(p => p.id !== id));
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product: ' + error.message);
+      }
     }
   };
 
@@ -143,8 +223,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
                   <div className="metricIcon info"><TrendingUp size={24} /></div>
                   <div className="metricData">
                     <h4>Conversion Rate</h4>
-                    <h2>14.5%</h2>
-                    <span className="trend negative">↓ 1.2% vs last month</span>
+                    <h2>{conversionRate}%</h2>
+                    <span className="trend positive">Based on customer signups</span>
                   </div>
                 </div>
               </div>
@@ -152,9 +232,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
               <div className="chartsSection">
                 <div className="chartCard">
                   <div className="chartHeader">
-                    <h3>Sales Overview (Monthly)</h3>
+                    <h3>Sales Overview (Last 6 Months)</h3>
                     <div className="chartLegend">
-                      <span className="legendItem"><span className="dot current"></span> Current Year</span>
+                      <span className="legendItem"><span className="dot current"></span> Store Sales</span>
                     </div>
                   </div>
                   <div className="svgChartContainer">
@@ -174,13 +254,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
                       
                       {/* Area Fill */}
                       <path 
-                        d="M 50,180 L 200,80 L 350,140 L 500,60 L 650,110 L 750,40 L 750,250 L 50,250 Z" 
+                        d={areaPathStr} 
                         fill="url(#gradientFill)" 
                       />
                       
                       {/* Line connecting points */}
                       <path 
-                        d="M 50,180 L 200,80 L 350,140 L 500,60 L 650,110 L 750,40" 
+                        d={linePathStr} 
                         fill="none" 
                         stroke="#00a8e8" 
                         strokeWidth="4" 
@@ -188,33 +268,23 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
                         strokeLinejoin="round"
                       />
                       
-                      {/* Data Points and Percentages */}
+                      {/* Data Points and Amounts */}
                       <g className="dataPoints">
-                        <circle cx="50" cy="180" r="6" />
-                        <circle cx="200" cy="80" r="6" />
-                        <text x="200" y="60" className="chartPercent positive">+45%</text>
-                        
-                        <circle cx="350" cy="140" r="6" />
-                        <text x="350" y="120" className="chartPercent negative">-20%</text>
-                        
-                        <circle cx="500" cy="60" r="6" />
-                        <text x="500" y="40" className="chartPercent positive">+60%</text>
-                        
-                        <circle cx="650" cy="110" r="6" />
-                        <text x="650" y="90" className="chartPercent negative">-15%</text>
-                        
-                        <circle cx="750" cy="40" r="6" />
-                        <text x="750" y="20" className="chartPercent positive">+35%</text>
+                        {chartPoints.map((p, i) => (
+                          <g key={i}>
+                            <circle cx={p.x} cy={p.y} r="6" fill="#00a8e8" stroke="#ffffff" strokeWidth="2" />
+                            <text x={p.x} y={p.y - 12} textAnchor="middle" className="chartPercent positive" style={{ fill: '#1e293b', fontWeight: '700', fontSize: '11px' }}>
+                              ₹{p.total.toLocaleString('en-IN')}
+                            </text>
+                          </g>
+                        ))}
                       </g>
                       
                       {/* X Axis Labels */}
                       <g className="axisLabels">
-                        <text x="50" y="280">Jan</text>
-                        <text x="200" y="280">Feb</text>
-                        <text x="350" y="280">Mar</text>
-                        <text x="500" y="280">Apr</text>
-                        <text x="650" y="280">May</text>
-                        <text x="750" y="280">Jun</text>
+                        {chartPoints.map((p, i) => (
+                          <text key={i} x={p.x} y="280" textAnchor="middle" style={{ fill: '#64748b', fontSize: '12px' }}>{p.label}</text>
+                        ))}
                       </g>
                     </svg>
                   </div>

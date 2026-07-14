@@ -54,10 +54,17 @@ export default function TrackOrderPage({ userOrders = [] }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const orderId = trackingNumber.toUpperCase().replace(/#/g, '').trim();
+    const searchVal = trackingNumber.replace(/#/g, '').trim().toLowerCase();
+    const mockOrderId = trackingNumber.toUpperCase().replace(/#/g, '').trim();
     
     // Check real user orders first
-    const userOrder = userOrders.find(o => o.orderId === orderId || o.orderId === `ORD${orderId}`);
+    const userOrder = userOrders.find(o => {
+      const orderIdLower = (o.orderId || '').toLowerCase();
+      const mongoIdLower = (o.mongoId || o.id || '').toLowerCase();
+      return orderIdLower === searchVal || 
+             orderIdLower === `ord${searchVal}` || 
+             mongoIdLower === searchVal;
+    });
     
     if (userOrder) {
       const formattedOrder = {
@@ -85,7 +92,7 @@ export default function TrackOrderPage({ userOrders = [] }) {
     }
 
     // Fallback to mock orders
-    const order = mockOrders[orderId];
+    const order = mockOrders[mockOrderId];
     if (order) {
       setOrderData(order);
       setSearched(true);

@@ -8,6 +8,9 @@ import tls from 'tls';
 import authRoutes from './routes/auth.js';
 import paymentRoutes from './routes/payment.js';
 import orderRoutes from './routes/orders.js';
+import productRoutes from './routes/products.js';
+import Product from './models/Product.js';
+import { products as defaultProducts } from '../src/data/products.js';
 
 // Use Google DNS to resolve MongoDB Atlas SRV records
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -33,6 +36,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/products', productRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -49,6 +53,31 @@ const connectDB = async () => {
       secureContext: secureContext
     });
     console.log('✅ Connected to MongoDB Atlas');
+    
+    // Seed initial products if collection is empty
+    try {
+      const count = await Product.countDocuments();
+      if (count === 0) {
+        console.log('📦 Product collection is empty. Seeding initial products...');
+        const formattedProducts = defaultProducts.map(p => ({
+          id: String(p.id),
+          name: p.name,
+          category: p.category,
+          price: p.price,
+          originalPrice: p.originalPrice || p.price,
+          rating: p.rating || 4.5,
+          reviews: p.reviews || 0,
+          image: p.image,
+          description: p.description || '',
+          badge: p.badge || null,
+          specifications: p.specifications || {}
+        }));
+        await Product.insertMany(formattedProducts);
+        console.log(`✅ Seeded ${formattedProducts.length} default products into database.`);
+      }
+    } catch (seedErr) {
+      console.error('❌ Error auto-seeding products:', seedErr.message);
+    }
   } catch (err) {
     console.error('❌ MongoDB connection error:', err.message);
     console.log('⚠️  Server will start anyway. MongoDB will auto-reconnect when available.');

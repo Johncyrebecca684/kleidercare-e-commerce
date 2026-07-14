@@ -45,6 +45,14 @@ const userSchema = new mongoose.Schema({
   wishlist: {
     type: Array,
     default: []
+  },
+  addresses: {
+    type: Array,
+    default: []
+  },
+  walletBalance: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

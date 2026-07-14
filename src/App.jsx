@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import ForgotPassword from './components/ForgotPassword';
@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import WishlistPage from './pages/WishlistPage';
 import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
+import { getAllProducts } from './services/productService';
 import './App.css';
 
 const mergeCarts = (localCart, serverCart) => {
@@ -46,6 +47,15 @@ const mergeWishlists = (localWish, serverWish) => {
   return merged;
 };
 
+function NavigateToCartAndLogin({ onLoginOpen }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    onLoginOpen();
+    navigate('/cart', { replace: true });
+  }, [onLoginOpen, navigate]);
+  return null;
+}
+
 function App() {
   const [cartItems, setCartItems] = useState(() => {
     try {
@@ -74,7 +84,6 @@ function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Sync state changes with URL query params
   useEffect(() => {
@@ -113,9 +122,28 @@ function App() {
   }, [searchTerm, selectedCategory]);
 
   // App Data States
-  const [appProducts, setAppProducts] = useState(products);
+  const [appProducts, setAppProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+
+  // Fetch products from database
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProducts();
+        setAppProducts(data);
+      } catch (error) {
+        console.error('Error fetching products from database:', error);
+        // Fallback to static products list if API fails
+        setAppProducts(products);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+  const [appUsers, setAppUsers] = useState([]);
   const [userOrders, setUserOrders] = useState([
     {
       id: 'ORD-12345',
@@ -186,18 +214,20 @@ function App() {
     restoreSession();
   }, []);
 
-  // Fetch orders from database whenever the loggedInUser state changes
+  // Fetch orders and users from database whenever the loggedInUser state changes
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchOrdersAndUsers = async () => {
       if (!loggedInUser) {
         setUserOrders([]);
+        setAppUsers([]);
         return;
       }
 
-      try {
-        const token = localStorage.getItem('kc_auth_token');
-        const endpoint = loggedInUser.role === 'admin' ? '/api/orders/admin-all' : '/api/orders/my-orders';
+      const token = localStorage.getItem('kc_auth_token');
 
+      // Fetch orders
+      try {
+        const endpoint = loggedInUser.role === 'admin' ? '/api/orders/admin-all' : '/api/orders/my-orders';
         const response = await fetch(endpoint, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -208,8 +238,9 @@ function App() {
           const data = await response.json();
           // Format orders fetched from MongoDB to match frontend layout structure
           const formattedOrders = data.map(order => ({
-            id: order._id,
-            orderId: order._id,
+            id: order.orderId || order._id,
+            orderId: order.orderId || order._id,
+            mongoId: order._id,
             paymentId: order.razorpayPaymentId,
             date: new Date(order.createdAt).toLocaleDateString(),
             items: order.items,
@@ -219,6 +250,8 @@ function App() {
             customerName: order.customerName,
             paymentStatus: order.paymentStatus,
             paymentMethod: order.paymentMethod,
+            phone: order.phone,
+            shippingAddress: order.shippingAddress,
             warranty: 'Active (1 Year)',
             setup: 'Pending Installation'
           }));
@@ -227,9 +260,26 @@ function App() {
       } catch (error) {
         console.error('Error fetching database orders:', error);
       }
+
+      // Fetch users (admin only)
+      if (loggedInUser.role === 'admin') {
+        try {
+          const response = await fetch('/api/auth/users', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setAppUsers(data);
+          }
+        } catch (error) {
+          console.error('Error fetching database users:', error);
+        }
+      }
     };
 
-    fetchOrders();
+    fetchOrdersAndUsers();
   }, [loggedInUser]);
 
   const handleAddToCart = (product) => {
@@ -327,6 +377,15 @@ function App() {
     handleClearCart();
   };
 
+  if (productsLoading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'sans-serif', background: '#f8fafc' }}>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a4a8d', marginBottom: '10px' }}>Kleider Care</div>
+        <div style={{ fontSize: '16px', color: '#64748b' }}>Loading Inventory...</div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="app">
@@ -353,9 +412,6 @@ function App() {
                 isForgotPasswordOpen={isForgotPasswordOpen}
                 onForgotPasswordOpen={() => setIsForgotPasswordOpen(true)}
                 onForgotPasswordClose={() => setIsForgotPasswordOpen(false)}
-                isProfileOpen={isProfileOpen}
-                onProfileOpen={() => setIsProfileOpen(true)}
-                onProfileClose={() => setIsProfileOpen(false)}
                 loggedInUser={loggedInUser}
                 onLoginSuccess={handleLoginSuccess}
                 onSignupSuccess={handleSignupSuccess}
@@ -374,7 +430,7 @@ function App() {
               <AdminDashboard
                 products={appProducts}
                 setProducts={setAppProducts}
-                users={[]}
+                users={appUsers}
                 orders={userOrders}
                 loggedInUser={loggedInUser}
               />
@@ -387,20 +443,28 @@ function App() {
                 items={cartItems}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemoveItem={handleRemoveItem}
+                loggedInUser={loggedInUser}
+                onLoginOpen={() => setIsLoginOpen(true)}
               />
             }
           />
           <Route
             path="/checkout"
             element={
-              <CheckoutPage
-                items={cartItems}
-                total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 500
-                  ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.05)
-                  : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.05)}
-                onPlaceOrder={handlePlaceOrder}
-                loggedInUser={loggedInUser}
-              />
+              authLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '20px', color: '#1a4a8d' }}>Loading...</div>
+              ) : loggedInUser ? (
+                <CheckoutPage
+                  items={cartItems}
+                  total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 500
+                    ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18)
+                    : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18)}
+                  onPlaceOrder={handlePlaceOrder}
+                  loggedInUser={loggedInUser}
+                />
+              ) : (
+                <NavigateToCartAndLogin onLoginOpen={() => setIsLoginOpen(true)} />
+              )
             }
           />
           <Route
@@ -411,6 +475,30 @@ function App() {
                 onRemoveFromWishlist={handleRemoveFromWishlist}
                 onAddToCart={handleAddToCart}
               />
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              authLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '20px', color: '#1a4a8d' }}>Loading...</div>
+              ) : loggedInUser ? (
+                <UserProfile
+                  userData={loggedInUser}
+                  onLogout={handleLogout}
+                  orders={userOrders}
+                  cartCount={cartCount}
+                  wishlistCount={wishlistItems.length}
+                  onUpdateUser={(updatedUser) => setLoggedInUser(updatedUser)}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  onLoginOpen={() => setIsLoginOpen(true)}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
             }
           />
         </Routes>
@@ -435,14 +523,6 @@ function App() {
           isOpen={isForgotPasswordOpen}
           onClose={() => setIsForgotPasswordOpen(false)}
           onSwitchToLogin={() => setIsLoginOpen(true)}
-        />
-
-        <UserProfile
-          isOpen={isProfileOpen}
-          onClose={() => setIsProfileOpen(false)}
-          userData={loggedInUser}
-          onLogout={handleLogout}
-          orders={userOrders}
         />
       </div>
     </Router>
