@@ -243,6 +243,7 @@ function App() {
             mongoId: order._id,
             paymentId: order.razorpayPaymentId,
             date: new Date(order.createdAt).toLocaleDateString(),
+            rawDate: order.createdAt,
             items: order.items,
             total: order.totalAmount,
             status: order.status,

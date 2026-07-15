@@ -1,9 +1,8 @@
 .footer {
-  background: #0f2b5c;
+  background: linear-gradient(180deg, #0f2b5c 0%, #081630 100%);
   color: #ffffff;
   padding-top: 60px;
   position: relative;
-  border-top: 1px solid #e5e7eb;
 }
 
 .footer-content {
@@ -66,7 +65,7 @@
   align-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 0;
+  border-radius: 12px;
   color: #ffffff;
   background-color: transparent;
   border: 1px solid #1a365d;
@@ -174,7 +173,7 @@
   padding: 10px 12px;
   background: transparent;
   border: 1px solid #1a365d;
-  border-radius: 0;
+  border-radius: 12px;
   color: white;
   font-size: 13px;
   outline: none;
@@ -194,7 +193,7 @@
   background: #ffffff;
   color: #0f2b5c;
   border: none;
-  border-radius: 0;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
   font-size: 13px;

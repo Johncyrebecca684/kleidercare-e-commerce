@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, Phone, Mail, MapPin, Package, Truck, Calendar, Shield, Download, User } from 'lucide-react';
 import './TicketingPage.css';
 
-export default function TicketingPage() {
+export default function TicketingPage({ isAdmin = false }) {
   const navigate = useNavigate();
   const [searchPhone, setSearchPhone] = useState('');
   const [customerData, setCustomerData] = useState(null);
@@ -141,19 +141,21 @@ export default function TicketingPage() {
     return (
       <div className="ticketingPageContainer animate-fade-in">
         <div className="ticketingHeader">
-          <button className="backBtn" onClick={() => navigate('/')}>
-            <ArrowLeft size={20} />
-            Back
-          </button>
+          {!isAdmin && (
+            <button className="backBtn" onClick={() => navigate('/')}>
+              <ArrowLeft size={20} />
+              Back
+            </button>
+          )}
           <h1 className="pageTitle">Customer Support Ticketing</h1>
         </div>
 
-        <div className="ticketingContent">
+        <div className="ticketingContent" id="ticketing-print-area">
           {/* Customer Overview Card */}
           <div className="customerCard">
             <div className="cardHeader">
               <h2>Ticket ID: {customerData.phone}</h2>
-              <button className="downloadBtn">
+              <button className="downloadBtn" onClick={() => window.print()}>
                 <Download size={18} />
                 Export Details
               </button>
@@ -288,16 +290,6 @@ export default function TicketingPage() {
             ))}
           </div>
 
-          {/* Support Actions */}
-          <div className="supportActions">
-            <h3 className="sectionTitle">Support Actions</h3>
-            <div className="actionButtons">
-              <button className="actionBtn primary">Send Warranty Certificate</button>
-              <button className="actionBtn secondary">Initiate Return Process</button>
-              <button className="actionBtn secondary">Send Replacement Request</button>
-              <button className="actionBtn secondary">Add Service Note</button>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -306,10 +298,12 @@ export default function TicketingPage() {
   return (
     <div className="ticketingPageContainer animate-fade-in">
       <div className="ticketingHeader">
-        <button className="backBtn" onClick={() => navigate('/')}>
-          <ArrowLeft size={20} />
-          Back
-        </button>
+        {!isAdmin && (
+          <button className="backBtn" onClick={() => navigate('/')}>
+            <ArrowLeft size={20} />
+            Back
+          </button>
+        )}
         <h1 className="pageTitle">Customer Support Ticketing</h1>
       </div>
 

@@ -186,7 +186,7 @@
   color: #ef4444;
   margin-top: 10px;
   border-top: 1px solid var(--zepto-border);
-  border-radius: 0;
+  border-radius: 12px;
   padding-top: 18px;
 }
 
@@ -1195,7 +1195,7 @@
     padding: 0;
   }
   .invoice-modal-card {
-    box-shadow: none;
+    box-shadow: var(--shadow-sm);
     padding: 0;
     width: 100%;
     max-width: 100%;

@@ -46,13 +46,6 @@ export default function Footer() {
             <li><a href="/">Home</a></li>
             <li><a href="/cart">Cart</a></li>
             <li><a href="/#products">Products</a></li>
-          </ul>
-        </div>
-
-        <div className="footer-section">
-          <h4>Support</h4>
-          <ul className="footer-links">
-            <li><a href="https://www.kleidercare.com/contact-us" target="_blank" rel="noopener noreferrer">Contact Us</a></li>
             <li><button onClick={() => navigate('/track-order')} className="trackOrderLink">Track Order</button></li>
           </ul>
         </div>
@@ -90,10 +83,6 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <p>&copy; 2026 All rights reserved. Kleider Care.</p>
-        <div className="footer-bottom-links">
-          <a href="https://www.kleidercare.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
-          <a href="https://www.kleidercare.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-        </div>
       </div>
     </footer>
   );

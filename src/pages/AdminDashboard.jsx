@@ -13,8 +13,10 @@ import {
   ShieldCheck,
   CheckCircle2,
   XCircle,
-  BarChart3
+  BarChart3,
+  Ticket
 } from 'lucide-react';
+import TicketingPage from './TicketingPage';
 import './AdminDashboard.css';
 
 export default function AdminDashboard({ products, setProducts, users, orders, loggedInUser }) {
@@ -57,7 +59,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
 
     orders.forEach(order => {
       try {
-        const orderDate = new Date(order.date);
+        const orderDate = new Date(order.rawDate || order.date);
         if (!isNaN(orderDate.getTime())) {
           const monthName = months[orderDate.getMonth()];
           const key = `${monthName} ${orderDate.getFullYear()}`;
@@ -182,6 +184,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
           >
             <Users size={20} />
             Customer Sales
+          </button>
+          <button 
+            className={`navBtn ${activeTab === 'ticketing' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ticketing')}
+          >
+            <Ticket size={20} />
+            Support Ticketing
           </button>
         </nav>
       </aside>
@@ -387,6 +396,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'ticketing' && (
+            <div className="tabPane fade-in">
+              <TicketingPage isAdmin={true} />
             </div>
           )}
         </div>

@@ -10,8 +10,10 @@
 
 .carouselBanner {
   position: relative;
-  background: #0f2b5c;
-  border-radius: 0;
+  background: linear-gradient(135deg, #0a2e5c 0%, #104285 50%, #0a2e5c 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   padding: 40px;
@@ -61,7 +63,7 @@
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: 0;
+  border-radius: 12px;
   background: #ffffff;
   opacity: 0.4;
   transition: all 0.2s ease;
@@ -90,7 +92,7 @@
   transform: translateY(-50%);
   width: 48px;
   height: 48px;
-  border-radius: 0;
+  border-radius: 12px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   cursor: pointer;
@@ -98,7 +100,7 @@
   align-items: center;
   justify-content: center;
   color: #0f2b5c;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   z-index: 10;
   transition: all 0.2s ease;
 }
@@ -145,6 +147,28 @@
   }
 }
 
+@media (max-width: 480px) {
+  .carouselTitle {
+    font-size: 24px;
+  }
+
+  .carouselSubtitle {
+    font-size: 16px;
+  }
+
+  .carouselKicker {
+    font-size: 16px;
+  }
+
+  .carouselImage {
+    height: 150px;
+  }
+
+  .carouselBanner {
+    padding: 20px;
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -173,4 +197,18 @@
 
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }

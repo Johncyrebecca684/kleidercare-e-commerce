@@ -17,32 +17,42 @@
   /* Minimalist theme variables */
   --primary-color: #0f2b5c;
   --secondary-color: #f3f4f6; /* Light gray for subtle backgrounds */
-  --accent-color: #000000;
+  --accent-color: #0f2b5c;
+  --input-bg: #eef4ff;
+  --input-text: #0f172a;
+  --input-border: #dbeafe;
+  --input-focus-border: #4f46e5;
+  --input-placeholder: #64748b;
   
-  /* Solid colors for buttons instead of gradients */
-  --btn-grad-primary: #0f2b5c;
-  --btn-grad-primary-hover: #1a365d;
+  /* Premium gradients for buttons */
+  --btn-grad-primary: linear-gradient(135deg, #0f2b5c 0%, #1e40af 100%);
+  --btn-grad-primary-hover: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   
-  --btn-grad-success: #0f2b5c;
-  --btn-grad-success-hover: #1a365d;
+  --btn-grad-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --btn-grad-success-hover: linear-gradient(135deg, #059669 0%, #047857 100%);
   
-  --btn-grad-danger: #ef4444;
-  --btn-grad-danger-hover: #dc2626;
+  --btn-grad-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --btn-grad-danger-hover: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 
-  --btn-grad-secondary: #f3f4f6;
-  --btn-grad-secondary-hover: #e5e7eb;
+  --btn-grad-secondary: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  --btn-grad-secondary-hover: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
 
-  --btn-grad-warning: #f59e0b;
-  --btn-grad-warning-hover: #d97706;
+  --btn-grad-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-grad-warning-hover: linear-gradient(135deg, #d97706 0%, #b45309 100%);
 
-  /* Flat borders instead of glassmorphism */
-  --glass-bg: #ffffff;
-  --glass-bg-hover: #fafafa;
-  --glass-border: 1px solid #e5e7eb;
-  --glass-border-hover: 1px solid #d1d5db;
-  --glass-blur: none;
-  --glass-shadow: none;
-  --glass-shadow-hover: none;
+  /* Premium glassmorphism and shadows */
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-bg-hover: rgba(255, 255, 255, 0.95);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-border-hover: 1px solid rgba(255, 255, 255, 0.8);
+  --glass-blur: blur(12px);
+  --glass-shadow: 0 8px 32px rgba(15, 43, 92, 0.08);
+  --glass-shadow-hover: 0 12px 48px rgba(15, 43, 92, 0.12);
+  
+  /* Additional shadow helpers */
+  --shadow-sm: 0 2px 4px rgba(15, 43, 92, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 43, 92, 0.08);
+  --shadow-lg: 0 12px 24px rgba(15, 43, 92, 0.12);
 }
 
 * {
@@ -111,15 +121,27 @@ input,
 select,
 textarea {
   font-family: inherit;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px; /* Slight rounding for input fields */
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 8px; /* Slight rounding for input fields */
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #0f2b5c;
+  border-color: var(--input-focus-border);
+  background: var(--input-bg);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }
 
 img {

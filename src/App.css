@@ -85,13 +85,13 @@ body {
   height: 40px;
   border: 1px solid #e5e7eb;
   background: white;
-  border-radius: 0;
+  border-radius: 12px;
   font-size: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   z-index: 1000;
   color: #0f2b5c;

@@ -47,9 +47,9 @@
 .filters-container {
   background: #ffffff;
   padding: 20px;
-  border-radius: 0;
+  border-radius: 12px;
   margin-bottom: 40px;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-wrap: wrap;
   gap: 30px;
@@ -59,7 +59,7 @@
 }
 
 .filters-container:hover {
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .category-filters {
@@ -89,7 +89,7 @@
   padding: 8px 16px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
-  border-radius: 0;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
   font-size: 13px;
@@ -103,7 +103,7 @@
   border-color: #0f2b5c;
   color: #0f2b5c;
   background: #f9fafb;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
   transform: none;
 }
 
@@ -111,7 +111,7 @@
   background: #0f2b5c;
   color: #ffffff;
   border-color: #0f2b5c;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .sort-container {
@@ -138,7 +138,7 @@
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
-  border-radius: 0;
+  border-radius: 12px;
   background: #ffffff;
   cursor: pointer;
   font-weight: 500;
@@ -152,7 +152,7 @@
 .sort-select:focus {
   border-color: #0f2b5c;
   outline: none;
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .select-icon {
@@ -276,7 +276,7 @@
   }
 
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 }

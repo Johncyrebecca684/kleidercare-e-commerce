@@ -2,9 +2,12 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   color: #0f2b5c;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: var(--glass-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .topBannerStrip {
@@ -63,7 +66,7 @@
   text-decoration: none;
   color: inherit;
   padding: 6px 10px;
-  border-radius: 0;
+  border-radius: 12px;
 }
 
 .brand:hover {
@@ -81,7 +84,7 @@
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  border-radius: 0;
+  border-radius: 12px;
   color: inherit;
   background: transparent;
   border: 1px solid #e5e7eb;
@@ -116,7 +119,7 @@
   grid-template-columns: auto 1fr auto;
   align-items: stretch;
   background: #f9fafb;
-  border-radius: 0;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
 }
@@ -224,7 +227,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 0;
+  border-radius: 12px;
   background: #0f2b5c;
   color: white;
   border: none;
@@ -244,7 +247,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 0;
+  border-radius: 12px;
   background: #1a365d;
   font-size: 12px;
   font-weight: 600;
@@ -264,7 +267,7 @@
 .authBtn {
   padding: 8px 16px;
   border: none;
-  border-radius: 0;
+  border-radius: 12px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -299,7 +302,7 @@
   flex-direction: column;
   gap: 2px;
   padding: 6px 10px;
-  border-radius: 0;
+  border-radius: 12px;
   color: inherit;
   transition: all 0.2s ease;
 }
@@ -326,7 +329,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 0;
+  border-radius: 12px;
   color: inherit;
   transition: all 0.2s ease;
 }
@@ -340,7 +343,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 0;
+  border-radius: 12px;
   color: inherit;
   cursor: pointer;
   border: none;
@@ -371,7 +374,7 @@
   color: white;
   font-size: 11px;
   font-weight: 600;
-  border-radius: 0;
+  border-radius: 12px;
   padding: 2px 6px;
   border: 1px solid #ffffff;
 }
@@ -385,7 +388,7 @@
   display: none;
   width: 40px;
   height: 40px;
-  border-radius: 0;
+  border-radius: 12px;
   color: inherit;
 }
 
@@ -441,7 +444,7 @@
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
-  border-radius: 0;
+  border-radius: 12px;
   border: 1px solid transparent;
   background: transparent;
 }
@@ -595,7 +598,7 @@
     padding: 12px 16px;
     font-size: 14px;
     text-align: left;
-    border-radius: 0;
+    border-radius: 12px;
     border: 1px solid transparent;
   }
 
