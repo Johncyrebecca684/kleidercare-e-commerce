@@ -121,8 +121,8 @@ router.get('/check-upi-status', (req, res) => {
   const startTime = upiSessions.get(sessionId);
   const elapsedSeconds = (now - startTime) / 1000;
 
-  // Simulate 8 seconds bank verification delay
-  if (elapsedSeconds >= 8) {
+  // Simulate 120 seconds (2 minutes) bank verification delay
+  if (elapsedSeconds >= 120) {
     // Delete session from memory to clean up
     upiSessions.delete(sessionId);
     console.log(`💰 Direct UPI payment verified successfully for session ${sessionId}`);
@@ -135,7 +135,7 @@ router.get('/check-upi-status', (req, res) => {
 
   return res.json({
     status: 'Pending',
-    message: `Waiting for payment confirmation (${Math.round(8 - elapsedSeconds)}s remaining)...`
+    message: `Waiting for payment confirmation (${Math.round(120 - elapsedSeconds)}s remaining)...`
   });
 });
 
