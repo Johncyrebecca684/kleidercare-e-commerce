@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Smartphone, QrCode } from 'lucide-react';
 import './CheckoutPage.css';
+import { API_URL } from '../config';
 
 // Merchant UPI details – change to your actual VPA in production
 const MERCHANT_UPI_ID = 'hariharasudhan81-3@okhdfcbank';
@@ -75,7 +76,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
       
       const checkStatus = async () => {
         try {
-          const res = await fetch(`/api/payment/check-upi-status?sessionId=${upiSessionId}`);
+          const res = await fetch(`${API_URL}/api/payment/check-upi-status?sessionId=${upiSessionId}`);
           if (!res.ok) return;
           const data = await res.json();
           
@@ -107,7 +108,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               razorpayPaymentId: data.transactionId
             };
 
-            const orderSaveResponse = await fetch('/api/orders', {
+            const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -284,7 +285,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
       setIsProcessing(true);
       
       // Verify payment on backend
-      const verifyResponse = await fetch('/api/payment/verify-payment', {
+      const verifyResponse = await fetch(`${API_URL}/api/payment/verify-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -328,7 +329,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           razorpayPaymentId: paymentResponse.razorpay_payment_id
         };
 
-        const orderSaveResponse = await fetch('/api/orders', {
+        const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -408,7 +409,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           paymentStatus: 'Pending',
         };
 
-        const orderSaveResponse = await fetch('/api/orders', {
+        const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -460,7 +461,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     try {
       // 1. Create order on backend (Amount in paise)
       const amountInPaise = Math.round(finalTotal * 100);
-      const orderResponse = await fetch('/api/payment/create-order', {
+      const orderResponse = await fetch(`${API_URL}/api/payment/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -1,4 +1,5 @@
-const API_BASE = '/api/products';
+import { API_URL } from '../config';
+const API_BASE = `${API_URL}/api/products`;
 
 function getToken() {
   return localStorage.getItem('kc_auth_token');

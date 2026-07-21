@@ -15,6 +15,7 @@ import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
 import './App.css';
+import { API_URL } from './config';
 
 const mergeCarts = (localCart, serverCart) => {
   const server = serverCart || [];
@@ -265,7 +266,7 @@ function App() {
       // Fetch users (admin only)
       if (loggedInUser.role === 'admin') {
         try {
-          const response = await fetch('/api/auth/users', {
+          const response = await fetch(`${API_URL}/api/auth/users`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

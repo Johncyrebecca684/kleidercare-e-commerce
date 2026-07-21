@@ -1,4 +1,5 @@
-const API_BASE = '/api/auth';
+import { API_URL } from '../config';
+const API_BASE = `${API_URL}/api/auth`;
 
 // Store token in localStorage
 function setToken(token) {
