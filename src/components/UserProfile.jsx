@@ -181,7 +181,7 @@ export default function UserProfile({
     setWalletMsg('');
     try {
       const response = await addWalletBalance(amount);
-      setWalletMsg(`Successfully added ₹${amount} to your wallet!`);
+      setWalletMsg(`Successfully added ₹${Number(amount).toLocaleString('en-IN')} to your wallet!`);
       setWalletAmount('');
       if (onUpdateUser) {
         onUpdateUser({ ...userData, walletBalance: response.walletBalance });
@@ -307,7 +307,7 @@ export default function UserProfile({
                           {order.items.map((item, idx) => (
                             <div key={idx} className="order-item-row">
                               <span>{item.name} <strong style={{color: '#64748b'}}>x{item.quantity}</strong></span>
-                              <span>₹{item.price * item.quantity}</span>
+                              <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                             </div>
                           ))}
                         </div>
@@ -321,7 +321,7 @@ export default function UserProfile({
                             >
                               View Invoice
                             </button>
-                            <span className="order-total">Total Paid: <strong>₹{order.total}</strong></span>
+                            <span className="order-total">Total Paid: <strong>₹{order.total.toLocaleString('en-IN')}</strong></span>
                           </div>
                         </div>
                       </div>

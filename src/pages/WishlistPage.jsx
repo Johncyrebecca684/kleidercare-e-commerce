@@ -20,7 +20,7 @@ function WishlistItem({ item, onAddToCart, onRemoveFromWishlist }) {
             <Star size={14} fill="#FFD700" color="#FFD700" />
             <span>{item.rating} ({item.reviews} reviews)</span>
           </div>
-          <p className="wishlist-page-item-price">₹{item.price}</p>
+          <p className="wishlist-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
         </div>
 
         <div className="wishlist-page-item-actions">

@@ -6,8 +6,12 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
   const navigate = useNavigate();
   
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
-  const shipping = subtotal > 500 ? 0 : 50;
-  const tax = Math.round(subtotal * 0.18);
+  const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
+  const tax = items.reduce((sum, item) => {
+    const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
+    return sum + (itemGst * item.quantity);
+  }, 0);
   const total = Math.round((subtotal + shipping + tax) * 100) / 100;
 
   return (
@@ -38,7 +42,7 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
                 
                 <div className="cart-page-item-details">
                   <h3 className="cart-page-item-name">{item.name}</h3>
-                  <p className="cart-page-item-price">₹{item.price}</p>
+                  <p className="cart-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
                 </div>
 
                 <div className="cart-page-item-actions">
@@ -59,7 +63,7 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
                 </div>
 
                 <div className="cart-page-item-total">
-                  ₹{Math.round((item.price * item.quantity) * 100) / 100}
+                  ₹{(Math.round((item.price * item.quantity) * 100) / 100).toLocaleString('en-IN')}
                 </div>
 
                 <button 
@@ -80,27 +84,27 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
             
             <div className="summary-row">
               <span>Subtotal ({items.length} items)</span>
-              <span>₹{subtotal}</span>
+              <span>₹{subtotal.toLocaleString('en-IN')}</span>
             </div>
             <div className="summary-row">
               <span>Shipping Estimate</span>
               <span className={shipping === 0 ? 'free' : ''}>
-                {shipping === 0 ? 'FREE' : `₹${shipping}`}
+                {shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString('en-IN')}`}
               </span>
             </div>
             <div className="summary-row">
               <span>Tax (18%)</span>
-              <span>₹{tax}</span>
+              <span>₹{tax.toLocaleString('en-IN')}</span>
             </div>
             
             <div className="summary-row total">
               <span>Total</span>
-              <span>₹{total}</span>
+              <span>₹{total.toLocaleString('en-IN')}</span>
             </div>
 
-            {subtotal > 0 && subtotal <= 500 && (
+            {subtotal > 0 && shipping > 0 && (
               <div className="free-shipping-offer-page">
-                💡 Add ₹{500 - subtotal} more for FREE shipping!
+                💡 Add ₹{(500 - subtotal).toLocaleString('en-IN')} more for FREE shipping!
               </div>
             )}
 

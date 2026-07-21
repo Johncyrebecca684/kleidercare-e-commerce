@@ -181,8 +181,13 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
     (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
 
-  const shipping = subtotal > 500 ? 0 : 50;
-  const tax = Math.round((subtotal - discountAmount) * 0.18);
+  const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
+  const baseTax = items.reduce((sum, item) => {
+    const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
+    return sum + (itemGst * item.quantity);
+  }, 0);
+  const tax = Math.round(baseTax - (discountAmount * 0.18));
   const finalTotal = Math.round((subtotal - discountAmount + shipping + tax) * 100) / 100;
 
   const handleApplyCoupon = (e) => {
@@ -648,7 +653,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               {items.map(item => (
                 <div key={item.id} className="summary-item-page">
                   <span className="summary-item-page-name">{item.name} <span style={{color: '#888'}}>x {item.quantity}</span></span>
-                  <span className="summary-item-page-price">₹{Math.round((item.price * item.quantity) * 100) / 100}</span>
+                  <span className="summary-item-page-price">₹{(Math.round((item.price * item.quantity) * 100) / 100).toLocaleString('en-IN')}</span>
                 </div>
               ))}
             </div>
@@ -656,31 +661,31 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
             <div className="summary-totals-page">
               <div className="summary-row-page">
                 <span>Subtotal</span>
-                <span>₹{subtotal}</span>
+                <span>₹{subtotal.toLocaleString('en-IN')}</span>
               </div>
               <div className="summary-row-page">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
+                <span>{shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}</span>
               </div>
               <div className="summary-row-page">
                 <span>Tax (18%)</span>
-                <span>₹{tax}</span>
+                <span>₹{tax.toLocaleString('en-IN')}</span>
               </div>
               {appliedCoupons.includes('KCSPARE') && (
                 <div className="summary-row-page" style={{ color: '#22c55e', fontWeight: '700' }}>
                   <span>Reseller Genuine Spare Parts Discount (KCSPARE 20%)</span>
-                  <span>-₹{Math.round(sparePartsSubtotal * 0.20)}</span>
+                  <span>-₹{Math.round(sparePartsSubtotal * 0.20).toLocaleString('en-IN')}</span>
                 </div>
               )}
               {appliedCoupons.includes('KCCHM') && (
                 <div className="summary-row-page" style={{ color: '#22c55e', fontWeight: '700' }}>
                   <span>Reseller Chemicals Discount (KCCHM 25%)</span>
-                  <span>-₹{Math.round(chemicalsSubtotal * 0.25)}</span>
+                  <span>-₹{Math.round(chemicalsSubtotal * 0.25).toLocaleString('en-IN')}</span>
                 </div>
               )}
               <div className="summary-row-page total">
                 <span>Total Amount</span>
-                <span>₹{finalTotal}</span>
+                <span>₹{finalTotal.toLocaleString('en-IN')}</span>
               </div>
             </div>
 
@@ -799,9 +804,9 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               style={isProcessing ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#64748b' } : {}}
             >
               {isProcessing ? 'Processing...' : 
-               paymentMethod === 'Cash' ? `Confirm Order (₹${finalTotal})` : 
-               paymentMethod === 'UPI' ? `Pay via UPI & Place Order (₹${finalTotal})` : 
-               `Pay & Place Order (₹${finalTotal})`}
+               paymentMethod === 'Cash' ? `Confirm Order (₹${finalTotal.toLocaleString('en-IN')})` : 
+               paymentMethod === 'UPI' ? `Pay via UPI & Place Order (₹${finalTotal.toLocaleString('en-IN')})` : 
+               `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
             </button>
           </div>
       {showSimulatedModal && currentOrderData && (
@@ -832,7 +837,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
             </div>
             
             <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 10px 0' }}>Merchant: <strong>Kleider Care</strong></p>
-            <p style={{ fontSize: '24px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal}</p>
+            <p style={{ fontSize: '24px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal.toLocaleString('en-IN')}</p>
             
             <div style={{ fontSize: '13px', color: '#475569', backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'left', border: '1px solid #e2e8f0' }}>
               <p style={{ margin: '0 0 6px 0' }}><strong>Order ID:</strong> {currentOrderData.id}</p>
@@ -963,7 +968,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                       style={{ width: '160px', height: '160px', borderRadius: '6px', border: '2px solid #e0e7ff' }}
                     />
                     <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0 0' }}>
-                      Paying <strong>₹{finalTotal}</strong> to <strong style={{ color: '#4f46e5' }}>{MERCHANT_NAME}</strong>
+                      Paying <strong>₹{finalTotal.toLocaleString('en-IN')}</strong> to <strong style={{ color: '#4f46e5' }}>{MERCHANT_NAME}</strong>
                     </p>
                     <p style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0 0 0' }}>
                       UPI: <code style={{ fontSize: '11px' }}>{upiId.trim()}</code>
@@ -1077,12 +1082,12 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
             
             <p style={{ fontSize: '14px', color: '#475569', margin: '0 0 6px 0' }}>Payee: <strong>HARI HARA SUDHAN S</strong></p>
             <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0' }}>UPI ID: <code>{MERCHANT_UPI_ID}</code></p>
-            <p style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal}</p>
+            <p style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal.toLocaleString('en-IN')}</p>
             
             {isMobileDevice() ? (
               <div style={{ marginBottom: '20px' }}>
                 <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px' }}>
-                  Click below to open your UPI app to pay the locked amount of <strong>₹{finalTotal}</strong>.
+                  Click below to open your UPI app to pay the locked amount of <strong>₹{finalTotal.toLocaleString('en-IN')}</strong>.
                 </p>
                 <a
                   href={buildUpiLink(MERCHANT_UPI_ID, 'HARI HARA SUDHAN S', finalTotal, 'Order Payment')}

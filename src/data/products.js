@@ -4,8 +4,7 @@ export const products = [
     id: 1,
     name: "10kg LG Giant Washer",
     category: "LG Commercial Laundry Machines",
-    price: 1599,
-    originalPrice: 1899,
+    price: 110200,
     rating: 4.9,
     reviews: 124,
     image: "/10kglggiantwasher.png",
@@ -23,8 +22,7 @@ export const products = [
     id: 2,
     name: "10kg LG Giant Electric Dryer",
     category: "LG Commercial Laundry Machines",
-    price: 1499,
-    originalPrice: 1799,
+    price: 79800,
     rating: 4.8,
     reviews: 98,
     image: "/giantelectricdryer.png",
@@ -42,8 +40,7 @@ export const products = [
     id: 3,
     name: "10kg LG Giant Gas Dryer",
     category: "LG Commercial Laundry Machines",
-    price: 1549,
-    originalPrice: 1849,
+    price: 79800,
     rating: 4.8,
     reviews: 87,
     image: "/giantgasdryer.png",
@@ -80,8 +77,7 @@ export const products = [
     id: 4,
     name: "15kg LG Titan Washer",
     category: "LG Commercial Laundry Machines",
-    price: 2299,
-    originalPrice: 2699,
+    price: 165300,
     rating: 5.0,
     reviews: 156,
     image: "/titanwasher.png",
@@ -96,13 +92,68 @@ export const products = [
       "Warranty": "1 Year"
     }
   },
+  {
+    id: 41,
+    name: "LG 15 Kg Wet Cleaning Washer",
+    category: "LG Commercial Laundry Machines",
+    price: 197200,
+    rating: 5.0,
+    reviews: 156,
+    image: "/titanwasher.png",
+    description: "Designed for efficient washing, this washer offers high performance and reliability, ideal for heavy-duty use.",
+    badge: "Premium",
+    specifications: {
+      "Capacity": "15 Kg",
+      "Function Type": "Washer only",
+      "Brand": "LG",
+      "Loading Type": "Front Loading",
+      "Model Name/Number": "CWT29CDOHS.ASSQEIL",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    id: 42,
+    name: "15kg LG Titan Electric Dryer",
+    category: "LG Commercial Laundry Machines",
+    price: 119700,
+    rating: 5.0,
+    reviews: 140,
+    image: "/titan-electric-dryer.png",
+    description: "Built for high performance, the LG Titan Electric Dryer offers fast drying with exceptional energy efficiency for your laundry needs.",
+    badge: "New",
+    specifications: {
+      "Capacity": "15 Kg",
+      "Loading Type": "Front Loading",
+      "Automation Grade": "Automatic",
+      "Drum Volume": "300 L",
+      "Voltage": "220 V"
+    }
+  },
+  {
+    id: 43,
+    name: "LG Wet Cleaning Dryer 15KG (ELECTRIC)",
+    category: "LG Commercial Laundry Machines",
+    price: 142800,
+    rating: 5.0,
+    reviews: 140,
+    image: "/titan-electric-dryer.png",
+    description: "Built for high performance, the LG Titan Electric Dryer offers fast drying with exceptional energy efficiency for your laundry needs.",
+    badge: "New",
+    specifications: {
+      "Capacity": "15 Kg",
+      "Loading Type": "Front Loading",
+      "Automation Grade": "Automatic",
+      "Drum Volume": "300 L",
+      "Voltage": "220 V",
+      "Model Name/Number": "CDT29CUOES.ASSQEIL"
+    }
+  },
   // ROW 2: SPEED QUEEN MACHINES (4 products)
   {
     id: 5,
     name: "Speed Queen Quantum Touch Washer Extractor 18kg",
     category: "Speed Queen Commercial Laundry Machines",
-    price: 3499,
-    originalPrice: 3999,
+    price: 470000,
     rating: 5.0,
     reviews: 120,
     image: "/Speed Queen Quantum Touch Washer Extractor 18kg.png",
@@ -118,10 +169,9 @@ export const products = [
   },
   {
     id: 6,
-    name: "Speed Queen Quantum Touch Washer Extractor 27kg",
+    name: "Speed Queen Quantum Touch Washer Extractor 28kg",
     category: "Speed Queen Commercial Laundry Machines",
-    price: 4499,
-    originalPrice: 4999,
+    price: 575000,
     rating: 4.9,
     reviews: 85,
     image: "/Speed Queen Quantum Touch Washer Extractor 27kg.png",
@@ -139,8 +189,7 @@ export const products = [
     id: 7,
     name: "Speed Queen Commercial Tumble Dryer 16kg",
     category: "Speed Queen Commercial Laundry Machines",
-    price: 2999,
-    originalPrice: 3499,
+    price: 350000,
     rating: 4.8,
     reviews: 95,
     image: "/Speed Queen Commercial Tumble Dryer 16kg.png",
@@ -159,8 +208,7 @@ export const products = [
     id: 8,
     name: "Speed Queen Commercial Tumble Dryer 25kg",
     category: "Speed Queen Commercial Laundry Machines",
-    price: 3999,
-    originalPrice: 4499,
+    price: 390000,
     rating: 4.9,
     reviews: 110,
     image: "/Speed Queen Commercial Tumble Dryer 25kg.png",
@@ -178,10 +226,9 @@ export const products = [
   // ROW 3: PONY FINISHING EQUIPMENTS (2 products)
   {
     id: 9,
-    name: "PONY FVC Utility Ironing Tables",
+    name: "PONY SA",
     category: "PONY Finishing Equipments",
-    price: 1599,
-    originalPrice: 1899,
+    price: 250000,
     rating: 4.8,
     reviews: 120,
     image: "/PONY FVC Utility Ironing Tables.png",
@@ -197,10 +244,9 @@ export const products = [
   },
   {
     id: 10,
-    name: "PONY Superplatine Tables",
+    name: "PONY FVC Tables",
     category: "PONY Finishing Equipments",
-    price: 2499,
-    originalPrice: 2899,
+    price: 220000,
     rating: 4.9,
     reviews: 85,
     image: "/PONY Superplatine Tables.png",
@@ -528,7 +574,7 @@ export const products = [
     badge: null
   },
   {
-    id: 41,
+    id: 92,
     name: "Transformer Linear",
     category: "Genuine Spare Parts",
     price: 899,
@@ -540,7 +586,7 @@ export const products = [
     badge: null
   },
   {
-    id: 42,
+    id: 93,
     name: "Blower Housing",
     category: "Genuine Spare Parts",
     price: 1299,
@@ -552,7 +598,7 @@ export const products = [
     badge: null
   },
   {
-    id: 43,
+    id: 94,
     name: "Sensor Assembly",
     category: "Genuine Spare Parts",
     price: 899,
@@ -856,23 +902,33 @@ export const products = [
     name: "KC LD 373",
     category: "Chemicals",
     price: 287.5,
-    originalPrice: 287.5,
+    originalPrice: 250,
     rating: 5.0,
     reviews: 0,
     image: "/chemical 1.png",
-    description: "Premium Liquid Detergent. HSN : 34029012. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    description: "Premium Liquid Detergent.",
+    specifications: {
+      "HSN": "34029012",
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
     id: 76,
     name: "KC EML CONC PLUS",
     category: "Chemicals",
-    price: 486.5,
-    originalPrice: 486.5,
+    price: 486.45,
+    originalPrice: 423,
     rating: 5.0,
     reviews: 0,
     image: "/chemical 2.png",
-    description: "Emulsifier Conc. HSN : 34029042. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    description: "Emulsifier Conc.",
+    specifications: {
+      "HSN": "34029042",
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
@@ -880,11 +936,16 @@ export const products = [
     name: "KC CC HD",
     category: "Chemicals",
     price: 220.8,
-    originalPrice: 220.8,
+    originalPrice: 192,
     rating: 5.0,
     reviews: 0,
     image: "/chemical 3.png",
-    description: "Cuff and Collar Cleaner Conc. HSN : 34029019. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    description: "Cuff and Collar Cleaner Conc.",
+    specifications: {
+      "HSN": "34029019",
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
@@ -892,11 +953,15 @@ export const products = [
     name: "KC Oxy",
     category: "Chemicals",
     price: 228.85,
-    originalPrice: 228.85,
+    originalPrice: 199,
     rating: 5.0,
     reviews: 0,
     image: "/chemical 4.png",
-    description: "Bleach for whites - liquid. Pkg Size : 25 Lts. Comment : only 25 lt package available",
+    description: "Bleach for whites - liquid.",
+    specifications: {
+      "Pkg Size": "25 Lts",
+      "Comment": "only 25 lt package available"
+    },
     badge: "New"
   },
   {
@@ -904,11 +969,16 @@ export const products = [
     name: "KC SOFT K 4500 N",
     category: "Chemicals",
     price: 358.8,
-    originalPrice: 358.8,
+    originalPrice: 312,
     rating: 5.0,
     reviews: 0,
     image: "/chemical 5.png",
-    description: "Premium Fabric Softener. HSN : 34029011. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    description: "Premium Fabric Softener.",
+    specifications: {
+      "HSN": "34029011",
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
@@ -920,7 +990,12 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 6.png",
-    description: "Fabric Stiffener. HSN : 3905. Pkg Size : 2 X 5 Kgs. Comment : minimum package is 1 lt",
+    description: "Fabric Stiffener.",
+    specifications: {
+      "HSN": "3905",
+      "Pkg Size": "2 X 5 Kgs",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
@@ -932,7 +1007,12 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 7.png",
-    description: "Color Bleeding Controller (treatment). HSN : 3809. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    description: "Color Bleeding Controller (treatment).",
+    specifications: {
+      "HSN": "3809",
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
@@ -944,7 +1024,11 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 8.png",
-    description: "Fabric Perfume / Deodorizer. Pkg Size : 2 X 5 Lts. Comment : minimum package is 1 lt",
+    description: "Fabric Perfume / Deodorizer.",
+    specifications: {
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "minimum package is 1 lt"
+    },
     badge: "New"
   },
   {
@@ -956,7 +1040,12 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 9.png",
-    description: "Premium Liquid Detergent for Quilts. HSN : 34029042. Pkg Size : 2 X 5 Lts. Comment : if they do hospital or hotel laundry",
+    description: "Premium Liquid Detergent for Quilts.",
+    specifications: {
+      "HSN": "34029042",
+      "Pkg Size": "2 X 5 Lts",
+      "Comment": "if they do hospital or hotel laundry"
+    },
     badge: "New"
   },
   {
@@ -968,7 +1057,12 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 10.png",
-    description: "Liquid Detergent for Whites. HSN : 34029012. Pkg Size : 1 x 20 Lts. Comment : If they do hospital or hotel laundry",
+    description: "Liquid Detergent for Whites.",
+    specifications: {
+      "HSN": "34029012",
+      "Pkg Size": "1 x 20 Lts",
+      "Comment": "If they do hospital or hotel laundry"
+    },
     badge: "New"
   },
   {
@@ -980,7 +1074,11 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 11.png",
-    description: "Speciality Foam Cleaning Agent. HSN : 34029052. Pkg Size : 2 X 5 Lts.",
+    description: "Speciality Foam Cleaning Agent.",
+    specifications: {
+      "HSN": "34029052",
+      "Pkg Size": "2 X 5 Lts."
+    },
     badge: "New"
   },
   {
@@ -992,7 +1090,11 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 12.png",
-    description: "Leather Conditioner. HSN : 340520. Pkg Size : 2 X 5 Lts.",
+    description: "Leather Conditioner.",
+    specifications: {
+      "HSN": "340520",
+      "Pkg Size": "2 X 5 Lts."
+    },
     badge: "New"
   },
   {
@@ -1004,9 +1106,86 @@ export const products = [
     rating: 5.0,
     reviews: 0,
     image: "/chemical 13.png",
-    description: "Anti Microbial Shoe/Fabric Deodorizer. Pkg Size : 2 X 5 Lts.",
+    description: "Anti Microbial Shoe/Fabric Deodorizer.",
+    specifications: {
+      "Pkg Size": "2 X 5 Lts."
+    },
     badge: "New"
+  },
+  {
+    id: 88,
+    name: "Seko 3p dosing pump",
+    category: "Seko",
+    price: 40000,
+    rating: 5.0,
+    reviews: 0,
+    image: "/seko-3p.png",
+    description: "Seko 3P dosing pump for commercial laundry systems.",
+    badge: "New",
+    specifications: {
+      "Brand": "SEKO",
+      "Series": "Smart Plus Series 3P",
+      "Power Supply": "100 ÷ 240 Vac ±10% @ 50/60 Hz",
+      "Pumps Flowrate": "18 L/h",
+      "Number of Inputs": "6, opto-insulated",
+      "Protection Class": "IP 65",
+      "Dimensions": "285 x 253 x 163mm (11.2” x 10” x 6.4”)"
+    }
+  },
+  {
+    id: 89,
+    name: "Seko 4p dosing pump",
+    category: "Seko",
+    price: 45000,
+    rating: 5.0,
+    reviews: 0,
+    image: "/seko-4p.png",
+    description: "Seko 4P dosing pump for commercial laundry systems.",
+    badge: "New",
+    specifications: {
+      "Brand": "SEKO",
+      "Series": "Smart Plus Series 4P",
+      "Power Supply": "100 ÷ 240 Vac ±10% @ 50/60 Hz",
+      "Pumps Flowrate": "18 L/h",
+      "Number of Inputs": "6, opto-insulated",
+      "Protection Class": "IP 65",
+      "Dimensions": "375 x 253 x 163mm (14.8” x 10” x 6.4”)"
+    }
+  },
+  {
+    id: 90,
+    name: "18 Kg Softmount Washer-Extractor",
+    category: "Speed Queen Commercial Laundry Machines",
+    price: 630000,
+    rating: 5.0,
+    reviews: 0,
+    image: "/softmount_speedqueen.png",
+    description: "Freestanding, high-spin softmount design washer-extractor with easy front access to vital components and large door opening for easy loading & unloading.",
+    badge: "New",
+    specifications: {
+      "Design": "Freestanding, high-spin softmount design",
+      "Construction": "Stainless steel front, side, top panels, drum and tub",
+      "Features": "Patented soap hopper, High-capacity water inlets (SY280), Large 76mm drain valve",
+      "Usability": "Easy front access to vital components, Large door opening for easy loading & unloading"
+    }
+  },
+  {
+    id: 91,
+    name: "28 Kg Softmount Washer-Extractor",
+    category: "Speed Queen Commercial Laundry Machines",
+    price: 745000,
+    rating: 5.0,
+    reviews: 0,
+    image: "/softmount_speedqueen.png",
+    description: "Freestanding, high-spin softmount design washer-extractor with easy front access to vital components and large door opening for easy loading & unloading.",
+    badge: "New",
+    specifications: {
+      "Design": "Freestanding, high-spin softmount design",
+      "Construction": "Stainless steel front, side, top panels, drum and tub",
+      "Features": "Patented soap hopper, High-capacity water inlets (SY280), Large 76mm drain valve",
+      "Usability": "Easy front access to vital components, Large door opening for easy loading & unloading"
+    }
   }
 ];
 
-export const categories = ["All", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals"];
+export const categories = ["All", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals", "Seko"];

@@ -46,6 +46,10 @@
   transform: scale(1.05);
 }
 
+.seko-image {
+  mix-blend-mode: multiply;
+}
+
 .speed-queen-image {
   transform: scale(1.5);
 }
@@ -227,6 +231,12 @@
   overflow: hidden;
 }
 
+.description-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .product-description {
   font-size: 12px;
   color: #4b5563;
@@ -239,6 +249,26 @@
   overflow: hidden;
   font-weight: 400;
   flex-grow: 0;
+}
+
+.product-description.expanded {
+  height: auto;
+  display: block;
+}
+
+.read-more-btn {
+  background: none;
+  border: none;
+  color: #0f2b5c;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.read-more-btn:hover {
+  text-decoration: underline;
 }
 
 .rating-section {
@@ -324,22 +354,45 @@
 
 .price-section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 12px 0;
+}
+
+.price-row-main {
+  display: flex;
+  align-items: baseline;
   gap: 8px;
-  margin: 6px 0;
 }
 
 .current-price {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
-  color: #0f2b5c;
+  color: #0f1111;
 }
 
 .original-price {
-  font-size: 12px;
-  color: #9ca3af;
+  font-size: 14px;
+  color: #565959;
   text-decoration: line-through;
+  font-weight: 400;
+}
+
+.gst-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: #565959;
+  margin-top: 2px;
+}
+
+.inclusive-text {
   font-weight: 500;
+}
+
+.exclusive-price {
+  font-weight: 400;
 }
 
 .add-to-cart-btn {

@@ -5,6 +5,7 @@ import './ProductCard.css';
 export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist }) {
   const [showAddedNotice, setShowAddedNotice] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const handleAddToCart = () => {
     onAddToCart(product);
@@ -44,16 +45,9 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         <img
           src={product.image}
           alt={product.name}
-          className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''}`}
+          className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
         />
 
-        {product.badge && (
-          <div className="badge-container">
-            <span className={`badge badge-${product.badge.toLowerCase().replace(/\s+/g, '-')}`}>
-              {product.badge}
-            </span>
-          </div>
-        )}
 
         <button
           className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
@@ -78,7 +72,17 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
       <div className="product-info">
         <div className="product-category">{product.category}</div>
         <h3 className="product-name">{product.name}</h3>
-        <p className="product-description">{product.description}</p>
+        <div className="description-wrapper">
+          <p className={`product-description ${isDescExpanded ? 'expanded' : ''}`}>{product.description}</p>
+          {product.description && product.description.length > 70 && (
+            <button 
+              className="read-more-btn" 
+              onClick={() => setIsDescExpanded(!isDescExpanded)}
+            >
+              {isDescExpanded ? 'less' : 'more...'}
+            </button>
+          )}
+        </div>
 
         <div className="rating-section">
           <div className="stars">
@@ -120,8 +124,17 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         )}
 
         <div className="price-section">
-          <span className="current-price">₹{product.price}</span>
-          <span className="original-price">₹{product.originalPrice}</span>
+          <div className="price-row-main">
+            <span className="current-price">₹{product.price.toLocaleString('en-IN')}</span>
+            {product.originalPrice && (
+              <span className="original-price">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+            )}
+          </div>
+          <div className="gst-info">
+            <span className="inclusive-text">
+              ₹{(product.priceWithGst ? product.priceWithGst : Math.round(product.price * 1.18)).toLocaleString('en-IN')} (Inclusive of GST)
+            </span>
+          </div>
         </div>
 
         <button

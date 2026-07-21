@@ -15,7 +15,17 @@ export default function ProductList({
   const [sortBy, setSortBy] = useState('popular');
 
   const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' ? true : product.category === selectedCategory;
+    let matchesCategory = selectedCategory === 'All' ? true : product.category === selectedCategory;
+
+    if (
+      (product.name === 'LG 15 Kg Wet Cleaning Washer' || 
+       product.name === '15kg LG Titan Electric Dryer' || 
+       product.name === 'LG Wet Cleaning Dryer 15KG (ELECTRIC)') && 
+       selectedCategory !== 'LG Commercial Laundry Machines' && 
+       selectedCategory !== 'All'
+    ) {
+      matchesCategory = false;
+    }
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
       product.description.toLowerCase().includes(searchLower) ||
@@ -52,7 +62,7 @@ export default function ProductList({
         <div className="category-filters">
           <div className="filter-label">Categories:</div>
           <div className="category-buttons">
-            {['All', 'LG Commercial Laundry Machines', 'Speed Queen Commercial Laundry Machines', 'PONY Finishing Equipments', 'Genuine Spare Parts', 'Chemicals'].map(category => (
+            {['All', 'LG Commercial Laundry Machines', 'Speed Queen Commercial Laundry Machines', 'PONY Finishing Equipments', 'Genuine Spare Parts', 'Chemicals', 'Seko'].map(category => (
               <button
                 key={category}
                 className={`category-btn ${selectedCategory === category ? 'active' : ''}`}

@@ -331,7 +331,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
                           </div>
                         </td>
                         <td>{product.category}</td>
-                        <td>₹{product.price}</td>
+                        <td>₹{product.price.toLocaleString('en-IN')}</td>
                         <td>
                           <div className="actionBtns">
                             <button className="iconBtn edit" onClick={() => openProductModal(product)}><Edit size={16} /></button>

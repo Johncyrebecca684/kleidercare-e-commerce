@@ -75,7 +75,7 @@ export default function TrackOrderPage({ userOrders = [] }) {
         estimatedDelivery: 'Processing',
         status: userOrder.status,
         currentLocation: 'Fulfillment Center',
-        price: '₹' + userOrder.total,
+        price: '₹' + userOrder.total.toLocaleString('en-IN'),
         seller: 'Kleider Care Official',
         trackingSteps: [
           { step: 'Order Confirmed', date: userOrder.date, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), completed: true },

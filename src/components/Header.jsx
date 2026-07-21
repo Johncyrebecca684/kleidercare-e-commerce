@@ -22,6 +22,7 @@ const categories = [
   { label: 'PONY Finishing Equipments', href: '#products' },
   { label: 'Genuine Spare Parts', href: '#products' },
   { label: 'Chemicals', href: '#products' },
+  { label: 'Seko', href: '#products' },
 ];
 
 export default function Header({ cartCount, wishlistCount, searchTerm, onSearchChange, onSigninClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
