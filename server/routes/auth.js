@@ -183,22 +183,32 @@ router.post('/signup', async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
-      return res.status(400).json({ message: 'An account with this email already exists' });
+    let user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (user) {
+      if (user.isVerified) {
+        return res.status(400).json({ message: 'An account with this email already exists' });
+      }
+      // If unverified, update their details and send a new OTP
+      user.firstName = firstName;
+      user.lastName = lastName || '';
+      user.password = password;
+      user.role = normalizedRole;
+      user.mobileNumber = mobileNumber;
+      await user.save();
+    } else {
+      // Create user (unverified)
+      user = new User({
+        firstName,
+        lastName: lastName || '',
+        email: email.toLowerCase(),
+        password,
+        role: normalizedRole,
+        mobileNumber,
+        isVerified: false
+      });
+      await user.save();
     }
-
-    // Create user (unverified)
-    const user = new User({
-      firstName,
-      lastName: lastName || '',
-      email: email.toLowerCase(),
-      password,
-      role: normalizedRole,
-      mobileNumber,
-      isVerified: false
-    });
-    await user.save();
 
     // Generate and store OTP
     const otpCode = generateOtp();
