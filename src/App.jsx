@@ -228,7 +228,7 @@ function App() {
 
       // Fetch orders
       try {
-        const endpoint = loggedInUser.role === 'admin' ? '/api/orders/admin-all' : '/api/orders/my-orders';
+        const endpoint = loggedInUser.role === 'admin' ? `${API_URL}/api/orders/admin-all` : `${API_URL}/api/orders/my-orders`;
         const response = await fetch(endpoint, {
           headers: {
             'Authorization': `Bearer ${token}`
