@@ -36,7 +36,8 @@ router.post('/create-order', async (req, res) => {
       amount: Math.round(amount),
       currency: 'INR',
       receipt: `receipt_rcpt_${Date.now()}`,
-      isMock: true
+      isMock: true,
+      keyId: process.env.RAZORPAY_KEY_ID
     });
   }
 
@@ -49,7 +50,7 @@ router.post('/create-order', async (req, res) => {
     };
 
     const order = await rzp.orders.create(options);
-    res.json(order);
+    res.json({ ...order, keyId: process.env.RAZORPAY_KEY_ID });
   } catch (error) {
     console.warn('⚠️ Razorpay live order creation failed. Falling back to mock order for development.');
     console.error('Error details:', error.message);
@@ -58,7 +59,8 @@ router.post('/create-order', async (req, res) => {
       amount: Math.round(amount),
       currency: 'INR',
       receipt: `receipt_rcpt_${Date.now()}`,
-      isMock: true
+      isMock: true,
+      keyId: process.env.RAZORPAY_KEY_ID
     });
   }
 });

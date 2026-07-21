@@ -33,8 +33,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Card');
-  const [showSimulatedModal, setShowSimulatedModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [upiSessionId, setUpiSessionId] = useState('');
   const [upiStatusText, setUpiStatusText] = useState('');
@@ -52,6 +51,78 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     state: '',
     pincode: ''
   });
+  
+  // Address Management State
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState(-1);
+  const [saveThisAddress, setSaveThisAddress] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  
+  const savedAddresses = loggedInUser?.addresses || [];
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
+          const data = await response.json();
+          
+          if (data && data.address) {
+            const addr = data.address;
+            const house = addr.house_number || '';
+            const building = addr.building || addr.amenity || '';
+            const road = addr.road || addr.pedestrian || addr.street || '';
+            const neighbourhood = addr.neighbourhood || addr.residential || addr.suburb || '';
+            
+            const city = addr.city || addr.town || addr.county || '';
+            const state = addr.state || '';
+            const pincode = addr.postcode || '';
+            
+            let addressParts = [house, building, road, neighbourhood].filter(Boolean);
+            let fullAddress = addressParts.join(', ');
+            
+            // Smart fallback if raw parts don't give a substantial address
+            if (addressParts.length < 2 && data.display_name) {
+               const parts = data.display_name.split(',').map(p => p.trim());
+               // Filter out city, state, pincode, country from the full string to avoid duplication in the textarea
+               const filteredParts = parts.filter(p => 
+                 p !== 'India' && 
+                 p !== state && 
+                 p !== city && 
+                 p !== pincode
+               );
+               fullAddress = filteredParts.join(', ');
+            }
+            
+            setFormData(prev => ({
+              ...prev,
+              address: fullAddress,
+              city: city,
+              state: state,
+              pincode: pincode
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching location:", error);
+          alert('Could not fetch address from location. Please enter manually.');
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert('Could not access your location. Please check your permissions.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   // Inject spinner keyframes if not exists
   useEffect(() => {
@@ -386,6 +457,35 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     setPaymentError('');
     setIsProcessing(true);
 
+    // Save address if requested
+    if (saveThisAddress && loggedInUser && selectedAddressIndex === -1) {
+      try {
+        const token = localStorage.getItem('kc_auth_token');
+        const newAddress = {
+          type: 'Saved Address',
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode
+        };
+        const updatedAddresses = [...(loggedInUser.addresses || []), newAddress];
+        
+        await fetch(`${API_URL}/api/auth/addresses`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: JSON.stringify({ addresses: updatedAddresses })
+        });
+        
+        // Optimistically update the local state for this session if they stay on page
+        loggedInUser.addresses = updatedAddresses;
+      } catch (err) {
+        console.error('Failed to save address:', err);
+      }
+    }
+
     if (paymentMethod === 'Cash') {
       try {
         const token = localStorage.getItem('kc_auth_token');
@@ -450,13 +550,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
       return;
     }
 
-    if (paymentMethod === 'UPI') {
-      const newSessionId = 'session_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-      setUpiSessionId(newSessionId);
-      setShowUpiModal(true);
-      setIsProcessing(false);
-      return;
-    }
+
 
     try {
       // 1. Create order on backend (Amount in paise)
@@ -477,13 +571,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
       const orderData = await orderResponse.json();
       setCurrentOrderData(orderData);
 
-      const isPlaceholderKey = (import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_eCommerceKeyId12') === 'rzp_test_eCommerceKeyId12';
 
-      // 2. If it's a mock order or placeholder keys, show the custom simulated payment modal
-      if (orderData.isMock || isPlaceholderKey) {
-        setShowSimulatedModal(true);
-        return;
-      }
 
       // 3. Load script
       const scriptLoaded = await loadRazorpayScript();
@@ -493,7 +581,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
 
       // 4. Trigger Razorpay Checkout Modal
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: orderData.keyId,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Kleider Care',
@@ -503,7 +591,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
         prefill: {
           name: formData.name,
           email: formData.email,
-          contact: formData.phone
+          contact: formData.phone,
+          ...(paymentMethod === 'UPI' && upiId.trim() !== '' && { vpa: upiId.trim() })
         },
         theme: {
           color: '#1a4a8d'
@@ -512,6 +601,16 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           ondismiss: function () {
             setIsProcessing(false);
             setPaymentError('Payment cancelled by user.');
+          }
+        },
+        config: {
+          display: {
+            hide: [
+              { method: 'card' }
+            ],
+            preferences: {
+              show_default_blocks: true
+            }
           }
         }
       };
@@ -575,7 +674,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           <div className="checkout-form-section">
             <form onSubmit={handleSubmit} className="checkout-page-form">
               <div className="checkout-page-section">
-                <h3>Contact Information</h3>
+                <h3>Billing Details</h3>
                 <div className="form-group-page">
                   <label htmlFor="name">Full Name</label>
                   <input type="text" id="name" name="name" required value={formData.name} onChange={handleChange} />
@@ -593,7 +692,95 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               </div>
 
               <div className="checkout-page-section">
-                <h3>Shipping Address</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h3 style={{ margin: 0 }}>Shipping Address</h3>
+                  <button 
+                    type="button" 
+                    onClick={handleGetLocation} 
+                    disabled={isLocating}
+                    style={{ 
+                      background: 'none', 
+                      border: '1px solid #2563eb', 
+                      color: '#2563eb', 
+                      padding: '6px 12px', 
+                      borderRadius: '6px', 
+                      fontSize: '13px', 
+                      fontWeight: '600', 
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    {isLocating ? 'Locating...' : '📍 Use Current Location'}
+                  </button>
+                </div>
+
+                {/* Saved Addresses Section */}
+                {loggedInUser && savedAddresses.length > 0 && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px', color: '#475569' }}>Select a saved address:</p>
+                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                      {savedAddresses.map((addr, index) => (
+                        <div 
+                          key={index} 
+                          onClick={() => {
+                            setSelectedAddressIndex(index);
+                            setFormData(prev => ({
+                              ...prev,
+                              address: addr.address || '',
+                              city: addr.city || '',
+                              state: addr.state || '',
+                              pincode: addr.pincode || ''
+                            }));
+                            setSaveThisAddress(false);
+                          }}
+                          style={{
+                            minWidth: '200px',
+                            padding: '12px',
+                            border: selectedAddressIndex === index ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                            borderRadius: '8px',
+                            backgroundColor: selectedAddressIndex === index ? '#eff6ff' : '#fff',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            color: '#334155'
+                          }}
+                        >
+                          <p style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>{addr.type || 'Saved Address'}</p>
+                          <p style={{ margin: '0 0 3px 0' }}>{addr.address}</p>
+                          <p style={{ margin: '0' }}>{addr.city}, {addr.pincode}</p>
+                        </div>
+                      ))}
+                      <div 
+                        onClick={() => {
+                          setSelectedAddressIndex(-1);
+                          setFormData(prev => ({
+                            ...prev,
+                            address: '',
+                            city: '',
+                            state: '',
+                            pincode: ''
+                          }));
+                        }}
+                        style={{
+                          minWidth: '150px',
+                          padding: '12px',
+                          border: selectedAddressIndex === -1 ? '2px solid #2563eb' : '1px dashed #cbd5e1',
+                          borderRadius: '8px',
+                          backgroundColor: selectedAddressIndex === -1 ? '#eff6ff' : '#f8fafc',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: '600',
+                          color: '#2563eb'
+                        }}
+                      >
+                        ➕ Add New
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="form-group-page">
                   <label htmlFor="address">Address</label>
                   <textarea id="address" name="address" required value={formData.address} onChange={handleChange} rows="3"></textarea>
@@ -612,6 +799,17 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                     <input type="text" id="pincode" name="pincode" required value={formData.pincode} onChange={handleChange} />
                   </div>
                 </div>
+
+                {loggedInUser && selectedAddressIndex === -1 && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '15px', fontSize: '14px', cursor: 'pointer', color: '#334155' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={saveThisAddress} 
+                      onChange={(e) => setSaveThisAddress(e.target.checked)} 
+                    />
+                    Save this address for future checkouts
+                  </label>
+                )}
               </div>
 
               <div className="checkout-page-section" style={{ marginTop: '25px' }}>
@@ -642,6 +840,28 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                     />
                     📱 UPI (Paytm/GPay)
                   </label>
+                  
+                  {paymentMethod === 'UPI' && (
+                    <div style={{ width: '100%', marginTop: '5px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '8px' }}>Test UPI ID (For Desktop Testing)</label>
+                      <input 
+                        type="text" 
+                        value={upiId}
+                        onChange={(e) => setUpiId(e.target.value)}
+                        placeholder="e.g. success@razorpay" 
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          borderRadius: '6px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '14px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <p style={{ fontSize: '12px', color: '#64748b', margin: '8px 0 0 0' }}>💡 Enter <strong>success@razorpay</strong> here before clicking Pay to instantly simulate a successful demo payment.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </form>
@@ -810,379 +1030,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
             </button>
           </div>
-      {showSimulatedModal && currentOrderData && (
-        <div className="simulated-payment-modal-overlay" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          zIndex: 9999,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontFamily: 'sans-serif'
-        }}>
-          <div className="simulated-payment-modal" style={{
-            background: 'white',
-            borderRadius: '12px',
-            width: '400px',
-            padding: '24px',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-            textAlign: 'center'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
-              <h3 style={{ margin: 0, color: '#1a4a8d', fontSize: '18px', fontWeight: '800' }}>Razorpay Test Checkout</h3>
-              <span style={{ fontSize: '12px', background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '12px', fontWeight: '600' }}>Demo Mode</span>
-            </div>
-            
-            <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 10px 0' }}>Merchant: <strong>Kleider Care</strong></p>
-            <p style={{ fontSize: '24px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal.toLocaleString('en-IN')}</p>
-            
-            <div style={{ fontSize: '13px', color: '#475569', backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', marginBottom: '24px', textAlign: 'left', border: '1px solid #e2e8f0' }}>
-              <p style={{ margin: '0 0 6px 0' }}><strong>Order ID:</strong> {currentOrderData.id}</p>
-              <p style={{ margin: '0 0 6px 0' }}><strong>User:</strong> {formData.email}</p>
-              <p style={{ margin: 0 }}><strong>Method:</strong> {paymentMethod}</p>
-            </div>
 
-            {/* Dynamic Simulated Payment Form */}
-            {paymentMethod === 'Card' ? (
-              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Card Number</label>
-                <input 
-                  type="text" 
-                  placeholder="4242 4242 4242 4242" 
-                  value="4242 4242 4242 4242"
-                  disabled
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px', marginTop: '4px', marginBottom: '12px', backgroundColor: '#f1f5f9', color: '#475569', boxSizing: 'border-box' }}
-                />
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Expiry</label>
-                    <input 
-                      type="text" 
-                      placeholder="12/29" 
-                      value="12/29"
-                      disabled
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px', marginTop: '4px', backgroundColor: '#f1f5f9', color: '#475569', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>CVV</label>
-                    <input 
-                      type="password" 
-                      placeholder="***" 
-                      value="123"
-                      disabled
-                      style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px', marginTop: '4px', backgroundColor: '#f1f5f9', color: '#475569', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ textAlign: 'left', marginBottom: '20px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  📱 Enter Your UPI ID
-                </label>
-                <div style={{ position: 'relative', marginTop: '6px' }}>
-                  <input
-                    id="upi-id-input"
-                    type="text"
-                    placeholder="yourname@paytm / @gpay / @upi"
-                    value={upiId}
-                    onChange={e => { setUpiId(e.target.value); setUpiError(''); setUpiLaunched(false); }}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      border: upiError ? '2px solid #ef4444' : '1.5px solid #94a3b8',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      outline: 'none',
-                      transition: 'border-color 0.2s',
-                      fontFamily: 'monospace',
-                    }}
-                  />
-                </div>
-                {upiError && (
-                  <p style={{ color: '#ef4444', fontSize: '12px', margin: '4px 0 0 0' }}>⚠️ {upiError}</p>
-                )}
-
-                {/* UPI redirect button */}
-                <button
-                  id="pay-via-upi-btn"
-                  onClick={() => {
-                    const trimmed = upiId.trim();
-                    if (!trimmed || !trimmed.includes('@')) {
-                      setUpiError('Please enter a valid UPI ID (e.g. name@paytm)');
-                      return;
-                    }
-                    const link = buildUpiLink(trimmed, MERCHANT_NAME, finalTotal, `Payment to ${MERCHANT_NAME}`);
-                    setUpiLaunched(true);
-                    setUpiError('');
-                    if (isMobileDevice()) {
-                      // On mobile – redirect to UPI app directly
-                      window.location.href = link;
-                    } else {
-                      // On desktop – do nothing extra; QR code shown below
-                    }
-                  }}
-                  style={{
-                    marginTop: '12px',
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '11px',
-                    borderRadius: '8px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    transition: 'opacity 0.2s',
-                  }}
-                >
-                  <Smartphone size={16} />
-                  {isMobileDevice() ? 'Open UPI App to Pay' : 'Generate QR & Pay via App'}
-                </button>
-
-                {/* QR code section – shown on desktop after button click */}
-                {upiLaunched && !isMobileDevice() && upiId.trim().includes('@') && (
-                  <div style={{
-                    marginTop: '16px',
-                    padding: '14px',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '10px',
-                    textAlign: 'center',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', color: '#4f46e5', fontWeight: '700', fontSize: '13px' }}>
-                      <QrCode size={16} /> Scan with any UPI App
-                    </div>
-                    <img
-                      src={buildQrUrl(buildUpiLink(upiId.trim(), MERCHANT_NAME, finalTotal, `Payment to ${MERCHANT_NAME}`))}
-                      alt="UPI QR Code"
-                      style={{ width: '160px', height: '160px', borderRadius: '6px', border: '2px solid #e0e7ff' }}
-                    />
-                    <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0 0' }}>
-                      Paying <strong>₹{finalTotal.toLocaleString('en-IN')}</strong> to <strong style={{ color: '#4f46e5' }}>{MERCHANT_NAME}</strong>
-                    </p>
-                    <p style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-                      UPI: <code style={{ fontSize: '11px' }}>{upiId.trim()}</code>
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#059669', fontWeight: '600', margin: '8px 0 0 0' }}>
-                      ✅ After scanning & paying in your UPI app, click "Confirm Payment" below.
-                    </p>
-                  </div>
-                )}
-
-                {/* Info pills */}
-                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-                  {['GPay', 'PhonePe', 'Paytm', 'BHIM'].map(app => (
-                    <span key={app} style={{ fontSize: '11px', background: '#f0f4ff', color: '#4f46e5', padding: '3px 10px', borderRadius: '20px', fontWeight: '600', border: '1px solid #c7d2fe' }}>{app}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button 
-                id="confirm-payment-btn"
-                onClick={async () => {
-                  // Validate UPI input before confirming
-                  if (paymentMethod === 'UPI') {
-                    const trimmed = upiId.trim();
-                    if (!trimmed || !trimmed.includes('@')) {
-                      setUpiError('Please enter your UPI ID before confirming payment.');
-                      return;
-                    }
-                  }
-                  setShowSimulatedModal(false);
-                  await handlePaymentVerification({
-                    razorpay_order_id: currentOrderData.id,
-                    razorpay_payment_id: `pay_mock_${Date.now()}`,
-                    razorpay_signature: 'mock_signature_success'
-                  });
-                }}
-                style={{
-                  background: '#22c55e',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {paymentMethod === 'UPI' ? '✅ Confirm Payment (After UPI App)' : 'Simulate Successful Payment'}
-              </button>
-              
-              <button 
-                onClick={() => {
-                  setShowSimulatedModal(false);
-                  setIsProcessing(false);
-                  setPaymentError('Payment cancelled by user (Simulated).');
-                }}
-                style={{
-                  background: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                Simulate Failure / Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showUpiModal && (
-        <div className="simulated-payment-modal-overlay" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          zIndex: 9999,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontFamily: 'sans-serif'
-        }}>
-          <div className="simulated-payment-modal" style={{
-            background: 'white',
-            borderRadius: '12px',
-            width: '420px',
-            padding: '24px',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-            textAlign: 'center',
-            maxHeight: '90vh',
-            overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
-              <h3 style={{ margin: 0, color: '#1a4a8d', fontSize: '18px', fontWeight: '800' }}>UPI Payment</h3>
-              <button 
-                onClick={() => { setShowUpiModal(false); setUpiSessionId(''); }}
-                style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}
-              >
-                ×
-              </button>
-            </div>
-            
-            <p style={{ fontSize: '14px', color: '#475569', margin: '0 0 6px 0' }}>Payee: <strong>HARI HARA SUDHAN S</strong></p>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0' }}>UPI ID: <code>{MERCHANT_UPI_ID}</code></p>
-            <p style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', margin: '10px 0 20px 0' }}>₹{finalTotal.toLocaleString('en-IN')}</p>
-            
-            {isMobileDevice() ? (
-              <div style={{ marginBottom: '20px' }}>
-                <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px' }}>
-                  Click below to open your UPI app to pay the locked amount of <strong>₹{finalTotal.toLocaleString('en-IN')}</strong>.
-                </p>
-                <a
-                  href={buildUpiLink(MERCHANT_UPI_ID, 'HARI HARA SUDHAN S', finalTotal, 'Order Payment')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '10px',
-                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                    color: 'white',
-                    textDecoration: 'none',
-                    padding: '14px',
-                    borderRadius: '8px',
-                    fontWeight: '700',
-                    fontSize: '15px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <Smartphone size={18} /> Open UPI App to Pay
-                </a>
-              </div>
-            ) : (
-              <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <p style={{ fontSize: '13px', color: '#475569', marginBottom: '14px' }}>
-                  Scan this QR code with GPay/PhonePe/Paytm.
-                </p>
-                <div style={{
-                  padding: '12px',
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0',
-                  borderRadius: '12px',
-                  display: 'inline-block',
-                  marginBottom: '10px'
-                }}>
-                  <img
-                    src={buildQrUrl(buildUpiLink(MERCHANT_UPI_ID, 'HARI HARA SUDHAN S', finalTotal, 'Order Payment'))}
-                    alt="UPI QR Code"
-                    style={{ width: '200px', height: '200px', display: 'block' }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div style={{ 
-              backgroundColor: '#eff6ff', 
-              border: '1px solid #bfdbfe', 
-              padding: '14px', 
-              borderRadius: '8px', 
-              marginBottom: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px'
-            }}>
-              <div className="upi-loading-spinner" style={{
-                width: '16px',
-                height: '16px',
-                border: '2px solid #1a4a8d',
-                borderTop: '2px solid transparent',
-                borderRadius: '50%',
-                animation: 'upi-spin 1s linear infinite'
-              }}></div>
-              <span style={{ fontSize: '13px', color: '#1e40af', fontWeight: '600' }}>
-                {upiStatusText}
-              </span>
-            </div>
-
-            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
-              <button 
-                onClick={() => {
-                  setShowUpiModal(false);
-                  setUpiSessionId('');
-                  setIsProcessing(false);
-                }}
-                style={{
-                  background: 'none',
-                  border: '1px solid #cbd5e1',
-                  color: '#475569',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  width: '100%',
-                  boxSizing: 'border-box'
-                }}
-              >
-                Cancel / Go Back
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
         </div>
       </div>
     </div>

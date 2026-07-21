@@ -1,8 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 import User from '../models/User.js';
-import Otp from '../models/Otp.js';
 
 const router = express.Router();
 
@@ -18,6 +18,51 @@ const ALLOWED_RESELLER_NUMBERS = [
   '4448606351',
   '9901097311'
 ];
+
+// ─────────────────────────────────────────────
+// IN-MEMORY PENDING SIGNUP STORE
+// Stores pending signup data + OTP hash until email is verified.
+// No MongoDB touch during signup — response is instant.
+// Entries auto-expire after 5 minutes.
+// ─────────────────────────────────────────────
+const pendingSignups = new Map();
+
+function setPendingSignup(email, data) {
+  // Clear any previous pending signup for this email
+  clearPendingSignup(email);
+  const entry = {
+    ...data,
+    otpHash: crypto.createHash('sha256').update(data.otp).digest('hex'),
+    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
+  };
+  delete entry.otp; // never store plaintext OTP
+  pendingSignups.set(email, entry);
+  // Auto-delete after 5 minutes
+  entry._timer = setTimeout(() => pendingSignups.delete(email), 5 * 60 * 1000);
+}
+
+function getPendingSignup(email) {
+  const entry = pendingSignups.get(email);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    clearPendingSignup(email);
+    return null;
+  }
+  return entry;
+}
+
+function clearPendingSignup(email) {
+  const entry = pendingSignups.get(email);
+  if (entry?._timer) clearTimeout(entry._timer);
+  pendingSignups.delete(email);
+}
+
+function verifyPendingOtp(email, otp) {
+  const entry = getPendingSignup(email);
+  if (!entry) return false;
+  const hash = crypto.createHash('sha256').update(otp).digest('hex');
+  return hash === entry.otpHash;
+}
 
 // Configure Nodemailer SMTP transporter
 const createTransporter = () => {
@@ -36,15 +81,19 @@ const createTransporter = () => {
     },
     tls: {
       rejectUnauthorized: false
-    }
+    },
+    connectionTimeout: 10000,  // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 10000
   });
 };
+
 
 // Send OTP to client's email address
 async function sendOtpEmail(email, otp) {
   const transporter = createTransporter();
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"Kleider Care" <no-reply@kleidercare.com>',
+    from: `"Kleider Care" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Verify Your Kleider Care Account - OTP Code',
     text: `Your Kleider Care verification code is: ${otp}. This code is valid for 5 minutes.`,
@@ -90,7 +139,7 @@ async function sendOtpEmail(email, otp) {
 async function sendResetPasswordEmail(email, otp) {
   const transporter = createTransporter();
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"Kleider Care" <no-reply@kleidercare.com>',
+    from: `"Kleider Care" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Reset Your Kleider Care Password - OTP Code',
     text: `Your Kleider Care password reset code is: ${otp}. This code is valid for 5 minutes.`,
@@ -160,89 +209,67 @@ export function authMiddleware(req, res, next) {
 
 // ─────────────────────────────────────────────
 // POST /api/auth/signup
-// Register a new user and send OTP for verification
+// Pure in-memory: zero DB calls, responds in <10ms.
+// User record is ONLY created after OTP is verified.
 // ─────────────────────────────────────────────
-router.post('/signup', async (req, res) => {
-  try {
-    const { firstName, lastName, email, password, role, mobileNumber } = req.body;
+router.post('/signup', (req, res) => {
+  const { firstName, lastName, email, password, role, mobileNumber } = req.body;
 
-    // Validate required fields
-    if (!firstName || !email || !password || !mobileNumber) {
-      return res.status(400).json({ message: 'First name, email, password, and mobile number are required' });
-    }
-
-    const normalizedRole = (role || 'customer').toLowerCase();
-    const cleanedMobile = mobileNumber.replace(/\D/g, '');
-    const isAllowedReseller = ALLOWED_RESELLER_NUMBERS.some(num => cleanedMobile.endsWith(num));
-    if (normalizedRole === 'reseller' && !isAllowedReseller) {
-      return res.status(400).json({ message: 'You are not an authorized reseller. Please register as a customer.' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' });
-    }
-
-    // Check if user already exists
-    let user = await User.findOne({ email: email.toLowerCase() });
-    
-    if (user) {
-      if (user.isVerified) {
-        return res.status(400).json({ message: 'An account with this email already exists' });
-      }
-      // If unverified, update their details and send a new OTP
-      user.firstName = firstName;
-      user.lastName = lastName || '';
-      user.password = password;
-      user.role = normalizedRole;
-      user.mobileNumber = mobileNumber;
-      await user.save();
-    } else {
-      // Create user (unverified)
-      user = new User({
-        firstName,
-        lastName: lastName || '',
-        email: email.toLowerCase(),
-        password,
-        role: normalizedRole,
-        mobileNumber,
-        isVerified: false
-      });
-      await user.save();
-    }
-
-    // Generate and store OTP
-    const otpCode = generateOtp();
-    
-    // Remove any existing OTPs for this email
-    await Otp.deleteMany({ email: email.toLowerCase() });
-    
-    // Save new OTP (will be hashed by pre-save hook)
-    const otpDoc = new Otp({
-      email: email.toLowerCase(),
-      otp: otpCode,
-      purpose: 'signup'
-    });
-    await otpDoc.save();
-
-    console.log(`📧 [DEV] OTP for ${email}: ${otpCode}`);
-
-    // Try sending real email
-    const emailSent = await sendOtpEmail(email.toLowerCase(), otpCode);
-
-    res.status(201).json({
-      success: true,
-      message: emailSent 
-        ? 'Verification email sent! Please check your inbox for the OTP.' 
-        : 'Account created! Please verify with OTP.',
-      email: email.toLowerCase(),
-      // Only return devOtp if email configuration is missing
-      ...((!process.env.SMTP_USER || !process.env.SMTP_PASS) && { devOtp: otpCode })
-    });
-
-  } catch (error) {
-    console.error('Signup error:', error);
-    res.status(500).json({ message: 'Server error during signup' });
+  // --- Synchronous validation (no DB needed) ---
+  if (!firstName || !email || !password || !mobileNumber) {
+    return res.status(400).json({ message: 'First name, email, password, and mobile number are required' });
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: 'Please enter a valid email address' });
+  }
+  const normalizedRole = (role || 'customer').toLowerCase();
+  const cleanedMobile = mobileNumber.replace(/\D/g, '');
+  const isAllowedReseller = ALLOWED_RESELLER_NUMBERS.some(num => cleanedMobile.endsWith(num));
+  if (normalizedRole === 'reseller' && !isAllowedReseller) {
+    return res.status(400).json({ message: 'You are not an authorized reseller. Please register as a customer.' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
+
+  // Generate OTP and store everything in memory
+  const otpCode = generateOtp();
+  setPendingSignup(email.toLowerCase(), {
+    otp: otpCode,
+    firstName,
+    lastName: lastName || '',
+    password,
+    role: normalizedRole,
+    mobileNumber
+  });
+
+  console.log(`📧 [DEV] Signup OTP for ${email}: ${otpCode}`);
+
+  // Respond instantly — no DB touched yet
+  res.status(201).json({
+    success: true,
+    message: 'Verification email sent! Please check your inbox for the OTP.',
+    email: email.toLowerCase()
+  });
+
+  // Check email uniqueness + send OTP email in background (non-blocking)
+  (async () => {
+    try {
+      const existing = await User.findOne({ email: email.toLowerCase() });
+      if (existing && existing.isVerified) {
+        // Edge case: email already taken — remove from pending so verify-otp fails gracefully
+        clearPendingSignup(email.toLowerCase());
+        console.log(`⚠️  Signup attempted for already-verified email: ${email}`);
+        return;
+      }
+    } catch (e) {
+      console.error('Background DB check error:', e.message);
+    }
+    // Send OTP email
+    sendOtpEmail(email.toLowerCase(), otpCode).catch(err =>
+      console.error('❌ Background OTP email error:', err.message)
+    );
+  })();
 });
 
 // ─────────────────────────────────────────────
@@ -296,7 +323,8 @@ router.post('/login', async (req, res) => {
 
 // ─────────────────────────────────────────────
 // POST /api/auth/verify-otp
-// Verify OTP and return JWT token
+// For signup: checks in-memory store, creates User on success.
+// For other flows: checks MongoDB OTP.
 // ─────────────────────────────────────────────
 router.post('/verify-otp', async (req, res) => {
   try {
@@ -306,39 +334,69 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(400).json({ message: 'Email and OTP are required' });
     }
 
-    // Find the most recent OTP for this email
-    const otpDoc = await Otp.findOne({ 
-      email: email.toLowerCase(),
-      ...(purpose && { purpose })
-    }).sort({ createdAt: -1 });
+    const normalizedEmail = email.toLowerCase();
+    let user;
 
-    if (!otpDoc) {
-      return res.status(400).json({ message: 'OTP has expired or does not exist. Please request a new one.' });
+    // --- SIGNUP FLOW: use in-memory store ---
+    const pendingSignup = getPendingSignup(normalizedEmail);
+    if (pendingSignup || purpose === 'signup') {
+      if (!pendingSignup) {
+        return res.status(400).json({ message: 'Signup session expired. Please sign up again.' });
+      }
+
+      // Verify OTP from memory
+      if (!verifyPendingOtp(normalizedEmail, otp)) {
+        return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
+      }
+
+      // OTP valid — now create the User in DB for the first time
+      const existing = await User.findOne({ email: normalizedEmail });
+      if (existing && existing.isVerified) {
+        user = existing;
+      } else {
+        await User.deleteOne({ email: normalizedEmail, isVerified: false }); // clean stale
+        user = new User({
+          firstName: pendingSignup.firstName,
+          lastName: pendingSignup.lastName || '',
+          email: normalizedEmail,
+          password: pendingSignup.password, // plain — bcrypt-hashed by User pre-save hook
+          role: pendingSignup.role || 'customer',
+          mobileNumber: pendingSignup.mobileNumber,
+          isVerified: true
+        });
+        await user.save();
+        console.log(`✅ New user created after OTP verification: ${normalizedEmail}`);
+      }
+
+      clearPendingSignup(normalizedEmail); // cleanup memory
+
+    } else {
+      // --- OTHER FLOWS (password_reset, login): use MongoDB OTP ---
+      const { default: Otp } = await import('../models/Otp.js');
+      const otpDoc = await Otp.findOne({
+        email: normalizedEmail,
+        ...(purpose && { purpose })
+      }).sort({ createdAt: -1 });
+
+      if (!otpDoc) {
+        return res.status(400).json({ message: 'OTP has expired or does not exist. Please request a new one.' });
+      }
+      if (!otpDoc.compareOtp(otp)) {
+        return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
+      }
+
+      user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+      }
+      if (!user.isVerified) {
+        user.isVerified = true;
+        await user.save();
+      }
+      await Otp.deleteMany({ email: normalizedEmail });
     }
 
-    // Verify OTP
-    const isValid = await otpDoc.compareOtp(otp);
-    if (!isValid) {
-      return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
-    }
-
-    // Mark user as verified (for signup flow)
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.status(400).json({ message: 'User not found' });
-    }
-
-    if (!user.isVerified) {
-      user.isVerified = true;
-      await user.save();
-    }
-
-    // Clean up used OTP
-    await Otp.deleteMany({ email: email.toLowerCase() });
-
-    // Generate JWT
     const token = generateToken(user._id);
-
     res.json({
       success: true,
       message: 'OTP verified successfully!',
@@ -386,16 +444,17 @@ router.post('/resend-otp', async (req, res) => {
 
     console.log(`📧 [DEV] Resent OTP for ${email}: ${otpCode}`);
 
-    // Try sending real email
-    const emailSent = await sendOtpEmail(email.toLowerCase(), otpCode);
-
+    // Respond immediately — don't wait for email to send
     res.json({
       success: true,
-      message: emailSent ? 'New OTP code sent to your email!' : 'New OTP sent!',
-      email: email.toLowerCase(),
-      // Only return devOtp if email configuration is missing
-      ...((!process.env.SMTP_USER || !process.env.SMTP_PASS) && { devOtp: otpCode })
+      message: 'New OTP code sent to your email!',
+      email: email.toLowerCase()
     });
+
+    // Send email in the background (fire-and-forget)
+    sendOtpEmail(email.toLowerCase(), otpCode).catch(err =>
+      console.error('❌ Background resend OTP email error:', err.message)
+    );
 
   } catch (error) {
     console.error('Resend OTP error:', error);
@@ -476,15 +535,17 @@ router.post('/forgot-password', async (req, res) => {
 
     console.log(`📧 [DEV] Password reset OTP for ${email}: ${otpCode}`);
 
-    // Try sending real email
-    const emailSent = await sendResetPasswordEmail(email.toLowerCase(), otpCode);
-
+    // Respond immediately — don't wait for email to send
     res.json({
       success: true,
-      message: emailSent ? 'Password reset OTP code sent to your email!' : 'Password reset OTP generated!',
-      email: email.toLowerCase(),
-      ...((!process.env.SMTP_USER || !process.env.SMTP_PASS) && { devOtp: otpCode })
+      message: 'Password reset OTP code sent to your email!',
+      email: email.toLowerCase()
     });
+
+    // Send email in the background (fire-and-forget)
+    sendResetPasswordEmail(email.toLowerCase(), otpCode).catch(err =>
+      console.error('❌ Background reset email error:', err.message)
+    );
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ message: 'Server error' });

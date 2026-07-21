@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const otpSchema = new mongoose.Schema({
   email: {
@@ -17,6 +17,15 @@ const otpSchema = new mongoose.Schema({
     enum: ['signup', 'login', 'password_reset'],
     required: true
   },
+  // For signup: store pending user data here until OTP is verified.
+  // The real User record is only created AFTER successful OTP verification.
+  pendingUser: {
+    firstName: String,
+    lastName: String,
+    password: String,   // stored as plaintext temporarily; hashed by User model on save
+    role: String,
+    mobileNumber: String
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -24,17 +33,20 @@ const otpSchema = new mongoose.Schema({
   }
 });
 
-// Hash OTP before saving
-otpSchema.pre('save', async function(next) {
+// Hash OTP with SHA-256 before saving (fast, sufficient for short-lived OTPs)
+function hashOtp(otp) {
+  return crypto.createHash('sha256').update(otp).digest('hex');
+}
+
+otpSchema.pre('save', function(next) {
   if (!this.isModified('otp')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.otp = await bcrypt.hash(this.otp, salt);
+  this.otp = hashOtp(this.otp);
   next();
 });
 
 // Compare OTP method
-otpSchema.methods.compareOtp = async function(candidateOtp) {
-  return bcrypt.compare(candidateOtp, this.otp);
+otpSchema.methods.compareOtp = function(candidateOtp) {
+  return hashOtp(candidateOtp) === this.otp;
 };
 
 const Otp = mongoose.model('Otp', otpSchema);
