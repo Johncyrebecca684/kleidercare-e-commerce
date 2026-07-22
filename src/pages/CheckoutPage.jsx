@@ -238,6 +238,42 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
 
+  // Automatically apply reseller coupons based on cart contents
+  useEffect(() => {
+    if (loggedInUser?.role === 'reseller') {
+      const hasSpare = items.some(item => item.category?.toLowerCase() === 'genuine spare parts');
+      const hasChemicals = items.some(item => item.category?.toLowerCase() === 'chemicals');
+      
+      setAppliedCoupons(prev => {
+        const newCoupons = [...prev];
+        let changed = false;
+        
+        if (hasSpare && !newCoupons.includes('KCSPARE')) {
+          newCoupons.push('KCSPARE');
+          changed = true;
+        }
+        if (hasChemicals && !newCoupons.includes('KCCHM')) {
+          newCoupons.push('KCCHM');
+          changed = true;
+        }
+        
+        // Remove coupons if the items are no longer in cart
+        if (!hasSpare && newCoupons.includes('KCSPARE')) {
+          const idx = newCoupons.indexOf('KCSPARE');
+          newCoupons.splice(idx, 1);
+          changed = true;
+        }
+        if (!hasChemicals && newCoupons.includes('KCCHM')) {
+          const idx = newCoupons.indexOf('KCCHM');
+          newCoupons.splice(idx, 1);
+          changed = true;
+        }
+        
+        return changed ? newCoupons : prev;
+      });
+    }
+  }, [loggedInUser, items]);
+
   // Calculate breakdown if not provided directly
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
@@ -926,13 +962,13 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                 gap: '8px'
               }}>
                 <div>
-                  💡 <strong>Reseller Discounts Available! (Multiple codes can be applied)</strong>
+                  💡 <strong>Reseller Discounts Automatically Applied!</strong>
                 </div>
                 <div style={{ paddingLeft: '12px' }}>
-                  • Use code <strong style={{ textDecoration: 'underline' }}>KCSPARE</strong> to get a 20% discount on Genuine Spare Parts.
+                  • 20% discount on Genuine Spare Parts.
                 </div>
                 <div style={{ paddingLeft: '12px' }}>
-                  • Use code <strong style={{ textDecoration: 'underline' }}>KCCHM</strong> to get a 25% discount on Chemicals.
+                  • 25% discount on Chemicals.
                 </div>
               </div>
             )}

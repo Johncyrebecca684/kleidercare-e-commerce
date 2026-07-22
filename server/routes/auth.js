@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import User from '../models/User.js';
+import Otp from '../models/Otp.js';
 
 const router = express.Router();
 
@@ -212,10 +213,10 @@ export function authMiddleware(req, res, next) {
 // Pure in-memory: zero DB calls, responds in <10ms.
 // User record is ONLY created after OTP is verified.
 // ─────────────────────────────────────────────
-router.post('/signup', (req, res) => {
+router.post('/signup', async (req, res) => {
   const { firstName, lastName, email, password, role, mobileNumber } = req.body;
 
-  // --- Synchronous validation (no DB needed) ---
+  // --- Synchronous validation ---
   if (!firstName || !email || !password || !mobileNumber) {
     return res.status(400).json({ message: 'First name, email, password, and mobile number are required' });
   }
@@ -232,45 +233,43 @@ router.post('/signup', (req, res) => {
     return res.status(400).json({ message: 'Password must be at least 6 characters' });
   }
 
-  // Generate OTP and store everything in memory
-  const otpCode = generateOtp();
-  setPendingSignup(email.toLowerCase(), {
-    otp: otpCode,
-    firstName,
-    lastName: lastName || '',
-    password,
-    role: normalizedRole,
-    mobileNumber
-  });
-
-  console.log(`📧 [DEV] Signup OTP for ${email}: ${otpCode}`);
-
-  // Respond instantly — no DB touched yet
-  res.status(201).json({
-    success: true,
-    message: 'Verification email sent! Please check your inbox for the OTP.',
-    email: email.toLowerCase()
-  });
-
-  // Check email uniqueness + send OTP email in background (non-blocking)
-  (async () => {
-    try {
-      const existing = await User.findOne({ email: email.toLowerCase() });
-      if (existing && existing.isVerified) {
-        // Edge case: email already taken — remove from pending so verify-otp fails gracefully
-        clearPendingSignup(email.toLowerCase());
-        console.log(`⚠️  Signup attempted for already-verified email: ${email}`);
-        return;
-      }
-    } catch (e) {
-      console.error('Background DB check error:', e.message);
+  try {
+    // Check if user already exists
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing && existing.isVerified) {
+      return res.status(400).json({ message: 'Email is already registered and verified. Please log in.' });
     }
-    // Send OTP email
+
+    // Generate OTP and store everything in memory
+    const otpCode = generateOtp();
+    setPendingSignup(email.toLowerCase(), {
+      otp: otpCode,
+      firstName,
+      lastName: lastName || '',
+      password,
+      role: normalizedRole,
+      mobileNumber
+    });
+
+    console.log(`📧 [DEV] Signup OTP for ${email}: ${otpCode}`);
+
+    // Respond that verification email is sent
+    res.status(201).json({
+      success: true,
+      message: 'Verification email sent! Please check your inbox for the OTP.',
+      email: email.toLowerCase()
+    });
+
+    // Send OTP email in background
     sendOtpEmail(email.toLowerCase(), otpCode).catch(err =>
       console.error('❌ Background OTP email error:', err.message)
     );
-  })();
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ message: 'Server error during signup' });
+  }
 });
+
 
 // ─────────────────────────────────────────────
 // POST /api/auth/login
