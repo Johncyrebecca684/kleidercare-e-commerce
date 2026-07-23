@@ -490,6 +490,21 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
       return;
     }
 
+    if (!formData.email.includes('@')) {
+      setPaymentError("Please include an '@' in the email address.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setPaymentError('Please enter a valid email address (this email seems to be invalid or non-existent).');
+      return;
+    }
+
+    if (!/^\d{10}$/.test(formData.phone)) {
+      setPaymentError('Please enter a valid 10-digit phone number (non-existent or invalid format).');
+      return;
+    }
+
     setPaymentError('');
     setIsProcessing(true);
 

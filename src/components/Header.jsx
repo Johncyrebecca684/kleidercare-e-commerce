@@ -43,7 +43,7 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
     <header className="siteHeader animate-fade-in">
       <div className="topBannerStrip">
         <div className="topBannerInner">
-          <div className="topBannerLeft">Welcome to Kleider Care!</div>
+          <div className="topBannerLeft">Welcome to Kleider Care - Laundry Ecommerce</div>
           <div className="topBannerRight">
             <span>Deliver to 423651</span>
             <span className="divider">|</span>
@@ -184,9 +184,9 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
           <div className="mobileNavSection quickLinksSection">
             <span className="mobileNavSectionTitle">Quick Links</span>
             {loggedInUser?.role === 'admin' ? (
-              <button 
-                className="mobileNavLink adminBtn" 
-                type="button" 
+              <button
+                className="mobileNavLink adminBtn"
+                type="button"
                 onClick={() => {
                   navigate('/admin');
                   setIsMenuOpen(false);
@@ -197,9 +197,9 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
               </button>
             ) : (
               <>
-                <button 
-                  className="mobileNavLink" 
-                  type="button" 
+                <button
+                  className="mobileNavLink"
+                  type="button"
                   onClick={() => {
                     navigate('/support');
                     setIsMenuOpen(false);
@@ -208,9 +208,9 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
                   <Headset size={18} />
                   <span>Customer Support</span>
                 </button>
-                <button 
-                  className="mobileNavLink" 
-                  type="button" 
+                <button
+                  className="mobileNavLink"
+                  type="button"
                   onClick={() => {
                     navigate('/track-order');
                     setIsMenuOpen(false);
@@ -228,9 +228,9 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
           <div className="mobileNavSection accountSection">
             <span className="mobileNavSectionTitle">Account</span>
             {loggedInUser ? (
-              <button 
-                className="mobileNavUserBtn" 
-                type="button" 
+              <button
+                className="mobileNavUserBtn"
+                type="button"
                 onClick={() => {
                   onProfileClick();
                   setIsMenuOpen(false);
@@ -242,9 +242,9 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
                 <span className="userNameText">{loggedInUser.firstName} {loggedInUser.lastName}</span>
               </button>
             ) : (
-              <button 
-                className="mobileNavAuthBtn" 
-                type="button" 
+              <button
+                className="mobileNavAuthBtn"
+                type="button"
                 onClick={() => {
                   onSigninClick();
                   setIsMenuOpen(false);

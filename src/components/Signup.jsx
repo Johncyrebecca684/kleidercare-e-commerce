@@ -92,13 +92,18 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
       return;
     }
 
+    if (!email.includes('@')) {
+      setError("Please include an '@' in the email address.");
+      return;
+    }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email');
+      setError('Please enter a valid email address (this email seems to be invalid or non-existent).');
       return;
     }
 
     if (!/^\d{10}$/.test(mobileNumber)) {
-      setError('Please enter a valid 10-digit mobile number');
+      setError('Please enter a valid 10-digit mobile number (non-existent or invalid format).');
       return;
     }
 

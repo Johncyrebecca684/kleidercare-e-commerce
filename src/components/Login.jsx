@@ -75,8 +75,13 @@ export default function Login({ isOpen, onClose, onSwitchToSignup, onSwitchToFor
       return;
     }
 
+    if (!email.includes('@')) {
+      setError("Please include an '@' in the email address.");
+      return;
+    }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email');
+      setError('Please enter a valid email address (this email seems to be invalid or non-existent).');
       return;
     }
 
