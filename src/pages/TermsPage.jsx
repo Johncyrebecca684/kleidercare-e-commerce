@@ -35,7 +35,7 @@ export default function TermsPage({
   onCategoryChange
 }) {
   const [activeSection, setActiveSection] = useState('introduction');
-  const sectionRefs = useRef({});
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -43,6 +43,12 @@ export default function TermsPage({
 
   useEffect(() => {
     const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const progress = (window.scrollY / totalHeight) * 100;
+        setScrollProgress(progress);
+      }
+
       const scrollPosition = window.scrollY + 160; // Offset for header
 
       for (const section of SECTIONS) {
@@ -82,6 +88,11 @@ export default function TermsPage({
 
   return (
     <div className="terms-page-wrapper">
+      <div 
+        className="terms-scroll-progress" 
+        style={{ width: `${scrollProgress}%` }}
+        aria-hidden="true"
+      />
       <Header
         cartCount={cartCount}
         onSigninClick={onLoginOpen}
@@ -96,6 +107,13 @@ export default function TermsPage({
       <main className="terms-container animate-fade-in">
         {/* Banner Section */}
         <section className="terms-hero">
+          <div className="terms-hero-decorations">
+            <div className="floating-shape shape-1"></div>
+            <div className="floating-shape shape-2"></div>
+            <div className="floating-icon icon-scale"><Scale size={44} /></div>
+            <div className="floating-icon icon-shield"><ShieldCheck size={52} /></div>
+            <div className="floating-icon icon-book"><BookOpen size={36} /></div>
+          </div>
           <div className="terms-hero-content">
             <span className="terms-badge">Legal Policy</span>
             <h1 className="terms-title">Terms & Conditions</h1>
@@ -140,6 +158,12 @@ export default function TermsPage({
               {/* Introduction */}
               <div id="introduction" className="terms-section-block">
                 <h2>Welcome to Kleider Care</h2>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> This page sets the legal rules for using Kleider Care. By browsing or purchasing here, you agree to these terms.
+                  </div>
+                </div>
                 <div className="section-content intro-text">
                   <p>
                     Welcome to <strong>Kleider Care – Laundry Ecommerce</strong> ("laundryecommerce.com"). These Terms & Conditions govern your access to and use of our website and the purchase of products available through our platform.
@@ -155,6 +179,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">01</span>
                   <h2>General</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> We sell laundry machines, parts, and chemicals online. We can change these rules at any time.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>
@@ -172,6 +202,12 @@ export default function TermsPage({
                   <span className="section-number">02</span>
                   <h2>Eligibility</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> You must be at least 18 years old and provide accurate, truthful details to make a purchase.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>By using this Website, you represent that:</p>
                   <ul className="terms-list">
@@ -187,6 +223,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">03</span>
                   <h2>Products & Services</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> We strive for accuracy, but product descriptions, images, and availability may vary or change.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>
@@ -207,6 +249,12 @@ export default function TermsPage({
                   <span className="section-number">04</span>
                   <h2>Pricing</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Prices are listed in INR and are subject to change. Extra fees (like tax, shipping, or installation) are added at checkout.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>All prices displayed on the Website are in Indian Rupees (INR) unless otherwise stated.</p>
                   <p>Prices are subject to change without prior notice.</p>
@@ -221,6 +269,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">05</span>
                   <h2>Orders</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Placing an order is an offer to buy. We may refuse or cancel orders for stock issues, errors, or fraud checks.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>Placing an order on our Website constitutes an offer to purchase.</p>
@@ -242,6 +296,12 @@ export default function TermsPage({
                   <span className="section-number">06</span>
                   <h2>Payments</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Payments must go through our secure payment gateway. We do not store your private card or bank login info.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>Payments must be completed through the payment methods available on our Website.</p>
                   <p>
@@ -255,6 +315,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">07</span>
                   <h2>Shipping & Delivery</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Delivery dates are estimates. We are not responsible for delays caused by shipping providers or external forces.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>
@@ -272,6 +338,12 @@ export default function TermsPage({
                   <span className="section-number">08</span>
                   <h2>Warranty</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Manufacturer warranties apply to covered items. Issues arising from misuse or incorrect self-installation are excluded.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>Products are covered by the warranty provided by the respective manufacturer, wherever applicable.</p>
                   <p>Warranty claims are subject to the manufacturer's terms and conditions.</p>
@@ -287,6 +359,12 @@ export default function TermsPage({
                   <span className="section-number">09</span>
                   <h2>Intellectual Property</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> All site copy, designs, logo, and product images are owned by us. Do not copy or reuse them without permission.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>
                     All content available on this Website, including text, graphics, logos, icons, images, videos, software, and design elements, is the property of LaundryEcommerce.com or its licensors and is protected under applicable intellectual property laws.
@@ -300,6 +378,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">10</span>
                   <h2>Third-Party Brands</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Third-party brand logos (like LG, Pony, and Speed Queen) belong to their owners and are used only to describe the products.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>
@@ -316,6 +400,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">11</span>
                   <h2>User Conduct</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Please use the site honestly and legally. Do not attempt to upload malware, hack, or disrupt our operations.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>You agree not to:</p>
@@ -336,6 +426,12 @@ export default function TermsPage({
                   <span className="section-number">12</span>
                   <h2>Limitation of Liability</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> Our maximum legal liability is limited strictly to the amount you paid for the product in question. We are not liable for indirect damages.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>
                     To the maximum extent permitted by applicable law, LaundryEcommerce.com shall not be liable for any indirect, incidental, consequential, or special damages arising from the use of this Website or the purchase of products through the Website.
@@ -352,6 +448,12 @@ export default function TermsPage({
                   <span className="section-number">13</span>
                   <h2>Indemnification</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> You agree to cover costs/losses if your breach of these terms or misuse of the platform leads to legal issues for us.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>
                     You agree to indemnify and hold harmless LaundryEcommerce.com, its directors, employees, affiliates, partners, and service providers from any claims, liabilities, damages, losses, or expenses arising from your misuse of the Website or violation of these Terms.
@@ -365,6 +467,12 @@ export default function TermsPage({
                   <span className="section-number">14</span>
                   <h2>Privacy</h2>
                 </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> How we handle your personal information is described in detail in our separate Privacy Policy.
+                  </div>
+                </div>
                 <div className="section-content">
                   <p>
                     Your use of the Website is also governed by our Privacy Policy, which explains how we collect, use, and protect your personal information.
@@ -377,6 +485,12 @@ export default function TermsPage({
                 <div className="section-header">
                   <span className="section-number">15</span>
                   <h2>Governing Law</h2>
+                </div>
+                <div className="terms-summary-box">
+                  <span className="summary-icon">💡</span>
+                  <div className="summary-text">
+                    <strong>Quick Summary:</strong> These terms follow Indian laws. Any legal disputes must be filed in courts located in Chennai, Tamil Nadu.
+                  </div>
                 </div>
                 <div className="section-content">
                   <p>These Terms & Conditions shall be governed by and construed in accordance with the laws of India.</p>
