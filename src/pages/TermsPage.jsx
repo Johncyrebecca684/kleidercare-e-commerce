@@ -48,21 +48,6 @@ export default function TermsPage({
         const progress = (window.scrollY / totalHeight) * 100;
         setScrollProgress(progress);
       }
-
-      const scrollPosition = window.scrollY + 160; // Offset for header
-
-      for (const section of SECTIONS) {
-        const element = document.getElementById(section.id);
-        if (element) {
-          const offsetTop = element.offsetTop;
-          const offsetHeight = element.offsetHeight;
-
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section.id);
-            break;
-          }
-        }
-      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -107,13 +92,6 @@ export default function TermsPage({
       <main className="terms-container animate-fade-in">
         {/* Banner Section */}
         <section className="terms-hero">
-          <div className="terms-hero-decorations">
-            <div className="floating-shape shape-1"></div>
-            <div className="floating-shape shape-2"></div>
-            <div className="floating-icon icon-scale"><Scale size={44} /></div>
-            <div className="floating-icon icon-shield"><ShieldCheck size={52} /></div>
-            <div className="floating-icon icon-book"><BookOpen size={36} /></div>
-          </div>
           <div className="terms-hero-content">
             <span className="terms-badge">Legal Policy</span>
             <h1 className="terms-title">Terms & Conditions</h1>
@@ -125,34 +103,7 @@ export default function TermsPage({
 
         {/* Content Section */}
         <div className="terms-content-layout">
-          {/* Left: Sidebar Table of Contents */}
-          <aside className="terms-sidebar">
-            <div className="terms-sidebar-card">
-              <h3>Table of Contents</h3>
-              <nav className="terms-toc-nav">
-                {SECTIONS.map((section) => (
-                  <button
-                    key={section.id}
-                    className={`terms-toc-link ${activeSection === section.id ? 'active' : ''}`}
-                    onClick={() => scrollToSection(section.id)}
-                  >
-                    {section.label}
-                  </button>
-                ))}
-              </nav>
-            </div>
-            
-            <div className="terms-help-card">
-              <HelpCircle className="help-icon" size={24} />
-              <h4>Need Help?</h4>
-              <p>If you have any questions regarding these Terms, contact our legal support team.</p>
-              <a href="mailto:support@kleidercare.com" className="help-btn">
-                Email Support
-              </a>
-            </div>
-          </aside>
-
-          {/* Right: Terms Text Content */}
+          {/* Centered: Terms Text Content */}
           <article className="terms-text-content">
             <div className="terms-card">
               {/* Introduction */}
@@ -499,6 +450,18 @@ export default function TermsPage({
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Bottom Help Card Banner */}
+            <div className="terms-bottom-help-card">
+              <HelpCircle className="help-icon" size={28} />
+              <div className="help-content">
+                <h3>Need help understanding these Terms?</h3>
+                <p>If you have any questions or require clarification regarding our terms of service, please contact our support team.</p>
+              </div>
+              <a href="mailto:support@kleidercare.com" className="help-btn">
+                Contact Legal Support
+              </a>
             </div>
           </article>
         </div>
