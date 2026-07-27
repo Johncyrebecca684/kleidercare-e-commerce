@@ -312,7 +312,11 @@ export default function UserProfile({
                           ))}
                         </div>
                         <div className="order-card-footer">
-                          <span className="pay-method">Payment: {order.paymentMethod}</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span className="pay-method">Payment: {order.paymentMethod}</span>
+                            {order.companyName && <span className="order-company" style={{ fontSize: '12px', color: '#475569' }}>🏢 {order.companyName}</span>}
+                            {order.gstNumber && <span className="order-gst" style={{ fontSize: '12px', color: '#475569' }}>📄 GST: {order.gstNumber}</span>}
+                          </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                             <button 
                               className="view-invoice-btn" 
@@ -550,20 +554,22 @@ export default function UserProfile({
                 <div className="party-column">
                   <div className="party-header">Bill to Party</div>
                   <p className="party-name"><strong>Name:</strong> {selectedInvoice.customerName}</p>
+                  {selectedInvoice.companyName && <p className="party-company"><strong>Company:</strong> {selectedInvoice.companyName}</p>}
                   <p className="party-address"><strong>Address:</strong> {selectedInvoice.shippingAddress?.address || 'N/A'}</p>
                   <p className="party-city-pincode">{selectedInvoice.shippingAddress?.city || ''} - {selectedInvoice.shippingAddress?.pincode || ''}</p>
                   <p className="party-state"><strong>State:</strong> {selectedInvoice.shippingAddress?.state || 'N/A'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</p>
                   <p className="party-phone"><strong>Mobile:</strong> {selectedInvoice.phone || userData.mobileNumber}</p>
-                  <p className="party-gstin"><strong>GSTIN:</strong> </p>
+                  <p className="party-gstin"><strong>GSTIN:</strong> {selectedInvoice.gstNumber || 'N/A'}</p>
                 </div>
                 <div className="party-column">
                   <div className="party-header">Ship to Party</div>
                   <p className="party-name"><strong>Name:</strong> {selectedInvoice.customerName}</p>
+                  {selectedInvoice.companyName && <p className="party-company"><strong>Company:</strong> {selectedInvoice.companyName}</p>}
                   <p className="party-address"><strong>Address:</strong> {selectedInvoice.shippingAddress?.address || 'N/A'}</p>
                   <p className="party-city-pincode">{selectedInvoice.shippingAddress?.city || ''} - {selectedInvoice.shippingAddress?.pincode || ''}</p>
                   <p className="party-state"><strong>State:</strong> {selectedInvoice.shippingAddress?.state || 'N/A'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</p>
                   <p className="party-phone"><strong>Mobile:</strong> {selectedInvoice.phone || userData.mobileNumber}</p>
-                  <p className="party-gstin"><strong>GSTIN:</strong> </p>
+                  <p className="party-gstin"><strong>GSTIN:</strong> {selectedInvoice.gstNumber || 'N/A'}</p>
                 </div>
               </div>
               

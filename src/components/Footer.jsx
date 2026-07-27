@@ -47,6 +47,7 @@ export default function Footer() {
             <li><a href="/cart">Cart</a></li>
             <li><a href="/#products">Products</a></li>
             <li><button onClick={() => navigate('/track-order')} className="trackOrderLink">Track Order</button></li>
+            <li><button onClick={() => navigate('/terms')} className="trackOrderLink">Terms & Conditions</button></li>
           </ul>
         </div>
 

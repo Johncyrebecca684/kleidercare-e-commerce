@@ -126,7 +126,9 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         <div className="price-section">
           <div className="price-row-main">
             <span className="current-price">₹{product.price.toLocaleString('en-IN')}</span>
-            {product.originalPrice && (
+            {product.originalPrice && 
+             product.originalPrice !== product.price && 
+             !(product.category && ['lg', 'speed queen', 'pony', 'seko'].some(keyword => product.category.toLowerCase().includes(keyword))) && (
               <span className="original-price">₹{product.originalPrice.toLocaleString('en-IN')}</span>
             )}
           </div>

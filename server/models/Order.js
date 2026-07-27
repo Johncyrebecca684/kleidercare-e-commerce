@@ -22,6 +22,16 @@ const orderSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  companyName: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  gstNumber: {
+    type: String,
+    required: false,
+    trim: true
+  },
   shippingAddress: {
     address: { type: String, required: true },
     city: { type: String, required: true },

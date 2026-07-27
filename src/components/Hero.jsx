@@ -72,6 +72,14 @@ const slides = [
     ),
     image: '/pony_carousal.png',
     isBackgroundImage: true
+  },
+  {
+    id: 5,
+    kicker: '',
+    title: '',
+    subtitle: null,
+    image: '/slms_banner.png',
+    isFullBannerImage: true
   }
 ];
 
@@ -81,7 +89,7 @@ export default function Hero() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 8000);
     return () => clearInterval(timer);
   }, []);
 
@@ -108,9 +116,9 @@ export default function Hero() {
 
           <div className="carouselContent" style={{ position: 'relative', zIndex: 1 }}>
             <div className="carouselText animate-slide-up" key={`text-${slide.id}`} style={slide.isBackgroundImage ? { zIndex: 2, position: 'relative' } : {}}>
-              <div className="carouselKicker">{slide.kicker}</div>
-              <h1 className="carouselTitle">{slide.title}</h1>
-              <div className="carouselSubtitle">{slide.subtitle}</div>
+              {slide.kicker && <div className="carouselKicker">{slide.kicker}</div>}
+              {slide.title && <h1 className="carouselTitle">{slide.title}</h1>}
+              {slide.subtitle && <div className="carouselSubtitle">{slide.subtitle}</div>}
 
               {!slide.isFullBannerImage && (
                 <div className="carouselIndicators" role="tablist">

@@ -76,7 +76,7 @@ export const products = [
   },
   {
     id: 41,
-    name: "LG 15 Kg Wet Cleaning Washer",
+    name: "LG 15 Kg Wet Pro Washer",
     category: "LG Commercial Laundry Machines",
     price: 188500,
     rating: 5.0,
@@ -112,7 +112,6 @@ export const products = [
     }
   },
   {
-    id: 43,
     id: 150,
     name: "15kg LG Titan Gas Dryer",
     category: "LG Commercial Laundry Machines",
@@ -132,7 +131,7 @@ export const products = [
   },
   {
     id: 43,
-    name: "LG Wet Cleaning Dryer 15KG (ELECTRIC)",
+    name: "LG 15 Kg Wet Pro Electric Dryer (Moisture Content)",
     category: "LG Commercial Laundry Machines",
     price: 136500,
     rating: 5.0,

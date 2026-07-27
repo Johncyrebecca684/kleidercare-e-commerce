@@ -367,7 +367,19 @@ export default function AdminDashboard({ products, setProducts, users, orders, l
                   <tbody>
                     {orders.map(order => (
                       <tr key={order.id}>
-                        <td><strong>{order.customerName}</strong></td>
+                        <td>
+                          <strong>{order.customerName}</strong>
+                          {order.companyName && (
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                              🏢 {order.companyName}
+                            </div>
+                          )}
+                          {order.gstNumber && (
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+                              📄 GST: {order.gstNumber}
+                            </div>
+                          )}
+                        </td>
                         <td>
                           <div className="itemList">
                             {order.items.map((item, idx) => (

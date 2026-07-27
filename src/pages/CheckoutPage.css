@@ -254,3 +254,11 @@
     gap: 0;
   }
 }
+
+.optional-tag {
+  color: #64748b;
+  font-size: 10px;
+  text-transform: none;
+  font-weight: normal;
+  margin-left: 4px;
+}

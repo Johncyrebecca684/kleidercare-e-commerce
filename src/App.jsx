@@ -11,6 +11,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import TicketingPage from './pages/TicketingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import WishlistPage from './pages/WishlistPage';
+import TermsPage from './pages/TermsPage';
 import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
@@ -254,6 +255,8 @@ function App() {
             paymentMethod: order.paymentMethod,
             phone: order.phone,
             shippingAddress: order.shippingAddress,
+            companyName: order.companyName || '',
+            gstNumber: order.gstNumber || '',
             warranty: 'Active (1 Year)',
             setup: 'Pending Installation'
           }));
@@ -425,6 +428,21 @@ function App() {
             }
           />
           <Route path="/track-order" element={<TrackOrderPage userOrders={userOrders} />} />
+          <Route
+            path="/terms"
+            element={
+              <TermsPage
+                cartCount={cartCount}
+                wishlistCount={wishlistItems.length}
+                loggedInUser={loggedInUser}
+                onLoginOpen={() => setIsLoginOpen(true)}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            }
+          />
           <Route path="/support" element={<TicketingPage />} />
           <Route
             path="/admin"

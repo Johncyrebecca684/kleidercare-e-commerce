@@ -10,7 +10,7 @@
 
 .carouselBanner {
   position: relative;
-  background: linear-gradient(135deg, #0a2e5c 0%, #104285 50%, #0a2e5c 100%);
+  background: linear-gradient(135deg, #001764 0%, #03166b 50%, #010952 100%);
   background-size: 200% 200%;
   animation: gradientShift 10s ease infinite;
   border-radius: 12px;

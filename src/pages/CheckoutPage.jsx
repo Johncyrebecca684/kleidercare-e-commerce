@@ -43,9 +43,11 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   const [upiLaunched, setUpiLaunched] = useState(false);
   const [upiError, setUpiError] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: loggedInUser ? `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim() : '',
+    email: loggedInUser?.email || '',
+    phone: loggedInUser?.mobileNumber || '',
+    companyName: '',
+    gstNumber: '',
     address: '',
     city: '',
     state: '',
@@ -56,6 +58,36 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   const [selectedAddressIndex, setSelectedAddressIndex] = useState(-1);
   const [saveThisAddress, setSaveThisAddress] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupons, setAppliedCoupons] = useState([]);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+
+  // Calculate breakdown if not provided directly
+  const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
+
+  const sparePartsSubtotal = Math.round(items
+    .filter(item => item.category?.toLowerCase() === 'genuine spare parts')
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
+
+  const chemicalsSubtotal = Math.round(items
+    .filter(item => item.category?.toLowerCase() === 'chemicals')
+    .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
+
+  const discountAmount = 
+    (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
+    (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
+
+  const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
+  const baseTax = items.reduce((sum, item) => {
+    const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
+    return sum + (itemGst * item.quantity);
+  }, 0);
+  const tax = Math.round(baseTax - (discountAmount * 0.18));
+  const finalTotal = Math.round((subtotal - discountAmount + shipping + tax) * 100) / 100;
   
   const savedAddresses = loggedInUser?.addresses || [];
 
@@ -143,7 +175,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
   useEffect(() => {
     let intervalId;
     if (showUpiModal && upiSessionId) {
-      setUpiStatusText('Waiting for payment scan/receipt...');
+      setTimeout(() => setUpiStatusText('Waiting for payment scan/receipt...'), 0);
       
       const checkStatus = async () => {
         try {
@@ -162,6 +194,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               customerName: formData.name,
               userEmail: formData.email,
               phone: formData.phone,
+              companyName: formData.companyName || '',
+              gstNumber: formData.gstNumber || '',
               shippingAddress: {
                 address: formData.address,
                 city: formData.city,
@@ -206,7 +240,9 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               items: savedOrder.items,
               total: savedOrder.totalAmount,
               status: savedOrder.status,
-              paymentMethod: savedOrder.paymentMethod
+              paymentMethod: savedOrder.paymentMethod,
+              companyName: savedOrder.companyName || '',
+              gstNumber: savedOrder.gstNumber || ''
             };
 
             setTimeout(() => {
@@ -232,71 +268,43 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     };
   }, [showUpiModal, upiSessionId]);
 
-  // Coupon state
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupons, setAppliedCoupons] = useState([]);
-  const [couponError, setCouponError] = useState('');
-  const [couponSuccess, setCouponSuccess] = useState('');
-
   // Automatically apply reseller coupons based on cart contents
   useEffect(() => {
     if (loggedInUser?.role === 'reseller') {
       const hasSpare = items.some(item => item.category?.toLowerCase() === 'genuine spare parts');
       const hasChemicals = items.some(item => item.category?.toLowerCase() === 'chemicals');
       
-      setAppliedCoupons(prev => {
-        const newCoupons = [...prev];
-        let changed = false;
-        
-        if (hasSpare && !newCoupons.includes('KCSPARE')) {
-          newCoupons.push('KCSPARE');
-          changed = true;
-        }
-        if (hasChemicals && !newCoupons.includes('KCCHM')) {
-          newCoupons.push('KCCHM');
-          changed = true;
-        }
-        
-        // Remove coupons if the items are no longer in cart
-        if (!hasSpare && newCoupons.includes('KCSPARE')) {
-          const idx = newCoupons.indexOf('KCSPARE');
-          newCoupons.splice(idx, 1);
-          changed = true;
-        }
-        if (!hasChemicals && newCoupons.includes('KCCHM')) {
-          const idx = newCoupons.indexOf('KCCHM');
-          newCoupons.splice(idx, 1);
-          changed = true;
-        }
-        
-        return changed ? newCoupons : prev;
-      });
+      setTimeout(() => {
+        setAppliedCoupons(prev => {
+          const newCoupons = [...prev];
+          let changed = false;
+          
+          if (hasSpare && !newCoupons.includes('KCSPARE')) {
+            newCoupons.push('KCSPARE');
+            changed = true;
+          }
+          if (hasChemicals && !newCoupons.includes('KCCHM')) {
+            newCoupons.push('KCCHM');
+            changed = true;
+          }
+          
+          // Remove coupons if the items are no longer in cart
+          if (!hasSpare && newCoupons.includes('KCSPARE')) {
+            const idx = newCoupons.indexOf('KCSPARE');
+            newCoupons.splice(idx, 1);
+            changed = true;
+          }
+          if (!hasChemicals && newCoupons.includes('KCCHM')) {
+            const idx = newCoupons.indexOf('KCCHM');
+            newCoupons.splice(idx, 1);
+            changed = true;
+          }
+          
+          return changed ? newCoupons : prev;
+        });
+      }, 0);
     }
   }, [loggedInUser, items]);
-
-  // Calculate breakdown if not provided directly
-  const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
-
-  const sparePartsSubtotal = Math.round(items
-    .filter(item => item.category?.toLowerCase() === 'genuine spare parts')
-    .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
-
-  const chemicalsSubtotal = Math.round(items
-    .filter(item => item.category?.toLowerCase() === 'chemicals')
-    .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
-
-  const discountAmount = 
-    (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
-    (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
-
-  const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
-  const baseTax = items.reduce((sum, item) => {
-    const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
-    return sum + (itemGst * item.quantity);
-  }, 0);
-  const tax = Math.round(baseTax - (discountAmount * 0.18));
-  const finalTotal = Math.round((subtotal - discountAmount + shipping + tax) * 100) / 100;
 
   const handleApplyCoupon = (e) => {
     e.preventDefault();
@@ -418,6 +426,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           customerName: formData.name,
           userEmail: formData.email,
           phone: formData.phone,
+          companyName: formData.companyName || '',
+          gstNumber: formData.gstNumber || '',
           shippingAddress: {
             address: formData.address,
             city: formData.city,
@@ -463,7 +473,9 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           items: savedOrder.items,
           total: savedOrder.totalAmount,
           status: savedOrder.status,
-          paymentMethod: savedOrder.paymentMethod
+          paymentMethod: savedOrder.paymentMethod,
+          companyName: savedOrder.companyName || '',
+          gstNumber: savedOrder.gstNumber || ''
         };
 
         // Clear cart and redirect after 4 seconds
@@ -530,8 +542,7 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           body: JSON.stringify({ addresses: updatedAddresses })
         });
         
-        // Optimistically update the local state for this session if they stay on page
-        loggedInUser.addresses = updatedAddresses;
+        // Address successfully saved to backend database
       } catch (err) {
         console.error('Failed to save address:', err);
       }
@@ -544,6 +555,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           customerName: formData.name,
           userEmail: formData.email,
           phone: formData.phone,
+          companyName: formData.companyName || '',
+          gstNumber: formData.gstNumber || '',
           shippingAddress: {
             address: formData.address,
             city: formData.city,
@@ -586,7 +599,9 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           items: savedOrder.items,
           total: savedOrder.totalAmount,
           status: savedOrder.status,
-          paymentMethod: savedOrder.paymentMethod
+          paymentMethod: savedOrder.paymentMethod,
+          companyName: savedOrder.companyName || '',
+          gstNumber: savedOrder.gstNumber || ''
         };
 
         setTimeout(() => {
@@ -738,6 +753,16 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                   <div className="form-group-page">
                     <label htmlFor="phone">Phone Number</label>
                     <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleChange} />
+                  </div>
+                </div>
+                <div className="form-row-page" style={{ marginTop: '10px' }}>
+                  <div className="form-group-page">
+                    <label htmlFor="companyName">Company Name <span className="optional-tag">(Optional)</span></label>
+                    <input type="text" id="companyName" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="e.g. Acme Corporation" />
+                  </div>
+                  <div className="form-group-page">
+                    <label htmlFor="gstNumber">GST Number <span className="optional-tag">(Optional)</span></label>
+                    <input type="text" id="gstNumber" name="gstNumber" value={formData.gstNumber} onChange={handleChange} placeholder="e.g. 22AAAAA0000A1Z5" />
                   </div>
                 </div>
               </div>
