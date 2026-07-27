@@ -39,7 +39,7 @@ const slides = [
         </p>
       </div>
     ),
-    image: '/lg_commercial_laundry_new.png',
+    image: '/lg_commercial_laundry_new.jpeg',
     isBackgroundImage: true
   },
   {
