@@ -115,9 +115,6 @@ export default function TermsPage({
                 <h2>4. Pricing</h2>
                 <p>All prices displayed on the Website are in Indian Rupees (INR) unless otherwise stated.</p>
                 <p>Prices are subject to change without prior notice.</p>
-                <p>
-                  Applicable taxes, shipping charges, installation charges, or other fees will be calculated during checkout where applicable.
-                </p>
               </div>
 
               {/* 5. Orders */}
@@ -140,7 +137,7 @@ export default function TermsPage({
                 <h2>6. Payments</h2>
                 <p>Payments must be completed through the payment methods available on our Website.</p>
                 <p>
-                  All payment transactions are processed through secure payment gateways. We do not store your complete debit card, credit card, or banking credentials.
+                  All payment transactions are processed through secure payment gateways.
                 </p>
               </div>
 
@@ -241,6 +238,9 @@ export default function TermsPage({
               <p>
                 Questions or concerns about these Terms? Please contact our legal team at{' '}
                 <a href="mailto:support@kleidercare.com">support@kleidercare.com</a>.
+              </p>
+              <p style={{ marginTop: '8px', fontSize: '13px', color: '#64748b' }}>
+                Business Hours: Monday–Friday | 10:00 AM – 6:00 PM (IST)
               </p>
             </div>
           </article>
