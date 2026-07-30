@@ -2,7 +2,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
 import './CartPage.css';
 
-export default function CartPage({ items, onUpdateQuantity, onRemoveItem, loggedInUser, onLoginOpen }) {
+export default function CartPage({ 
+  items, 
+  onUpdateQuantity, 
+  onRemoveItem, 
+  loggedInUser, 
+  onLoginOpen,
+  installationAddon = { selected: false, fee: 999 },
+  setInstallationAddon
+}) {
   const navigate = useNavigate();
   
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
@@ -12,7 +20,8 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
     const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
     return sum + (itemGst * item.quantity);
   }, 0);
-  const total = Math.round((subtotal + shipping + tax) * 100) / 100;
+  const installationFee = installationAddon.selected ? installationAddon.fee : 0;
+  const total = Math.round((subtotal + shipping + tax + installationFee) * 100) / 100;
 
   return (
     <div className="cart-page-wrapper animate-fade-in">
@@ -37,18 +46,23 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
         <div className="cart-page-content">
           <div className="cart-items-section">
             {items.map(item => (
-              <div key={item.id} className="cart-page-item">
+              <div key={item.cartItemId || item.id} className="cart-page-item">
                 <img src={item.image} alt={item.name} className="cart-page-item-image" />
                 
                 <div className="cart-page-item-details">
                   <h3 className="cart-page-item-name">{item.name}</h3>
+                  {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
+                    <div className="item-warranty-badge">
+                      🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
+                    </div>
+                  )}
                   <p className="cart-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
                 </div>
 
                 <div className="cart-page-item-actions">
                   <button 
                     className="cart-page-quantity-btn"
-                    onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                    onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity - 1)}
                     disabled={item.quantity === 1}
                   >
                     <Minus size={16} />
@@ -56,7 +70,7 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
                   <span className="cart-page-quantity">{item.quantity}</span>
                   <button 
                     className="cart-page-quantity-btn"
-                    onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity + 1)}
                   >
                     <Plus size={16} />
                   </button>
@@ -68,13 +82,33 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
 
                 <button 
                   className="cart-page-remove-btn"
-                  onClick={() => onRemoveItem(item.id)}
+                  onClick={() => onRemoveItem(item.cartItemId || item.id)}
                   title="Remove Item"
                 >
                   <Trash2 size={20} />
                 </button>
               </div>
             ))}
+
+            {/* Professional Installation Add-on Toggle */}
+            <div className="installation-addon-box">
+              <label className="installation-addon-label">
+                <input
+                  type="checkbox"
+                  checked={installationAddon.selected}
+                  onChange={(e) => setInstallationAddon && setInstallationAddon({ 
+                    ...installationAddon, 
+                    selected: e.target.checked 
+                  })}
+                />
+                <div className="addon-text-group">
+                  <span className="addon-title">🔧 Add Professional Installation & Setup (+₹999)</span>
+                  <p className="addon-description">
+                    Certified Kleider Care engineers will uncrate, connect, inspect, and calibrate your machines upon delivery.
+                  </p>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div className="cart-summary-section">
@@ -86,6 +120,14 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
               <span>Subtotal ({items.length} items)</span>
               <span>₹{subtotal.toLocaleString('en-IN')}</span>
             </div>
+
+            {installationAddon.selected && (
+              <div className="summary-row addon-row">
+                <span>Professional Installation</span>
+                <span>+₹{installationAddon.fee.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+
             <div className="summary-row">
               <span>Shipping Estimate</span>
               <span className={shipping === 0 ? 'free' : ''}>
@@ -93,7 +135,7 @@ export default function CartPage({ items, onUpdateQuantity, onRemoveItem, logged
               </span>
             </div>
             <div className="summary-row">
-              <span>Tax (18%)</span>
+              <span>Tax (18% GST)</span>
               <span>₹{tax.toLocaleString('en-IN')}</span>
             </div>
             

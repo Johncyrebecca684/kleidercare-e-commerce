@@ -173,6 +173,12 @@ function App() {
     }
   ]);
 
+  const [installationAddon, setInstallationAddon] = useState({
+    selected: false,
+    title: 'Professional Commercial Equipment Installation & Setup',
+    fee: 999
+  });
+
   // Sync state changes with localStorage
   useEffect(() => {
     localStorage.setItem('kc_cart_items', JSON.stringify(cartItems));
@@ -289,17 +295,30 @@ function App() {
 
   const handleAddToCart = (product) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      const warrantyType = product.selectedWarranty?.type || 'None';
+      const itemKey = `${product.id}_${warrantyType}`;
+      const effectivePrice = product.priceWithWarranty || product.price;
+
+      const existingItem = prevItems.find(item =>
+        (item.cartItemId || item.id) === itemKey ||
+        (item.id === product.id && (item.selectedWarranty?.type || 'None') === warrantyType)
+      );
 
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id
+          ((item.cartItemId || item.id) === itemKey || (item.id === product.id && (item.selectedWarranty?.type || 'None') === warrantyType))
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
 
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, {
+        ...product,
+        cartItemId: itemKey,
+        price: effectivePrice,
+        basePrice: product.price,
+        quantity: 1
+      }];
     });
   };
 
@@ -309,7 +328,7 @@ function App() {
     } else {
       setCartItems(prevItems =>
         prevItems.map(item =>
-          item.id === productId
+          (item.cartItemId || item.id) === productId || item.id === productId
             ? { ...item, quantity: newQuantity }
             : item
         )
@@ -319,7 +338,7 @@ function App() {
 
   const handleRemoveItem = (productId) => {
     setCartItems(prevItems =>
-      prevItems.filter(item => item.id !== productId)
+      prevItems.filter(item => (item.cartItemId || item.id) !== productId && item.id !== productId)
     );
   };
 
@@ -465,6 +484,8 @@ function App() {
                 onRemoveItem={handleRemoveItem}
                 loggedInUser={loggedInUser}
                 onLoginOpen={() => setIsLoginOpen(true)}
+                installationAddon={installationAddon}
+                setInstallationAddon={setInstallationAddon}
               />
             }
           />
@@ -477,10 +498,11 @@ function App() {
                 <CheckoutPage
                   items={cartItems}
                   total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 500
-                    ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18)
-                    : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18)}
+                    ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18) + (installationAddon.selected ? installationAddon.fee : 0)
+                    : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18) + (installationAddon.selected ? installationAddon.fee : 0)}
                   onPlaceOrder={handlePlaceOrder}
                   loggedInUser={loggedInUser}
+                  installationAddon={installationAddon}
                 />
               ) : (
                 <NavigateToCartAndLogin onLoginOpen={() => setIsLoginOpen(true)} />

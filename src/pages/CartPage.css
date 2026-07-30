@@ -372,3 +372,69 @@
     padding: 6px;
   }
 }
+
+/* Extended Warranty Item Badge */
+.item-warranty-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f2b5c;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin: 4px 0 6px 0;
+}
+
+/* Installation Addon Box */
+.installation-addon-box {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px dashed #0f2b5c;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.installation-addon-box:hover {
+  background: #f0f4f8;
+}
+
+.installation-addon-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.installation-addon-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #0f2b5c;
+  cursor: pointer;
+}
+
+.addon-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.addon-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2b5c;
+}
+
+.addon-description {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.summary-row.addon-row {
+  color: #0f2b5c;
+  font-weight: 600;
+}

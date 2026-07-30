@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <div className="footer-logo">
-            <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" style={{height: '35px'}} />
+            <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" style={{ height: '35px' }} />
           </div>
           <p className="footer-description">
             Your trusted partner for professional laundry services and franchise oppurtunities

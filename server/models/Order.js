@@ -42,12 +42,32 @@ const orderSchema = new mongoose.Schema({
     {
       name: { type: String, required: true },
       price: { type: Number, required: true },
-      quantity: { type: Number, required: true }
+      quantity: { type: Number, required: true },
+      extendedWarranty: {
+        type: { type: String, default: 'None' },
+        title: { type: String, default: 'Standard Warranty' },
+        price: { type: Number, default: 0 }
+      }
     }
   ],
   totalAmount: {
     type: Number,
     required: true
+  },
+  installationAddon: {
+    selected: { type: Boolean, default: false },
+    title: { type: String, default: 'Professional Commercial Equipment Installation' },
+    fee: { type: Number, default: 0 }
+  },
+  summaryBreakdown: {
+    subtotal: { type: Number },
+    totalWarrantyFee: { type: Number },
+    installationFee: { type: Number },
+    grandTotal: { type: Number }
+  },
+  warranty: {
+    type: String,
+    default: 'Active (1 Year)'
   },
   paymentMethod: {
     type: String,
@@ -81,7 +101,7 @@ const orderSchema = new mongoose.Schema({
 });
 
 // Pre-save hook to generate a unique tracking order ID (e.g., ORD123456)
-orderSchema.pre('save', async function(next) {
+orderSchema.pre('save', async function (next) {
   if (this.orderId) return next();
 
   let unique = false;

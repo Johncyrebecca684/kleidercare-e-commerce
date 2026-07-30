@@ -28,12 +28,18 @@ function buildQrUrl(upiLink) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 }
 
-export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser }) {
+export default function CheckoutPage({ 
+  items, 
+  total, 
+  onPlaceOrder, 
+  loggedInUser,
+  installationAddon = { selected: false, fee: 999 }
+}) {
   const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('UPI');
+  const [paymentMethod, setPaymentMethod] = useState('Card');
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [upiSessionId, setUpiSessionId] = useState('');
   const [upiStatusText, setUpiStatusText] = useState('');
@@ -46,8 +52,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     name: loggedInUser ? `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim() : '',
     email: loggedInUser?.email || '',
     phone: loggedInUser?.mobileNumber || '',
-    companyName: '',
-    gstNumber: '',
+    companyName: loggedInUser?.companyName || loggedInUser?.businessName || '',
+    gstNumber: loggedInUser?.gstNumber || '',
     address: '',
     city: '',
     state: '',
@@ -87,7 +93,8 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
     return sum + (itemGst * item.quantity);
   }, 0);
   const tax = Math.round(baseTax - (discountAmount * 0.18));
-  const finalTotal = Math.round((subtotal - discountAmount + shipping + tax) * 100) / 100;
+  const installationFee = installationAddon?.selected ? installationAddon.fee : 0;
+  const finalTotal = Math.round((subtotal - discountAmount + shipping + tax + installationFee) * 100) / 100;
   
   const savedAddresses = loggedInUser?.addresses || [];
 
@@ -205,12 +212,25 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               items: items.map(item => ({
                 name: item.name,
                 price: item.price,
-                quantity: item.quantity
+                quantity: item.quantity,
+                extendedWarranty: item.selectedWarranty || { type: 'None', title: 'Standard (1-Yr Included)', price: 0 }
               })),
               totalAmount: finalTotal,
               paymentMethod: 'UPI',
               paymentStatus: 'Paid',
-              razorpayPaymentId: data.transactionId
+              razorpayPaymentId: data.transactionId,
+              installationAddon: installationAddon || { selected: false, fee: 0 },
+              summaryBreakdown: {
+                subtotal,
+                totalWarrantyFee: items.reduce((sum, i) => sum + ((i.selectedWarranty?.price || 0) * i.quantity), 0),
+                installationFee,
+                grandTotal: finalTotal
+              },
+              warranty: items.some(i => i.selectedWarranty?.type === '3-Year') 
+                ? 'Active (3 Years)' 
+                : items.some(i => i.selectedWarranty?.type === '1-Year') 
+                  ? 'Active (2 Years)' 
+                  : 'Active (1 Year)'
             };
 
             const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
@@ -437,13 +457,26 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           items: items.map(item => ({
             name: item.name,
             price: item.price,
-            quantity: item.quantity
+            quantity: item.quantity,
+            extendedWarranty: item.selectedWarranty || { type: 'None', title: 'Standard (1-Yr Included)', price: 0 }
           })),
           totalAmount: finalTotal,
           paymentMethod: paymentMethod,
           paymentStatus: 'Paid',
           razorpayOrderId: paymentResponse.razorpay_order_id,
-          razorpayPaymentId: paymentResponse.razorpay_payment_id
+          razorpayPaymentId: paymentResponse.razorpay_payment_id,
+          installationAddon: installationAddon || { selected: false, fee: 0 },
+          summaryBreakdown: {
+            subtotal,
+            totalWarrantyFee: items.reduce((sum, i) => sum + ((i.selectedWarranty?.price || 0) * i.quantity), 0),
+            installationFee,
+            grandTotal: finalTotal
+          },
+          warranty: items.some(i => i.selectedWarranty?.type === '3-Year') 
+            ? 'Active (3 Years)' 
+            : items.some(i => i.selectedWarranty?.type === '1-Year') 
+              ? 'Active (2 Years)' 
+              : 'Active (1 Year)'
         };
 
         const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
@@ -566,11 +599,24 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
           items: items.map(item => ({
             name: item.name,
             price: item.price,
-            quantity: item.quantity
+            quantity: item.quantity,
+            extendedWarranty: item.selectedWarranty || { type: 'None', title: 'Standard (1-Yr Included)', price: 0 }
           })),
           totalAmount: finalTotal,
           paymentMethod: 'Cash',
           paymentStatus: 'Pending',
+          installationAddon: installationAddon || { selected: false, fee: 0 },
+          summaryBreakdown: {
+            subtotal,
+            totalWarrantyFee: items.reduce((sum, i) => sum + ((i.selectedWarranty?.price || 0) * i.quantity), 0),
+            installationFee,
+            grandTotal: finalTotal
+          },
+          warranty: items.some(i => i.selectedWarranty?.type === '3-Year') 
+            ? 'Active (3 Years)' 
+            : items.some(i => i.selectedWarranty?.type === '1-Year') 
+              ? 'Active (2 Years)' 
+              : 'Active (1 Year)'
         };
 
         const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
@@ -742,28 +788,33 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
               <div className="checkout-page-section">
                 <h3>Billing Details</h3>
                 <div className="form-group-page">
-                  <label htmlFor="name">Full Name</label>
+                  <label htmlFor="name">Full Name *</label>
                   <input type="text" id="name" name="name" required value={formData.name} onChange={handleChange} />
+                </div>
+                <div className="form-group-page">
+                  <label htmlFor="companyName">Company / Business Name</label>
+                  <input 
+                    type="text" 
+                    id="companyName" 
+                    name="companyName" 
+                    value={formData.companyName} 
+                    onChange={handleChange} 
+                    placeholder="e.g. Kleider Care Commercial Laundromat" 
+                  />
                 </div>
                 <div className="form-row-page">
                   <div className="form-group-page">
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="email">Email *</label>
                     <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                   </div>
                   <div className="form-group-page">
-                    <label htmlFor="phone">Phone Number</label>
+                    <label htmlFor="phone">Phone Number *</label>
                     <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleChange} />
                   </div>
                 </div>
-                <div className="form-row-page" style={{ marginTop: '10px' }}>
-                  <div className="form-group-page">
-                    <label htmlFor="companyName">Company Name <span className="optional-tag">(Optional)</span></label>
-                    <input type="text" id="companyName" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="e.g. Acme Corporation" />
-                  </div>
-                  <div className="form-group-page">
-                    <label htmlFor="gstNumber">GST Number <span className="optional-tag">(Optional)</span></label>
-                    <input type="text" id="gstNumber" name="gstNumber" value={formData.gstNumber} onChange={handleChange} placeholder="e.g. 22AAAAA0000A1Z5" />
-                  </div>
+                <div className="form-group-page" style={{ marginTop: '10px' }}>
+                  <label htmlFor="gstNumber">GST Number <span className="optional-tag">(Optional)</span></label>
+                  <input type="text" id="gstNumber" name="gstNumber" value={formData.gstNumber} onChange={handleChange} placeholder="e.g. 22AAAAA0000A1Z5" />
                 </div>
               </div>
 
@@ -898,10 +949,10 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                     alignItems: 'center',
                     gap: '10px',
                     padding: '14px',
-                    border: paymentMethod === 'UPI' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
+                    border: paymentMethod === 'Card' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    background: paymentMethod === 'UPI' ? '#f0f4ff' : '#ffffff',
+                    background: paymentMethod === 'Card' ? '#f0f4ff' : '#ffffff',
                     fontWeight: '700',
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
@@ -909,35 +960,38 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                     <input 
                       type="radio" 
                       name="paymentMethod" 
-                      value="UPI" 
-                      checked={paymentMethod === 'UPI'} 
-                      onChange={() => setPaymentMethod('UPI')}
+                      value="Card" 
+                      checked={paymentMethod === 'Card'} 
+                      onChange={() => setPaymentMethod('Card')}
                       style={{ cursor: 'pointer' }}
                     />
-                    📱 UPI (Paytm/GPay)
+                    💳 Credit / Debit Card / Netbanking
                   </label>
-                  
-                  {paymentMethod === 'UPI' && (
-                    <div style={{ width: '100%', marginTop: '5px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                      <label style={{ fontSize: '13px', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '8px' }}>Test UPI ID (For Desktop Testing)</label>
-                      <input 
-                        type="text" 
-                        value={upiId}
-                        onChange={(e) => setUpiId(e.target.value)}
-                        placeholder="e.g. success@razorpay" 
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px',
-                          borderRadius: '6px',
-                          border: '1px solid #cbd5e1',
-                          fontSize: '14px',
-                          outline: 'none',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                      <p style={{ fontSize: '12px', color: '#64748b', margin: '8px 0 0 0' }}>💡 Enter <strong>success@razorpay</strong> here before clicking Pay to instantly simulate a successful demo payment.</p>
-                    </div>
-                  )}
+
+                  <label style={{
+                    flex: '1 1 200px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '14px',
+                    border: paymentMethod === 'Cash' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: paymentMethod === 'Cash' ? '#f0f4ff' : '#ffffff',
+                    fontWeight: '700',
+                    transition: 'all 0.2s',
+                    boxSizing: 'border-box'
+                  }}>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="Cash" 
+                      checked={paymentMethod === 'Cash'} 
+                      onChange={() => setPaymentMethod('Cash')}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    💵 Cash on Delivery (COD)
+                  </label>
                 </div>
               </div>
             </form>
@@ -948,8 +1002,15 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
             
             <div className="summary-items-page">
               {items.map(item => (
-                <div key={item.id} className="summary-item-page">
-                  <span className="summary-item-page-name">{item.name} <span style={{color: '#888'}}>x {item.quantity}</span></span>
+                <div key={item.cartItemId || item.id} className="summary-item-page">
+                  <span className="summary-item-page-name">
+                    {item.name} <span style={{color: '#888'}}>x {item.quantity}</span>
+                    {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
+                      <span style={{ display: 'block', fontSize: '11px', color: '#1a4a8d', fontWeight: '600', marginTop: '2px' }}>
+                        🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
+                      </span>
+                    )}
+                  </span>
                   <span className="summary-item-page-price">₹{(Math.round((item.price * item.quantity) * 100) / 100).toLocaleString('en-IN')}</span>
                 </div>
               ))}
@@ -960,6 +1021,12 @@ export default function CheckoutPage({ items, total, onPlaceOrder, loggedInUser 
                 <span>Subtotal</span>
                 <span>₹{subtotal.toLocaleString('en-IN')}</span>
               </div>
+              {installationAddon.selected && (
+                <div className="summary-row-page" style={{ color: '#0f2b5c', fontWeight: '600' }}>
+                  <span>Professional Installation & Setup</span>
+                  <span>+₹{installationAddon.fee.toLocaleString('en-IN')}</span>
+                </div>
+              )}
               <div className="summary-row-page">
                 <span>Shipping</span>
                 <span>{shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}</span>

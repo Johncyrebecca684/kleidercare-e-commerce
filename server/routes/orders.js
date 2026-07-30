@@ -30,7 +30,10 @@ router.post('/', optionalAuth, async (req, res) => {
       paymentMethod,
       paymentStatus,
       razorpayOrderId,
-      razorpayPaymentId
+      razorpayPaymentId,
+      installationAddon,
+      summaryBreakdown,
+      warranty
     } = req.body;
 
     const isRazorpayRequired = paymentMethod !== 'Cash' && paymentMethod !== 'UPI';
@@ -51,7 +54,10 @@ router.post('/', optionalAuth, async (req, res) => {
       paymentStatus: paymentStatus || (paymentMethod === 'Cash' || paymentMethod === 'UPI' ? 'Pending' : 'Paid'),
       razorpayOrderId: razorpayOrderId || '',
       razorpayPaymentId: razorpayPaymentId || '',
-      status: 'Processing'
+      status: 'Processing',
+      installationAddon: installationAddon || { selected: false, fee: 0 },
+      summaryBreakdown: summaryBreakdown || {},
+      warranty: warranty || 'Active (1 Year)'
     };
 
     if (req.userId) {

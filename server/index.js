@@ -53,7 +53,7 @@ const connectDB = async () => {
       secureContext: secureContext
     });
     console.log('✅ Connected to MongoDB Atlas');
-    
+
     // Seed initial products if collection is empty
     try {
       const count = await Product.countDocuments();
@@ -75,6 +75,9 @@ const connectDB = async () => {
         await Product.insertMany(formattedProducts);
         console.log(`✅ Seeded ${formattedProducts.length} default products into database.`);
       }
+
+      // Cleanup 'Paper' product if present in database
+      await Product.deleteMany({ $or: [{ name: 'Paper' }, { id: '9999' }, { id: 'PROD-PAPER-1' }] });
     } catch (seedErr) {
       console.error('❌ Error auto-seeding products:', seedErr.message);
     }

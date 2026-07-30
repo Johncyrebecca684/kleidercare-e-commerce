@@ -2,13 +2,30 @@ import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react';
 import './ProductCard.css';
 
+const WARRANTY_OPTIONS = [
+  { id: 'none', type: 'None', title: 'Standard (1-Yr Included)', price: 0 },
+  { id: '1year', type: '1-Year', title: '+1-Yr Extended Warranty (+₹1,499)', price: 1499 },
+  { id: '3year', type: '3-Year', title: '+3-Yr Commercial Care (+₹3,499)', price: 3499 }
+];
+
 export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist }) {
   const [showAddedNotice, setShowAddedNotice] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
+  const [selectedWarranty, setSelectedWarranty] = useState(WARRANTY_OPTIONS[0]);
+
+  const currentPrice = product.price + selectedWarranty.price;
+  const currentGstPrice = product.priceWithGst
+    ? product.priceWithGst + Math.round(selectedWarranty.price * 1.18)
+    : Math.round(currentPrice * 1.18);
 
   const handleAddToCart = () => {
-    onAddToCart(product);
+    onAddToCart({
+      ...product,
+      selectedWarranty,
+      priceWithWarranty: currentPrice,
+      effectiveGstPrice: currentGstPrice
+    });
     setShowAddedNotice(true);
     setTimeout(() => setShowAddedNotice(false), 2000);
   };
@@ -75,8 +92,8 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         <div className="description-wrapper">
           <p className={`product-description ${isDescExpanded ? 'expanded' : ''}`}>{product.description}</p>
           {product.description && product.description.length > 70 && (
-            <button 
-              className="read-more-btn" 
+            <button
+              className="read-more-btn"
               onClick={() => setIsDescExpanded(!isDescExpanded)}
             >
               {isDescExpanded ? 'less' : 'more...'}
@@ -123,18 +140,40 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           </div>
         )}
 
+        {/* Extended Warranty Selection */}
+        <div className="warranty-selector-card">
+          <span className="warranty-selector-label">🛡️ Extended Warranty / Care Plan:</span>
+          <div className="warranty-options-group">
+            {WARRANTY_OPTIONS.map((opt) => (
+              <label
+                key={opt.id}
+                className={`warranty-option-radio ${selectedWarranty.id === opt.id ? 'active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name={`warranty-${product.id}`}
+                  value={opt.id}
+                  checked={selectedWarranty.id === opt.id}
+                  onChange={() => setSelectedWarranty(opt)}
+                />
+                <span className="warranty-opt-title">{opt.title}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         <div className="price-section">
           <div className="price-row-main">
-            <span className="current-price">₹{product.price.toLocaleString('en-IN')}</span>
-            {product.originalPrice && 
-             product.originalPrice !== product.price && 
-             !(product.category && ['lg', 'speed queen', 'pony', 'seko'].some(keyword => product.category.toLowerCase().includes(keyword))) && (
-              <span className="original-price">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-            )}
+            <span className="current-price">₹{currentPrice.toLocaleString('en-IN')}</span>
+            {product.originalPrice &&
+              product.originalPrice !== product.price &&
+              !(product.category && ['lg', 'speed queen', 'pony', 'seko'].some(keyword => product.category.toLowerCase().includes(keyword))) && (
+                <span className="original-price">₹{(product.originalPrice + selectedWarranty.price).toLocaleString('en-IN')}</span>
+              )}
           </div>
           <div className="gst-info">
             <span className="inclusive-text">
-              ₹{(product.priceWithGst ? product.priceWithGst : Math.round(product.price * 1.18)).toLocaleString('en-IN')} (Inclusive of GST)
+              ₹{currentGstPrice.toLocaleString('en-IN')} (Inclusive of GST)
             </span>
           </div>
         </div>
