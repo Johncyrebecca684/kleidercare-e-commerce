@@ -140,28 +140,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           </div>
         )}
 
-        {/* Extended Warranty Selection */}
-        <div className="warranty-selector-card">
-          <span className="warranty-selector-label">🛡️ Extended Warranty / Care Plan:</span>
-          <div className="warranty-options-group">
-            {WARRANTY_OPTIONS.map((opt) => (
-              <label
-                key={opt.id}
-                className={`warranty-option-radio ${selectedWarranty.id === opt.id ? 'active' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name={`warranty-${product.id}`}
-                  value={opt.id}
-                  checked={selectedWarranty.id === opt.id}
-                  onChange={() => setSelectedWarranty(opt)}
-                />
-                <span className="warranty-opt-title">{opt.title}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
         <div className="price-section">
           <div className="price-row-main">
             <span className="current-price">₹{currentPrice.toLocaleString('en-IN')}</span>

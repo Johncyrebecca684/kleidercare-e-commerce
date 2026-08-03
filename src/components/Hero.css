@@ -6,6 +6,8 @@
 .heroInner {
   max-width: 1350px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .carouselBanner {
@@ -138,11 +140,20 @@
 }
 
 @media (max-width: 768px) {
+  .carouselBanner {
+    min-height: 320px;
+    padding: 20px;
+  }
+
   .carouselContent {
-    flex-direction: column;
+    flex-direction: column-reverse;
     text-align: center;
-    gap: 30px;
+    gap: 20px;
     padding: 0;
+  }
+
+  .carouselKicker {
+    align-self: center;
   }
 
   .carouselIndicators {
@@ -154,7 +165,15 @@
   }
 
   .carouselImage {
-    height: 200px;
+    height: auto;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .carouselImage img {
+    width: 100%;
+    height: auto;
   }
 
   .prevBtn {

@@ -67,6 +67,7 @@ body {
   padding: 0;
   scroll-behavior: smooth;
   background-color: #ffffff; /* Clean white background */
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
 }
 
 body {

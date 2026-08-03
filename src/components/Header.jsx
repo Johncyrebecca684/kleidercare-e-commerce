@@ -43,10 +43,8 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
     <header className="siteHeader animate-fade-in">
       <div className="topBannerStrip">
         <div className="topBannerInner">
-          <div className="topBannerLeft">Welcome to Kleider Care - Laundry Ecommerce</div>
+          <div className="topBannerLeft">Welcome to Kleider Care - Laundry Ecommerce!</div>
           <div className="topBannerRight">
-            <span>Deliver to 423651</span>
-            <span className="divider">|</span>
             <button type="button" className="topBannerLink" onClick={() => navigate('/track-order')} aria-label="Track your order">Track your order</button>
           </div>
         </div>

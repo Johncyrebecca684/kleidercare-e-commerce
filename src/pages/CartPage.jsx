@@ -90,25 +90,6 @@ export default function CartPage({
               </div>
             ))}
 
-            {/* Professional Installation Add-on Toggle */}
-            <div className="installation-addon-box">
-              <label className="installation-addon-label">
-                <input
-                  type="checkbox"
-                  checked={installationAddon.selected}
-                  onChange={(e) => setInstallationAddon && setInstallationAddon({ 
-                    ...installationAddon, 
-                    selected: e.target.checked 
-                  })}
-                />
-                <div className="addon-text-group">
-                  <span className="addon-title">🔧 Add Professional Installation & Setup (+₹999)</span>
-                  <p className="addon-description">
-                    Certified Kleider Care engineers will uncrate, connect, inspect, and calibrate your machines upon delivery.
-                  </p>
-                </div>
-              </label>
-            </div>
           </div>
 
           <div className="cart-summary-section">

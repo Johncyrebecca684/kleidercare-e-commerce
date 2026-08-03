@@ -475,4 +475,8 @@
     padding: 6px 10px;
     font-size: 11px;
   }
+
+  .product-image-container {
+    padding-top: 80%;
+  }
 }

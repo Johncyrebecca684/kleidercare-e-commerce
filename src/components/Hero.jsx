@@ -103,8 +103,8 @@ export default function Hero() {
       <div className="heroInner">
         <div className="carouselBanner" aria-roledescription="carousel" aria-label="Highlighted Products" style={(slide.isBackgroundImage || slide.isFullBannerImage) ? { background: 'none' } : {}}>
           {(slide.isBackgroundImage || slide.isFullBannerImage) && (
-            <div className="carouselBackground animate-fade-in" key={`bg-${slide.id}`} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, borderRadius: '12px', overflow: 'hidden' }}>
-              <img src={slide.image} alt={slide.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+            <div className="carouselBackground animate-fade-in" key={`bg-${slide.id}`} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, borderRadius: '12px', overflow: 'hidden', background: slide.isFullBannerImage ? '#001764' : 'none' }}>
+              <img src={slide.image} alt={slide.title} style={{ width: '100%', height: '100%', objectFit: slide.isFullBannerImage ? 'contain' : 'cover', objectPosition: 'center' }} />
               {slide.isBackgroundImage && (
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(90deg, rgba(4, 22, 50, 0.98) 0%, rgba(4, 22, 50, 0.85) 45%, rgba(4, 22, 50, 0.1) 100%)' }}></div>
               )}
