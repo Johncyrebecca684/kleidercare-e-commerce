@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { getRecommendations } from '../utils/recommendationEngine';
 import './CartPage.css';
 
 export default function CartPage({ 
@@ -16,17 +17,16 @@ export default function CartPage({
 }) {
   const navigate = useNavigate();
 
-  // Dynamically select real store products (spare parts, chemicals, accessories) from our catalog
-  let recommendedAddons = allProducts
-    .filter(p => !items.some(cartItem => cartItem.id === p.id))
-    .filter(p => p.category === 'Genuine Spare Parts' || p.category === 'Chemicals' || p.category === 'Seko' || p.price < 5000)
-    .slice(0, 4);
-
-  // Fallback: If no specific add-on matched, take any 4 catalog products not in cart
-  if (recommendedAddons.length < 4) {
-    const fallbackAddons = allProducts.filter(p => !items.some(cartItem => cartItem.id === p.id) && !recommendedAddons.some(r => r.id === p.id));
-    recommendedAddons = [...recommendedAddons, ...fallbackAddons].slice(0, 4);
-  }
+  // Use centralized recommendation engine for cart upsell
+  const cartRecommendations = getRecommendations({
+    type: 'cart_upsell',
+    products: allProducts,
+    cartItems: items,
+    wishlistItems: [],
+    searchHistory: [],
+    browsingHistory: [],
+    limit: 4
+  });
   
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
   const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -124,7 +124,7 @@ export default function CartPage({
               </div>
 
               <div className="recommendations-grid">
-                {recommendedAddons.map(addon => {
+                {cartRecommendations.map(({ product: addon, reason }) => {
                   const existing = items.find(i => i.id === addon.id || i.name === addon.name);
                   const addonOrigPrice = addon.originalPrice || Math.round(addon.price * 1.32);
                   const discountPct = Math.round(((addonOrigPrice - addon.price) / addonOrigPrice) * 100);
@@ -137,6 +137,7 @@ export default function CartPage({
 
                       <div className="addon-card-mid">
                         <h4 className="addon-title">{addon.name}</h4>
+                        {reason && <p className="addon-reason-text">✨ {reason}</p>}
                         <p className="addon-desc">{addon.description || `${addon.category} spare part`}</p>
                         <div className="addon-price-line">
                           <span className="addon-curr-price">₹{addon.price.toLocaleString('en-IN')}</span>

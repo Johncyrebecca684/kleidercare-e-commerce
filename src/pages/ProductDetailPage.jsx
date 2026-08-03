@@ -25,6 +25,8 @@ import {
   PackageCheck,
   ShoppingBag
 } from 'lucide-react';
+import { getRecommendations } from '../utils/recommendationEngine';
+import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage({
@@ -103,9 +105,26 @@ export default function ProductDetailPage({
     }
   ]);
 
-  // FREQUENTLY BOUGHT TOGETHER BUNDLE STATE
-  const bundleAddon1 = products.find(p => p.id !== product?.id && (p.category === 'Genuine Spare Parts' || p.price < 5000)) || products[1];
-  const bundleAddon2 = products.find(p => p.id !== product?.id && p.id !== bundleAddon1?.id && (p.category === 'Chemicals' || p.category === 'Seko' || p.price < 5000)) || products[2];
+  const { recordView } = useBrowsingTracker();
+
+  useEffect(() => {
+    if (product) {
+      recordView(product);
+    }
+  }, [product, recordView]);
+
+  // FREQUENTLY BOUGHT TOGETHER BUNDLE STATE via Recommendation Engine
+  const fbtRecommendations = getRecommendations({
+    type: 'frequently_bought_together',
+    products,
+    currentProduct: product,
+    limit: 2
+  });
+
+  const bundleAddon1 = fbtRecommendations[0]?.product || products.find(p => p.id !== product?.id);
+  const bundleAddon1Reason = fbtRecommendations[0]?.reason;
+  const bundleAddon2 = fbtRecommendations[1]?.product || products.find(p => p.id !== product?.id && p.id !== bundleAddon1?.id);
+  const bundleAddon2Reason = fbtRecommendations[1]?.reason;
 
   const [checkedBundleItems, setCheckedBundleItems] = useState({ item1: true, item2: true });
   const [bundleNotice, setBundleNotice] = useState(false);
@@ -354,7 +373,6 @@ export default function ProductDetailPage({
             <div className="pdp-price-hero-card">
               <div className="pdp-price-top">
                 <span className="pdp-big-price">₹{product.price.toLocaleString('en-IN')}</span>
-                <span className="pdp-assured-pill">⚡ Assured</span>
               </div>
               <div className="pdp-price-savings">
                 <span className="pdp-strike-price">₹{effectiveOriginalPrice.toLocaleString('en-IN')}</span>
@@ -520,6 +538,7 @@ export default function ProductDetailPage({
                     />
                     <span>
                       <strong>Add-on 1:</strong> {bundleAddon1.name} — <span className="fbt-item-price">₹{bundleAddon1.price.toLocaleString('en-IN')}</span>
+                      {bundleAddon1Reason && <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>✨ {bundleAddon1Reason}</span>}
                     </span>
                   </label>
                 )}
@@ -533,6 +552,7 @@ export default function ProductDetailPage({
                     />
                     <span>
                       <strong>Add-on 2:</strong> {bundleAddon2.name} — <span className="fbt-item-price">₹{bundleAddon2.price.toLocaleString('en-IN')}</span>
+                      {bundleAddon2Reason && <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>✨ {bundleAddon2Reason}</span>}
                     </span>
                   </label>
                 )}

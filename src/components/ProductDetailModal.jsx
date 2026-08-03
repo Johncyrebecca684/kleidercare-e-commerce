@@ -131,7 +131,6 @@ export default function ProductDetailModal({
             <div className="pdp-price-box">
               <div className="pdp-price-main">
                 <span className="pdp-current-price">₹{product.price.toLocaleString('en-IN')}</span>
-                <span className="pdp-assured-tag">⚡ Assured</span>
               </div>
               <div className="pdp-discount-row">
                 <span className="pdp-original-price">₹{effectiveOriginalPrice.toLocaleString('en-IN')}</span>

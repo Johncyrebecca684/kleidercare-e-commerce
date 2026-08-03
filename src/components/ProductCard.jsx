@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useCompare } from '../context/CompareContext';
 import './ProductCard.css';
@@ -9,7 +9,7 @@ const WARRANTY_OPTIONS = [
   { id: '3year', type: '3-Year', title: '+3-Yr Commercial Care (+₹3,499)', price: 3499 }
 ];
 
-export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist, viewMode = 'list', onSelectProduct }) {
+export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist, viewMode = 'list', onSelectProduct, recommendationReason }) {
   const [showAddedNotice, setShowAddedNotice] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
@@ -89,6 +89,11 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         {/* MIDDLE COLUMN: Title, Rating, Bullet Specs */}
         <div className="list-col-mid">
           <h3 className="list-product-name" onClick={handleProductClick}>{product.name}</h3>
+          {recommendationReason && (
+            <div className="recommendation-reason-pill">
+              <Sparkles size={12} /> {recommendationReason}
+            </div>
+          )}
           
           <div className="list-rating-row">
             <span className="rating-pill-green">
@@ -110,7 +115,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         <div className="list-col-right">
           <div className="list-price-row">
             <span className="list-current-price">₹{currentPrice.toLocaleString('en-IN')}</span>
-            <span className="assured-badge">⚡Assured</span>
           </div>
 
           <div className="list-original-price-row">
@@ -196,6 +200,11 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
       <div className="product-info">
         <div className="product-category">{product.category}</div>
         <h3 className="product-name" onClick={handleProductClick} style={{ cursor: 'pointer' }}>{product.name}</h3>
+        {recommendationReason && (
+          <div className="recommendation-reason-pill">
+            <Sparkles size={12} /> {recommendationReason}
+          </div>
+        )}
         <div className="description-wrapper">
           <p className={`product-description ${isDescExpanded ? 'expanded' : ''}`}>{product.description}</p>
           {product.description && product.description.length > 70 && (

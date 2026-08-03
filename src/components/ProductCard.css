@@ -706,3 +706,29 @@
     padding-top: 14px;
   }
 }
+
+/* ── Recommendation Reason Pill ── */
+.recommendation-reason-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  border: 1px solid #fcd34d;
+  animation: reasonPillFadeIn 0.4s ease;
+}
+
+.recommendation-reason-pill svg {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+@keyframes reasonPillFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

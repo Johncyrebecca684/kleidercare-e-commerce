@@ -57,6 +57,36 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
     }
   }, [isOpen, messages]);
 
+  const renderFormattedText = (text) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+    return lines.map((line, idx) => {
+      const parts = line.split(/(\*\*.*?\*\*)/g);
+      const formattedLine = parts.map((part, pIdx) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={pIdx}>{part.slice(2, -2)}</strong>;
+        }
+        return part;
+      });
+
+      const isBullet = line.trim().startsWith('•') || line.trim().startsWith('-') || /^\d+\./.test(line.trim());
+
+      return (
+        <div
+          key={idx}
+          className={`msg-line ${isBullet ? 'bullet-line' : ''}`}
+          style={{
+            minHeight: line.trim() === '' ? '6px' : 'auto',
+            marginBottom: line.trim() === '' ? '4px' : '2px',
+            paddingLeft: isBullet ? '10px' : '0px'
+          }}
+        >
+          {formattedLine}
+        </div>
+      );
+    });
+  };
+
   const addMessage = (sender, text) => {
     const newMsg = {
       id: Date.now() + Math.random(),
@@ -75,32 +105,51 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       const lower = query.toLowerCase();
 
       if (isHumanAgent) {
-        addMessage('agent', 'A support specialist has reviewed your note and will reply shortly. You can also view your support tickets anytime.');
+        addMessage('agent', 'A support specialist has received your note and will reply shortly. You can also view your support tickets anytime in the Support Center.');
+        return;
+      }
+
+      // EMPATHETIC DELAY / COMPLAINT / SEVERE ISSUE ESCALATION PROTOCOL
+      const isComplaint = lower.includes('missing') || lower.includes('damaged') || lower.includes('defective') || lower.includes('broken') || lower.includes('failed') || lower.includes('wrong item') || lower.includes('angry') || lower.includes('delay');
+      if (isComplaint) {
+        addMessage(
+          'bot',
+          'I am truly sorry for the inconvenience this issue has caused you. We take customer satisfaction very seriously.'
+        );
+        setTimeout(() => {
+          triggerHumanHandoff('[ACTION: ESCALATE_TO_HUMAN]');
+        }, 800);
         return;
       }
 
       // ORDER TRACKING INTENT
-      if (lower.includes('order') || lower.includes('track') || lower.includes('where is')) {
-        if (userOrders && userOrders.length > 0) {
+      if (lower.includes('order') || lower.includes('track') || lower.includes('where is') || lower.includes('status') || lower.includes('ship')) {
+        if (loggedInUser && userOrders && userOrders.length > 0) {
           const latest = userOrders[0];
+          const trackingLink = latest.trackingLink || `https://kleidercare.com/track/${latest.orderId || latest.id}`;
           addMessage(
             'bot',
-            `📦 Your latest order (#${latest.orderId || latest.id}) is currently [${latest.status || 'Order Confirmed'}].\n\nTotal: ₹${(latest.total || latest.totalAmount || 0).toLocaleString('en-IN')}\nDate: ${latest.date || 'Recent'}`
+            `Hi ${loggedInUser.firstName || 'there'}! I see your recent **Order #${latest.orderId || latest.id}** placed on ${latest.date || 'recently'}.\n\n• **Status**: ${latest.status || 'Shipped'}\n• **Total**: ₹${(latest.total || 0).toLocaleString('en-IN')}\n• **Tracking Link**: ${trackingLink}\n\nDoes that help, or do you need me to look into another order?`
+          );
+        } else if (!loggedInUser) {
+          addMessage(
+            'bot',
+            'Hello! To view your order details, please provide your **Order ID** and the email address used for purchase, or sign in to your account.\n\nWould you like me to guide you to the login page?'
           );
         } else {
           addMessage(
             'bot',
-            '📦 To track your order, please log in to your account or visit our dedicated Track Order page using your Order ID and Email.'
+            'Hello! I couldn’t find any active orders linked to your profile yet. If you recently placed an order, please provide your **Order ID**.\n\nIs there anything else I can check for you?'
           );
         }
         return;
       }
 
       // RETURN & REFUND INTENT
-      if (lower.includes('return') || lower.includes('refund') || lower.includes('replace') || lower.includes('damage')) {
+      if (lower.includes('return') || lower.includes('refund') || lower.includes('exchange') || lower.includes('policy')) {
         addMessage(
           'bot',
-          '🔄 **Return & Replacement Policy**:\n• We offer a 7-day hassle-free replacement policy for defective or transit-damaged equipment.\n• Free on-site inspection by a certified engineer is arranged within 24-48 hours.\n• Refunds are processed back to your original payment method within 3-5 business days.'
+          'According to our store return policy, items can be returned within **30 days** of delivery:\n\n1. Go to your **My Profile > Support / Orders**.\n2. Select the order item and click **Return/Exchange**.\n3. Print the generated return label & schedule pickup.\n\nRefunds are credited to your original payment method within **3-5 business days** after inspection.\n\nDoes that help, or do you need further assistance with your return?'
         );
         return;
       }
@@ -109,40 +158,40 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       if (lower.includes('warranty') || lower.includes('install') || lower.includes('engineer') || lower.includes('service')) {
         addMessage(
           'bot',
-          '🛠️ **Installation & Warranty**:\n• All commercial machines come with a 2-Year Official KleiderCare Commercial Warranty.\n• On-site installation is carried out free of cost by authorized technical engineers.\n• You can request an engineer visit anytime via our Support page.'
+          '🛠️ **Commercial Equipment Warranty & Installation**:\n• **2-Year Commercial Warranty** included on all heavy-duty laundry machines.\n• **Free On-Site Installation** by certified technical engineers.\n• 24-48 hour service response time across major metro regions.\n\nWould you like me to book an engineer visit or assist with something else?'
         );
         return;
       }
 
-      // GST INVOICE INTENT
+      // GST & BUSINESS INTENT
       if (lower.includes('gst') || lower.includes('invoice') || lower.includes('tax') || lower.includes('business')) {
         addMessage(
           'bot',
-          '📄 **GST & Commercial Invoicing**:\n• Input GST credit is available for all registered business purchases.\n• Enter your GSTIN during checkout to receive an automated B2B GST tax invoice.'
+          '📄 **GST Invoice & Business Claims**:\n• Input GST credit is available for all registered commercial purchases.\n• Automated GST tax invoices are issued immediately upon order confirmation.\n\nDo you need help downloading an invoice or updating your GST details?'
         );
         return;
       }
 
       // HUMAN HANDOFF INTENT
       if (lower.includes('human') || lower.includes('agent') || lower.includes('person') || lower.includes('talk') || lower.includes('call') || lower.includes('escalate')) {
-        triggerHumanHandoff();
+        triggerHumanHandoff('[ACTION: ESCALATE_TO_HUMAN]');
         return;
       }
 
-      // FALLBACK RESPONSOE WITH HUMAN HANDOFF SUGGESTION
+      // FALLBACK RESPONSE WITH HUMAN HANDOFF SUGGESTION
       addMessage(
         'bot',
-        'I’m here to help with order tracking, commercial warranty, returns, or technical specs. If your issue is complex, click "Talk to Human Support" below to connect directly with a support agent!'
+        'I am here to assist with order tracking, store return policy, commercial warranty, or GST invoices. If your question is complex, I can connect you to a human support representative right away!\n\nWould you like me to escalate this to a live support agent?'
       );
-    }, 1000);
+    }, 800);
   };
 
-  const triggerHumanHandoff = () => {
+  const triggerHumanHandoff = (actionTag = '[ACTION: ESCALATE_TO_HUMAN]') => {
     setIsHumanAgent(true);
     const ticketId = 'KC-SUP-' + Math.floor(100000 + Math.random() * 900000);
     addMessage(
       'agent',
-      `🎧 **Connected to Human Agent** (Ticket #${ticketId})\n\nHello! I am Rajesh from KleiderCare Senior Technical Support. I have received your request. How can I assist with your commercial setup today?`
+      `🎧 ${actionTag}\n**Connected to Senior Support Agent** (Ticket #${ticketId})\n\nHello! I am Rajesh from KleiderCare Senior Technical Support. I have reviewed your query and am here to assist you directly. How can I help resolve your issue today?`
     );
   };
 
@@ -229,7 +278,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
                 )}
 
                 <div className="msg-bubble-content">
-                  <div className="msg-text">{msg.text}</div>
+                  <div className="msg-text">{renderFormattedText(msg.text)}</div>
                   <span className="msg-timestamp">{msg.timestamp}</span>
                 </div>
               </div>

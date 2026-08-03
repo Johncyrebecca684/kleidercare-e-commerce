@@ -19,6 +19,7 @@ import {
   Star
 } from 'lucide-react';
 import './ProductList.css';
+import { getRecommendations } from '../utils/recommendationEngine';
 
 const CATEGORY_ITEMS = [
   { name: 'All', icon: LayoutGrid },
@@ -160,35 +161,29 @@ export default function ProductList({
     return true;
   });
 
-  // Calculate personalization score if For You is selected
-  const getProductScore = (product) => {
-    let score = 0;
-    const catLower = product.category.toLowerCase();
-    const nameLower = product.name.toLowerCase();
+  // Calculate personalization via centralized recommendation engine
+  const forYouRecommendations = selectedCategory === 'For You'
+    ? getRecommendations({
+        type: 'for_you_homepage',
+        products: filteredProducts,
+        cartItems: [],
+        wishlistItems,
+        searchHistory,
+        browsingHistory,
+        limit: filteredProducts.length
+      })
+    : [];
 
-    if (wishlistItems.some(item => item.category === product.category || item.id === product.id)) {
-      score += 10;
-    }
-
-    searchHistory.forEach(query => {
-      if (catLower.includes(query) || nameLower.includes(query)) {
-        score += 8;
-      }
-    });
-
-    browsingHistory.forEach(item => {
-      if (item === product.category || item === product.id) {
-        score += 6;
-      }
-    });
-
-    score += (product.rating || 4) * 2;
-    return score;
-  };
+  // Build a map of productId -> reason for the For You tab
+  const reasonMap = new Map();
+  forYouRecommendations.forEach(r => reasonMap.set(r.product.id, r.reason));
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (selectedCategory === 'For You' && sortBy === 'popular') {
-      return getProductScore(b) - getProductScore(a);
+      // Use engine scores
+      const scoreA = forYouRecommendations.find(r => r.product.id === a.id)?.score || 0;
+      const scoreB = forYouRecommendations.find(r => r.product.id === b.id)?.score || 0;
+      return scoreB - scoreA;
     }
 
     switch (sortBy) {
@@ -418,25 +413,7 @@ export default function ProductList({
             )}
           </div>
 
-          {/* ASSURED SECTION */}
-          <div className="filter-group">
-            <button className="filter-group-header" onClick={() => toggleAccordion('assured')}>
-              <span>ASSURANCE</span>
-              {accordionOpen.assured ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-            {accordionOpen.assured && (
-              <div className="filter-group-content">
-                <label className="filter-checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={onlyAssured}
-                    onChange={(e) => setOnlyAssured(e.target.checked)}
-                  />
-                  <span className="assured-filter-tag">⚡ Assured Products</span>
-                </label>
-              </div>
-            )}
-          </div>
+
 
           {/* DISCOUNT SECTION */}
           <div className="filter-group">
@@ -513,6 +490,7 @@ export default function ProductList({
                       onToggleWishlist={onToggleWishlist}
                       viewMode={viewMode}
                       onSelectProduct={handleProductSelect}
+                      recommendationReason={selectedCategory === 'For You' ? reasonMap.get(product.id) : undefined}
                     />
                   ))}
                 </div>
