@@ -1,5 +1,6 @@
 import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
+import { useCompare } from '../context/CompareContext';
 import './ProductCard.css';
 
 const WARRANTY_OPTIONS = [
@@ -13,7 +14,8 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState(WARRANTY_OPTIONS[0]);
-  const [isCompared, setIsCompared] = useState(false);
+  const { isInCompare, toggleCompare, compareItems, maxCompare } = useCompare();
+  const isCompared = isInCompare(product.id);
 
   const handleProductClick = () => {
     if (onSelectProduct) {
@@ -77,9 +79,10 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
             <input
               type="checkbox"
               checked={isCompared}
-              onChange={(e) => setIsCompared(e.target.checked)}
+              onChange={() => toggleCompare(product)}
+              disabled={!isCompared && compareItems.length >= maxCompare}
             />
-            <span>Add to Compare</span>
+            <span>{isCompared ? 'Comparing' : compareItems.length >= maxCompare ? 'Max 4 reached' : 'Add to Compare'}</span>
           </label>
         </div>
 

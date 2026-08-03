@@ -13,7 +13,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import WishlistPage from './pages/WishlistPage';
 import TermsPage from './pages/TermsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import ComparePage from './pages/ComparePage';
 import Chatbot from './components/Chatbot';
+import CompareBar from './components/CompareBar';
+import { CompareProvider } from './context/CompareContext';
 import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
@@ -413,6 +416,7 @@ function App() {
   }
 
   return (
+    <CompareProvider>
     <Router>
       <div className="app">
         <Routes>
@@ -565,6 +569,12 @@ function App() {
               )
             }
           />
+          <Route
+            path="/compare"
+            element={
+              <ComparePage onAddToCart={handleAddToCart} />
+            }
+          />
         </Routes>
 
 
@@ -588,8 +598,11 @@ function App() {
           onClose={() => setIsForgotPasswordOpen(false)}
           onSwitchToLogin={() => setIsLoginOpen(true)}
         />
+
+        <CompareBar />
       </div>
     </Router>
+    </CompareProvider>
   );
 }
 
