@@ -12,6 +12,8 @@ import TicketingPage from './pages/TicketingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import WishlistPage from './pages/WishlistPage';
 import TermsPage from './pages/TermsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import Chatbot from './components/Chatbot';
 import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
@@ -448,6 +450,24 @@ function App() {
           />
           <Route path="/track-order" element={<TrackOrderPage userOrders={userOrders} />} />
           <Route
+            path="/product/:id"
+            element={
+              <ProductDetailPage
+                products={appProducts}
+                onAddToCart={handleAddToCart}
+                cartCount={cartCount}
+                wishlistItems={wishlistItems}
+                onToggleWishlist={handleToggleWishlist}
+                loggedInUser={loggedInUser}
+                onLoginOpen={() => setIsLoginOpen(true)}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            }
+          />
+          <Route
             path="/terms"
             element={
               <TermsPage
@@ -462,7 +482,7 @@ function App() {
               />
             }
           />
-          <Route path="/support" element={<TicketingPage />} />
+          <Route path="/support" element={<TicketingPage loggedInUser={loggedInUser} userOrders={userOrders} />} />
           <Route
             path="/admin"
             element={
@@ -480,6 +500,8 @@ function App() {
             element={
               <CartPage
                 items={cartItems}
+                allProducts={appProducts}
+                onAddToCart={handleAddToCart}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemoveItem={handleRemoveItem}
                 loggedInUser={loggedInUser}

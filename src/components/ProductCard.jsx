@@ -8,18 +8,26 @@ const WARRANTY_OPTIONS = [
   { id: '3year', type: '3-Year', title: '+3-Yr Commercial Care (+₹3,499)', price: 3499 }
 ];
 
-export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist }) {
+export default function ProductCard({ product, onAddToCart, wishlistItems = [], onToggleWishlist, viewMode = 'list', onSelectProduct }) {
   const [showAddedNotice, setShowAddedNotice] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState(WARRANTY_OPTIONS[0]);
+  const [isCompared, setIsCompared] = useState(false);
+
+  const handleProductClick = () => {
+    if (onSelectProduct) {
+      onSelectProduct(product);
+    }
+  };
 
   const currentPrice = product.price + selectedWarranty.price;
   const currentGstPrice = product.priceWithGst
     ? product.priceWithGst + Math.round(selectedWarranty.price * 1.18)
     : Math.round(currentPrice * 1.18);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
     onAddToCart({
       ...product,
       selectedWarranty,
@@ -31,6 +39,102 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
   };
 
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
+
+  // Generate bullet specs list for List view
+  const bulletSpecs = product.specifications
+    ? Object.entries(product.specifications).slice(0, 4).map(([k, v]) => `${k}: ${v}`)
+    : [
+        'Commercial Heavy Duty Industrial Performance',
+        'High Energy Efficiency & Reduced Water Usage',
+        'Built-in Stainless Steel Heavy Duty Drum',
+        '2 Years Warranty & On-Site Installation Support'
+      ];
+
+  const discountPercent = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 36;
+
+  if (viewMode === 'list') {
+    return (
+      <article className="product-card list-mode-card">
+        {/* LEFT COLUMN: Image & Compare */}
+        <div className="list-col-left">
+          <div className="list-image-wrapper" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
+            <img
+              src={product.image}
+              alt={product.name}
+              className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
+            />
+            <button
+              className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
+              onClick={(e) => { e.stopPropagation(); onToggleWishlist(product); }}
+              aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+            >
+              <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+            </button>
+          </div>
+          <label className="compare-checkbox-label">
+            <input
+              type="checkbox"
+              checked={isCompared}
+              onChange={(e) => setIsCompared(e.target.checked)}
+            />
+            <span>Add to Compare</span>
+          </label>
+        </div>
+
+        {/* MIDDLE COLUMN: Title, Rating, Bullet Specs */}
+        <div className="list-col-mid">
+          <h3 className="list-product-name" onClick={handleProductClick}>{product.name}</h3>
+          
+          <div className="list-rating-row">
+            <span className="rating-pill-green">
+              {product.rating || 4.3} <Star size={11} fill="#fff" color="#fff" />
+            </span>
+            <span className="rating-counts">
+              {(product.reviews ? product.reviews * 40 : 15973).toLocaleString('en-IN')} Ratings & {(product.reviews || 1218).toLocaleString('en-IN')} Reviews
+            </span>
+          </div>
+
+          <ul className="list-bullet-specs" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
+            {bulletSpecs.map((spec, idx) => (
+              <li key={idx}>• {spec}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* RIGHT COLUMN: Price, Badges, Offer, Add to Cart */}
+        <div className="list-col-right">
+          <div className="list-price-row">
+            <span className="list-current-price">₹{currentPrice.toLocaleString('en-IN')}</span>
+            <span className="assured-badge">⚡Assured</span>
+          </div>
+
+          <div className="list-original-price-row">
+            <span className="list-original-price">
+              ₹{(product.originalPrice || Math.round(product.price * 1.35)).toLocaleString('en-IN')}
+            </span>
+            <span className="list-discount-tag">{discountPercent}% off</span>
+          </div>
+
+          <div className="list-bank-offer-tag">Bank Offer & GST Invoice Available</div>
+
+          <button
+            className="add-to-cart-btn list-cart-btn"
+            onClick={handleAddToCart}
+            aria-label={`Add ${product.name} to cart`}
+          >
+            <ShoppingCart size={16} />
+            Add to Cart
+          </button>
+
+          {showAddedNotice && (
+            <div className="added-notice">✓ Added to cart!</div>
+          )}
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className="product-card">
@@ -58,7 +162,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           }
         })}
       </script>
-      <div className="product-image-container">
+      <div className="product-image-container" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
         <img
           src={product.image}
           alt={product.name}
@@ -68,7 +172,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
 
         <button
           className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
-          onClick={() => onToggleWishlist(product)}
+          onClick={(e) => { e.stopPropagation(); onToggleWishlist(product); }}
           aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
         >
           <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
@@ -88,7 +192,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
 
       <div className="product-info">
         <div className="product-category">{product.category}</div>
-        <h3 className="product-name">{product.name}</h3>
+        <h3 className="product-name" onClick={handleProductClick} style={{ cursor: 'pointer' }}>{product.name}</h3>
         <div className="description-wrapper">
           <p className={`product-description ${isDescExpanded ? 'expanded' : ''}`}>{product.description}</p>
           {product.description && product.description.length > 70 && (

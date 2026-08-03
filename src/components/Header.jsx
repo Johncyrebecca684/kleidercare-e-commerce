@@ -9,20 +9,29 @@ import {
   Package,
   Headset,
   LayoutDashboard,
-  Heart
+  Heart,
+  LayoutGrid,
+  WashingMachine,
+  Zap,
+  Shirt,
+  Wrench,
+  FlaskConical,
+  SlidersHorizontal,
+  Sparkles
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const categories = [
-  { label: 'All', href: '#products' },
-  { label: 'LG Commercial Laundry Machines', href: '#products' },
-  { label: 'Speed Queen Commercial Laundry Machines', href: '#products' },
-  { label: 'PONY Finishing Equipments', href: '#products' },
-  { label: 'Genuine Spare Parts', href: '#products' },
-  { label: 'Chemicals', href: '#products' },
-  { label: 'Seko', href: '#products' },
+  { label: 'All', href: '#products', icon: LayoutGrid },
+  { label: 'For You', href: '#products', icon: Sparkles },
+  { label: 'LG Commercial Laundry Machines', href: '#products', icon: WashingMachine },
+  { label: 'Speed Queen Commercial Laundry Machines', href: '#products', icon: Zap },
+  { label: 'PONY Finishing Equipments', href: '#products', icon: Shirt },
+  { label: 'Genuine Spare Parts', href: '#products', icon: Wrench },
+  { label: 'Chemicals', href: '#products', icon: FlaskConical },
+  { label: 'Seko', href: '#products', icon: SlidersHorizontal },
 ];
 
 export default function Header({ cartCount, wishlistCount, searchTerm, onSearchChange, onSigninClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
@@ -161,19 +170,23 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
           <div className="mobileNavSection categorySection">
             <span className="mobileNavSectionTitle">Categories</span>
             <div className="mobileCategoryLinks">
-              {categories.map((c) => (
-                <a
-                  key={c.label}
-                  className={`categoryLink ${selectedCategory === c.label ? 'active' : ''}`}
-                  href={c.href}
-                  onClick={() => {
-                    onCategoryChange(c.label);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  {c.label}
-                </a>
-              ))}
+              {categories.map((c) => {
+                const IconComponent = c.icon;
+                return (
+                  <a
+                    key={c.label}
+                    className={`categoryLink ${selectedCategory === c.label ? 'active' : ''}`}
+                    href={c.href}
+                    onClick={() => {
+                      onCategoryChange(c.label);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    {IconComponent && <IconComponent size={15} className="navCategoryIcon" />}
+                    <span>{c.label}</span>
+                  </a>
+                );
+              })}
             </div>
           </div>
 

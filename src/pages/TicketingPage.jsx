@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, Phone, Mail, MapPin, Package, Truck, Calendar, Shield, Download, User } from 'lucide-react';
+import Chatbot from '../components/Chatbot';
 import './TicketingPage.css';
 
-export default function TicketingPage({ isAdmin = false }) {
+export default function TicketingPage({ isAdmin = false, loggedInUser, userOrders = [] }) {
   const navigate = useNavigate();
   const [searchPhone, setSearchPhone] = useState('');
   const [customerData, setCustomerData] = useState(null);
@@ -338,6 +339,9 @@ export default function TicketingPage({ isAdmin = false }) {
             <p>No customer found with this phone number. Please verify and try again.</p>
           </div>
         )}
+
+        {/* POPUP CUSTOMER SUPPORT CHATBOT */}
+        <Chatbot embedded={false} loggedInUser={loggedInUser} userOrders={userOrders} />
       </div>
     </div>
   );

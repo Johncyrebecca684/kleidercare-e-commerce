@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShieldCheck } from 'lucide-react';
 import './CartPage.css';
 
 export default function CartPage({ 
-  items, 
+  items = [], 
+  allProducts = [],
+  onAddToCart,
   onUpdateQuantity, 
   onRemoveItem, 
   loggedInUser, 
@@ -12,6 +15,18 @@ export default function CartPage({
   setInstallationAddon
 }) {
   const navigate = useNavigate();
+
+  // Dynamically select real store products (spare parts, chemicals, accessories) from our catalog
+  let recommendedAddons = allProducts
+    .filter(p => !items.some(cartItem => cartItem.id === p.id))
+    .filter(p => p.category === 'Genuine Spare Parts' || p.category === 'Chemicals' || p.category === 'Seko' || p.price < 5000)
+    .slice(0, 4);
+
+  // Fallback: If no specific add-on matched, take any 4 catalog products not in cart
+  if (recommendedAddons.length < 4) {
+    const fallbackAddons = allProducts.filter(p => !items.some(cartItem => cartItem.id === p.id) && !recommendedAddons.some(r => r.id === p.id));
+    recommendedAddons = [...recommendedAddons, ...fallbackAddons].slice(0, 4);
+  }
   
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
   const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -22,6 +37,12 @@ export default function CartPage({
   }, 0);
   const installationFee = installationAddon.selected ? installationAddon.fee : 0;
   const total = Math.round((subtotal + shipping + tax + installationFee) * 100) / 100;
+
+  const handleAddAddon = (addon) => {
+    if (onAddToCart) {
+      onAddToCart(addon);
+    }
+  };
 
   return (
     <div className="cart-page-wrapper animate-fade-in">
@@ -45,51 +66,107 @@ export default function CartPage({
       ) : (
         <div className="cart-page-content">
           <div className="cart-items-section">
-            {items.map(item => (
-              <div key={item.cartItemId || item.id} className="cart-page-item">
-                <img src={item.image} alt={item.name} className="cart-page-item-image" />
-                
-                <div className="cart-page-item-details">
-                  <h3 className="cart-page-item-name">{item.name}</h3>
-                  {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
-                    <div className="item-warranty-badge">
-                      🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
-                    </div>
-                  )}
-                  <p className="cart-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
-                </div>
+            <div className="cart-items-list">
+              {items.map(item => (
+                <div key={item.cartItemId || item.id} className="cart-page-item">
+                  <img src={item.image} alt={item.name} className="cart-page-item-image" />
+                  
+                  <div className="cart-page-item-details">
+                    <h3 className="cart-page-item-name">{item.name}</h3>
+                    {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
+                      <div className="item-warranty-badge">
+                        🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
+                      </div>
+                    )}
+                    <p className="cart-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
+                  </div>
 
-                <div className="cart-page-item-actions">
+                  <div className="cart-page-item-actions">
+                    <button 
+                      className="cart-page-quantity-btn"
+                      onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity - 1)}
+                      disabled={item.quantity === 1}
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="cart-page-quantity">{item.quantity}</span>
+                    <button 
+                      className="cart-page-quantity-btn"
+                      onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity + 1)}
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+
+                  <div className="cart-page-item-total">
+                    ₹{(Math.round((item.price * item.quantity) * 100) / 100).toLocaleString('en-IN')}
+                  </div>
+
                   <button 
-                    className="cart-page-quantity-btn"
-                    onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity - 1)}
-                    disabled={item.quantity === 1}
+                    className="cart-page-remove-btn"
+                    onClick={() => onRemoveItem(item.cartItemId || item.id)}
+                    title="Remove Item"
                   >
-                    <Minus size={16} />
-                  </button>
-                  <span className="cart-page-quantity">{item.quantity}</span>
-                  <button 
-                    className="cart-page-quantity-btn"
-                    onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity + 1)}
-                  >
-                    <Plus size={16} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
+              ))}
+            </div>
 
-                <div className="cart-page-item-total">
-                  ₹{(Math.round((item.price * item.quantity) * 100) / 100).toLocaleString('en-IN')}
+            {/* CART RECOMMENDATIONS / UPSELL WIDGET */}
+            <div className="cart-recommendations-widget">
+              <div className="recommendations-widget-header">
+                <Sparkles size={20} className="sparkle-icon" />
+                <div>
+                  <h3>Recommended Add-Ons for Your Cart</h3>
+                  <p>Frequently bought together to improve performance & machine longevity</p>
                 </div>
-
-                <button 
-                  className="cart-page-remove-btn"
-                  onClick={() => onRemoveItem(item.cartItemId || item.id)}
-                  title="Remove Item"
-                >
-                  <Trash2 size={20} />
-                </button>
               </div>
-            ))}
 
+              <div className="recommendations-grid">
+                {recommendedAddons.map(addon => {
+                  const existing = items.find(i => i.id === addon.id || i.name === addon.name);
+                  const addonOrigPrice = addon.originalPrice || Math.round(addon.price * 1.32);
+                  const discountPct = Math.round(((addonOrigPrice - addon.price) / addonOrigPrice) * 100);
+
+                  return (
+                    <div key={addon.id} className="addon-recommend-card">
+                      <div className="addon-card-left">
+                        <img src={addon.image} alt={addon.name} className="addon-img" />
+                      </div>
+
+                      <div className="addon-card-mid">
+                        <h4 className="addon-title">{addon.name}</h4>
+                        <p className="addon-desc">{addon.description || `${addon.category} spare part`}</p>
+                        <div className="addon-price-line">
+                          <span className="addon-curr-price">₹{addon.price.toLocaleString('en-IN')}</span>
+                          <span className="addon-orig-price">₹{addonOrigPrice.toLocaleString('en-IN')}</span>
+                          <span className="addon-save-tag">Save {discountPct}%</span>
+                        </div>
+                      </div>
+
+                      <div className="addon-card-right">
+                        {existing ? (
+                          <button
+                            className="addon-added-btn"
+                            onClick={() => handleAddAddon(addon)}
+                          >
+                            <Check size={14} /> Added ({existing.quantity})
+                          </button>
+                        ) : (
+                          <button
+                            className="addon-add-btn"
+                            onClick={() => handleAddAddon(addon)}
+                          >
+                            <Plus size={14} /> Add to Cart
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div className="cart-summary-section">
@@ -151,3 +228,4 @@ export default function CartPage({
     </div>
   );
 }
+

@@ -449,17 +449,36 @@
   border-radius: 12px;
   border: 1px solid transparent;
   background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.navCategoryIcon {
+  flex-shrink: 0;
+  color: #0284c7;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .categoryLink:hover {
-  border-color: #e5e7eb;
-  background: #f9fafb;
+  border-color: #e2e8f0;
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.categoryLink:hover .navCategoryIcon {
+  transform: scale(1.1);
 }
 
 .categoryLink.active {
   border-color: #0f2b5c;
   background: #0f2b5c;
   color: #ffffff;
+}
+
+.categoryLink.active .navCategoryIcon {
+  color: #38bdf8;
 }
 
 .topStrip {

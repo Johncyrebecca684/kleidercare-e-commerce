@@ -6,7 +6,7 @@ import { API_URL } from '../config';
 
 // Merchant UPI details – change to your actual VPA in production
 const MERCHANT_UPI_ID = 'hariharasudhan81-3@okhdfcbank';
-const MERCHANT_NAME  = 'Kleider Care';
+const MERCHANT_NAME = 'Kleider Care';
 
 function isMobileDevice() {
   return /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
@@ -28,10 +28,10 @@ function buildQrUrl(upiLink) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 }
 
-export default function CheckoutPage({ 
-  items, 
-  total, 
-  onPlaceOrder, 
+export default function CheckoutPage({
+  items,
+  total,
+  onPlaceOrder,
   loggedInUser,
   installationAddon = { selected: false, fee: 999 }
 }) {
@@ -59,7 +59,7 @@ export default function CheckoutPage({
     state: '',
     pincode: ''
   });
-  
+
   // Address Management State
   const [selectedAddressIndex, setSelectedAddressIndex] = useState(-1);
   const [saveThisAddress, setSaveThisAddress] = useState(false);
@@ -82,7 +82,7 @@ export default function CheckoutPage({
     .filter(item => item.category?.toLowerCase() === 'chemicals')
     .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
-  const discountAmount = 
+  const discountAmount =
     (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
     (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
 
@@ -95,7 +95,7 @@ export default function CheckoutPage({
   const tax = Math.round(baseTax - (discountAmount * 0.18));
   const installationFee = installationAddon?.selected ? installationAddon.fee : 0;
   const finalTotal = Math.round((subtotal - discountAmount + shipping + tax + installationFee) * 100) / 100;
-  
+
   const savedAddresses = loggedInUser?.addresses || [];
 
   const handleGetLocation = () => {
@@ -111,34 +111,34 @@ export default function CheckoutPage({
           const { latitude, longitude } = position.coords;
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
           const data = await response.json();
-          
+
           if (data && data.address) {
             const addr = data.address;
             const house = addr.house_number || '';
             const building = addr.building || addr.amenity || '';
             const road = addr.road || addr.pedestrian || addr.street || '';
             const neighbourhood = addr.neighbourhood || addr.residential || addr.suburb || '';
-            
+
             const city = addr.city || addr.town || addr.county || '';
             const state = addr.state || '';
             const pincode = addr.postcode || '';
-            
+
             let addressParts = [house, building, road, neighbourhood].filter(Boolean);
             let fullAddress = addressParts.join(', ');
-            
+
             // Smart fallback if raw parts don't give a substantial address
             if (addressParts.length < 2 && data.display_name) {
-               const parts = data.display_name.split(',').map(p => p.trim());
-               // Filter out city, state, pincode, country from the full string to avoid duplication in the textarea
-               const filteredParts = parts.filter(p => 
-                 p !== 'India' && 
-                 p !== state && 
-                 p !== city && 
-                 p !== pincode
-               );
-               fullAddress = filteredParts.join(', ');
+              const parts = data.display_name.split(',').map(p => p.trim());
+              // Filter out city, state, pincode, country from the full string to avoid duplication in the textarea
+              const filteredParts = parts.filter(p =>
+                p !== 'India' &&
+                p !== state &&
+                p !== city &&
+                p !== pincode
+              );
+              fullAddress = filteredParts.join(', ');
             }
-            
+
             setFormData(prev => ({
               ...prev,
               address: fullAddress,
@@ -183,17 +183,17 @@ export default function CheckoutPage({
     let intervalId;
     if (showUpiModal && upiSessionId) {
       setTimeout(() => setUpiStatusText('Waiting for payment scan/receipt...'), 0);
-      
+
       const checkStatus = async () => {
         try {
           const res = await fetch(`${API_URL}/api/payment/check-upi-status?sessionId=${upiSessionId}`);
           if (!res.ok) return;
           const data = await res.json();
-          
+
           if (data.status === 'Paid') {
             clearInterval(intervalId);
             setUpiStatusText('✅ Payment detected successfully!');
-            
+
             // Automatically complete order and save to database
             setIsProcessing(true);
             const token = localStorage.getItem('kc_auth_token');
@@ -226,10 +226,10 @@ export default function CheckoutPage({
                 installationFee,
                 grandTotal: finalTotal
               },
-              warranty: items.some(i => i.selectedWarranty?.type === '3-Year') 
-                ? 'Active (3 Years)' 
-                : items.some(i => i.selectedWarranty?.type === '1-Year') 
-                  ? 'Active (2 Years)' 
+              warranty: items.some(i => i.selectedWarranty?.type === '3-Year')
+                ? 'Active (3 Years)'
+                : items.some(i => i.selectedWarranty?.type === '1-Year')
+                  ? 'Active (2 Years)'
                   : 'Active (1 Year)'
             };
 
@@ -252,7 +252,7 @@ export default function CheckoutPage({
 
             setShowUpiModal(false);
             setIsSuccess(true);
-            
+
             const newOrder = {
               id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
               orderId: savedOrder.orderId || savedOrder._id,
@@ -293,12 +293,12 @@ export default function CheckoutPage({
     if (loggedInUser?.role === 'reseller') {
       const hasSpare = items.some(item => item.category?.toLowerCase() === 'genuine spare parts');
       const hasChemicals = items.some(item => item.category?.toLowerCase() === 'chemicals');
-      
+
       setTimeout(() => {
         setAppliedCoupons(prev => {
           const newCoupons = [...prev];
           let changed = false;
-          
+
           if (hasSpare && !newCoupons.includes('KCSPARE')) {
             newCoupons.push('KCSPARE');
             changed = true;
@@ -307,7 +307,7 @@ export default function CheckoutPage({
             newCoupons.push('KCCHM');
             changed = true;
           }
-          
+
           // Remove coupons if the items are no longer in cart
           if (!hasSpare && newCoupons.includes('KCSPARE')) {
             const idx = newCoupons.indexOf('KCSPARE');
@@ -319,7 +319,7 @@ export default function CheckoutPage({
             newCoupons.splice(idx, 1);
             changed = true;
           }
-          
+
           return changed ? newCoupons : prev;
         });
       }, 0);
@@ -418,7 +418,7 @@ export default function CheckoutPage({
   const handlePaymentVerification = async (paymentResponse) => {
     try {
       setIsProcessing(true);
-      
+
       // Verify payment on backend
       const verifyResponse = await fetch(`${API_URL}/api/payment/verify-payment`, {
         method: 'POST',
@@ -472,10 +472,10 @@ export default function CheckoutPage({
             installationFee,
             grandTotal: finalTotal
           },
-          warranty: items.some(i => i.selectedWarranty?.type === '3-Year') 
-            ? 'Active (3 Years)' 
-            : items.some(i => i.selectedWarranty?.type === '1-Year') 
-              ? 'Active (2 Years)' 
+          warranty: items.some(i => i.selectedWarranty?.type === '3-Year')
+            ? 'Active (3 Years)'
+            : items.some(i => i.selectedWarranty?.type === '1-Year')
+              ? 'Active (2 Years)'
               : 'Active (1 Year)'
         };
 
@@ -497,7 +497,7 @@ export default function CheckoutPage({
         const savedOrder = savedOrderData.order;
 
         setIsSuccess(true);
-        
+
         const newOrder = {
           id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
           orderId: savedOrder.orderId || savedOrder._id,
@@ -565,7 +565,7 @@ export default function CheckoutPage({
           pincode: formData.pincode
         };
         const updatedAddresses = [...(loggedInUser.addresses || []), newAddress];
-        
+
         await fetch(`${API_URL}/api/auth/addresses`, {
           method: 'POST',
           headers: {
@@ -574,7 +574,7 @@ export default function CheckoutPage({
           },
           body: JSON.stringify({ addresses: updatedAddresses })
         });
-        
+
         // Address successfully saved to backend database
       } catch (err) {
         console.error('Failed to save address:', err);
@@ -612,10 +612,10 @@ export default function CheckoutPage({
             installationFee,
             grandTotal: finalTotal
           },
-          warranty: items.some(i => i.selectedWarranty?.type === '3-Year') 
-            ? 'Active (3 Years)' 
-            : items.some(i => i.selectedWarranty?.type === '1-Year') 
-              ? 'Active (2 Years)' 
+          warranty: items.some(i => i.selectedWarranty?.type === '3-Year')
+            ? 'Active (3 Years)'
+            : items.some(i => i.selectedWarranty?.type === '1-Year')
+              ? 'Active (2 Years)'
               : 'Active (1 Year)'
         };
 
@@ -637,7 +637,7 @@ export default function CheckoutPage({
         const savedOrder = savedOrderData.order;
 
         setIsSuccess(true);
-        
+
         const newOrder = {
           id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
           orderId: savedOrder.orderId || savedOrder._id,
@@ -746,7 +746,7 @@ export default function CheckoutPage({
             <h2>Order Placed Successfully!</h2>
             <p>Thank you for your purchase, {formData.name}. We've sent a confirmation email to {formData.email}.</p>
             <p>You will be redirected to the homepage shortly...</p>
-            <Link to="/" className="back-to-home-btn" style={{marginTop: '20px'}}>
+            <Link to="/" className="back-to-home-btn" style={{ marginTop: '20px' }}>
               Return to Homepage Now
             </Link>
           </div>
@@ -760,10 +760,10 @@ export default function CheckoutPage({
     return (
       <div className="checkout-page-wrapper animate-fade-in">
         <div className="checkout-page-container">
-           <div className="checkout-success-page">
+          <div className="checkout-success-page">
             <h2>No items to checkout</h2>
             <p>Your cart is empty.</p>
-            <Link to="/" className="back-to-home-btn" style={{marginTop: '20px'}}>
+            <Link to="/" className="back-to-home-btn" style={{ marginTop: '20px' }}>
               Continue Shopping
             </Link>
           </div>
@@ -793,13 +793,13 @@ export default function CheckoutPage({
                 </div>
                 <div className="form-group-page">
                   <label htmlFor="companyName">Company / Business Name</label>
-                  <input 
-                    type="text" 
-                    id="companyName" 
-                    name="companyName" 
-                    value={formData.companyName} 
-                    onChange={handleChange} 
-                    placeholder="e.g. Kleider Care Commercial Laundromat" 
+                  <input
+                    type="text"
+                    id="companyName"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    placeholder="e.g. Kleider Care Commercial Laundromat"
                   />
                 </div>
                 <div className="form-row-page">
@@ -821,18 +821,18 @@ export default function CheckoutPage({
               <div className="checkout-page-section">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                   <h3 style={{ margin: 0 }}>Shipping Address</h3>
-                  <button 
-                    type="button" 
-                    onClick={handleGetLocation} 
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
                     disabled={isLocating}
-                    style={{ 
-                      background: 'none', 
-                      border: '1px solid #2563eb', 
-                      color: '#2563eb', 
-                      padding: '6px 12px', 
-                      borderRadius: '6px', 
-                      fontSize: '13px', 
-                      fontWeight: '600', 
+                    style={{
+                      background: 'none',
+                      border: '1px solid #2563eb',
+                      color: '#2563eb',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: '600',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -849,8 +849,8 @@ export default function CheckoutPage({
                     <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px', color: '#475569' }}>Select a saved address:</p>
                     <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
                       {savedAddresses.map((addr, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           onClick={() => {
                             setSelectedAddressIndex(index);
                             setFormData(prev => ({
@@ -878,7 +878,7 @@ export default function CheckoutPage({
                           <p style={{ margin: '0' }}>{addr.city}, {addr.pincode}</p>
                         </div>
                       ))}
-                      <div 
+                      <div
                         onClick={() => {
                           setSelectedAddressIndex(-1);
                           setFormData(prev => ({
@@ -929,10 +929,10 @@ export default function CheckoutPage({
 
                 {loggedInUser && selectedAddressIndex === -1 && (
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '15px', fontSize: '14px', cursor: 'pointer', color: '#334155' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={saveThisAddress} 
-                      onChange={(e) => setSaveThisAddress(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={saveThisAddress}
+                      onChange={(e) => setSaveThisAddress(e.target.checked)}
                     />
                     Save this address for future checkouts
                   </label>
@@ -942,7 +942,7 @@ export default function CheckoutPage({
               <div className="checkout-page-section" style={{ marginTop: '25px' }}>
                 <h3>Select Payment Method</h3>
                 <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
-                  
+
                   <label style={{
                     flex: '1 1 200px',
                     display: 'flex',
@@ -957,11 +957,11 @@ export default function CheckoutPage({
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="Card" 
-                      checked={paymentMethod === 'Card'} 
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="Card"
+                      checked={paymentMethod === 'Card'}
                       onChange={() => setPaymentMethod('Card')}
                       style={{ cursor: 'pointer' }}
                     />
@@ -982,11 +982,11 @@ export default function CheckoutPage({
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}>
-                    <input 
-                      type="radio" 
-                      name="paymentMethod" 
-                      value="Cash" 
-                      checked={paymentMethod === 'Cash'} 
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="Cash"
+                      checked={paymentMethod === 'Cash'}
                       onChange={() => setPaymentMethod('Cash')}
                       style={{ cursor: 'pointer' }}
                     />
@@ -998,13 +998,13 @@ export default function CheckoutPage({
           </div>
 
           <div className="checkout-summary-section">
-            <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#001a4d', margin: '0 0 20px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px'}}>Order Summary</h3>
-            
+            <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#001a4d', margin: '0 0 20px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>Order Summary</h3>
+
             <div className="summary-items-page">
               {items.map(item => (
                 <div key={item.cartItemId || item.id} className="summary-item-page">
                   <span className="summary-item-page-name">
-                    {item.name} <span style={{color: '#888'}}>x {item.quantity}</span>
+                    {item.name} <span style={{ color: '#888' }}>x {item.quantity}</span>
                     {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
                       <span style={{ display: 'block', fontSize: '11px', color: '#1a4a8d', fontWeight: '600', marginTop: '2px' }}>
                         🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
@@ -1015,7 +1015,7 @@ export default function CheckoutPage({
                 </div>
               ))}
             </div>
-            
+
             <div className="summary-totals-page">
               <div className="summary-row-page">
                 <span>Subtotal</span>
@@ -1083,11 +1083,11 @@ export default function CheckoutPage({
             <div style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px', textAlign: 'left' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '700', color: '#001a4d' }}>Promo Code</h4>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input 
-                  type="text" 
-                  value={couponCode} 
-                  onChange={(e) => setCouponCode(e.target.value)} 
-                  placeholder="Enter coupon code" 
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Enter coupon code"
                   style={{
                     flex: 1,
                     padding: '8px 12px',
@@ -1097,7 +1097,7 @@ export default function CheckoutPage({
                     outline: 'none'
                   }}
                 />
-                <button 
+                <button
                   onClick={handleApplyCoupon}
                   style={{
                     backgroundColor: '#1a4a8d',
@@ -1129,7 +1129,7 @@ export default function CheckoutPage({
                       gap: '6px'
                     }}>
                       🏷️ {coupon}
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleRemoveCoupon(coupon)}
                         style={{
@@ -1160,17 +1160,17 @@ export default function CheckoutPage({
               </div>
             )}
 
-            <button 
-              type="submit" 
-              className="place-order-btn-page" 
+            <button
+              type="submit"
+              className="place-order-btn-page"
               onClick={handleSubmit}
               disabled={isProcessing}
               style={isProcessing ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#64748b' } : {}}
             >
-              {isProcessing ? 'Processing...' : 
-               paymentMethod === 'Cash' ? `Confirm Order (₹${finalTotal.toLocaleString('en-IN')})` : 
-               paymentMethod === 'UPI' ? `Pay via UPI & Place Order (₹${finalTotal.toLocaleString('en-IN')})` : 
-               `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
+              {isProcessing ? 'Processing...' :
+                paymentMethod === 'Cash' ? `Confirm Order (₹${finalTotal.toLocaleString('en-IN')})` :
+                  paymentMethod === 'UPI' ? `Pay via UPI & Place Order (₹${finalTotal.toLocaleString('en-IN')})` :
+                    `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
             </button>
           </div>
 

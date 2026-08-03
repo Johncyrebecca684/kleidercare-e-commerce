@@ -1188,4 +1188,4 @@ export const products = [
   }
 ];
 
-export const categories = ["All", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals", "Seko"];
+export const categories = ["All", "For You", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals", "Seko"];

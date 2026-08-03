@@ -17,6 +17,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { updateProfile, updateAddresses, addWalletBalance } from '../services/authService';
 import Header from './Header';
 import Footer from './Footer';
+import Chatbot from './Chatbot';
 import './UserProfile.css';
 
 // Helper to convert number to Indian currency words
@@ -446,7 +447,7 @@ export default function UserProfile({
                     <Info size={16} /> Need further technical help with industrial washers?
                   </div>
                   <p>Our ticketing system is open for support. Click below to file a ticket.</p>
-                  <button onClick={() => navigate('/track-order')} className="support-ticket-link-btn" style={{ border: 'none', cursor: 'pointer' }}>Open Support Center</button>
+                  <button onClick={() => navigate('/support')} className="support-ticket-link-btn" style={{ border: 'none', cursor: 'pointer' }}>Open Support Center</button>
                 </div>
               </div>
             )}
