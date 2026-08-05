@@ -1,20 +1,20 @@
 .product-card {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
   position: relative;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
   background: #ffffff;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 16px 36px rgba(15, 43, 92, 0.12);
   border-color: #0f2b5c;
 }
 
@@ -731,4 +731,66 @@
 @keyframes reasonPillFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Out of Stock Styles ── */
+.out-of-stock-banner {
+  position: absolute;
+  top: 14px;
+  left: -32px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 5px 35px;
+  transform: rotate(-35deg);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+  z-index: 5;
+  text-transform: uppercase;
+}
+
+.out-of-stock-container .product-image {
+  opacity: 0.55;
+  filter: grayscale(40%);
+}
+
+.out-of-stock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.in-stock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.out-of-stock-btn {
+  background: #94a3b8 !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  border-color: #94a3b8 !important;
+  opacity: 0.8;
+}
+
+.out-of-stock-btn:hover {
+  background: #94a3b8 !important;
+  transform: none !important;
 }

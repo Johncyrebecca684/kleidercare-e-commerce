@@ -14,7 +14,7 @@ import WishlistPage from './pages/WishlistPage';
 import TermsPage from './pages/TermsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ComparePage from './pages/ComparePage';
-import Chatbot from './components/Chatbot';
+import ChatbotPage from './pages/ChatbotPage';
 import CompareBar from './components/CompareBar';
 import { CompareProvider } from './context/CompareContext';
 import { products } from './data/products';
@@ -134,22 +134,63 @@ function App() {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Fetch products from database
+  // Fetch products from database with local storage sync
   useEffect(() => {
     const fetchProducts = async () => {
+      let localSaved = null;
+      try {
+        const raw = localStorage.getItem('kc_app_products');
+        if (raw) localSaved = JSON.parse(raw);
+      } catch (e) {
+        console.error('Error parsing kc_app_products from localStorage:', e);
+      }
+
       try {
         const data = await getAllProducts();
-        setAppProducts(data);
+        if (Array.isArray(data) && data.length > 0) {
+          if (localSaved && Array.isArray(localSaved)) {
+            const stockMap = {};
+            localSaved.forEach(p => {
+              const key = String(p.id || p._id || p.sku);
+              if (p.stock !== undefined) {
+                stockMap[key] = p.stock;
+              }
+            });
+            const merged = data.map(p => {
+              const key = String(p.id || p._id || p.sku);
+              if (stockMap[key] !== undefined) {
+                const s = stockMap[key];
+                const t = p.lowStockThreshold || 10;
+                let stockStatus = 'In Stock';
+                if (s <= 0) stockStatus = 'Out of Stock';
+                else if (s <= t) stockStatus = 'Low Stock';
+                return { ...p, stock: s, stockStatus };
+              }
+              return p;
+            });
+            setAppProducts(merged);
+          } else {
+            setAppProducts(data);
+          }
+        } else if (localSaved && Array.isArray(localSaved) && localSaved.length > 0) {
+          setAppProducts(localSaved);
+        } else {
+          setAppProducts(products);
+        }
       } catch (error) {
         console.error('Error fetching products from database:', error);
-        // Fallback to static products list if API fails
-        setAppProducts(products);
+        if (localSaved && Array.isArray(localSaved) && localSaved.length > 0) {
+          setAppProducts(localSaved);
+        } else {
+          setAppProducts(products);
+        }
       } finally {
         setProductsLoading(false);
       }
     };
     fetchProducts();
   }, []);
+
   const [appUsers, setAppUsers] = useState([]);
   const [userOrders, setUserOrders] = useState([
     {
@@ -185,6 +226,12 @@ function App() {
   });
 
   // Sync state changes with localStorage
+  useEffect(() => {
+    if (appProducts && appProducts.length > 0) {
+      localStorage.setItem('kc_app_products', JSON.stringify(appProducts));
+    }
+  }, [appProducts]);
+
   useEffect(() => {
     localStorage.setItem('kc_cart_items', JSON.stringify(cartItems));
   }, [cartItems]);
@@ -347,6 +394,97 @@ function App() {
     );
   };
 
+  const handleAddAddon = (productId, addonType) => {
+    setCartItems(prevItems =>
+      prevItems.map(item => {
+        const idMatches = (item.cartItemId || item.id) === productId || item.id === productId;
+        if (idMatches) {
+          const pName = (item.name || '').toLowerCase();
+          const pCat = (item.category || '').toLowerCase();
+          let rates = { nonComp: 12500, comp: 18500 };
+          if (pName.includes('lg') || pName.includes('stacker')) {
+            rates = { nonComp: 12500, comp: 18500 };
+          } else if (pName.includes('washer') || pCat.includes('washer')) {
+            rates = { nonComp: 15000, comp: 21500 };
+          } else if (pName.includes('dryer') || pCat.includes('dryer')) {
+            rates = { nonComp: 9000, comp: 14000 };
+          }
+
+          if (addonType === 'non-comprehensive') {
+            const oldAmcCost = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
+            const priceDiff = rates.nonComp - oldAmcCost;
+            return {
+              ...item,
+              selectedWarranty: 'non-comprehensive',
+              amcWarrantyInfo: { type: 'Non-Comprehensive AMC', price: rates.nonComp, visits: '3/year', parts: 'Charged extra' },
+              price: item.price + priceDiff
+            };
+          } else if (addonType === 'comprehensive') {
+            const oldAmcCost = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
+            const priceDiff = rates.comp - oldAmcCost;
+            return {
+              ...item,
+              selectedWarranty: 'comprehensive',
+              amcWarrantyInfo: { type: 'Comprehensive AMC', price: rates.comp, visits: '3/year', parts: 'Included (excl. consumables)' },
+              price: item.price + priceDiff
+            };
+          } else if (addonType === 'setup') {
+            if (!item.includeProgramSetup) {
+              return {
+                ...item,
+                includeProgramSetup: true,
+                price: item.price + 3500
+              };
+            }
+          }
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleRemoveAddon = (productId, addonType) => {
+    setCartItems(prevItems =>
+      prevItems.map(item => {
+        const idMatches = (item.cartItemId || item.id) === productId || item.id === productId;
+        if (idMatches) {
+          if (addonType === 'warranty') {
+            const amcCost = item.amcWarrantyInfo?.price || 0;
+            return {
+              ...item,
+              selectedWarranty: 'none',
+              amcWarrantyInfo: null,
+              price: Math.max(item.basePrice || (item.price - amcCost), item.price - amcCost)
+            };
+          } else if (addonType === 'setup') {
+            return {
+              ...item,
+              includeProgramSetup: false,
+              price: Math.max(item.basePrice || (item.price - 3500), item.price - 3500)
+            };
+          }
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleUpdateOrderSetup = (orderId, newSetupStatus, newFulfillmentStatus, newPaymentStatus) => {
+    setUserOrders(prevOrders =>
+      prevOrders.map(order => {
+        if (order.id === orderId || order._id === orderId) {
+          return {
+            ...order,
+            ...(newSetupStatus !== undefined && { setup: newSetupStatus }),
+            ...(newFulfillmentStatus !== undefined && { status: newFulfillmentStatus }),
+            ...(newPaymentStatus !== undefined && { paymentStatus: newPaymentStatus })
+          };
+        }
+        return order;
+      })
+    );
+  };
+
   const handleClearCart = () => {
     setCartItems([]);
   };
@@ -486,7 +624,32 @@ function App() {
               />
             }
           />
-          <Route path="/support" element={<TicketingPage loggedInUser={loggedInUser} userOrders={userOrders} />} />
+          <Route
+            path="/support"
+            element={
+              loggedInUser?.role === 'admin' ? (
+                <TicketingPage loggedInUser={loggedInUser} userOrders={userOrders} isAdmin={true} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/chatbot"
+            element={
+              <ChatbotPage
+                loggedInUser={loggedInUser}
+                userOrders={userOrders}
+                cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                wishlistCount={wishlistItems.length}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                onSigninClick={() => setIsLoginOpen(true)}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            }
+          />
           <Route
             path="/admin"
             element={
@@ -495,6 +658,7 @@ function App() {
                 setProducts={setAppProducts}
                 users={appUsers}
                 orders={userOrders}
+                onUpdateOrderSetup={handleUpdateOrderSetup}
                 loggedInUser={loggedInUser}
               />
             }
@@ -508,6 +672,8 @@ function App() {
                 onAddToCart={handleAddToCart}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemoveItem={handleRemoveItem}
+                onAddAddon={handleAddAddon}
+                onRemoveAddon={handleRemoveAddon}
                 loggedInUser={loggedInUser}
                 onLoginOpen={() => setIsLoginOpen(true)}
                 installationAddon={installationAddon}

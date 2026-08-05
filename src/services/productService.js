@@ -45,6 +45,20 @@ export async function updateProduct(id, productData) {
   });
 }
 
+export async function updateProductStock(id, stock) {
+  return await apiCall(`/${id}/stock`, {
+    method: 'PATCH',
+    body: JSON.stringify({ stock })
+  });
+}
+
+export async function bulkProductAction(ids, action, payload = {}) {
+  return await apiCall('/bulk-action', {
+    method: 'POST',
+    body: JSON.stringify({ ids, action, payload })
+  });
+}
+
 export async function deleteProduct(id) {
   return await apiCall(`/${id}`, {
     method: 'DELETE'

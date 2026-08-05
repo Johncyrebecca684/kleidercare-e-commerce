@@ -40,6 +40,7 @@ export default function CheckoutPage({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Card');
+  const [agreedTerms, setAgreedTerms] = useState(false);
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [upiSessionId, setUpiSessionId] = useState('');
   const [upiStatusText, setUpiStatusText] = useState('');
@@ -550,6 +551,11 @@ export default function CheckoutPage({
       return;
     }
 
+    if (!agreedTerms) {
+      setPaymentError('Please agree to the Terms & Conditions and Privacy Policy before placing order.');
+      return;
+    }
+
     setPaymentError('');
     setIsProcessing(true);
 
@@ -1005,9 +1011,14 @@ export default function CheckoutPage({
                 <div key={item.cartItemId || item.id} className="summary-item-page">
                   <span className="summary-item-page-name">
                     {item.name} <span style={{ color: '#888' }}>x {item.quantity}</span>
-                    {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
-                      <span style={{ display: 'block', fontSize: '11px', color: '#1a4a8d', fontWeight: '600', marginTop: '2px' }}>
-                        🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
+                    {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
+                      <span style={{ display: 'block', fontSize: '11px', color: '#0f2b5c', fontWeight: '600', marginTop: '2px' }}>
+                        🛡️ {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)
+                      </span>
+                    )}
+                    {item.includeProgramSetup && (
+                      <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', fontWeight: '600', marginTop: '2px' }}>
+                        ⚙️ Machine Program Setup (+₹3,500)
                       </span>
                     )}
                   </span>
@@ -1025,6 +1036,28 @@ export default function CheckoutPage({
                 <div className="summary-row-page" style={{ color: '#0f2b5c', fontWeight: '600' }}>
                   <span>Professional Installation & Setup</span>
                   <span>+₹{installationAddon.fee.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+              {items.some(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo) && (
+                <div className="summary-row-page" style={{ color: '#0f2b5c', fontWeight: '600' }}>
+                  <span>🛡️ Extended Warranty & AMC</span>
+                  <span>
+                    +₹{items
+                      .filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo)
+                      .reduce((sum, i) => sum + (i.amcWarrantyInfo.price * i.quantity), 0)
+                      .toLocaleString('en-IN')}
+                  </span>
+                </div>
+              )}
+              {items.some(i => i.includeProgramSetup) && (
+                <div className="summary-row-page" style={{ color: '#0284c7', fontWeight: '600' }}>
+                  <span>⚙️ Machine Program Setup</span>
+                  <span>
+                    +₹{items
+                      .filter(i => i.includeProgramSetup)
+                      .reduce((sum, i) => sum + (3500 * i.quantity), 0)
+                      .toLocaleString('en-IN')}
+                  </span>
                 </div>
               )}
               <div className="summary-row-page">
@@ -1154,8 +1187,28 @@ export default function CheckoutPage({
               {couponSuccess && <p style={{ color: '#22c55e', fontSize: '12px', margin: '6px 0 0 0', fontWeight: '600' }}>{couponSuccess}</p>}
             </div>
 
+            {/* Terms and Conditions Checkbox */}
+            <div style={{ margin: '16px 0 10px 0', textAlign: 'left', padding: '10px 12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13px', color: '#334155', cursor: 'pointer', lineHeight: '1.4' }}>
+                <input 
+                  type="checkbox" 
+                  checked={agreedTerms}
+                  onChange={(e) => {
+                    setAgreedTerms(e.target.checked);
+                    if (e.target.checked && paymentError.includes('Terms')) {
+                      setPaymentError('');
+                    }
+                  }}
+                  style={{ width: '17px', height: '17px', marginTop: '2px', cursor: 'pointer', accentColor: '#1a4a8d' }}
+                />
+                <span>
+                  I have read and agree to the <Link to="/terms" target="_blank" style={{ color: '#1a4a8d', fontWeight: '700', textDecoration: 'underline' }}>Terms &amp; Conditions</Link> and Privacy Policy.
+                </span>
+              </label>
+            </div>
+
             {paymentError && (
-              <div style={{ color: '#dc2626', backgroundColor: '#fef2f2', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginTop: '15px', fontWeight: '600', border: '1px solid #fee2e2', textAlign: 'left' }}>
+              <div style={{ color: '#dc2626', backgroundColor: '#fef2f2', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginTop: '10px', fontWeight: '600', border: '1px solid #fee2e2', textAlign: 'left' }}>
                 ⚠️ {paymentError}
               </div>
             )}

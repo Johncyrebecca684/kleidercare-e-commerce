@@ -31,6 +31,7 @@ export default function ProductDetailModal({
   const [showShareNotice, setShowShareNotice] = useState(false);
 
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
+  const isOutOfStock = (product.stock !== undefined && Number(product.stock) <= 0) || product.stockStatus === 'Out of Stock';
 
   const effectiveOriginalPrice = product.originalPrice || Math.round(product.price * 1.32);
   const discountPct = Math.round(((effectiveOriginalPrice - product.price) / effectiveOriginalPrice) * 100);
@@ -48,11 +49,17 @@ export default function ProductDetailModal({
   ];
 
   const handleShare = () => {
+    const productUrl = `${window.location.origin}/product/${product.id}`;
+    const shareMsg = `Check out *${product?.name || 'Commercial Equipment'}* on Kleider Care:\n\nPrice: ₹${(product?.price || 0).toLocaleString('en-IN')}\n\nView product link: ${productUrl}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMsg)}`;
+
+    window.open(whatsappUrl, '_blank');
+
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
-      setShowShareNotice(true);
-      setTimeout(() => setShowShareNotice(false), 2000);
+      navigator.clipboard.writeText(productUrl);
     }
+    setShowShareNotice(true);
+    setTimeout(() => setShowShareNotice(false), 2500);
   };
 
   return (
@@ -82,12 +89,12 @@ export default function ProductDetailModal({
                 >
                   <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                 </button>
-                <button className="pdp-icon-btn" onClick={handleShare} title="Share product">
+                <button className="pdp-icon-btn" onClick={handleShare} title="Share via WhatsApp">
                   <Share2 size={18} />
                 </button>
               </div>
 
-              {showShareNotice && <div className="pdp-share-toast">Link copied to clipboard!</div>}
+              {showShareNotice && <div className="pdp-share-toast">💬 Opening WhatsApp & Link Copied!</div>}
             </div>
 
             {/* GALLERY THUMBNAILS & DEMO PREVIEW */}
@@ -236,22 +243,37 @@ export default function ProductDetailModal({
 
             {/* ACTION BUTTONS (ADD TO CART, EMI, BUY NOW) */}
             <div className="pdp-action-bar">
-              <button className="pdp-cart-btn" onClick={() => { onAddToCart(product); onClose(); }}>
+              <button
+                className={`pdp-cart-btn ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+                onClick={() => { if (!isOutOfStock) { onAddToCart(product); onClose(); } }}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
+              >
                 <ShoppingCart size={18} />
-                Add to Cart
+                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
 
-              <button className="pdp-emi-btn" onClick={() => { onAddToCart(product); onClose(); }}>
+              <button
+                className={`pdp-emi-btn ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+                onClick={() => { if (!isOutOfStock) { onAddToCart(product); onClose(); } }}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#64748b' } : {}}
+              >
                 <CreditCard size={18} />
                 <span>
-                  <strong>Buy with EMI</strong>
-                  <small>From ₹{Math.round(product.price / 12).toLocaleString('en-IN')}/mo</small>
+                  <strong>{isOutOfStock ? 'Unavailable' : 'Buy with EMI'}</strong>
+                  <small>{isOutOfStock ? 'Item Out of Stock' : `From ₹${Math.round(product.price / 12).toLocaleString('en-IN')}/mo`}</small>
                 </span>
               </button>
 
-              <button className="pdp-buynow-btn" onClick={() => { onBuyNow ? onBuyNow(product) : onAddToCart(product); onClose(); }}>
+              <button
+                className={`pdp-buynow-btn ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+                onClick={() => { if (!isOutOfStock) { onBuyNow ? onBuyNow(product) : onAddToCart(product); onClose(); } }}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#475569' } : {}}
+              >
                 <Zap size={18} />
-                <span>Buy Now at ₹{product.price.toLocaleString('en-IN')}</span>
+                <span>{isOutOfStock ? 'Out of Stock' : `Buy Now at ₹${product.price.toLocaleString('en-IN')}`}</span>
               </button>
             </div>
           </div>

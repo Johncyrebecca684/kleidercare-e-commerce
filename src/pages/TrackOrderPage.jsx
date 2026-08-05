@@ -67,23 +67,37 @@ export default function TrackOrderPage({ userOrders = [] }) {
     });
     
     if (userOrder) {
+      const currentStatus = userOrder.status || 'Processing';
+      const statusLower = currentStatus.toLowerCase();
+      
+      const isConfirmed = true;
+      const isProcessing = ['processing', 'shipped', 'in transit', 'in-transit', 'delivered'].some(s => statusLower.includes(s));
+      const isShipped = ['shipped', 'in transit', 'in-transit', 'delivered'].some(s => statusLower.includes(s));
+      const isInTransit = ['in transit', 'in-transit', 'delivered'].some(s => statusLower.includes(s));
+      const isOutForDelivery = ['out for delivery', 'delivered'].some(s => statusLower.includes(s));
+      const isDelivered = statusLower.includes('delivered');
+      const isCancelled = statusLower.includes('cancel');
+
       const formattedOrder = {
-        orderId: userOrder.orderId,
+        orderId: userOrder.orderId || userOrder.id,
         productName: userOrder.items[0]?.name || 'Multiple Items',
         productImage: userOrder.items[0]?.image || 'https://via.placeholder.com/120x120?text=Order',
         orderDate: userOrder.date,
-        estimatedDelivery: 'Processing',
-        status: userOrder.status,
-        currentLocation: 'Fulfillment Center',
-        price: '₹' + userOrder.total.toLocaleString('en-IN'),
+        estimatedDelivery: isDelivered ? 'Delivered' : isCancelled ? 'Cancelled' : '3-5 Business Days',
+        status: isCancelled ? 'Cancelled' : (currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)),
+        currentLocation: isDelivered ? 'Delivered to Customer' : isShipped ? 'In Transit / Logistics Hub' : 'Kleider Care Warehouse',
+        price: '₹' + (userOrder.total || 0).toLocaleString('en-IN'),
         seller: 'Kleider Care Official',
-        trackingSteps: [
-          { step: 'Order Confirmed', date: userOrder.date, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), completed: true },
-          { step: 'Processing', date: 'Pending', time: 'Pending', completed: false },
-          { step: 'Shipped', date: 'Pending', time: 'Pending', completed: false },
-          { step: 'In Transit', date: 'Pending', time: 'Pending', completed: false },
-          { step: 'Out for Delivery', date: 'Pending', time: 'Pending', completed: false },
-          { step: 'Delivered', date: 'Pending', time: 'Pending', completed: false },
+        trackingSteps: isCancelled ? [
+          { step: 'Order Confirmed', date: userOrder.date, time: 'Completed', completed: true },
+          { step: 'Order Cancelled', date: 'Notice', time: 'Refund Initiated', completed: true }
+        ] : [
+          { step: 'Order Confirmed', date: userOrder.date, time: '10:00 AM', completed: isConfirmed },
+          { step: 'Processing', date: isProcessing ? 'Completed' : 'Pending', time: isProcessing ? 'Ready' : 'Pending', completed: isProcessing },
+          { step: 'Shipped Hub', date: isShipped ? 'In Depot' : 'Pending', time: isShipped ? 'Dispatched' : 'Pending', completed: isShipped },
+          { step: 'In Transit', date: isInTransit ? 'On Highway' : 'Pending', time: isInTransit ? 'Active' : 'Pending', completed: isInTransit },
+          { step: 'Out for Delivery', date: isOutForDelivery ? 'Local Facility' : 'Pending', time: isOutForDelivery ? 'Today' : 'Pending', completed: isOutForDelivery },
+          { step: 'Delivered', date: isDelivered ? 'Delivered' : 'Pending', time: isDelivered ? 'Success' : 'Pending', completed: isDelivered },
         ]
       };
       setOrderData(formattedOrder);

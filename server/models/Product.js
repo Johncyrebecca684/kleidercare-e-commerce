@@ -44,6 +44,23 @@ const productSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  sku: {
+    type: String,
+    default: ''
+  },
+  stock: {
+    type: Number,
+    default: 50
+  },
+  lowStockThreshold: {
+    type: Number,
+    default: 10
+  },
+  stockStatus: {
+    type: String,
+    enum: ['In Stock', 'Low Stock', 'Out of Stock'],
+    default: 'In Stock'
+  },
   specifications: {
     type: Map,
     of: String,

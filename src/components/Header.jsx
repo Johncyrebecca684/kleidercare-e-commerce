@@ -17,10 +17,12 @@ import {
   Wrench,
   FlaskConical,
   SlidersHorizontal,
-  Sparkles
+  Sparkles,
+  LogOut,
+  Loader2
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 
 const categories = [
@@ -36,7 +38,74 @@ const categories = [
 
 export default function Header({ cartCount, wishlistCount, searchTerm, onSearchChange, onSigninClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isProfilePage = location.pathname === '/profile';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [deliveryLocation, setDeliveryLocation] = useState('Detecting...');
+  const [isLocating, setIsLocating] = useState(true);
+
+  const fetchLocation = async () => {
+    setIsLocating(true);
+    // Priority 1: User's saved address
+    if (loggedInUser?.addresses?.length > 0) {
+      const primary = loggedInUser.addresses[0];
+      if (primary.city || primary.pincode) {
+        setDeliveryLocation(`${primary.city || ''} ${primary.pincode || ''}`.trim());
+        setIsLocating(false);
+        return;
+      }
+    }
+
+    const fallbackIp = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.city) {
+            setDeliveryLocation(`${data.city} ${data.postal || ''}`.trim());
+            setIsLocating(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('IP location fetch failed:', e);
+      }
+      setDeliveryLocation('Mumbai 400001');
+      setIsLocating(false);
+    };
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+            if (res.ok) {
+              const data = await res.json();
+              const city = data.city || data.locality || data.principalSubdivision || 'Mumbai';
+              const pincode = data.postcode || '';
+              setDeliveryLocation(`${city} ${pincode}`.trim());
+              setIsLocating(false);
+              return;
+            }
+          } catch (e) {
+            console.warn('Reverse geocode error:', e);
+          }
+          await fallbackIp();
+        },
+        async () => {
+          await fallbackIp();
+        },
+        { timeout: 5000, maximumAge: 60000 }
+      );
+    } else {
+      await fallbackIp();
+    }
+  };
+
+  useEffect(() => {
+    fetchLocation();
+  }, [loggedInUser]);
 
   const cartBadge = useMemo(() => {
     if (!cartCount) return null;
@@ -82,6 +151,20 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
             </select>
             <ChevronDown size={16} className="headerSearchCategoryIcon" />
           </div>
+
+          <div 
+            className="locationPinBadge" 
+            title="Click to refresh delivery location"
+            onClick={fetchLocation}
+          >
+            {isLocating ? (
+              <Loader2 size={14} className="locationPinIcon animate-spin" />
+            ) : (
+              <MapPin size={14} className="locationPinIcon" />
+            )}
+            <span className="locationPinText">Deliver to <strong>{deliveryLocation}</strong></span>
+          </div>
+
           <input
             className="headerSearchInput"
             type="search"
@@ -111,12 +194,14 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
 
         <div className="headerRight">
           {loggedInUser ? (
-            <button className="userProfileBtn" type="button" onClick={() => navigate('/profile')} aria-label={`Profile for ${loggedInUser.firstName}`}>
-              <span className="userInitials">
-                {loggedInUser.firstName.charAt(0)}{loggedInUser.lastName.charAt(0)}
-              </span>
-              <span className="userName">{loggedInUser.firstName}</span>
-            </button>
+            <div className="userAccountDropdownWrap">
+              <button className="userProfileBtn" type="button" onClick={() => navigate('/profile')} aria-label={`Profile for ${loggedInUser.firstName}`}>
+                <span className="userInitials">
+                  {loggedInUser.firstName?.charAt(0)}{(loggedInUser.lastName || '').charAt(0)}
+                </span>
+                <span className="userName">{loggedInUser.firstName}</span>
+              </button>
+            </div>
           ) : (
             <>
               <button className="authBtn signinBtn" type="button" onClick={onSigninClick} aria-label="Sign in">
@@ -131,11 +216,6 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
             </button>
           ) : (
             <>
-              <button className="trackOrderBtn" type="button" onClick={() => navigate('/support')} title="Support" aria-label="Support">
-                <Headset size={22} />
-                <span className="trackLabel">Support</span>
-              </button>
-
               <button className="cartMini" type="button" onClick={() => navigate('/wishlist')} title="Wishlist" aria-label="Wishlist">
                 <span className="cartIconWrap">
                   <Heart size={22} />
@@ -208,17 +288,6 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
               </button>
             ) : (
               <>
-                <button
-                  className="mobileNavLink"
-                  type="button"
-                  onClick={() => {
-                    navigate('/support');
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <Headset size={18} />
-                  <span>Customer Support</span>
-                </button>
                 <button
                   className="mobileNavLink"
                   type="button"

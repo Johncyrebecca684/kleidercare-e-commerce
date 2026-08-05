@@ -114,16 +114,126 @@
 }
 
 .headerSearchWrap {
-  max-width: 700px;
+  max-width: 750px;
   width: 100%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: stretch;
   background: #f9fafb;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
+}
+
+.locationPinBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.locationPinIcon {
+  color: #0284c7;
+}
+
+.locationPinText strong {
+  color: #0f2b5c;
+}
+
+/* User Account Dropdown */
+.userAccountDropdownWrap {
+  position: relative;
+}
+
+.dropdownChevron {
+  transition: transform 0.2s ease;
+}
+
+.userAccountDropdownWrap:hover .dropdownChevron {
+  transform: rotate(180deg);
+}
+
+.accountDropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 230px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1100;
+}
+
+.userAccountDropdownWrap:hover .accountDropdownMenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdownHeader {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownUserFull {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2b5c;
+}
+
+.dropdownUserEmail {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 6px 0;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+}
+
+.logoutItem:hover {
+  background: #fef2f2;
+  color: #ef4444;
 }
 
 .headerSearchWrap:focus-within {
@@ -753,4 +863,50 @@
   .siteHeaderBottom {
     top: 130px;
   }
+}
+
+.locationPinBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.locationPinBadge:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.locationPinIcon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.locationPinText {
+  color: #1e3a8a;
+}
+
+.locationPinText strong {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.animate-spin {
+  animation: locationSpin 1s linear infinite;
+}
+
+@keyframes locationSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

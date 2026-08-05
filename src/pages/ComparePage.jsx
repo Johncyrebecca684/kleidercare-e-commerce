@@ -215,13 +215,21 @@ export default function ComparePage({ onAddToCart }) {
             {/* Add to Cart Row */}
             <tr className="compare-row-actions">
               <th className="compare-label-cell"></th>
-              {compareItems.map(p => (
-                <td key={p.id} className="compare-val-cell">
-                  <button className="compare-add-cart-btn" onClick={() => handleAddToCart(p)}>
-                    <ShoppingCart size={15} /> Add to Cart
-                  </button>
-                </td>
-              ))}
+              {compareItems.map(p => {
+                const isOutOfStock = (p.stock !== undefined && Number(p.stock) <= 0) || p.stockStatus === 'Out of Stock';
+                return (
+                  <td key={p.id} className="compare-val-cell">
+                    <button
+                      className="compare-add-cart-btn"
+                      onClick={() => !isOutOfStock && handleAddToCart(p)}
+                      disabled={isOutOfStock}
+                      style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
+                    >
+                      <ShoppingCart size={15} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+                  </td>
+                );
+              })}
             </tr>
           </tbody>
         </table>

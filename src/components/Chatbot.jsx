@@ -105,7 +105,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       const lower = query.toLowerCase();
 
       if (isHumanAgent) {
-        addMessage('agent', 'A support specialist has received your note and will reply shortly. You can also view your support tickets anytime in the Support Center.');
+        addMessage('agent', 'A support specialist has received your note and will reply shortly to your registered email or phone hotline.');
         return;
       }
 
@@ -155,10 +155,10 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       }
 
       // WARRANTY & INSTALLATION INTENT
-      if (lower.includes('warranty') || lower.includes('install') || lower.includes('engineer') || lower.includes('service')) {
+      if (lower.includes('warranty') || lower.includes('install') || lower.includes('engineer') || lower.includes('service') || lower.includes('amc') || lower.includes('namc') || lower.includes('maintenance')) {
         addMessage(
           'bot',
-          '🛠️ **Commercial Equipment Warranty & Installation**:\n• **2-Year Commercial Warranty** included on all heavy-duty laundry machines.\n• **Free On-Site Installation** by certified technical engineers.\n• 24-48 hour service response time across major metro regions.\n\nWould you like me to book an engineer visit or assist with something else?'
+          '🛠️ **Kleider Care AMC & Maintenance Agreement**:\n• **Non-Comprehensive AMC (NAMC)**: Includes quarterly 16-point service checkups, drum & vent deep cleaning, motor/bearing tests, and unlimited emergency breakdown support.\n• **Breakdown SLA**: Response within **24 to 48 hours**.\n• **Labor & Minor Repairs**: Fully covered under the agreement.\n• **LG Custom Setup**: Up to 10 LG wash/dry program configurations included.\n• **Spare Parts**: Component replacements charged extra at actuals.\n\nYou can review the full NAMC legal contract agreement in our **Terms & Conditions** page.'
         );
         return;
       }

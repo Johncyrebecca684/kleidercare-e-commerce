@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import { authMiddleware } from './auth.js';
@@ -101,6 +102,71 @@ router.get('/admin-all', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('❌ Failed to fetch all orders for admin:', error);
     res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
+  }
+});
+
+// Update order status, setup, or paymentStatus (Admin only)
+// PUT /api/orders/:id
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    }
+
+    const { status, setup, paymentStatus } = req.body;
+    const orderId = req.params.id;
+
+    let query;
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      query = { $or: [{ _id: orderId }, { orderId: orderId }] };
+    } else {
+      query = { orderId: orderId };
+    }
+
+    const order = await Order.findOne(query);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (status !== undefined) order.status = status;
+    if (setup !== undefined) order.setup = setup;
+    if (paymentStatus !== undefined) order.paymentStatus = paymentStatus;
+
+    await order.save();
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('❌ Failed to update order:', error);
+// Update order payment status when user pays COD order online via Razorpay
+// PUT /api/orders/pay-online/:id
+router.put('/pay-online/:id', optionalAuth, async (req, res) => {
+  try {
+    const { razorpayPaymentId, razorpayOrderId, paymentMethod } = req.body;
+    const orderId = req.params.id;
+
+    let query;
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      query = { $or: [{ _id: orderId }, { orderId: orderId }] };
+    } else {
+      query = { orderId: orderId };
+    }
+
+    const order = await Order.findOne(query);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    order.paymentMethod = paymentMethod || 'Online (Razorpay)';
+    order.paymentStatus = 'Paid';
+    if (razorpayPaymentId) order.razorpayPaymentId = razorpayPaymentId;
+    if (razorpayOrderId) order.razorpayOrderId = razorpayOrderId;
+
+    await order.save();
+    console.log(`✅ Order ${order._id} updated to Paid via Online Razorpay payment`);
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('❌ Failed to update order payment:', error);
+    res.status(500).json({ message: 'Failed to update order payment', error: error.message });
   }
 });
 

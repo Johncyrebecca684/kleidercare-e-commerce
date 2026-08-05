@@ -17,13 +17,25 @@ import {
   Truck,
   Wrench,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Home,
   ThumbsUp,
   ThumbsDown,
   CheckCircle2,
   MessageSquare,
   Plus,
   PackageCheck,
-  ShoppingBag
+  ShoppingBag,
+  Phone,
+  FileText,
+  Calendar,
+  X,
+  Clock,
+  Sparkles,
+  Check,
+  HelpCircle,
+  Info
 } from 'lucide-react';
 import { getRecommendations } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
@@ -53,6 +65,84 @@ export default function ProductDetailPage({
     product?.specifications?.Capacity || 'Standard Capacity'
   );
   const [activeTab, setActiveTab] = useState('specs');
+  const [selectedWarranty, setSelectedWarranty] = useState('none'); // 'none', 'non-comprehensive', 'comprehensive'
+  const [includeProgramSetup, setIncludeProgramSetup] = useState(false);
+  const [showAmcScheduleModal, setShowAmcScheduleModal] = useState(false);
+  const [showAmcDetails, setShowAmcDetails] = useState(true);
+
+  // Check if AMC is applicable to the current product
+  const isAmcApplicable = () => {
+    if (!product) return false;
+    const cat = (product.category || '').toLowerCase();
+    const name = (product.name || '').toLowerCase();
+
+    // Exclude spare parts, accessories, chemicals, and individual components
+    if (
+      cat.includes('part') ||
+      cat.includes('chemical') ||
+      cat.includes('detergent') ||
+      cat.includes('accessory') ||
+      name.includes('bearing') ||
+      name.includes('sensor') ||
+      name.includes('pump') ||
+      name.includes('heater') ||
+      name.includes('valve') ||
+      name.includes('filter') ||
+      name.includes('hose') ||
+      name.includes('belt')
+    ) {
+      return false;
+    }
+
+    // Applicable to Commercial Laundry Machines & Heavy Equipment (Washers, Dryers, Stackers, Finishing Machines)
+    return (
+      cat.includes('laundry machine') ||
+      cat.includes('lg') ||
+      cat.includes('speed queen') ||
+      cat.includes('pon') ||
+      cat.includes('equipment') ||
+      name.includes('washer') ||
+      name.includes('dryer') ||
+      name.includes('stacker') ||
+      name.includes('giant') ||
+      name.includes('titan') ||
+      name.includes('machine')
+    );
+  };
+
+  // Official Kleider Care AMC Pricing based on product type
+  const getAmcPrices = () => {
+    const pName = (product?.name || '').toLowerCase();
+    const pCat = (product?.category || '').toLowerCase();
+    if (pName.includes('lg') || pName.includes('stacker')) {
+      return { nonComp: 12500, comp: 18500, label: 'LG 10 kg / 15 kg Stacker' };
+    } else if (pName.includes('washer') || pCat.includes('washer')) {
+      return { nonComp: 15000, comp: 21500, label: 'Speed Queen / Heavy Duty Washer' };
+    } else if (pName.includes('dryer') || pCat.includes('dryer')) {
+      return { nonComp: 9000, comp: 14000, label: 'Speed Queen / Heavy Duty Dryer' };
+    }
+    return { nonComp: 12500, comp: 18500, label: 'Commercial Laundry Equipment' };
+  };
+
+  const amcRates = getAmcPrices();
+
+  // Dynamic total price including selected AMC warranty and machine program setup
+  const getCurrentProductTotalPrice = () => {
+    if (!product) return 0;
+    let total = product.price;
+    if (selectedWarranty === 'non-comprehensive') {
+      total += amcRates.nonComp;
+    } else if (selectedWarranty === 'comprehensive') {
+      total += amcRates.comp;
+    }
+    if (includeProgramSetup) {
+      total += 3500;
+    }
+    return total;
+  };
+
+  const currentTotalPrice = getCurrentProductTotalPrice();
+
   const [showShareNotice, setShowShareNotice] = useState(false);
   const [addedNotice, setAddedNotice] = useState(false);
 
@@ -261,21 +351,60 @@ export default function ProductDetailPage({
   };
 
   const handleShare = () => {
+    const productUrl = `${window.location.origin}/product/${product.id || id}`;
+    const shareMsg = `Check out *${product?.name || 'Commercial Equipment'}* on Kleider Care:\n\nPrice: ₹${(product?.price || 0).toLocaleString('en-IN')}\n\nView product link: ${productUrl}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMsg)}`;
+
+    window.open(whatsappUrl, '_blank');
+
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
-      setShowShareNotice(true);
-      setTimeout(() => setShowShareNotice(false), 2000);
+      navigator.clipboard.writeText(productUrl);
     }
+    setShowShareNotice(true);
+    setTimeout(() => setShowShareNotice(false), 2500);
   };
 
+  const getProductForCart = () => {
+    let extraCost = 0;
+    let warrantyInfo = null;
+
+    if (selectedWarranty === 'non-comprehensive') {
+      extraCost += amcRates.nonComp;
+      warrantyInfo = { type: 'Non-Comprehensive AMC', price: amcRates.nonComp, visits: '3/year', parts: 'Charged extra' };
+    } else if (selectedWarranty === 'comprehensive') {
+      extraCost += amcRates.comp;
+      warrantyInfo = { type: 'Comprehensive AMC', price: amcRates.comp, visits: '3/year', parts: 'Included (excl. consumables)' };
+    }
+
+    if (includeProgramSetup) {
+      extraCost += 3500;
+    }
+
+    if (extraCost > 0) {
+      return {
+        ...product,
+        price: product.price + extraCost,
+        basePrice: product.price,
+        selectedWarranty,
+        amcWarrantyInfo: warrantyInfo,
+        includeProgramSetup
+      };
+    }
+    return product;
+  };
+
+  const isOutOfStock = (product.stock !== undefined && Number(product.stock) <= 0) || product.stockStatus === 'Out of Stock';
+
   const handleAddToCartClick = () => {
-    onAddToCart(product);
+    if (isOutOfStock) return;
+    onAddToCart(getProductForCart());
     setAddedNotice(true);
     setTimeout(() => setAddedNotice(false), 2000);
   };
 
   const handleBuyNowClick = () => {
-    onAddToCart(product);
+    if (isOutOfStock) return;
+    onAddToCart(getProductForCart());
     navigate('/cart');
   };
 
@@ -306,6 +435,39 @@ export default function ProductDetailPage({
           </div>
         </div>
 
+        {/* STICKY PDP SUB-NAVIGATION TABS */}
+        <div className="pdp-sticky-subnav">
+          <div className="pdp-subnav-inner">
+            <button
+              className={`pdp-subnav-link ${activeTab === 'overview' || !activeTab ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('overview');
+                window.scrollTo({ top: 120, behavior: 'smooth' });
+              }}
+            >
+              Overview
+            </button>
+            <button
+              className={`pdp-subnav-link ${activeTab === 'specs' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('specs');
+                document.getElementById('pdp-specs-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Tech Specs
+            </button>
+            <button
+              className={`pdp-subnav-link ${activeTab === 'feedback' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('feedback');
+                document.getElementById('pdp-feedback-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Customer Feedback & Reviews
+            </button>
+          </div>
+        </div>
+
         {/* FULL SCREEN PDP GRID */}
         <div className="pdp-fullscreen-grid">
           {/* LEFT COLUMN: MEDIA GALLERY & SHOWCASE */}
@@ -326,7 +488,7 @@ export default function ProductDetailPage({
                 </button>
               </div>
 
-              {showShareNotice && <div className="pdp-copied-toast">✓ Link copied to clipboard!</div>}
+              {showShareNotice && <div className="pdp-copied-toast">💬 Opening WhatsApp & Link Copied!</div>}
             </div>
 
             {/* THUMBNAIL GALLERY STRIP */}
@@ -359,51 +521,45 @@ export default function ProductDetailPage({
           <div className="pdp-details-panel">
             <h1 className="pdp-page-title">{product.name}</h1>
 
-            {/* RATING & REVIEWS */}
-            <div className="pdp-rating-strip">
+            {/* RATING & REVIEWS & STOCK BADGE */}
+            <div className="pdp-rating-strip" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <span className="pdp-star-badge">
                 {product.rating || 4.3} <Star size={12} fill="#fff" color="#fff" />
               </span>
               <span className="pdp-rating-counts">
                 {(product.reviews ? product.reviews * 30 : 12450).toLocaleString('en-IN')} Ratings & {(product.reviews || 890).toLocaleString('en-IN')} Reviews
               </span>
+              {isOutOfStock ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#fef2f2', color: '#dc2626', fontWeight: '700', fontSize: '13px', border: '1px solid #fecaca' }}>
+                  ⚠️ Currently Out of Stock
+                </span>
+              ) : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#f0fdf4', color: '#16a34a', fontWeight: '700', fontSize: '13px', border: '1px solid #bbf7d0' }}>
+                  ✓ In Stock (Ready to Dispatch)
+                </span>
+              )}
             </div>
 
             {/* PRICE CARD */}
             <div className="pdp-price-hero-card">
               <div className="pdp-price-top">
-                <span className="pdp-big-price">₹{product.price.toLocaleString('en-IN')}</span>
+                <span className="pdp-big-price">₹{currentTotalPrice.toLocaleString('en-IN')}</span>
+                {currentTotalPrice > product.price && (
+                  <span className="pdp-base-breakdown" style={{ fontSize: '13px', color: '#64748b', marginLeft: '10px', fontWeight: '500' }}>
+                    (Base Machine: ₹{product.price.toLocaleString('en-IN')} + AMC/Add-on)
+                  </span>
+                )}
               </div>
               <div className="pdp-price-savings">
-                <span className="pdp-strike-price">₹{effectiveOriginalPrice.toLocaleString('en-IN')}</span>
+                <span className="pdp-strike-price">₹{(effectiveOriginalPrice + (currentTotalPrice - product.price)).toLocaleString('en-IN')}</span>
                 <span className="pdp-savings-badge">↓{discountPct}% OFF</span>
               </div>
               <div className="pdp-tax-info">Inclusive of all taxes. GST invoice available for business claims.</div>
             </div>
 
-            {/* REAL AVAILABLE MODELS IN THIS CATEGORY */}
-            {sameCategoryProducts.length > 1 && (
-              <div className="pdp-selector-group">
-                <div className="pdp-group-label">
-                  Available Models in <strong>{product.category}</strong>:
-                </div>
-                <div className="pdp-models-grid">
-                  {sameCategoryProducts.slice(0, 6).map((model) => (
-                    <button
-                      key={model.id}
-                      className={`pdp-model-chip ${model.id === product.id ? 'active' : ''}`}
-                      onClick={() => navigate(`/product/${model.id}`)}
-                    >
-                      <span className="model-chip-name">{model.name}</span>
-                      <span className="model-chip-price">₹{model.price.toLocaleString('en-IN')}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* PRODUCT SPECIFICATIONS & DESCRIPTION */}
-            <div className="pdp-info-tabs-box">
+            <div className="pdp-info-tabs-box" id="pdp-specs-section">
               <div className="pdp-tabs-nav">
                 <button
                   className={`pdp-tab ${activeTab === 'specs' ? 'active' : ''}`}
@@ -452,24 +608,226 @@ export default function ProductDetailPage({
               )}
             </div>
 
+            {/* OFFICIAL KLEIDER CARE AMC & EXTENDED WARRANTY SECTION */}
+            {isAmcApplicable() && (
+              <div className="pdp-amc-section">
+                <div className="pdp-amc-header">
+                  <div className="amc-header-left">
+                    <ShieldCheck size={22} className="amc-shield-icon" />
+                    <div>
+                      <h3>Kleider Care Extended Warranty & AMC</h3>
+                      <p className="amc-subtitle">Annual Maintenance Contract tailored for {amcRates.label}</p>
+                    </div>
+                  </div>
+                  <button
+                    className="pdp-amc-toggle-btn"
+                    onClick={() => setShowAmcDetails(!showAmcDetails)}
+                    aria-label="Toggle AMC Details"
+                  >
+                    {showAmcDetails ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  </button>
+                </div>
+
+                {showAmcDetails && (
+                  <div className="pdp-amc-body">
+                    {/* AMC PLAN CARDS GRID */}
+                    <div className="amc-cards-grid">
+                      {/* PLAN 1: Non-Comprehensive AMC */}
+                      <div
+                        className={`amc-card ${selectedWarranty === 'non-comprehensive' ? 'selected' : ''}`}
+                        onClick={() => setSelectedWarranty(selectedWarranty === 'non-comprehensive' ? 'none' : 'non-comprehensive')}
+                      >
+                        <div className="amc-card-badge non-comp">Standard Maintenance</div>
+                        <h4 className="amc-plan-title">Non-Comprehensive AMC</h4>
+                        <div className="amc-plan-price">
+                          <span className="price-num">₹{amcRates.nonComp.toLocaleString('en-IN')}</span>
+                          <span className="price-unit">/ year (excl. GST)</span>
+                        </div>
+
+                        <ul className="amc-features-list">
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>3 Preventive Visits</strong> / year</span></li>
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>Unlimited</strong> Breakdown Support</span></li>
+                          <li><Clock size={16} className="feat-icon match" /> <span><strong>24–48 Hours</strong> Emergency Response</span></li>
+                          <li><Wrench size={16} className="feat-icon match" /> <span>Safety & Performance Check</span></li>
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span>Vent Cleaning & Drum Disinfection</span></li>
+                          <li className="excluded"><X size={16} className="feat-icon no-match" /> <span>Spare Parts (Charged Extra)</span></li>
+                        </ul>
+
+                        <button
+                          className={`amc-select-btn ${selectedWarranty === 'non-comprehensive' ? 'active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedWarranty(selectedWarranty === 'non-comprehensive' ? 'none' : 'non-comprehensive');
+                          }}
+                        >
+                          {selectedWarranty === 'non-comprehensive' ? '✓ Plan Selected' : 'Select Non-Comprehensive'}
+                        </button>
+                      </div>
+
+                      {/* PLAN 2: Comprehensive AMC */}
+                      <div
+                        className={`amc-card featured ${selectedWarranty === 'comprehensive' ? 'selected' : ''}`}
+                        onClick={() => setSelectedWarranty(selectedWarranty === 'comprehensive' ? 'none' : 'comprehensive')}
+                      >
+                        <div className="amc-card-badge comp">★ Best Protection (Parts Included)</div>
+                        <h4 className="amc-plan-title">Comprehensive AMC</h4>
+                        <div className="amc-plan-price">
+                          <span className="price-num">₹{amcRates.comp.toLocaleString('en-IN')}</span>
+                          <span className="price-unit">/ year (excl. GST)</span>
+                        </div>
+
+                        <ul className="amc-features-list">
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>3 Preventive Visits</strong> / year</span></li>
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>Unlimited</strong> Breakdown Support</span></li>
+                          <li><ShieldCheck size={16} className="feat-icon match highlight" /> <span><strong>Spare Parts Included</strong> (excl. consumables)</span></li>
+                          <li><Clock size={16} className="feat-icon match" /> <span><strong>24–48 Hours</strong> Priority Hotline Response</span></li>
+                          <li><Wrench size={16} className="feat-icon match" /> <span>Vent Cleaning & Drum Disinfection</span></li>
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span>Calibration Check & Service Log</span></li>
+                        </ul>
+
+                        <button
+                          className={`amc-select-btn featured ${selectedWarranty === 'comprehensive' ? 'active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedWarranty(selectedWarranty === 'comprehensive' ? 'none' : 'comprehensive');
+                          }}
+                        >
+                          {selectedWarranty === 'comprehensive' ? '✓ Plan Selected' : 'Select Comprehensive'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* MACHINE PROGRAMMING OPTION */}
+                    <div className="amc-addon-box">
+                      <label className="amc-addon-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={includeProgramSetup}
+                          onChange={(e) => setIncludeProgramSetup(e.target.checked)}
+                        />
+                        <div className="amc-addon-info">
+                          <strong>Add Machine Program Setup (Up to 10 Programs in LG)</strong>
+                          <p>Custom program parameters & calibration setup by certified technicians (@ ₹350/program)</p>
+                        </div>
+                        <div className="amc-addon-price">+ ₹3,500</div>
+                      </label>
+                    </div>
+
+                    {/* ACTION BAR FOR SCHEDULE & CONTACT */}
+                    <div className="amc-footer-bar">
+                      <button className="amc-view-schedule-btn" onClick={() => setShowAmcScheduleModal(true)}>
+                        <Calendar size={16} /> View Services Provided
+                      </button>
+
+                      <div className="amc-support-contact">
+                        <Phone size={14} />
+                        <span>Dedicated Hotline: <strong>+91 93848 14933 / +91 97890 20311</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 16-TASK QUARTERLY SCHEDULE MODAL */}
+            {showAmcScheduleModal && (
+              <div className="amc-modal-overlay" onClick={() => setShowAmcScheduleModal(false)}>
+                <div className="amc-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <div className="amc-modal-header">
+                    <div>
+                      <h3>Services Provided:</h3>
+                      <p>Quarterly maintenance breakdown for commercial laundry equipment</p>
+                    </div>
+                    <button className="amc-modal-close-btn" onClick={() => setShowAmcScheduleModal(false)}>
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  <div className="amc-modal-body">
+                    <table className="amc-tasks-table">
+                      <thead>
+                        <tr>
+                          <th>Sl No.</th>
+                          <th>Maintenance Task</th>
+                          <th>First Quarter</th>
+                          <th>Second Quarter</th>
+                          <th>Third Quarter</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { id: 1, name: 'Lint filter, drum, and seal cleaning', q1: true, q2: true, q3: true },
+                          { id: 2, name: 'Motor, vibration, and bearing Inspection', q1: true, q2: true, q3: true },
+                          { id: 3, name: 'Electrical system & firmware Diagnostics', q1: true, q2: true, q3: true },
+                          { id: 4, name: 'Washer/Dryer simulation test', q1: true, q2: true, q3: true },
+                          { id: 5, name: 'Grounding, gas line (if any), and shutdown system test', q1: true, q2: true, q3: true },
+                          { id: 6, name: 'Detailed service reports with remarks and signatures', q1: true, q2: true, q3: true },
+                          { id: 7, name: 'Comprehensive system health assessment', q1: true, q2: false, q3: false },
+                          { id: 8, name: 'Thorough cleaning of machines', q1: true, q2: false, q3: false },
+                          { id: 9, name: 'Baseline Condition Report', q1: true, q2: false, q3: false },
+                          { id: 10, name: 'Inspection of safety and electrical systems', q1: false, q2: true, q3: false },
+                          { id: 11, name: 'Checking hoses', q1: false, q2: true, q3: false },
+                          { id: 12, name: 'Checking filter', q1: false, q2: true, q3: false },
+                          { id: 13, name: 'Checking Inlet Pressure', q1: false, q2: true, q3: false },
+                          { id: 14, name: 'Motor and Belt inspection', q1: false, q2: false, q3: true },
+                          { id: 15, name: 'Deep cleaning of Dryer Vents', q1: false, q2: false, q3: true },
+                          { id: 16, name: 'Submission of the final machine condition report', q1: false, q2: false, q3: true }
+                        ].map((t) => (
+                          <tr key={t.id}>
+                            <td className="task-num">{t.id}</td>
+                            <td className="task-name">{t.name}</td>
+                            <td className="task-check">{t.q1 ? <Check size={18} className="check-icon" /> : '—'}</td>
+                            <td className="task-check">{t.q2 ? <Check size={18} className="check-icon" /> : '—'}</td>
+                            <td className="task-check">{t.q3 ? <Check size={18} className="check-icon" /> : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="amc-modal-footer">
+                    <span>Emergency Response within 24–48 hours | support@kleidercare.com</span>
+                    <button className="amc-modal-done-btn" onClick={() => setShowAmcScheduleModal(false)}>
+                      Close Schedule
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* FIXED ACTION BUTTONS BAR */}
             <div className="pdp-primary-actions">
-              <button className="pdp-btn-cart" onClick={handleAddToCartClick}>
+              <button
+                className={`pdp-btn-cart ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+                onClick={handleAddToCartClick}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
+              >
                 <ShoppingCart size={18} />
-                Add to Cart
+                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
 
-              <button className="pdp-btn-emi" onClick={handleAddToCartClick}>
+              <button
+                className={`pdp-btn-emi ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+                onClick={handleAddToCartClick}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#64748b' } : {}}
+              >
                 <CreditCard size={18} />
                 <div>
-                  <strong>Buy with EMI</strong>
-                  <small>From ₹{Math.round(product.price / 12).toLocaleString('en-IN')}/mo</small>
+                  <strong>{isOutOfStock ? 'Unavailable' : 'Buy with EMI'}</strong>
+                  <small>{isOutOfStock ? 'Item Out of Stock' : `From ₹${Math.round(currentTotalPrice / 12).toLocaleString('en-IN')}/mo`}</small>
                 </div>
               </button>
 
-              <button className="pdp-btn-buynow" onClick={handleBuyNowClick}>
+              <button
+                className={`pdp-btn-buynow ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+                onClick={handleBuyNowClick}
+                disabled={isOutOfStock}
+                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#475569' } : {}}
+              >
                 <Zap size={18} />
-                <span>Buy Now at ₹{product.price.toLocaleString('en-IN')}</span>
+                <span>{isOutOfStock ? 'Out of Stock' : `Buy Now at ₹${currentTotalPrice.toLocaleString('en-IN')}`}</span>
               </button>
             </div>
 
@@ -653,7 +1011,7 @@ export default function ProductDetailPage({
         )}
 
         {/* CLIENT FEEDBACKS & REVIEWS SECTION */}
-        <section className="client-reviews-section">
+        <section className="client-reviews-section" id="pdp-feedback-section">
           <div className="reviews-section-header">
             <div>
               <h2 className="reviews-title">Ratings & Client Feedbacks</h2>

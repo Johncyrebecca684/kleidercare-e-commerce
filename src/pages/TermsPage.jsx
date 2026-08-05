@@ -231,6 +231,66 @@ export default function TermsPage({
                   Any disputes arising from or relating to these Terms shall be subject to the exclusive jurisdiction of the competent courts in Chennai, Tamil Nadu.
                 </p>
               </div>
+
+              {/* 16. Non-Comprehensive Annual Maintenance Contract (NAMC) Agreement */}
+              <div className="terms-section-block amc-legal-section" style={{ borderTop: '2px solid #e2e8f0', paddingTop: '25px', marginTop: '30px' }}>
+                <span className="terms-badge" style={{ backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '11px', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: '700' }}>Official Contract Template</span>
+                <h2 style={{ color: '#0f2b5c', marginTop: '10px' }}>16. Non-Comprehensive Annual Maintenance Agreement for Commercial Washer & Dryer</h2>
+                <p className="terms-lead">
+                  This Non-Comprehensive Annual Maintenance Contract ("NAMC Agreement") sets forth the terms and conditions governing preventive maintenance, emergency breakdown support, and technical servicing provided by <strong>KLEIDER CARE PVT LTD</strong> for commercial laundry washers and dryers.
+                </p>
+
+                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #0f2b5c', margin: '15px 0' }}>
+                  <h4 style={{ margin: '0 0 8px 0', color: '#0f2b5c' }}>Contractor Details</h4>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}><strong>Company:</strong> KLEIDER CARE PVT LTD</p>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}><strong>Address:</strong> A1/91, Periyar Salai, Signal Palavakkam, Chennai - 600041, Tamil Nadu, India</p>
+                  <p style={{ margin: 0, fontSize: '14px' }}><strong>Helpline / Contact:</strong> +91 9789020311 / 044-48606351</p>
+                </div>
+
+                <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '20px' }}>Scope of Work & Service Schedule</h3>
+                <p>Under the Kleider Care NAMC Plan, certified service engineers provide structured quarterly routine check-ups and unlimited emergency breakdown support:</p>
+                <ul className="terms-list">
+                  <li><strong>Quarterly Inspections:</strong> Certified Service Engineers visit site every quarter for comprehensive diagnostic checks, safety inspections, and preventive tuning.</li>
+                  <li><strong>Unlimited Breakdown Support:</strong> Emergency breakdown complaints are attended within <strong>24 to 48 hours</strong> of logging a ticket.</li>
+                  <li><strong>Minor Complaints & Labor Included:</strong> Covers all labor charges for on-site minor adjustments, routine checkups, parameter calibrations, and troubleshooting.</li>
+                  <li><strong>Spare Parts & Replacements:</strong> All replacement components and spare parts are charged extra as per actuals.</li>
+                  <li><strong>LG Custom Programming:</strong> Includes custom programming setup for up to 10 LG commercial washer/dryer cycles.</li>
+                </ul>
+
+                <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '20px' }}>16-Point Quarterly Service Checklist</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px', margin: '15px 0' }}>
+                  {[
+                    '1. Lint filter, drum, and seal cleaning',
+                    '2. Motor, vibration, and bearing inspection',
+                    '3. Electrical system & firmware diagnostics',
+                    '4. Washer/Dryer simulation test',
+                    '5. Grounding, gas line (if any) & shutdown test',
+                    '6. Detailed service reports with remarks & signatures',
+                    '7. Comprehensive system health assessment',
+                    '8. Thorough cleaning of machine',
+                    '9. Baseline condition report submission',
+                    '10. Inspection of safety & electrical systems',
+                    '11. Checking inlet hoses & connections',
+                    '12. Checking filter assembly',
+                    '13. Checking water inlet pressure',
+                    '14. Motor and drive belt inspection',
+                    '15. Deep cleaning of dryer exhaust vents',
+                    '16. Final machine condition report & certification'
+                  ].map((task, idx) => (
+                    <div key={idx} style={{ padding: '8px 12px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px', color: '#334155', fontWeight: '500' }}>
+                      ✔️ {task}
+                    </div>
+                  ))}
+                </div>
+
+                <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '20px' }}>General Contract Terms & Termination</h3>
+                <ul className="terms-list">
+                  <li><strong>Contract Period:</strong> 12 Months from the date of commencement.</li>
+                  <li><strong>Termination Clause:</strong> Either party may terminate the agreement by providing thirty (30) days prior written notice. Kleider Care reserves the right to terminate forthwith in the event of non-payment.</li>
+                  <li><strong>Misuse & Damages:</strong> Machines damaged due to operator negligence, improper handling, or unauthorized tampering shall be repaired at the client's cost.</li>
+                  <li><strong>Staffing & Safety (Exhibits B & C):</strong> Contractor technicians remain employees of Kleider Care Pvt Ltd and adhere to strict site safety rules, IT security guidelines, and professional codes of conduct.</li>
+                </ul>
+              </div>
             </div>
 
             {/* Bottom Contact Section */}

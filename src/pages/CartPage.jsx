@@ -9,13 +9,66 @@ export default function CartPage({
   allProducts = [],
   onAddToCart,
   onUpdateQuantity, 
-  onRemoveItem, 
+  onRemoveItem,
+  onAddAddon,
+  onRemoveAddon,
   loggedInUser, 
   onLoginOpen,
   installationAddon = { selected: false, fee: 999 },
   setInstallationAddon
 }) {
   const navigate = useNavigate();
+
+  // Helper to check if a product is eligible for AMC
+  const isAmcApplicable = (item) => {
+    if (!item) return false;
+    const cat = (item.category || '').toLowerCase();
+    const name = (item.name || '').toLowerCase();
+
+    if (
+      cat.includes('part') ||
+      cat.includes('chemical') ||
+      cat.includes('detergent') ||
+      cat.includes('accessory') ||
+      name.includes('bearing') ||
+      name.includes('sensor') ||
+      name.includes('pump') ||
+      name.includes('heater') ||
+      name.includes('valve') ||
+      name.includes('filter') ||
+      name.includes('hose') ||
+      name.includes('belt')
+    ) {
+      return false;
+    }
+
+    return (
+      cat.includes('laundry machine') ||
+      cat.includes('lg') ||
+      cat.includes('speed queen') ||
+      cat.includes('pon') ||
+      cat.includes('equipment') ||
+      name.includes('washer') ||
+      name.includes('dryer') ||
+      name.includes('stacker') ||
+      name.includes('giant') ||
+      name.includes('titan') ||
+      name.includes('machine')
+    );
+  };
+
+  const getAmcRatesForItem = (item) => {
+    const pName = (item?.name || '').toLowerCase();
+    const pCat = (item?.category || '').toLowerCase();
+    if (pName.includes('lg') || pName.includes('stacker')) {
+      return { nonComp: 12500, comp: 18500 };
+    } else if (pName.includes('washer') || pCat.includes('washer')) {
+      return { nonComp: 15000, comp: 21500 };
+    } else if (pName.includes('dryer') || pCat.includes('dryer')) {
+      return { nonComp: 9000, comp: 14000 };
+    }
+    return { nonComp: 12500, comp: 18500 };
+  };
 
   // Use centralized recommendation engine for cart upsell
   const cartRecommendations = getRecommendations({
@@ -73,9 +126,159 @@ export default function CartPage({
                   
                   <div className="cart-page-item-details">
                     <h3 className="cart-page-item-name">{item.name}</h3>
-                    {item.selectedWarranty && item.selectedWarranty.type !== 'None' && (
-                      <div className="item-warranty-badge">
-                        🛡️ {item.selectedWarranty.title} (+₹{item.selectedWarranty.price.toLocaleString('en-IN')})
+                    {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
+                      <div
+                        className="item-warranty-badge"
+                        style={{
+                          fontSize: '12px',
+                          color: '#0f2b5c',
+                          fontWeight: '600',
+                          marginTop: '4px',
+                          background: '#f0f7ff',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          border: '1px solid #bfdbfe'
+                        }}
+                      >
+                        <span>🛡️ {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)</span>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'warranty')}
+                          style={{
+                            background: '#dbeafe',
+                            border: 'none',
+                            color: '#1e40af',
+                            borderRadius: '50%',
+                            width: '18px',
+                            height: '18px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '11px',
+                            marginLeft: '4px'
+                          }}
+                          title="Remove AMC Extended Warranty"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                    {item.includeProgramSetup && (
+                      <div
+                        className="item-warranty-badge"
+                        style={{
+                          fontSize: '12px',
+                          color: '#0284c7',
+                          fontWeight: '600',
+                          marginTop: '4px',
+                          background: '#f0f9ff',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          border: '1px solid #bae6fd'
+                        }}
+                      >
+                        <span>⚙️ Machine Program Setup (+₹3,500)</span>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'setup')}
+                          style={{
+                            background: '#e0f2fe',
+                            border: 'none',
+                            color: '#0369a1',
+                            borderRadius: '50%',
+                            width: '18px',
+                            height: '18px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '11px',
+                            marginLeft: '4px'
+                          }}
+                          title="Remove Machine Program Setup"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                    {/* INLINE AMC ADD-ON SELECTOR FOR APPLICABLE COMMERCIAL MACHINERY */}
+                    {isAmcApplicable(item) && (
+                      <div className="cart-amc-addon-selector" style={{ marginTop: '8px', marginBottom: '6px' }}>
+                        {(!item.selectedWarranty || item.selectedWarranty === 'none') && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '700', color: '#0f2b5c', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <ShieldCheck size={13} color="#0284c7" /> Add Kleider Care AMC Warranty:
+                            </span>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'non-comprehensive')}
+                                style={{
+                                  padding: '3px 8px',
+                                  fontSize: '11px',
+                                  fontWeight: '600',
+                                  borderRadius: '5px',
+                                  border: '1px solid #cbd5e1',
+                                  background: '#ffffff',
+                                  color: '#334155',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease'
+                                }}
+                              >
+                                + Non-Comprehensive (₹{getAmcRatesForItem(item).nonComp.toLocaleString('en-IN')})
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'comprehensive')}
+                                style={{
+                                  padding: '3px 8px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  borderRadius: '5px',
+                                  border: '1px solid #0284c7',
+                                  background: '#f0f9ff',
+                                  color: '#0369a1',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease'
+                                }}
+                              >
+                                + Comprehensive (₹{getAmcRatesForItem(item).comp.toLocaleString('en-IN')})
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {!item.includeProgramSetup && (
+                          <button
+                            type="button"
+                            onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'setup')}
+                            style={{
+                              marginTop: '6px',
+                              padding: '3px 8px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              borderRadius: '5px',
+                              border: '1px dashed #0284c7',
+                              background: '#ffffff',
+                              color: '#0284c7',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            + Add Machine Program Setup (+₹3,500)
+                          </button>
+                        )}
                       </div>
                     )}
                     <p className="cart-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
@@ -184,6 +387,32 @@ export default function CartPage({
               <div className="summary-row addon-row">
                 <span>Professional Installation</span>
                 <span>+₹{installationAddon.fee.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+
+            {/* AMC Extended Warranty Breakdown in Order Summary */}
+            {items.some(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo) && (
+              <div className="summary-row addon-row" style={{ color: '#0f2b5c', fontWeight: '600' }}>
+                <span>🛡️ Extended Warranty & AMC</span>
+                <span>
+                  +₹{items
+                    .filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo)
+                    .reduce((sum, i) => sum + (i.amcWarrantyInfo.price * i.quantity), 0)
+                    .toLocaleString('en-IN')}
+                </span>
+              </div>
+            )}
+
+            {/* Machine Program Setup Breakdown in Order Summary */}
+            {items.some(i => i.includeProgramSetup) && (
+              <div className="summary-row addon-row" style={{ color: '#0284c7', fontWeight: '600' }}>
+                <span>⚙️ Machine Program Setup</span>
+                <span>
+                  +₹{items
+                    .filter(i => i.includeProgramSetup)
+                    .reduce((sum, i) => sum + (3500 * i.quantity), 0)
+                    .toLocaleString('en-IN')}
+                </span>
               </div>
             )}
 

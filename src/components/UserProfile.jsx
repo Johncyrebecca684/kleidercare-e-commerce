@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import { 
   User, 
   ShoppingBag, 
@@ -11,7 +12,8 @@ import {
   CreditCard,
   ChevronDown,
   Info,
-  ArrowLeft
+  ArrowLeft,
+  Bot
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { updateProfile, updateAddresses, addWalletBalance } from '../services/authService';
@@ -96,6 +98,132 @@ export default function UserProfile({
 
   // Support FAQs state
   const [activeFaq, setActiveFaq] = useState(null);
+
+  // Order list & Online Payment State
+  const [orderList, setOrderList] = useState(orders);
+  const [payingOrderId, setPayingOrderId] = useState(null);
+  const [paymentMsg, setPaymentMsg] = useState('');
+
+  useEffect(() => {
+    setOrderList(orders);
+  }, [orders]);
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayOnlineForOrder = async (targetOrder) => {
+    try {
+      setPayingOrderId(targetOrder.id);
+      setPaymentMsg('');
+
+      // 1. Create payment order via backend API
+      const orderResponse = await fetch(`${API_URL}/api/payment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Math.round(targetOrder.total * 100) })
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to initiate online payment session.');
+      }
+
+      const paymentOrderData = await orderResponse.json();
+
+      // 2. Load Razorpay SDK
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Razorpay SDK failed to load. Please check your network connection.');
+      }
+
+      // 3. Open Razorpay Checkout Modal
+      const options = {
+        key: paymentOrderData.keyId,
+        amount: paymentOrderData.amount,
+        currency: paymentOrderData.currency || 'INR',
+        name: 'Kleider Care',
+        description: `Online Payment for Order #${targetOrder.id}`,
+        order_id: paymentOrderData.id,
+        handler: async function (response) {
+          try {
+            // Verify payment signature
+            const verifyRes = await fetch(`${API_URL}/api/payment/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+
+            if (!verifyRes.ok) {
+              throw new Error('Payment verification failed.');
+            }
+
+            // Update order payment status in backend database
+            const dbId = targetOrder.mongoId || targetOrder.id;
+            await fetch(`${API_URL}/api/orders/pay-online/${dbId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                paymentMethod: 'Online Payment (Razorpay)',
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id
+              })
+            });
+
+            // Update local order state immediately
+            setOrderList(prevOrders =>
+              prevOrders.map(o =>
+                (o.id === targetOrder.id || o.mongoId === targetOrder.mongoId)
+                  ? { ...o, paymentMethod: 'Online Payment (Razorpay)', paymentStatus: 'Paid', paymentId: response.razorpay_payment_id }
+                  : o
+              )
+            );
+
+            setPaymentMsg(`🎉 Online payment of ₹${targetOrder.total.toLocaleString('en-IN')} for Order #${targetOrder.id} completed successfully via Razorpay!`);
+          } catch (err) {
+            console.error(err);
+            alert('Payment completed, but order status update failed: ' + err.message);
+          } finally {
+            setPayingOrderId(null);
+          }
+        },
+        prefill: {
+          name: userData?.firstName ? `${userData.firstName} ${userData.lastName || ''}`.trim() : (targetOrder.customerName || ''),
+          email: userData?.email || targetOrder.userEmail || '',
+          contact: userData?.mobileNumber || targetOrder.phone || ''
+        },
+        theme: {
+          color: '#0f2b5c'
+        },
+        modal: {
+          ondismiss: function () {
+            setPayingOrderId(null);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Error launching Razorpay payment window.');
+      setPayingOrderId(null);
+    }
+  };
 
   // Sync props to state if userData updates
   useEffect(() => {
@@ -285,7 +413,13 @@ export default function UserProfile({
             {activeTab === 'orders' && (
               <div className="tab-view-content animate-fade-in">
                 <h3 className="tab-title">Your Order History</h3>
-                {orders.length === 0 ? (
+                {paymentMsg && (
+                  <div style={{ padding: '12px 16px', backgroundColor: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: '8px', marginBottom: '16px', fontWeight: '600', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{paymentMsg}</span>
+                    <button onClick={() => setPaymentMsg('')} style={{ background: 'none', border: 'none', color: '#166534', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>×</button>
+                  </div>
+                )}
+                {orderList.length === 0 ? (
                   <div className="empty-state-view">
                     <ShoppingBag size={48} className="empty-icon" />
                     <h4>No Orders Yet</h4>
@@ -293,7 +427,7 @@ export default function UserProfile({
                   </div>
                 ) : (
                   <div className="profile-orders-list">
-                    {orders.map((order) => (
+                    {orderList.map((order) => (
                       <div key={order.id} className="premium-order-card">
                         <div className="order-card-header">
                           <div>
@@ -306,9 +440,21 @@ export default function UserProfile({
                         </div>
                         <div className="order-card-items">
                           {order.items.map((item, idx) => (
-                            <div key={idx} className="order-item-row">
-                              <span>{item.name} <strong style={{color: '#64748b'}}>x{item.quantity}</strong></span>
-                              <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                            <div key={idx} className="order-item-block" style={{ marginBottom: '8px' }}>
+                              <div className="order-item-row" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600' }}>
+                                <span>{item.name} <strong style={{color: '#64748b'}}>x{item.quantity}</strong></span>
+                                <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                              </div>
+                              {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
+                                <div style={{ fontSize: '11px', color: '#0f2b5c', fontWeight: '600', paddingLeft: '10px', marginTop: '2px' }}>
+                                  🛡️ Includes {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')})
+                                </div>
+                              )}
+                              {item.includeProgramSetup && (
+                                <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: '600', paddingLeft: '10px', marginTop: '2px' }}>
+                                  ⚙️ Includes Machine Program Setup (+₹3,500)
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -318,15 +464,73 @@ export default function UserProfile({
                             {order.companyName && <span className="order-company" style={{ fontSize: '12px', color: '#475569' }}>🏢 {order.companyName}</span>}
                             {order.gstNumber && <span className="order-gst" style={{ fontSize: '12px', color: '#475569' }}>📄 GST: {order.gstNumber}</span>}
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <button 
-                              className="view-invoice-btn" 
-                              onClick={() => setSelectedInvoice(order)}
-                              style={{ padding: '6px 12px', border: '1px solid #0f2b5c', color: '#0f2b5c', background: 'none', borderRadius: '6px', fontWeight: '750', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}
-                            >
-                              View Invoice
-                            </button>
-                            <span className="order-total">Total Paid: <strong>₹{order.total.toLocaleString('en-IN')}</strong></span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                            {(() => {
+                              const isCOD = order.paymentMethod && (
+                                order.paymentMethod.toLowerCase().includes('cash') || 
+                                order.paymentMethod.toLowerCase().includes('cod') || 
+                                order.paymentMethod.toLowerCase().includes('delivery')
+                              );
+                              const isPaid = order.paymentStatus === 'Paid' || (!isCOD && order.paymentStatus !== 'Pending');
+
+                              return (
+                                <>
+                                  {isPaid ? (
+                                    <button 
+                                      className="view-invoice-btn" 
+                                      onClick={() => setSelectedInvoice(order)}
+                                      style={{ padding: '6px 12px', border: '1px solid #0f2b5c', color: '#0f2b5c', background: 'none', borderRadius: '6px', fontWeight: '750', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    >
+                                      View Invoice
+                                    </button>
+                                  ) : (
+                                    <button 
+                                      className="view-invoice-btn disabled" 
+                                      disabled
+                                      title="Invoice will be available after payment completion"
+                                      style={{ padding: '6px 12px', border: '1px solid #cbd5e1', color: '#94a3b8', background: '#f8fafc', borderRadius: '6px', fontWeight: '600', fontSize: '12px', cursor: 'not-allowed', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                    >
+                                      🔒 Invoice Available After Payment
+                                    </button>
+                                  )}
+
+                                  {isCOD && order.paymentStatus !== 'Paid' ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                      <span className="order-total" style={{ color: '#d97706' }}>
+                                        Pay to Delivery Partner: <strong>₹{order.total.toLocaleString('en-IN')}</strong>
+                                      </span>
+                                      <button
+                                        className="pay-online-btn"
+                                        onClick={() => handlePayOnlineForOrder(order)}
+                                        disabled={payingOrderId === order.id}
+                                        style={{
+                                          padding: '6px 14px',
+                                          background: 'linear-gradient(135deg, #0284c7 0%, #0f2b5c 100%)',
+                                          color: '#ffffff',
+                                          border: 'none',
+                                          borderRadius: '6px',
+                                          fontWeight: '700',
+                                          fontSize: '12px',
+                                          cursor: payingOrderId === order.id ? 'not-allowed' : 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '5px',
+                                          boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                                          transition: 'all 0.2s',
+                                          opacity: payingOrderId === order.id ? 0.7 : 1
+                                        }}
+                                      >
+                                        💳 {payingOrderId === order.id ? 'Processing...' : 'Pay via Online'}
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span className="order-total">
+                                      Total Paid: <strong>₹{order.total.toLocaleString('en-IN')}</strong>
+                                    </span>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -444,10 +648,36 @@ export default function UserProfile({
 
                 <div className="support-cta-box">
                   <div className="support-info-badge">
-                    <Info size={16} /> Need further technical help with industrial washers?
+                    <Info size={16} /> Need further technical help with industrial washers or commercial equipment?
                   </div>
-                  <p>Our ticketing system is open for support. Click below to file a ticket.</p>
-                  <button onClick={() => navigate('/support')} className="support-ticket-link-btn" style={{ border: 'none', cursor: 'pointer' }}>Open Support Center</button>
+                  <p style={{ marginTop: '8px', color: '#475569' }}>
+                    Launch our full-screen AI & certified engineer technical support portal for instant equipment diagnostics and live assistance.
+                  </p>
+                  <button
+                    onClick={() => navigate('/chatbot')}
+                    className="support-technical-chat-btn"
+                    style={{
+                      marginTop: '12px',
+                      padding: '10px 18px',
+                      background: 'linear-gradient(135deg, #0f2b5c 0%, #0284c7 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: '700',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Bot size={18} /> Technical Support Chatbot
+                  </button>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '12px' }}>
+                    📞 Direct Hotline: <strong>+91 93848 14933 / +91 97890 20311</strong> | ✉️ Email: <strong>support@kleidercare.com</strong>
+                  </div>
                 </div>
               </div>
             )}
@@ -595,30 +825,101 @@ export default function UserProfile({
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedInvoice.items.map((item, idx) => {
+                  {selectedInvoice.items.flatMap((item, idx) => {
                     const hsnCode = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? '34029019' : '84502000';
                     const unitLabel = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? 'Ltr' : 'Nos';
+
+                    const rows = [];
                     
-                    // Tax calculation
-                    const itemTotal = item.price * item.quantity;
-                    const beforeTax = Math.round((itemTotal / 1.18) * 100) / 100;
-                    const igstAmt = Math.round((itemTotal - beforeTax) * 100) / 100;
-                    const rateBeforeTax = Math.round((item.price / 1.18) * 100) / 100;
-                    
-                    return (
-                      <tr key={idx} className="item-row">
+                    // Main Item (Base product)
+                    const amcPrice = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
+                    const progPrice = item.includeProgramSetup ? 3500 : 0;
+                    const baseItemPrice = item.basePrice || Math.max(0, item.price - amcPrice - progPrice);
+
+                    const baseItemTotal = baseItemPrice * item.quantity;
+                    const baseBeforeTax = Math.round((baseItemTotal / 1.18) * 100) / 100;
+                    const baseIgstAmt = Math.round((baseItemTotal - baseBeforeTax) * 100) / 100;
+                    const baseRateBeforeTax = Math.round((baseItemPrice / 1.18) * 100) / 100;
+
+                    rows.push(
+                      <tr key={`main-${idx}`} className="item-row">
                         <td>{idx + 1}</td>
-                        <td className="desc-cell"><strong>{item.name}</strong></td>
+                        <td className="desc-cell">
+                          <strong>{item.name}</strong>
+                          {item.amcWarrantyInfo && (
+                            <div style={{ fontSize: '11px', color: '#0f2b5c', marginTop: '2px', fontWeight: '600' }}>
+                              [Covered under {item.amcWarrantyInfo.type}]
+                            </div>
+                          )}
+                        </td>
                         <td>{hsnCode}</td>
                         <td>{item.quantity}</td>
                         <td>{unitLabel}</td>
-                        <td>{rateBeforeTax.toFixed(2)}</td>
-                        <td>{beforeTax.toFixed(2)}</td>
+                        <td>{baseRateBeforeTax.toFixed(2)}</td>
+                        <td>{baseBeforeTax.toFixed(2)}</td>
                         <td>18</td>
-                        <td>{igstAmt.toFixed(2)}</td>
-                        <td>{itemTotal.toFixed(2)}</td>
+                        <td>{baseIgstAmt.toFixed(2)}</td>
+                        <td>{baseItemTotal.toFixed(2)}</td>
                       </tr>
                     );
+
+                    // AMC Warranty Line Item in Invoice
+                    if (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo) {
+                      const amcTotal = amcPrice * item.quantity;
+                      const amcBeforeTax = Math.round((amcTotal / 1.18) * 100) / 100;
+                      const amcIgstAmt = Math.round((amcTotal - amcBeforeTax) * 100) / 100;
+                      const amcRateBeforeTax = Math.round((amcPrice / 1.18) * 100) / 100;
+
+                      rows.push(
+                        <tr key={`amc-${idx}`} className="item-row amc-invoice-line" style={{ background: '#f0f7ff' }}>
+                          <td></td>
+                          <td className="desc-cell" style={{ paddingLeft: '16px' }}>
+                            <strong style={{ color: '#0f2b5c' }}>🛡️ Kleider Care AMC - {item.amcWarrantyInfo.type}</strong>
+                            <div style={{ fontSize: '11px', color: '#475569' }}>
+                              1 Year Maintenance Contract (3 PM Visits/Yr + 24–48h Priority Hotline)
+                            </div>
+                          </td>
+                          <td>998721</td>
+                          <td>{item.quantity}</td>
+                          <td>Yr</td>
+                          <td>{amcRateBeforeTax.toFixed(2)}</td>
+                          <td>{amcBeforeTax.toFixed(2)}</td>
+                          <td>18</td>
+                          <td>{amcIgstAmt.toFixed(2)}</td>
+                          <td>{amcTotal.toFixed(2)}</td>
+                        </tr>
+                      );
+                    }
+
+                    // Machine Program Setup Line Item in Invoice
+                    if (item.includeProgramSetup) {
+                      const setupTotal = progPrice * item.quantity;
+                      const setupBeforeTax = Math.round((setupTotal / 1.18) * 100) / 100;
+                      const setupIgstAmt = Math.round((setupTotal - setupBeforeTax) * 100) / 100;
+                      const setupRateBeforeTax = Math.round((progPrice / 1.18) * 100) / 100;
+
+                      rows.push(
+                        <tr key={`prog-${idx}`} className="item-row amc-invoice-line" style={{ background: '#f8fafc' }}>
+                          <td></td>
+                          <td className="desc-cell" style={{ paddingLeft: '16px' }}>
+                            <strong style={{ color: '#0284c7' }}>⚙️ Machine Program Parameter Setup Add-on</strong>
+                            <div style={{ fontSize: '11px', color: '#475569' }}>
+                              Custom programming up to 10 programs in LG commercial unit
+                            </div>
+                          </td>
+                          <td>998313</td>
+                          <td>{item.quantity}</td>
+                          <td>Job</td>
+                          <td>{setupRateBeforeTax.toFixed(2)}</td>
+                          <td>{setupBeforeTax.toFixed(2)}</td>
+                          <td>18</td>
+                          <td>{setupIgstAmt.toFixed(2)}</td>
+                          <td>{setupTotal.toFixed(2)}</td>
+                        </tr>
+                      );
+                    }
+
+                    return rows;
                   })}
                   
                   {/* Totals Row */}

@@ -70,7 +70,10 @@ const connectDB = async () => {
           image: p.image,
           description: p.description || '',
           badge: p.badge || null,
-          specifications: p.specifications || {}
+          specifications: p.specifications || {},
+          stock: p.stock !== undefined ? Number(p.stock) : 50,
+          lowStockThreshold: p.lowStockThreshold !== undefined ? Number(p.lowStockThreshold) : 10,
+          stockStatus: p.stockStatus || 'In Stock'
         }));
         await Product.insertMany(formattedProducts);
         console.log(`✅ Seeded ${formattedProducts.length} default products into database.`);

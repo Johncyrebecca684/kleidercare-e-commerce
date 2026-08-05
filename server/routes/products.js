@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import { authMiddleware } from './auth.js';
@@ -34,14 +35,19 @@ router.get('/', async (req, res) => {
 // POST /api/products
 router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, category, price, originalPrice, image, description, badge, specifications } = req.body;
+    const { name, category, price, originalPrice, image, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
 
     if (!name || !category || price === undefined || originalPrice === undefined || !image) {
       return res.status(400).json({ message: 'Missing required product fields' });
     }
 
-    // Generate unique ID for frontend
     const id = `PROD-${Date.now()}`;
+    const productStock = stock !== undefined ? Number(stock) : 50;
+    const threshold = lowStockThreshold !== undefined ? Number(lowStockThreshold) : 10;
+    
+    let stockStatus = 'In Stock';
+    if (productStock <= 0) stockStatus = 'Out of Stock';
+    else if (productStock <= threshold) stockStatus = 'Low Stock';
 
     const newProduct = new Product({
       id,
@@ -52,6 +58,10 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
       image,
       description: description || '',
       badge: badge || null,
+      sku: sku || `SKU-${id}`,
+      stock: productStock,
+      lowStockThreshold: threshold,
+      stockStatus,
       specifications: specifications || {}
     });
 
@@ -64,12 +74,19 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // PUT update an existing product (Admin only)
-// PUT /api/products/:id (here id refers to the custom id field, e.g., '1' or 'PROD-xxx')
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, category, price, originalPrice, image, description, badge, specifications } = req.body;
+    const { name, category, price, originalPrice, image, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
     
-    const product = await Product.findOne({ id: req.params.id });
+    const reqIdStr = String(req.params.id);
+    let query;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      query = { $or: [{ _id: req.params.id }, { id: req.params.id }, { id: reqIdStr }] };
+    } else {
+      query = { $or: [{ id: req.params.id }, { id: reqIdStr }] };
+    }
+
+    const product = await Product.findOne(query);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -81,7 +98,17 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     if (image) product.image = image;
     if (description !== undefined) product.description = description;
     if (badge !== undefined) product.badge = badge;
+    if (sku !== undefined) product.sku = sku;
     if (specifications) product.specifications = specifications;
+    
+    if (lowStockThreshold !== undefined) product.lowStockThreshold = Number(lowStockThreshold);
+    if (stock !== undefined) {
+      product.stock = Math.max(0, Number(stock));
+      const threshold = product.lowStockThreshold || 10;
+      if (product.stock <= 0) product.stockStatus = 'Out of Stock';
+      else if (product.stock <= threshold) product.stockStatus = 'Low Stock';
+      else product.stockStatus = 'In Stock';
+    }
 
     await product.save();
     res.json(product);
@@ -91,11 +118,90 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
+// PATCH quick stock update (Admin only)
+router.patch('/:id/stock', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { stock } = req.body;
+    const reqIdStr = String(req.params.id);
+    let query;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      query = { $or: [{ _id: req.params.id }, { id: req.params.id }, { id: reqIdStr }] };
+    } else {
+      query = { $or: [{ id: req.params.id }, { id: reqIdStr }] };
+    }
+
+    const product = await Product.findOne(query);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    product.stock = Math.max(0, Number(stock));
+    const threshold = product.lowStockThreshold || 10;
+    if (product.stock <= 0) product.stockStatus = 'Out of Stock';
+    else if (product.stock <= threshold) product.stockStatus = 'Low Stock';
+    else product.stockStatus = 'In Stock';
+
+    await product.save();
+    res.json(product);
+  } catch (error) {
+    console.error('Error patching product stock:', error);
+    res.status(500).json({ message: 'Server error while updating stock' });
+  }
+});
+
+// POST bulk action on products (Admin only)
+router.post('/bulk-action', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { ids, action, payload } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'No product IDs provided' });
+    }
+
+    const objectIds = ids.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const idQuery = { $or: [{ _id: { $in: objectIds } }, { id: { $in: ids } }] };
+
+    if (action === 'delete') {
+      await Product.deleteMany(idQuery);
+      return res.json({ success: true, message: `Deleted ${ids.length} products` });
+    }
+
+    if (action === 'updateStock') {
+      const stockVal = Math.max(0, Number(payload.stock));
+      const products = await Product.find(idQuery);
+      for (let prod of products) {
+        prod.stock = stockVal;
+        const threshold = prod.lowStockThreshold || 10;
+        if (prod.stock <= 0) prod.stockStatus = 'Out of Stock';
+        else if (prod.stock <= threshold) prod.stockStatus = 'Low Stock';
+        else prod.stockStatus = 'In Stock';
+        await prod.save();
+      }
+      return res.json({ success: true, message: `Updated stock for ${ids.length} products` });
+    }
+
+    if (action === 'updateCategory') {
+      await Product.updateMany(idQuery, { $set: { category: payload.category } });
+      return res.json({ success: true, message: `Updated category for ${ids.length} products` });
+    }
+
+    return res.status(400).json({ message: 'Invalid action specified' });
+  } catch (error) {
+    console.error('Error performing bulk product action:', error);
+    res.status(500).json({ message: 'Server error during bulk action' });
+  }
+});
+
 // DELETE a product (Admin only)
-// DELETE /api/products/:id (here id refers to the custom id field, e.g., '1' or 'PROD-xxx')
 router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const product = await Product.findOneAndDelete({ id: req.params.id });
+    let query;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      query = { $or: [{ _id: req.params.id }, { id: req.params.id }] };
+    } else {
+      query = { id: req.params.id };
+    }
+
+    const product = await Product.findOneAndDelete(query);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }

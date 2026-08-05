@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCompare } from '../context/CompareContext';
 import './ProductCard.css';
@@ -23,13 +23,24 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
     }
   };
 
+  const handleShareWhatsApp = (e) => {
+    e.stopPropagation();
+    const productUrl = `${window.location.origin}/product/${product.id}`;
+    const shareMsg = `Check out *${product.name}* on Kleider Care:\n\nPrice: ₹${product.price.toLocaleString('en-IN')}\n\nView product link: ${productUrl}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMsg)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const currentPrice = product.price + selectedWarranty.price;
   const currentGstPrice = product.priceWithGst
     ? product.priceWithGst + Math.round(selectedWarranty.price * 1.18)
     : Math.round(currentPrice * 1.18);
 
+  const isOutOfStock = (product.stock !== undefined && Number(product.stock) <= 0) || product.stockStatus === 'Out of Stock';
+
   const handleAddToCart = (e) => {
     e.stopPropagation();
+    if (isOutOfStock) return;
     onAddToCart({
       ...product,
       selectedWarranty,
@@ -126,13 +137,20 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
 
           <div className="list-bank-offer-tag">Bank Offer & GST Invoice Available</div>
 
+          {isOutOfStock ? (
+            <div className="out-of-stock-pill list-mode-pill">⚠️ Out of Stock</div>
+          ) : (
+            <div className="in-stock-pill list-mode-pill">✓ In Stock</div>
+          )}
+
           <button
-            className="add-to-cart-btn list-cart-btn"
+            className={`add-to-cart-btn list-cart-btn ${isOutOfStock ? 'out-of-stock-btn' : ''}`}
             onClick={handleAddToCart}
-            aria-label={`Add ${product.name} to cart`}
+            disabled={isOutOfStock}
+            aria-label={isOutOfStock ? `${product.name} is Out of Stock` : `Add ${product.name} to cart`}
           >
             <ShoppingCart size={16} />
-            Add to Cart
+            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
           </button>
 
           {showAddedNotice && (
@@ -169,13 +187,16 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           }
         })}
       </script>
-      <div className="product-image-container" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
+      <div className={`product-image-container ${isOutOfStock ? 'out-of-stock-container' : ''}`} onClick={handleProductClick} style={{ cursor: 'pointer' }}>
         <img
           src={product.image}
           alt={product.name}
           className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
         />
 
+        {isOutOfStock && (
+          <div className="out-of-stock-banner">OUT OF STOCK</div>
+        )}
 
         <button
           className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
@@ -185,16 +206,45 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
         </button>
 
-        <div className="overlay-actions">
-          <button
-            className="quick-add-btn"
-            onClick={handleAddToCart}
-            aria-label={`Quick add ${product.name} to cart`}
-          >
-            <ShoppingCart size={18} />
-            Quick Add
-          </button>
-        </div>
+        <button
+          className="share-btn-card"
+          onClick={handleShareWhatsApp}
+          title="Share via WhatsApp"
+          aria-label={`Share ${product.name} via WhatsApp`}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '48px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.9)',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+            transition: 'all 0.2s ease',
+            color: '#25D366',
+            zIndex: 3
+          }}
+        >
+          <Share2 size={18} />
+        </button>
+
+        {!isOutOfStock && (
+          <div className="overlay-actions">
+            <button
+              className="quick-add-btn"
+              onClick={handleAddToCart}
+              aria-label={`Quick add ${product.name} to cart`}
+            >
+              <ShoppingCart size={18} />
+              Quick Add
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="product-info">
@@ -273,12 +323,13 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         </div>
 
         <button
-          className="add-to-cart-btn"
+          className={`add-to-cart-btn ${isOutOfStock ? 'out-of-stock-btn' : ''}`}
           onClick={handleAddToCart}
-          aria-label={`Add ${product.name} to cart`}
+          disabled={isOutOfStock}
+          aria-label={isOutOfStock ? `${product.name} is Out of Stock` : `Add ${product.name} to cart`}
         >
           <ShoppingCart size={18} />
-          Add to Cart
+          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
         </button>
 
         {showAddedNotice && (
