@@ -164,14 +164,14 @@ export default function ProductList({
   // Calculate personalization via centralized recommendation engine
   const forYouRecommendations = selectedCategory === 'For You'
     ? getRecommendations({
-        type: 'for_you_homepage',
-        products: filteredProducts,
-        cartItems: [],
-        wishlistItems,
-        searchHistory,
-        browsingHistory,
-        limit: filteredProducts.length
-      })
+      type: 'for_you_homepage',
+      products: filteredProducts,
+      cartItems: [],
+      wishlistItems,
+      searchHistory,
+      browsingHistory,
+      limit: filteredProducts.length
+    })
     : [];
 
   // Build a map of productId -> reason for the For You tab

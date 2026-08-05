@@ -89,15 +89,14 @@ export default function TrackOrderPage({ userOrders = [] }) {
         price: '₹' + (userOrder.total || 0).toLocaleString('en-IN'),
         seller: 'Kleider Care Official',
         trackingSteps: isCancelled ? [
-          { step: 'Order Confirmed', date: userOrder.date, time: 'Completed', completed: true },
+          { step: 'Order Confirmed', date: userOrder.date || 'Completed', time: 'Completed', completed: true },
           { step: 'Order Cancelled', date: 'Notice', time: 'Refund Initiated', completed: true }
         ] : [
-          { step: 'Order Confirmed', date: userOrder.date, time: '10:00 AM', completed: isConfirmed },
-          { step: 'Processing', date: isProcessing ? 'Completed' : 'Pending', time: isProcessing ? 'Ready' : 'Pending', completed: isProcessing },
-          { step: 'Shipped Hub', date: isShipped ? 'In Depot' : 'Pending', time: isShipped ? 'Dispatched' : 'Pending', completed: isShipped },
-          { step: 'In Transit', date: isInTransit ? 'On Highway' : 'Pending', time: isInTransit ? 'Active' : 'Pending', completed: isInTransit },
-          { step: 'Out for Delivery', date: isOutForDelivery ? 'Local Facility' : 'Pending', time: isOutForDelivery ? 'Today' : 'Pending', completed: isOutForDelivery },
-          { step: 'Delivered', date: isDelivered ? 'Delivered' : 'Pending', time: isDelivered ? 'Success' : 'Pending', completed: isDelivered },
+          { step: 'Order Confirmed', date: userOrder.date || 'Completed', time: '10:00 AM', completed: isConfirmed },
+          { step: 'Processing', date: isProcessing ? 'Completed' : '', time: isProcessing ? 'Ready for Dispatch' : '', completed: isProcessing },
+          { step: 'In Transit', date: isInTransit ? 'On Highway / Logistics Route' : '', time: isInTransit ? 'Dispatched' : '', completed: isInTransit },
+          { step: 'Out for Delivery', date: isOutForDelivery ? 'Local Facility' : '', time: isOutForDelivery ? 'Today' : '', completed: isOutForDelivery },
+          { step: 'Delivered', date: isDelivered ? 'Delivered' : '', time: isDelivered ? 'Successfully Completed' : '', completed: isDelivered },
         ]
       };
       setOrderData(formattedOrder);
@@ -183,14 +182,23 @@ export default function TrackOrderPage({ userOrders = [] }) {
                         </div>
                         <div className="stepContent">
                           <h4 className="stepName">{track.step}</h4>
-                          <div className="stepDateTime">
-                            <Calendar size={14} />
-                            <span>{track.date}</span>
-                          </div>
-                          <div className="stepTime">
-                            <Clock size={14} />
-                            <span>{track.time}</span>
-                          </div>
+                          {track.date && (
+                            <div className="stepDateTime">
+                              <Calendar size={14} />
+                              <span>{track.date}</span>
+                            </div>
+                          )}
+                          {track.time && (
+                            <div className="stepTime">
+                              <Clock size={14} />
+                              <span>{track.time}</span>
+                            </div>
+                          )}
+                          {!track.completed && !track.date && !track.time && (
+                            <span className="stepPendingBadge" style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', display: 'block', marginTop: '4px' }}>
+                              Pending
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}

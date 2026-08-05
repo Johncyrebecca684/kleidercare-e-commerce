@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Smartphone, QrCode } from 'lucide-react';
 import './CheckoutPage.css';
 import { API_URL } from '../config';
+import { sendInvoiceEmail } from '../utils/sendInvoiceEmail';
 
 // Merchant UPI details – change to your actual VPA in production
 const MERCHANT_UPI_ID = 'hariharasudhan81-3@okhdfcbank';
@@ -251,6 +252,9 @@ export default function CheckoutPage({
             const savedOrderData = await orderSaveResponse.json();
             const savedOrder = savedOrderData.order;
 
+            // Trigger EmailJS invoice email send
+            sendInvoiceEmail(savedOrder, formData).catch(err => console.error('[Checkout] Failed to dispatch invoice email:', err));
+
             setShowUpiModal(false);
             setIsSuccess(true);
 
@@ -497,6 +501,9 @@ export default function CheckoutPage({
         const savedOrderData = await orderSaveResponse.json();
         const savedOrder = savedOrderData.order;
 
+        // Trigger EmailJS invoice email send
+        sendInvoiceEmail(savedOrder, formData).catch(err => console.error('[Checkout] Failed to dispatch invoice email:', err));
+
         setIsSuccess(true);
 
         const newOrder = {
@@ -641,6 +648,9 @@ export default function CheckoutPage({
 
         const savedOrderData = await orderSaveResponse.json();
         const savedOrder = savedOrderData.order;
+
+        // Trigger EmailJS invoice email send
+        sendInvoiceEmail(savedOrder, formData).catch(err => console.error('[Checkout] Failed to dispatch invoice email:', err));
 
         setIsSuccess(true);
 

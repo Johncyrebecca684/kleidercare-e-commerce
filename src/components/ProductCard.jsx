@@ -1,6 +1,5 @@
 import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
 import { useState } from 'react';
-import { useCompare } from '../context/CompareContext';
 import './ProductCard.css';
 
 const WARRANTY_OPTIONS = [
@@ -14,8 +13,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState(WARRANTY_OPTIONS[0]);
-  const { isInCompare, toggleCompare, compareItems, maxCompare } = useCompare();
-  const isCompared = isInCompare(product.id);
 
   const handleProductClick = () => {
     if (onSelectProduct) {
@@ -57,11 +54,11 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
   const bulletSpecs = product.specifications
     ? Object.entries(product.specifications).slice(0, 4).map(([k, v]) => `${k}: ${v}`)
     : [
-        'Commercial Heavy Duty Industrial Performance',
-        'High Energy Efficiency & Reduced Water Usage',
-        'Built-in Stainless Steel Heavy Duty Drum',
-        '2 Years Warranty & On-Site Installation Support'
-      ];
+      'Commercial Heavy Duty Industrial Performance',
+      'High Energy Efficiency & Reduced Water Usage',
+      'Built-in Stainless Steel Heavy Duty Drum',
+      '2 Years Warranty & On-Site Installation Support'
+    ];
 
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -86,15 +83,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
             </button>
           </div>
-          <label className="compare-checkbox-label">
-            <input
-              type="checkbox"
-              checked={isCompared}
-              onChange={() => toggleCompare(product)}
-              disabled={!isCompared && compareItems.length >= maxCompare}
-            />
-            <span>{isCompared ? 'Comparing' : compareItems.length >= maxCompare ? 'Max 4 reached' : 'Add to Compare'}</span>
-          </label>
         </div>
 
         {/* MIDDLE COLUMN: Title, Rating, Bullet Specs */}
@@ -105,7 +93,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               <Sparkles size={12} /> {recommendationReason}
             </div>
           )}
-          
+
           <div className="list-rating-row">
             <span className="rating-pill-green">
               {product.rating || 4.3} <Star size={11} fill="#fff" color="#fff" />

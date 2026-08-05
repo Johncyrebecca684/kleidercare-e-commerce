@@ -5,81 +5,27 @@ import './Hero.css';
 const slides = [
   {
     id: 0,
-    kicker: '',
-    title: '',
-    subtitle: null,
-    image: '/emi_banner.png',
-    isFullBannerImage: true
+    image: '/emi_banner.jpg'
   },
   {
     id: 1,
-    kicker: 'Genuine Quality & Fast Delivery',
-    title: 'Genuine Spare Parts for Commercial Laundry Machines',
-    subtitle: (
-      <div style={{ fontSize: '1rem', lineHeight: '1.5', marginTop: '15px', fontWeight: '400', maxWidth: '600px' }}>
-        <p style={{ marginBottom: '10px' }}>
-          <strong>Commercial Laundry Spare Parts:</strong> We provide a comprehensive range of genuine spare parts, ensuring the longevity and optimal performance of your laundry machines.
-        </p>
-        <p>
-          With expert advice and prompt service, Kleider care laundry ecommerce is your trusted source for keeping your laundry operations running smoothly and efficiently.
-        </p>
-      </div>
-    ),
-    image: '/spare_carousal.png',
-    isBackgroundImage: true
+    image: '/spare_carousal.jpg'
   },
   {
     id: 2,
-    kicker: 'Powerful & Reliable',
-    title: 'LG Commercial Laundry Machines',
-    subtitle: (
-      <div style={{ fontSize: '1rem', lineHeight: '1.5', marginTop: '15px', fontWeight: '400', maxWidth: '600px' }}>
-        <p>
-          Deliver powerful performance, exceptional reliability, and energy-efficient operation for high-volume laundry needs. Built with advanced technology, they provide superior washing and drying results while reducing water, energy, and operating costs—making them the ideal choice for laundromats, hotels, hospitals, and other commercial facilities.
-        </p>
-      </div>
-    ),
-    image: '/lg_commercial_laundry_new.jpeg',
-    isBackgroundImage: true
+    image: '/lg_commercial_laundry_new.jpg'
   },
   {
     id: 3,
-    kicker: 'Unmatched Durability',
-    title: 'Speed Queen Commercial Laundry Machines',
-    subtitle: (
-      <div style={{ fontSize: '1rem', lineHeight: '1.5', marginTop: '15px', fontWeight: '400', maxWidth: '600px' }}>
-        <p>
-          Deliver powerful performance, unmatched durability, and energy-efficient operation for high-volume laundry needs. Designed for commercial environments, they provide reliable washing and drying solutions with advanced technology and user-friendly controls.
-        </p>
-      </div>
-    ),
-    image: '/speedqueen_carousal.png',
-    isBackgroundImage: true
+    image: '/speedqueen_carousal.jpg'
   },
   {
     id: 4,
-    kicker: 'Professional Finishing',
-    title: 'PONY Commercial Ironing Tables',
-    subtitle: (
-      <div style={{ fontSize: '1rem', lineHeight: '1.5', marginTop: '15px', fontWeight: '400', maxWidth: '600px' }}>
-        <p style={{ marginBottom: '10px' }}>
-          Solid and reliable ironing tables designed for professional laundry operations. Offering an excellent quality-to-price ratio, these entry-level air-blowing tables deliver efficient, consistent, and high-quality finishing.
-        </p>
-        <p>
-          Available in multiple models with advanced features to suit a wide range of ironing and finishing applications, including garments, curtains, knitwear, and other textiles.
-        </p>
-      </div>
-    ),
-    image: '/pony_carousal.png',
-    isBackgroundImage: true
+    image: '/pony_carousal.jpg'
   },
   {
     id: 5,
-    kicker: '',
-    title: '',
-    subtitle: null,
-    image: '/slms_banner.png',
-    isFullBannerImage: true
+    image: '/slms_banner.jpg'
   }
 ];
 
@@ -102,28 +48,13 @@ export default function Hero() {
     <section id="home" className="hero animate-fade-in">
       <div className="heroInner">
         <div className="carouselBanner" aria-roledescription="carousel" aria-label="Highlighted Products">
-          {(slide.isBackgroundImage || slide.isFullBannerImage) && (
-            <div className="carouselBackground animate-fade-in" key={`bg-${slide.id}`}>
-              <img src={slide.image} alt={slide.title || 'Banner'} className="banner-hero-img" />
-              {slide.isBackgroundImage && (
-                <div className="banner-dark-overlay"></div>
-              )}
-            </div>
-          )}
+          <div className="carouselBackground animate-fade-in" key={`bg-${slide.id}`}>
+            <img src={slide.image} alt="Banner" className="banner-hero-img" />
+          </div>
 
           <button className="carouselNavBtn prevBtn" aria-label="Previous slide" onClick={prevSlide}>
             <ChevronLeft size={22} />
           </button>
-
-          {!slide.isFullBannerImage && (
-            <div className="carouselContent">
-              <div className="carouselText animate-slide-up" key={`text-${slide.id}`}>
-                {slide.kicker && <div className="carouselKicker">{slide.kicker}</div>}
-                {slide.title && <h1 className="carouselTitle">{slide.title}</h1>}
-                {slide.subtitle && <div className="carouselSubtitle">{slide.subtitle}</div>}
-              </div>
-            </div>
-          )}
 
           <button className="carouselNavBtn nextBtn" aria-label="Next slide" onClick={nextSlide}>
             <ChevronRight size={22} />

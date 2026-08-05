@@ -221,8 +221,8 @@ export default function ProductDetailPage({
 
   const selectedBundleCount = 1 + (checkedBundleItems.item1 && bundleAddon1 ? 1 : 0) + (checkedBundleItems.item2 && bundleAddon2 ? 1 : 0);
 
-  const rawBundleTotal = (product?.price || 0) + 
-    (checkedBundleItems.item1 && bundleAddon1 ? bundleAddon1.price : 0) + 
+  const rawBundleTotal = (product?.price || 0) +
+    (checkedBundleItems.item1 && bundleAddon1 ? bundleAddon1.price : 0) +
     (checkedBundleItems.item2 && bundleAddon2 ? bundleAddon2.price : 0);
 
   const finalBundleTotal = Math.round(rawBundleTotal * 0.9); // 10% extra bundle discount
@@ -335,7 +335,7 @@ export default function ProductDetailPage({
     .slice(0, 4);
 
   const carouselRef = useState(null)[0] || { current: null };
-  
+
   // Create similar products list (using other products or duplicated to fill carousel)
   let similarProducts = products.filter(p => p.id !== product.id && p.category === product.category);
   if (similarProducts.length < 5) {
@@ -474,7 +474,7 @@ export default function ProductDetailPage({
           <div className="pdp-media-gallery">
             <div className="pdp-main-view-container">
               <img src={selectedImage} alt={product.name} className="pdp-hero-image" />
-              
+
               <div className="pdp-floating-actions">
                 <button
                   className={`pdp-action-icon ${isWishlisted ? 'active' : ''}`}
@@ -972,7 +972,7 @@ export default function ProductDetailPage({
                     >
                       <div className="similar-image-container">
                         <img src={simProd.image} alt={simProd.name} className="similar-card-img" />
-                        
+
                         {isBestseller ? (
                           <span className="similar-bestseller-badge">Bestseller</span>
                         ) : (
