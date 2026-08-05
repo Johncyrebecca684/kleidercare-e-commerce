@@ -137,6 +137,10 @@ router.put('/:id', authMiddleware, async (req, res) => {
     res.json({ success: true, order });
   } catch (error) {
     console.error('❌ Failed to update order:', error);
+    res.status(500).json({ message: 'Failed to update order', error: error.message });
+  }
+});
+
 // Update order payment status when user pays COD order online via Razorpay
 // PUT /api/orders/pay-online/:id
 router.put('/pay-online/:id', optionalAuth, async (req, res) => {
