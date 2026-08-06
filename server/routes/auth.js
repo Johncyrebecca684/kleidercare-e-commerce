@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import crypto from 'crypto';
 import User from '../models/User.js';
 import Otp from '../models/Otp.js';
@@ -65,141 +65,268 @@ function verifyPendingOtp(email, otp) {
   return hash === entry.otpHash;
 }
 
-// Configure Nodemailer SMTP transporter
-const createTransporter = () => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn('⚠️  SMTP credentials not fully configured. Nodemailer will run in fallback console mode.');
+// ─────────────────────────────────────────────
+// Resend HTTP API client (works on Render free tier — no SMTP ports needed)
+// SMTP port 465/587 is blocked on Render; Resend uses HTTPS (port 443).
+// ─────────────────────────────────────────────
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('⚠️  RESEND_API_KEY not set. Email will run in fallback console mode.');
     return null;
   }
-  
-  let host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
-  let port = parseInt(process.env.SMTP_PORT || '465');
-  const isGmail = host.includes('gmail');
-
-  // Cloud environments (Render, Vercel) block port 587 STARTTLS and IPv6.
-  // For Gmail, automatically force port 465 SSL and IPv4.
-  let isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
-  if (isGmail) {
-    port = 465;
-    isSecure = true;
-  }
-
-  // Clean App Password by stripping spaces if present
-  const cleanPass = process.env.SMTP_PASS.replace(/\s+/g, '');
-
-  return nodemailer.createTransport({
-    host: host,
-    port: port,
-    secure: isSecure,
-    auth: {
-      user: process.env.SMTP_USER.trim(),
-      pass: cleanPass
-    },
-    lookup: (hostname, options, callback) => {
-      dns.lookup(hostname, { family: 4 }, callback);
-    },
-    tls: {
-      rejectUnauthorized: false
-    },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 15000
-  });
+  return new Resend(process.env.RESEND_API_KEY);
 };
 
+// Sender address: use your verified Resend domain, or 'onboarding@resend.dev' for testing
+const EMAIL_FROM = process.env.RESEND_FROM || 'Kleider Care <onboarding@resend.dev>';
 
-
-
-
+// ─── OTP digit boxes helper ────────────────────────────────────────────────
+function otpDigitBoxes(otp) {
+  return otp.split('').map(d =>
+    `<td style="padding:0 5px;"><div style="width:44px;height:52px;line-height:52px;text-align:center;font-size:26px;font-weight:700;color:#1e3a8a;background:#eef4ff;border:2px solid #c7d9ff;border-radius:10px;display:inline-block;">${d}</div></td>`
+  ).join('');
+}
 
 // Send OTP to client's email address
 async function sendOtpEmail(email, otp) {
-  const transporter = createTransporter();
-  const mailOptions = {
-    from: `"Kleider Care" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: 'Verify Your Kleider Care Account - OTP Code',
-    text: `Your Kleider Care verification code is: ${otp}. This code is valid for 5 minutes.`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;">
-        <div style="text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 15px; margin-bottom: 20px;">
-          <h2 style="color: #1e3a8a; margin: 0; font-size: 24px;">Kleider Care</h2>
-          <p style="color: #64748b; margin: 5px 0 0 0; font-size: 14px;">Laundry Solutions & E-Commerce</p>
-        </div>
-        <div style="padding: 10px 0;">
-          <p style="font-size: 16px; color: #334155; line-height: 1.5;">Hello,</p>
-          <p style="font-size: 16px; color: #334155; line-height: 1.5;">To complete your verification, please use the following one-time password (OTP):</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <div style="display: inline-block; font-size: 32px; font-weight: bold; color: #3b82f6; background-color: #eff6ff; border: 1px dashed #bfdbfe; border-radius: 6px; padding: 12px 30px; letter-spacing: 5px;">
-              ${otp}
-            </div>
-          </div>
-          <p style="font-size: 14px; color: #64748b; line-height: 1.5;">This code is valid for <strong>5 minutes</strong>. If you did not request this code, please ignore this email.</p>
-        </div>
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px; text-align: center; font-size: 12px; color: #94a3b8;">
-          <p>&copy; 2026 Kleider Care. All rights reserved.</p>
-        </div>
-      </div>
-    `
-  };
+  const resend = getResendClient();
 
-  if (!transporter) {
-    console.log(`📧 [FALLBACK] Email not sent to ${email} (SMTP unconfigured). OTP code: ${otp}`);
+  if (!resend) {
+    console.log(`📧 [FALLBACK] Email not sent to ${email} (RESEND_API_KEY unconfigured). OTP code: ${otp}`);
     return false;
   }
 
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Your Kleider Care Account</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f4f8;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.10);">
+
+        <!-- ── HEADER ── -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 60%,#2563eb 100%);padding:40px 48px 36px;text-align:center;">
+            <div style="display:inline-block;background:rgba(255,255,255,0.10);border:1.5px solid rgba(255,255,255,0.18);border-radius:12px;padding:10px 22px;margin-bottom:18px;">
+              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:2px;text-transform:uppercase;">👔 Kleider Care</span>
+            </div>
+            <p style="margin:0;font-size:13px;color:#93c5fd;letter-spacing:1px;text-transform:uppercase;">Laundry Solutions &amp; E-Commerce</p>
+            <h1 style="margin:22px 0 0;font-size:26px;font-weight:700;color:#ffffff;">Verify Your Account</h1>
+            <p style="margin:8px 0 0;font-size:14px;color:#bfdbfe;">One-Time Password (OTP) Verification</p>
+          </td>
+        </tr>
+
+        <!-- ── BODY ── -->
+        <tr>
+          <td style="background:#ffffff;padding:44px 48px 36px;">
+            <p style="margin:0 0 10px;font-size:16px;color:#1e293b;font-weight:600;">Hello,</p>
+            <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.7;">
+              Thank you for signing up with <strong style="color:#1e3a8a;">Kleider Care</strong>. To complete your account verification, use the OTP code below. This code is valid for <strong>5 minutes</strong>.
+            </p>
+
+            <!-- OTP BOX -->
+            <div style="background:#f8faff;border:1.5px solid #dbeafe;border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:32px;">
+              <p style="margin:0 0 16px;font-size:12px;font-weight:700;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Your Verification Code</p>
+              <table cellpadding="0" cellspacing="0" style="margin:0 auto 18px;">
+                <tr>${otpDigitBoxes(otp)}</tr>
+              </table>
+              <p style="margin:0;font-size:12px;color:#94a3b8;">Enter this code in the verification screen</p>
+            </div>
+
+            <!-- STEPS -->
+            <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:28px;">
+              <tr>
+                <td style="padding:10px 0;vertical-align:top;width:32px;">
+                  <div style="width:26px;height:26px;background:#dbeafe;border-radius:50%;text-align:center;line-height:26px;font-size:13px;font-weight:700;color:#1e3a8a;">1</div>
+                </td>
+                <td style="padding:10px 0 10px 12px;font-size:14px;color:#475569;">Copy the 6-digit code shown above.</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;vertical-align:top;">
+                  <div style="width:26px;height:26px;background:#dbeafe;border-radius:50%;text-align:center;line-height:26px;font-size:13px;font-weight:700;color:#1e3a8a;">2</div>
+                </td>
+                <td style="padding:10px 0 10px 12px;font-size:14px;color:#475569;">Return to the Kleider Care app and enter the OTP.</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;vertical-align:top;">
+                  <div style="width:26px;height:26px;background:#dbeafe;border-radius:50%;text-align:center;line-height:26px;font-size:13px;font-weight:700;color:#1e3a8a;">3</div>
+                </td>
+                <td style="padding:10px 0 10px 12px;font-size:14px;color:#475569;">Your account will be verified and you can start shopping!</td>
+              </tr>
+            </table>
+
+            <!-- SECURITY NOTE -->
+            <div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:0;">
+              <p style="margin:0;font-size:13px;color:#92400e;">
+                <strong>&#9888; Security Notice:</strong> Kleider Care will <strong>never</strong> ask for this code via phone or chat. Do not share this OTP with anyone.
+              </p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ── FOOTER ── -->
+        <tr>
+          <td style="background:#f8faff;border-top:1px solid #e2e8f0;padding:24px 48px;text-align:center;">
+            <p style="margin:0 0 8px;font-size:13px;color:#64748b;">If you did not create a Kleider Care account, you can safely ignore this email.</p>
+            <p style="margin:0;font-size:12px;color:#94a3b8;">&copy; 2026 Kleider Care. All rights reserved.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
   try {
-    await transporter.sendMail(mailOptions);
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: [email],
+      subject: '✅ Your Kleider Care Verification Code',
+      text: `Your Kleider Care verification code is: ${otp}. Valid for 5 minutes. Do not share this code.`,
+      html
+    });
+
+    if (error) {
+      console.error('❌ Failed to send OTP email via Resend:', error);
+      return false;
+    }
+
     console.log(`📧 OTP successfully sent to email: ${email}`);
     return true;
   } catch (error) {
-    console.error('❌ Failed to send OTP email via Nodemailer:', error);
+    console.error('❌ Failed to send OTP email via Resend:', error);
     return false;
   }
 }
 
 // Send Password Reset OTP to client's email address
 async function sendResetPasswordEmail(email, otp) {
-  const transporter = createTransporter();
-  const mailOptions = {
-    from: `"Kleider Care" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: 'Reset Your Kleider Care Password - OTP Code',
-    text: `Your Kleider Care password reset code is: ${otp}. This code is valid for 5 minutes.`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;">
-        <div style="text-align: center; border-bottom: 2px solid #ef4444; padding-bottom: 15px; margin-bottom: 20px;">
-          <h2 style="color: #991b1b; margin: 0; font-size: 24px;">Kleider Care</h2>
-          <p style="color: #64748b; margin: 5px 0 0 0; font-size: 14px;">Password Reset Request</p>
-        </div>
-        <div style="padding: 10px 0;">
-          <p style="font-size: 16px; color: #334155; line-height: 1.5;">Hello,</p>
-          <p style="font-size: 16px; color: #334155; line-height: 1.5;">We received a request to reset your password. Please use the following one-time password (OTP) to complete the reset process:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <div style="display: inline-block; font-size: 32px; font-weight: bold; color: #ef4444; background-color: #fef2f2; border: 1px dashed #fca5a5; border-radius: 6px; padding: 12px 30px; letter-spacing: 5px;">
-              ${otp}
-            </div>
-          </div>
-          <p style="font-size: 14px; color: #64748b; line-height: 1.5;">This code is valid for <strong>5 minutes</strong>. If you did not request a password reset, please ignore this email.</p>
-        </div>
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px; text-align: center; font-size: 12px; color: #94a3b8;">
-          <p>&copy; 2026 Kleider Care. All rights reserved.</p>
-        </div>
-      </div>
-    `
-  };
+  const resend = getResendClient();
 
-  if (!transporter) {
-    console.log(`📧 [FALLBACK] Reset password email not sent to ${email} (SMTP unconfigured). OTP code: ${otp}`);
+  if (!resend) {
+    console.log(`📧 [FALLBACK] Reset password email not sent to ${email} (RESEND_API_KEY unconfigured). OTP code: ${otp}`);
     return false;
   }
 
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Your Kleider Care Password</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f4f8;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.10);">
+
+        <!-- ── HEADER ── -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#1a0000 0%,#7f1d1d 55%,#dc2626 100%);padding:40px 48px 36px;text-align:center;">
+            <div style="display:inline-block;background:rgba(255,255,255,0.10);border:1.5px solid rgba(255,255,255,0.18);border-radius:12px;padding:10px 22px;margin-bottom:18px;">
+              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:2px;text-transform:uppercase;">👔 Kleider Care</span>
+            </div>
+            <p style="margin:0;font-size:13px;color:#fca5a5;letter-spacing:1px;text-transform:uppercase;">Laundry Solutions &amp; E-Commerce</p>
+            <h1 style="margin:22px 0 0;font-size:26px;font-weight:700;color:#ffffff;">Password Reset Request</h1>
+            <p style="margin:8px 0 0;font-size:14px;color:#fecaca;">Use the code below to reset your password</p>
+          </td>
+        </tr>
+
+        <!-- ── BODY ── -->
+        <tr>
+          <td style="background:#ffffff;padding:44px 48px 36px;">
+            <p style="margin:0 0 10px;font-size:16px;color:#1e293b;font-weight:600;">Hello,</p>
+            <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.7;">
+              We received a request to reset the password for your <strong style="color:#991b1b;">Kleider Care</strong> account. Enter the OTP code below to proceed. This code expires in <strong>5 minutes</strong>.
+            </p>
+
+            <!-- OTP BOX -->
+            <div style="background:#fff5f5;border:1.5px solid #fecaca;border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:32px;">
+              <p style="margin:0 0 16px;font-size:12px;font-weight:700;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Your Password Reset Code</p>
+              <table cellpadding="0" cellspacing="0" style="margin:0 auto 18px;">
+                <tr>${otp.split('').map(d =>
+                  `<td style="padding:0 5px;"><div style="width:44px;height:52px;line-height:52px;text-align:center;font-size:26px;font-weight:700;color:#991b1b;background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;display:inline-block;">${d}</div></td>`
+                ).join('')}</tr>
+              </table>
+              <p style="margin:0;font-size:12px;color:#94a3b8;">Enter this code in the password reset screen</p>
+            </div>
+
+            <!-- STEPS -->
+            <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:28px;">
+              <tr>
+                <td style="padding:10px 0;vertical-align:top;width:32px;">
+                  <div style="width:26px;height:26px;background:#fee2e2;border-radius:50%;text-align:center;line-height:26px;font-size:13px;font-weight:700;color:#991b1b;">1</div>
+                </td>
+                <td style="padding:10px 0 10px 12px;font-size:14px;color:#475569;">Copy the 6-digit reset code above.</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;vertical-align:top;">
+                  <div style="width:26px;height:26px;background:#fee2e2;border-radius:50%;text-align:center;line-height:26px;font-size:13px;font-weight:700;color:#991b1b;">2</div>
+                </td>
+                <td style="padding:10px 0 10px 12px;font-size:14px;color:#475569;">Return to Kleider Care and enter the OTP on the reset screen.</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;vertical-align:top;">
+                  <div style="width:26px;height:26px;background:#fee2e2;border-radius:50%;text-align:center;line-height:26px;font-size:13px;font-weight:700;color:#991b1b;">3</div>
+                </td>
+                <td style="padding:10px 0 10px 12px;font-size:14px;color:#475569;">Set your new password and log in securely.</td>
+              </tr>
+            </table>
+
+            <!-- SECURITY NOTE -->
+            <div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:20px;">
+              <p style="margin:0;font-size:13px;color:#92400e;">
+                <strong>&#9888; Security Notice:</strong> If you did not request a password reset, your account may be at risk. Please <strong>ignore this email</strong> — your password will not change.
+              </p>
+            </div>
+
+            <div style="background:#f0fdf4;border-left:4px solid #22c55e;border-radius:0 8px 8px 0;padding:14px 18px;">
+              <p style="margin:0;font-size:13px;color:#15803d;">
+                <strong>&#128274; Tip:</strong> Never share this code with anyone. Kleider Care support will <strong>never</strong> ask for your OTP.
+              </p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ── FOOTER ── -->
+        <tr>
+          <td style="background:#f8faff;border-top:1px solid #e2e8f0;padding:24px 48px;text-align:center;">
+            <p style="margin:0 0 8px;font-size:13px;color:#64748b;">This is an automated message. Please do not reply to this email.</p>
+            <p style="margin:0;font-size:12px;color:#94a3b8;">&copy; 2026 Kleider Care. All rights reserved.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
   try {
-    await transporter.sendMail(mailOptions);
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: [email],
+      subject: '🔐 Your Kleider Care Password Reset Code',
+      text: `Your Kleider Care password reset code is: ${otp}. Valid for 5 minutes. Do not share this code.`,
+      html
+    });
+
+    if (error) {
+      console.error('❌ Failed to send reset password email via Resend:', error);
+      return false;
+    }
+
     console.log(`📧 Password reset OTP successfully sent to email: ${email}`);
     return true;
   } catch (error) {
-    console.error('❌ Failed to send reset password email via Nodemailer:', error);
+    console.error('❌ Failed to send reset password email via Resend:', error);
     return false;
   }
 }
