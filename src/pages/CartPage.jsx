@@ -85,7 +85,7 @@ export default function CartPage({
   const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shippableSubtotal = items.filter(item => item.category !== 'Chemicals' && item.name !== 'Paper').reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const showShipping = items.length > 0 && shippableSubtotal > 0;
-  const shipping = (subtotal > 500 || !showShipping) ? 0 : 50;
+  const shipping = 0; // TEMP: forced to 0 for payment gateway testing
   const tax = items.reduce((sum, item) => {
     const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
     return sum + (itemGst * item.quantity);
