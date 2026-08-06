@@ -72,9 +72,17 @@ const createTransporter = () => {
     return null;
   }
   
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port = parseInt(process.env.SMTP_PORT || '465');
-  const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+  let host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+  let port = parseInt(process.env.SMTP_PORT || '465');
+  const isGmail = host.includes('gmail');
+
+  // Cloud environments (Render, Vercel) block port 587 STARTTLS and IPv6.
+  // For Gmail, automatically force port 465 SSL and IPv4.
+  let isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+  if (isGmail) {
+    port = 465;
+    isSecure = true;
+  }
 
   // Clean App Password by stripping spaces if present
   const cleanPass = process.env.SMTP_PASS.replace(/\s+/g, '');
@@ -98,6 +106,7 @@ const createTransporter = () => {
     socketTimeout: 15000
   });
 };
+
 
 
 
