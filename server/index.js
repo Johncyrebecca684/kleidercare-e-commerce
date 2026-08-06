@@ -14,6 +14,10 @@ import { products as defaultProducts } from '../src/data/products.js';
 
 // Use Google DNS to resolve MongoDB Atlas SRV records
 dns.setServers(['8.8.8.8', '8.8.4.4']);
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 
 dotenv.config();
 

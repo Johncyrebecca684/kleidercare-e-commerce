@@ -74,33 +74,21 @@ const createTransporter = () => {
   
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(process.env.SMTP_PORT || '465');
-  const isGmail = host.includes('gmail');
-
-  if (isGmail) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      },
-      tls: {
-        rejectUnauthorized: false
-      },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 15000
-    });
-  }
-
   const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+
+  // Clean App Password by stripping spaces if present
+  const cleanPass = process.env.SMTP_PASS.replace(/\s+/g, '');
 
   return nodemailer.createTransport({
     host: host,
     port: port,
     secure: isSecure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
+      user: process.env.SMTP_USER.trim(),
+      pass: cleanPass
+    },
+    lookup: (hostname, options, callback) => {
+      dns.lookup(hostname, { family: 4 }, callback);
     },
     tls: {
       rejectUnauthorized: false
@@ -110,6 +98,8 @@ const createTransporter = () => {
     socketTimeout: 15000
   });
 };
+
+
 
 
 
