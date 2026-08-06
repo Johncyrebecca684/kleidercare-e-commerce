@@ -731,13 +731,49 @@ export default function CheckoutPage({
             setPaymentError('Payment cancelled by user.');
           }
         },
+        method: {
+          upi: true,
+          netbanking: true,
+          card: true,
+          wallet: true,
+          emi: true,
+          paylater: true
+        },
         config: {
           display: {
-            hide: [
-              { method: 'card' }
-            ],
+            blocks: {
+              upi_block: {
+                name: 'UPI',
+                instruments: [{ method: 'upi' }]
+              },
+              netbanking_block: {
+                name: 'Netbanking',
+                instruments: [{ method: 'netbanking' }]
+              },
+              credit_card_block: {
+                name: 'Credit Card',
+                instruments: [{ method: 'card', types: ['credit'] }]
+              },
+              debit_card_block: {
+                name: 'Debit Card',
+                instruments: [{ method: 'card', types: ['debit'] }]
+              },
+              wallet_block: {
+                name: 'Wallet',
+                instruments: [{ method: 'wallet' }]
+              },
+              emi_block: {
+                name: 'EMI',
+                instruments: [{ method: 'emi' }]
+              },
+              paylater_block: {
+                name: 'Pay Later',
+                instruments: [{ method: 'paylater' }]
+              }
+            },
+            sequence: ['block.upi_block', 'block.netbanking_block', 'block.credit_card_block', 'block.debit_card_block', 'block.wallet_block', 'block.emi_block', 'block.paylater_block'],
             preferences: {
-              show_default_blocks: true
+              show_default_blocks: false
             }
           }
         }
