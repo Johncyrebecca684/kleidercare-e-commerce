@@ -83,9 +83,7 @@ export default function CartPage({
 
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
   const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shippableSubtotal = items.filter(item => item.category !== 'Chemicals' && item.name !== 'Paper').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const showShipping = items.length > 0 && shippableSubtotal > 0;
-  const shipping = 0; // TEMP: forced to 0 for payment gateway testing
+  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
   const tax = items.reduce((sum, item) => {
     const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
     return sum + (itemGst * item.quantity);
@@ -418,14 +416,12 @@ export default function CartPage({
                 </div>
               )}
 
-              {showShipping && (
-                <div className="summary-row">
-                  <span>Shipping Estimate</span>
-                  <span className={shipping === 0 ? 'free' : ''}>
-                    {shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString('en-IN')}`}
-                  </span>
-                </div>
-              )}
+              <div className="summary-row">
+                <span>Shipping Estimate</span>
+                <span className={shipping === 0 ? 'free' : ''}>
+                  {shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString('en-IN')}`}
+                </span>
+              </div>
               <div className="summary-row">
                 <span>Tax (18% GST)</span>
                 <span>₹{tax.toLocaleString('en-IN')}</span>
@@ -436,7 +432,7 @@ export default function CartPage({
                 <span>₹{total.toLocaleString('en-IN')}</span>
               </div>
 
-              {showShipping && subtotal > 0 && shipping > 0 && (
+              {subtotal > 0 && shipping > 0 && (
                 <div className="free-shipping-offer-page">
                   💡 Add ₹{(500 - subtotal).toLocaleString('en-IN')} more for FREE shipping!
                 </div>

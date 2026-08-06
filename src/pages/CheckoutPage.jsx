@@ -89,9 +89,7 @@ export default function CheckoutPage({
     (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
 
   const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shippableSubtotal = items.filter(item => item.category !== 'Chemicals' && item.name !== 'Paper').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const showShipping = items.length > 0 && shippableSubtotal > 0;
-  const shipping = 0; // TEMP: forced to 0 for payment gateway testing
+  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
   const baseTax = items.reduce((sum, item) => {
     const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
     return sum + (itemGst * item.quantity);
@@ -1072,12 +1070,10 @@ export default function CheckoutPage({
                   </span>
                 </div>
               )}
-              {showShipping && (
-                <div className="summary-row-page">
-                  <span>Shipping</span>
-                  <span>{shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}</span>
-                </div>
-              )}
+              <div className="summary-row-page">
+                <span>Shipping</span>
+                <span>{shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}</span>
+              </div>
               <div className="summary-row-page">
                 <span>Tax (18%)</span>
                 <span>₹{tax.toLocaleString('en-IN')}</span>
@@ -1204,8 +1200,8 @@ export default function CheckoutPage({
             {/* Terms and Conditions Checkbox */}
             <div style={{ margin: '16px 0 10px 0', textAlign: 'left', padding: '10px 12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13px', color: '#334155', cursor: 'pointer', lineHeight: '1.4' }}>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={agreedTerms}
                   onChange={(e) => {
                     setAgreedTerms(e.target.checked);
