@@ -25,12 +25,37 @@ const secureContext = tls.createSecureContext({
   secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
 });
 
+// Private Network Access (PNA) preflight support
+app.use((req, res, next) => {
+  if (req.headers['access-control-request-private-network']) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
+  next();
+});
+
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'https://kleidercare-e-commerce.vercel.app',
+  'https://laundryecommerce.com',
+  'https://www.laundryecommerce.com'
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://kleidercare-e-commerce.vercel.app', 'https://laundryecommerce.com', 'https://www.laundryecommerce.com'],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());
+
 
 // Routes
 app.use('/api/auth', authRoutes);
