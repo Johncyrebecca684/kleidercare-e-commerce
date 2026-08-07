@@ -18,6 +18,7 @@ import {
   FlaskConical,
   SlidersHorizontal,
   Sparkles,
+  Layers,
   LogOut,
   Loader2
 } from 'lucide-react';
@@ -29,6 +30,7 @@ import './Header.css';
 const categories = [
   { label: 'All', href: '#products', icon: LayoutGrid },
   { label: 'For You', href: '#products', icon: Sparkles },
+  { label: 'Stacker', href: '#products', icon: Layers },
   { label: 'Packages', href: '#products', icon: Package },
   { label: 'LG Commercial Laundry Machines', href: '#products', icon: WashingMachine },
   { label: 'Speed Queen Commercial Laundry Machines', href: '#products', icon: Zap },

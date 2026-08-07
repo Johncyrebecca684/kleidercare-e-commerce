@@ -34,9 +34,16 @@ export function getProductType(product) {
     'titan electric 15kg package',
     'titan gas 15kg package',
     'giant electric 10kg package',
-    'giant gas 15kg package'
+    'giant gas 15kg package',
+    'giant gas 10kg package',
+    'wet pro electric 15kg stacker',
+    'titan electric 15kg stacker',
+    'titan gas 15kg stacker',
+    'giant electric 10kg stacker',
+    'giant gas 10kg stacker',
+    'stacker'
   ];
-  const isMachinePackage = machinePackageNames.some(pkg => name.includes(pkg));
+  const isMachinePackage = machinePackageNames.some(pkg => name.includes(pkg) || category.includes('stacker'));
   if (isMachinePackage) {
     return 'washer';
   }

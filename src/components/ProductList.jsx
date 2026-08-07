@@ -13,11 +13,11 @@ import {
   SlidersHorizontal,
   Sparkles,
   Package,
+  Layers,
   ChevronDown,
   ChevronUp,
   Filter,
-  RotateCcw,
-  Star
+  RotateCcw
 } from 'lucide-react';
 import './ProductList.css';
 import { getRecommendations } from '../utils/recommendationEngine';
@@ -26,6 +26,7 @@ import { getSearchResultsWithSimilar, scoreProductSearchRelevance } from '../uti
 const CATEGORY_ITEMS = [
   { name: 'All', icon: LayoutGrid },
   { name: 'For You', icon: Sparkles },
+  { name: 'Stacker', icon: Layers },
   { name: 'Packages', icon: Package },
   { name: 'LG Commercial Laundry Machines', icon: WashingMachine },
   { name: 'Speed Queen Commercial Laundry Machines', icon: Zap },
@@ -66,17 +67,30 @@ export default function ProductList({
   // Sidebar Filter States
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(500000);
-  const [minRating, setMinRating] = useState(0);
   const [onlyAssured, setOnlyAssured] = useState(false);
-  const [minDiscount, setMinDiscount] = useState(0);
   const [capacityFilter, setCapacityFilter] = useState('all');
+
+  const isMachineCategory = (category) => {
+    if (!category) return true;
+    const cat = category.toLowerCase();
+    return (
+      cat === 'all' ||
+      cat === 'for you' ||
+      cat.includes('laundry machine') ||
+      cat.includes('lg') ||
+      cat.includes('speed queen') ||
+      cat.includes('washer') ||
+      cat.includes('dryer') ||
+      cat.includes('package')
+    );
+  };
+
+  const showCapacityFilter = isMachineCategory(selectedCategory);
 
   const [accordionOpen, setAccordionOpen] = useState({
     capacity: true,
     price: true,
-    rating: true,
-    assured: true,
-    discount: true
+    assured: true
   });
 
   const toggleAccordion = (section) => {
@@ -86,13 +100,11 @@ export default function ProductList({
   const handleClearFilters = () => {
     setMinPrice(0);
     setMaxPrice(500000);
-    setMinRating(0);
     setOnlyAssured(false);
-    setMinDiscount(0);
     setCapacityFilter('all');
   };
 
-  const isFilterActive = minPrice > 0 || maxPrice < 500000 || minRating > 0 || onlyAssured || minDiscount > 0 || capacityFilter !== 'all';
+  const isFilterActive = minPrice > 0 || maxPrice < 500000 || onlyAssured || (showCapacityFilter && capacityFilter !== 'all');
 
   // Track search history and browsing history in localStorage
   useEffect(() => {
@@ -127,15 +139,23 @@ export default function ProductList({
     let matchesCategory = true;
     if (selectedCategory === 'For You' || selectedCategory === 'All') {
       matchesCategory = true;
+    } else if (selectedCategory === 'Stacker' || selectedCategory === 'Stackers') {
+      matchesCategory = product.category === 'Stacker' || product.category === 'Stackers' || (product.name && product.name.toLowerCase().includes('stacker'));
     } else if (selectedCategory === 'Packages') {
-      matchesCategory = product.category === 'Packages' || (product.badge && product.badge.toLowerCase().includes('package')) || (product.name && product.name.toLowerCase().includes('package'));
+      matchesCategory = (product.category === 'Packages' || (product.badge && product.badge.toLowerCase().includes('package')) || (product.name && product.name.toLowerCase().includes('package'))) && product.category !== 'Stacker' && !(product.name && product.name.toLowerCase().includes('stacker'));
     } else if (selectedCategory === 'Chemicals') {
       const machinePackageNames = [
         'wet pro electric 15kg package',
         'titan electric 15kg package',
         'titan gas 15kg package',
         'giant electric 10kg package',
-        'giant gas 15kg package'
+        'giant gas 15kg package',
+        'giant gas 10kg package',
+        'wet pro electric 15kg stacker',
+        'titan electric 15kg stacker',
+        'titan gas 15kg stacker',
+        'giant electric 10kg stacker',
+        'giant gas 10kg stacker'
       ];
       const isMachinePackage = machinePackageNames.some(pName => (product.name || '').toLowerCase().includes(pName));
       matchesCategory = product.category === 'Chemicals' || (product.category === 'Packages' && !isMachinePackage && (product.name.toLowerCase().includes('chemical') || product.name === 'Retail Laundry Package'));
@@ -168,19 +188,20 @@ export default function ProductList({
 
     // Sidebar Filters
     if (product.price < minPrice || product.price > maxPrice) return false;
-    if (minRating > 0 && (product.rating || 4) < minRating) return false;
     if (onlyAssured && (product.rating || 0) < 4.2) return false;
 
-    if (minDiscount > 0) {
-      const disc = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 20;
-      if (disc < minDiscount) return false;
-    }
-
-    if (capacityFilter !== 'all') {
-      const text = (product.name + ' ' + product.description).toLowerCase();
-      if (capacityFilter === '10-15kg' && !text.includes('10') && !text.includes('15') && !text.includes('14')) return false;
-      if (capacityFilter === '15-25kg' && !text.includes('15') && !text.includes('18') && !text.includes('20') && !text.includes('24') && !text.includes('25')) return false;
-      if (capacityFilter === '25kg+' && !text.includes('25') && !text.includes('28') && !text.includes('30') && !text.includes('35') && !text.includes('super')) return false;
+    if (showCapacityFilter && capacityFilter !== 'all') {
+      const capSpec = (product.specifications?.Capacity || '').toLowerCase();
+      const text = (product.name + ' ' + (product.description || '')).toLowerCase();
+      
+      if (capacityFilter === '10kg') {
+        const is10 = capSpec.includes('10') || text.includes('10kg') || text.includes('10 kg') || text.includes('10.5');
+        if (!is10) return false;
+      }
+      if (capacityFilter === '15kg') {
+        const is15 = capSpec.includes('15') || text.includes('15kg') || text.includes('15 kg') || text.includes('14kg') || text.includes('14 kg');
+        if (!is15) return false;
+      }
     }
 
     return true;
@@ -326,53 +347,46 @@ export default function ProductList({
             )}
           </div>
 
-          {/* CAPACITY SECTION */}
-          <div className="filter-group">
-            <button className="filter-group-header" onClick={() => toggleAccordion('capacity')}>
-              <span>CAPACITY</span>
-              {accordionOpen.capacity ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-            {accordionOpen.capacity && (
-              <div className="filter-group-content">
-                <label className="filter-checkbox-row">
-                  <input
-                    type="radio"
-                    name="capacity"
-                    checked={capacityFilter === 'all'}
-                    onChange={() => setCapacityFilter('all')}
-                  />
-                  <span>All Capacities</span>
-                </label>
-                <label className="filter-checkbox-row">
-                  <input
-                    type="radio"
-                    name="capacity"
-                    checked={capacityFilter === '10-15kg'}
-                    onChange={() => setCapacityFilter('10-15kg')}
-                  />
-                  <span>10 Kg - 15 Kg</span>
-                </label>
-                <label className="filter-checkbox-row">
-                  <input
-                    type="radio"
-                    name="capacity"
-                    checked={capacityFilter === '15-25kg'}
-                    onChange={() => setCapacityFilter('15-25kg')}
-                  />
-                  <span>15 Kg - 25 Kg</span>
-                </label>
-                <label className="filter-checkbox-row">
-                  <input
-                    type="radio"
-                    name="capacity"
-                    checked={capacityFilter === '25kg+'}
-                    onChange={() => setCapacityFilter('25kg+')}
-                  />
-                  <span>25 Kg+ Commercial</span>
-                </label>
-              </div>
-            )}
-          </div>
+          {/* CAPACITY SECTION - ONLY SHOWN WHEN USER SELECTS MACHINES */}
+          {showCapacityFilter && (
+            <div className="filter-group">
+              <button className="filter-group-header" onClick={() => toggleAccordion('capacity')}>
+                <span>CAPACITY</span>
+                {accordionOpen.capacity ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              {accordionOpen.capacity && (
+                <div className="filter-group-content">
+                  <label className="filter-checkbox-row">
+                    <input
+                      type="radio"
+                      name="capacity"
+                      checked={capacityFilter === 'all'}
+                      onChange={() => setCapacityFilter('all')}
+                    />
+                    <span>All Capacities</span>
+                  </label>
+                  <label className="filter-checkbox-row">
+                    <input
+                      type="radio"
+                      name="capacity"
+                      checked={capacityFilter === '10kg'}
+                      onChange={() => setCapacityFilter('10kg')}
+                    />
+                    <span>10 Kg</span>
+                  </label>
+                  <label className="filter-checkbox-row">
+                    <input
+                      type="radio"
+                      name="capacity"
+                      checked={capacityFilter === '15kg'}
+                      onChange={() => setCapacityFilter('15kg')}
+                    />
+                    <span>15 Kg</span>
+                  </label>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* PRICE SECTION */}
           <div className="filter-group">
@@ -420,53 +434,6 @@ export default function ProductList({
             )}
           </div>
 
-          {/* CUSTOMER RATINGS SECTION */}
-          <div className="filter-group">
-            <button className="filter-group-header" onClick={() => toggleAccordion('rating')}>
-              <span>CUSTOMER RATINGS</span>
-              {accordionOpen.rating ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-            {accordionOpen.rating && (
-              <div className="filter-group-content">
-                {[4, 3, 2, 1].map((starVal) => (
-                  <label key={starVal} className="filter-checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={minRating === starVal}
-                      onChange={() => setMinRating(minRating === starVal ? 0 : starVal)}
-                    />
-                    <span className="rating-checkbox-text">
-                      {starVal} <Star size={12} fill="#eab308" color="#eab308" /> & above
-                    </span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-
-
-          {/* DISCOUNT SECTION */}
-          <div className="filter-group">
-            <button className="filter-group-header" onClick={() => toggleAccordion('discount')}>
-              <span>DISCOUNT</span>
-              {accordionOpen.discount ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-            {accordionOpen.discount && (
-              <div className="filter-group-content">
-                {[30, 20, 10].map((discVal) => (
-                  <label key={discVal} className="filter-checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={minDiscount === discVal}
-                      onChange={() => setMinDiscount(minDiscount === discVal ? 0 : discVal)}
-                    />
-                    <span>{discVal}% or more</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
         </aside>
 
         {/* RIGHT PRODUCTS COLUMN */}

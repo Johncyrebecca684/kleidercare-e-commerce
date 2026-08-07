@@ -184,53 +184,7 @@ export default function ProductDetailPage({
   const [addedNotice, setAddedNotice] = useState(false);
 
   // CLIENT REVIEWS & FEEDBACK STATE
-  const [reviewsList, setReviewsList] = useState([
-    {
-      id: 1,
-      rating: 4.0,
-      headline: 'Wonderful',
-      specs: 'Review for: Capacity 7 kg • Color Middle Free Silver • Connectivity Non-WiFi • Star Rating 5',
-      comment: 'Excellent product, I purchased for our commercial business setup warranty card signed properly. Great performance and low sound operation!',
-      author: 'Neelam Anand',
-      location: 'Shillong',
-      helpfulCount: 880,
-      unhelpfulCount: 199,
-      date: 'Sep, 2023',
-      isVerified: true,
-      userVoted: null,
-      image: null
-    },
-    {
-      id: 2,
-      rating: 5.0,
-      headline: 'Fabulous!',
-      specs: 'Review for: Capacity 8 kg • Color Middle Black • Connectivity Non-WiFi • Star Rating 5',
-      comment: 'Good product. Highly durable drum and fast spinning speeds. Reduced drying time drastically for our heavy laundry operations.',
-      author: 'Prasad Raj',
-      location: 'Isnapur',
-      helpfulCount: 512,
-      unhelpfulCount: 43,
-      date: 'Nov, 2023',
-      isVerified: true,
-      userVoted: null,
-      image: product?.image
-    },
-    {
-      id: 3,
-      rating: 5.0,
-      headline: 'Superb Quality & Value',
-      specs: 'Review for: Commercial Grade Heavy Duty • Stainless Steel Finish',
-      comment: 'Zero downtime after 6 months of continuous operation. The KleiderCare team completed installation within 24 hours of delivery. Excellent service!',
-      author: 'Vikram Mehta',
-      location: 'Mumbai',
-      helpfulCount: 320,
-      unhelpfulCount: 18,
-      date: 'Feb, 2024',
-      isVerified: true,
-      userVoted: null,
-      image: null
-    }
-  ]);
+  const [reviewsList, setReviewsList] = useState([]);
 
   const { recordView } = useBrowsingTracker();
 
@@ -1082,70 +1036,76 @@ export default function ProductDetailPage({
 
           {/* CLIENT REVIEWS FEED LIST */}
           <div className="reviews-feed-list">
-            {reviewsList.map((rev) => (
-              <div key={rev.id} className="client-review-card">
-                {/* RATING & HEADLINE */}
-                <div className="rev-stars-row">
-                  <div className="rev-green-stars">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        size={15}
-                        fill={star <= Math.floor(rev.rating) ? '#16a34a' : '#e2e8f0'}
-                        color={star <= Math.floor(rev.rating) ? '#16a34a' : '#cbd5e1'}
-                      />
-                    ))}
+            {reviewsList.length > 0 ? (
+              reviewsList.map((rev) => (
+                <div key={rev.id} className="client-review-card">
+                  {/* RATING & HEADLINE */}
+                  <div className="rev-stars-row">
+                    <div className="rev-green-stars">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={15}
+                          fill={star <= Math.floor(rev.rating) ? '#16a34a' : '#e2e8f0'}
+                          color={star <= Math.floor(rev.rating) ? '#16a34a' : '#cbd5e1'}
+                        />
+                      ))}
+                    </div>
+                    <span className="rev-rating-score">{rev.rating.toFixed(1)}</span>
+                    <span className="rev-headline-dot">•</span>
+                    <span className="rev-headline-text">{rev.headline}</span>
                   </div>
-                  <span className="rev-rating-score">{rev.rating.toFixed(1)}</span>
-                  <span className="rev-headline-dot">•</span>
-                  <span className="rev-headline-text">{rev.headline}</span>
+
+                  {/* REVIEW SPECS SUBTITLE */}
+                  <div className="rev-specs-subtitle">{rev.specs}</div>
+
+                  {/* REVIEW COMMENT TEXT */}
+                  <p className="rev-comment-text">{rev.comment}</p>
+
+                  {/* USER ATTACHED PHOTO THUMBNAIL */}
+                  {rev.image && (
+                    <div className="rev-image-thumb-box">
+                      <img src={rev.image} alt="Client attached photo" />
+                    </div>
+                  )}
+
+                  {/* AUTHOR NAME & LOCATION */}
+                  <div className="rev-author-line">
+                    {rev.author} {rev.location && `, ${rev.location}`}
+                  </div>
+
+                  {/* HELPFUL / UNHELPFUL BUTTONS & VERIFIED TAG */}
+                  <div className="rev-action-footer">
+                    <div className="rev-helpful-buttons">
+                      <button
+                        className={`helpful-btn ${rev.userVoted === 'helpful' ? 'active' : ''}`}
+                        onClick={() => handleVoteHelpful(rev.id, 'helpful')}
+                      >
+                        <ThumbsUp size={14} />
+                        <span>Helpful for {rev.helpfulCount}</span>
+                      </button>
+
+                      <button
+                        className={`unhelpful-btn ${rev.userVoted === 'unhelpful' ? 'active' : ''}`}
+                        onClick={() => handleVoteHelpful(rev.id, 'unhelpful')}
+                      >
+                        <ThumbsDown size={14} />
+                        <span>{rev.unhelpfulCount}</span>
+                      </button>
+                    </div>
+
+                    <div className="rev-verified-tag">
+                      <CheckCircle2 size={14} className="verified-check-icon" />
+                      <span>Verified Purchase • {rev.date}</span>
+                    </div>
+                  </div>
                 </div>
-
-                {/* REVIEW SPECS SUBTITLE */}
-                <div className="rev-specs-subtitle">{rev.specs}</div>
-
-                {/* REVIEW COMMENT TEXT */}
-                <p className="rev-comment-text">{rev.comment}</p>
-
-                {/* USER ATTACHED PHOTO THUMBNAIL */}
-                {rev.image && (
-                  <div className="rev-image-thumb-box">
-                    <img src={rev.image} alt="Client attached photo" />
-                  </div>
-                )}
-
-                {/* AUTHOR NAME & LOCATION */}
-                <div className="rev-author-line">
-                  {rev.author} {rev.location && `, ${rev.location}`}
-                </div>
-
-                {/* HELPFUL / UNHELPFUL BUTTONS & VERIFIED TAG */}
-                <div className="rev-action-footer">
-                  <div className="rev-helpful-buttons">
-                    <button
-                      className={`helpful-btn ${rev.userVoted === 'helpful' ? 'active' : ''}`}
-                      onClick={() => handleVoteHelpful(rev.id, 'helpful')}
-                    >
-                      <ThumbsUp size={14} />
-                      <span>Helpful for {rev.helpfulCount}</span>
-                    </button>
-
-                    <button
-                      className={`unhelpful-btn ${rev.userVoted === 'unhelpful' ? 'active' : ''}`}
-                      onClick={() => handleVoteHelpful(rev.id, 'unhelpful')}
-                    >
-                      <ThumbsDown size={14} />
-                      <span>{rev.unhelpfulCount}</span>
-                    </button>
-                  </div>
-
-                  <div className="rev-verified-tag">
-                    <CheckCircle2 size={14} className="verified-check-icon" />
-                    <span>Verified Purchase • {rev.date}</span>
-                  </div>
-                </div>
+              ))
+            ) : (
+              <div style={{ padding: '30px', textAlign: 'center', color: '#64748b', fontSize: '14px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                No customer reviews yet for this product.
               </div>
-            ))}
+            )}
           </div>
         </section>
       </main>

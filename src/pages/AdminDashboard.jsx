@@ -163,6 +163,25 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [bulkStockVal, setBulkStockVal] = useState('');
 
+  // Dynamic list of categories from catalog & database
+  const defaultCategories = [
+    'LG Commercial Laundry Machines',
+    'Speed Queen Commercial Laundry Machines',
+    'PONY Finishing Equipments',
+    'Genuine Spare Parts',
+    'Chemicals',
+    'Stacker',
+    'Packages',
+    'Seko'
+  ];
+
+  const availableCategories = Array.from(
+    new Set([
+      ...defaultCategories,
+      ...products.map(p => p.category).filter(Boolean)
+    ])
+  ).sort();
+
   // Product Form State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -171,7 +190,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     name: '',
     price: '',
     originalPrice: '',
-    category: 'Washing Machines',
+    category: 'LG Commercial Laundry Machines',
     image: '',
     sku: '',
     stock: 50,
@@ -198,7 +217,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
   // Derived Product Metrics
   const totalStockItems = products.reduce((sum, p) => sum + getProductStock(p), 0);
-  const totalInventoryValue = products.reduce((sum, p) => sum + (p.price * getProductStock(p)), 0);
+  const totalInventoryValue = products.reduce((sum, p) => sum + ((p.price || 0) * getProductStock(p)), 0);
   const lowStockCount = products.filter(p => getStockStatus(p) === 'Low Stock').length;
   const outOfStockCount = products.filter(p => getStockStatus(p) === 'Out of Stock').length;
   const inStockCount = products.filter(p => getStockStatus(p) === 'In Stock').length;
@@ -206,26 +225,37 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   // Filtered and Sorted Products
   const filteredProducts = products.filter(product => {
     const status = getStockStatus(product);
-    const sku = product.sku || '';
-    const name = product.name || '';
-    const category = product.category || '';
+    const sku = (product.sku || '').toLowerCase();
+    const name = (product.name || '').toLowerCase();
+    const category = (product.category || '').toLowerCase();
+    const prodId = String(product.id || product._id || '').toLowerCase();
+    const badge = (product.badge || '').toLowerCase();
+    const search = productSearchTerm.trim().toLowerCase();
 
     const matchesSearch = 
-      name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
-      sku.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
-      category.toLowerCase().includes(productSearchTerm.toLowerCase());
+      !search ||
+      name.includes(search) ||
+      sku.includes(search) ||
+      category.includes(search) ||
+      prodId.includes(search) ||
+      badge.includes(search);
 
-    const matchesCategory = productCategoryFilter === 'All' || category === productCategoryFilter;
-    const matchesStock = productStockFilter === 'All' || status === productStockFilter;
+    const matchesCategory = 
+      productCategoryFilter === 'All' || 
+      category === productCategoryFilter.toLowerCase();
+
+    const matchesStock = 
+      productStockFilter === 'All' || 
+      status === productStockFilter;
 
     return matchesSearch && matchesCategory && matchesStock;
   }).sort((a, b) => {
-    if (productSortBy === 'price-asc') return a.price - b.price;
-    if (productSortBy === 'price-desc') return b.price - a.price;
+    if (productSortBy === 'price-asc') return (a.price || 0) - (b.price || 0);
+    if (productSortBy === 'price-desc') return (b.price || 0) - (a.price || 0);
     if (productSortBy === 'stock-asc') return getProductStock(a) - getProductStock(b);
     if (productSortBy === 'stock-desc') return getProductStock(b) - getProductStock(a);
-    if (productSortBy === 'name-desc') return b.name.localeCompare(a.name);
-    return a.name.localeCompare(b.name);
+    if (productSortBy === 'name-desc') return (b.name || '').localeCompare(a.name || '');
+    return (a.name || '').localeCompare(b.name || '');
   });
 
   // Derived Metrics
@@ -504,7 +534,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         name: product.name || '',
         price: product.price || '',
         originalPrice: product.originalPrice || product.price || '',
-        category: product.category || 'Washing Machines',
+        category: product.category || 'LG Commercial Laundry Machines',
         image: product.image || '',
         sku: product.sku || `SKU-${product.id}`,
         stock: getProductStock(product),
@@ -520,7 +550,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         name: '',
         price: '',
         originalPrice: '',
-        category: 'Washing Machines',
+        category: 'LG Commercial Laundry Machines',
         image: '',
         sku: `SKU-${Date.now()}`,
         stock: 50,
@@ -718,7 +748,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
               {/* INVENTORY METRICS CARDS */}
               <div className="inventoryKpiGrid">
-                <div className="inventoryKpiCard">
+                <div 
+                  className={`inventoryKpiCard ${productStockFilter === 'All' && productCategoryFilter === 'All' && !productSearchTerm ? 'active' : ''}`}
+                  onClick={() => { setProductStockFilter('All'); setProductCategoryFilter('All'); setProductSearchTerm(''); }}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to show all products"
+                >
                   <div className="kpiIcon"><Package size={22} /></div>
                   <div className="kpiContent">
                     <span className="kpiLabel">Total Products</span>
@@ -729,7 +764,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   </div>
                 </div>
 
-                <div className="inventoryKpiCard success">
+                <div 
+                  className={`inventoryKpiCard success ${productStockFilter === 'In Stock' ? 'active' : ''}`}
+                  onClick={() => setProductStockFilter(productStockFilter === 'In Stock' ? 'All' : 'In Stock')}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to filter In Stock items"
+                >
                   <div className="kpiIcon success"><CheckCircle2 size={22} /></div>
                   <div className="kpiContent">
                     <span className="kpiLabel">In Stock</span>
@@ -740,7 +780,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   </div>
                 </div>
 
-                <div className="inventoryKpiCard warning">
+                <div 
+                  className={`inventoryKpiCard warning ${productStockFilter === 'Low Stock' ? 'active' : ''}`}
+                  onClick={() => setProductStockFilter(productStockFilter === 'Low Stock' ? 'All' : 'Low Stock')}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to filter Low Stock items"
+                >
                   <div className="kpiIcon warning"><AlertTriangle size={22} /></div>
                   <div className="kpiContent">
                     <span className="kpiLabel">Low Stock Alert</span>
@@ -751,7 +796,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   </div>
                 </div>
 
-                <div className="inventoryKpiCard danger">
+                <div 
+                  className={`inventoryKpiCard danger ${productStockFilter === 'Out of Stock' ? 'active' : ''}`}
+                  onClick={() => setProductStockFilter(productStockFilter === 'Out of Stock' ? 'All' : 'Out of Stock')}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to filter Out of Stock items"
+                >
                   <div className="kpiIcon danger"><XCircle size={22} /></div>
                   <div className="kpiContent">
                     <span className="kpiLabel">Out of Stock</span>
@@ -780,32 +830,42 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   <Search size={18} className="searchIcon" />
                   <input 
                     type="text" 
-                    placeholder="Search product name, SKU, or category..." 
+                    placeholder="Search product name, SKU, category, ID..." 
                     value={productSearchTerm}
                     onChange={e => setProductSearchTerm(e.target.value)}
                   />
+                  {productSearchTerm && (
+                    <button 
+                      type="button" 
+                      onClick={() => setProductSearchTerm('')}
+                      style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 'bold', padding: '0 4px' }}
+                      title="Clear search"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
 
                 <div className="filterGroup">
                   <Filter size={16} />
                   <select value={productCategoryFilter} onChange={e => setProductCategoryFilter(e.target.value)}>
-                    <option value="All">All Categories</option>
-                    <option value="Washing Machines">Washing Machines</option>
-                    <option value="Dryers">Dryers</option>
-                    <option value="Coin Laundry">Coin Laundry</option>
-                    <option value="Ironing">Ironing</option>
-                    <option value="Spare Parts">Spare Parts</option>
-                    <option value="Accessories">Accessories</option>
+                    <option value="All">All Categories ({products.length})</option>
+                    {availableCategories.map(cat => {
+                      const count = products.filter(p => (p.category || '').toLowerCase() === cat.toLowerCase()).length;
+                      return (
+                        <option key={cat} value={cat}>{cat} ({count})</option>
+                      );
+                    })}
                   </select>
                 </div>
 
                 <div className="filterGroup">
                   <Archive size={16} />
                   <select value={productStockFilter} onChange={e => setProductStockFilter(e.target.value)}>
-                    <option value="All">All Stock Statuses</option>
-                    <option value="In Stock">In Stock</option>
-                    <option value="Low Stock">Low Stock</option>
-                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="All">All Stock Statuses ({products.length})</option>
+                    <option value="In Stock">In Stock ({inStockCount})</option>
+                    <option value="Low Stock">Low Stock ({lowStockCount})</option>
+                    <option value="Out of Stock">Out of Stock ({outOfStockCount})</option>
                   </select>
                 </div>
 
@@ -820,6 +880,27 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     <option value="stock-asc">Sort: Stock Level (Low First)</option>
                   </select>
                 </div>
+
+                {(productSearchTerm || productCategoryFilter !== 'All' || productStockFilter !== 'All') && (
+                  <button 
+                    type="button" 
+                    onClick={() => { setProductSearchTerm(''); setProductCategoryFilter('All'); setProductStockFilter('All'); setProductSortBy('name-asc'); }}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      background: '#f8fafc',
+                      color: '#475569',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title="Reset all search and filter criteria"
+                  >
+                    Reset Filters
+                  </button>
+                )}
               </div>
 
               {/* BULK ACTIONS TOOLBAR */}
@@ -1427,12 +1508,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   <div className="formGroup">
                     <label>Category *</label>
                     <select value={productForm.category} onChange={e => setProductForm({...productForm, category: e.target.value})}>
-                      <option value="Washing Machines">Washing Machines</option>
-                      <option value="Dryers">Dryers</option>
-                      <option value="Coin Laundry">Coin Laundry</option>
-                      <option value="Ironing">Ironing</option>
-                      <option value="Spare Parts">Spare Parts</option>
-                      <option value="Accessories">Accessories</option>
+                      {availableCategories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="formGroup">
