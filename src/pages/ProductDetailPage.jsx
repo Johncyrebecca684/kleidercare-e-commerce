@@ -37,7 +37,7 @@ import {
   HelpCircle,
   Info
 } from 'lucide-react';
-import { getRecommendations } from '../utils/recommendationEngine';
+import { getRecommendations, getProductType, getRecommendedTargetType } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
 import './ProductDetailPage.css';
 
@@ -75,12 +75,29 @@ export default function ProductDetailPage({
     if (!product) return false;
     const cat = (product.category || '').toLowerCase();
     const name = (product.name || '').toLowerCase();
+    const desc = (product.description || '').toLowerCase();
+    const specs = JSON.stringify(product.specifications || {}).toLowerCase();
 
-    // Exclude spare parts, accessories, chemicals, and individual components
-    if (
-      cat.includes('part') ||
+    // 1. Exclude chemical products & chemical packages
+    const isChemicalRelated =
       cat.includes('chemical') ||
       cat.includes('detergent') ||
+      name.includes('chemical') ||
+      name.includes('detergent') ||
+      name.includes('retail laundry package') ||
+      name.includes('spotting') ||
+      name.includes('stain') ||
+      name.includes('emulsifier') ||
+      name.includes('softener') ||
+      desc.includes('detergent') ||
+      desc.includes('emulsifier') ||
+      desc.includes('softener') ||
+      specs.includes('kc ld') ||
+      specs.includes('eml conc');
+
+    // 2. Exclude spare parts, accessories, and individual components
+    const isSparePart =
+      cat.includes('part') ||
       cat.includes('accessory') ||
       name.includes('bearing') ||
       name.includes('sensor') ||
@@ -89,13 +106,27 @@ export default function ProductDetailPage({
       name.includes('valve') ||
       name.includes('filter') ||
       name.includes('hose') ||
-      name.includes('belt')
-    ) {
+      name.includes('belt');
+
+    if (isChemicalRelated || isSparePart) {
       return false;
     }
 
-    // Applicable to Commercial Laundry Machines & Heavy Equipment (Washers, Dryers, Stackers, Finishing Machines)
+    // 3. Check for Machine Packages (e.g. Giant Electric Package, Titan Gas Package, Wet Pro Package)
+    const isMachinePackage =
+      (cat.includes('package') || name.includes('package')) &&
+      (name.includes('washer') ||
+        name.includes('dryer') ||
+        name.includes('giant') ||
+        name.includes('titan') ||
+        name.includes('wet pro') ||
+        name.includes('machine') ||
+        specs.includes('washer') ||
+        specs.includes('dryer'));
+
+    // 4. Applicable to Commercial Laundry Machines, Heavy Equipment & Machine Packages
     return (
+      isMachinePackage ||
       cat.includes('laundry machine') ||
       cat.includes('lg') ||
       cat.includes('speed queen') ||
@@ -114,14 +145,20 @@ export default function ProductDetailPage({
   const getAmcPrices = () => {
     const pName = (product?.name || '').toLowerCase();
     const pCat = (product?.category || '').toLowerCase();
-    if (pName.includes('lg') || pName.includes('stacker')) {
-      return { nonComp: 12500, comp: 18500, label: 'LG 10 kg / 15 kg Stacker' };
+    const specs = JSON.stringify(product?.specifications || {}).toLowerCase();
+
+    if (pName.includes('titan') || specs.includes('titan')) {
+      return { nonComp: 18000, comp: 26000, label: 'LG 15 kg Titan Commercial Package / Machine' };
+    } else if (pName.includes('giant') || specs.includes('giant')) {
+      return { nonComp: 14500, comp: 21000, label: 'LG 10 kg Giant Commercial Package / Machine' };
+    } else if (pName.includes('lg') || pName.includes('stacker')) {
+      return { nonComp: 12500, comp: 18500, label: 'LG Commercial Laundry Equipment' };
     } else if (pName.includes('washer') || pCat.includes('washer')) {
       return { nonComp: 15000, comp: 21500, label: 'Speed Queen / Heavy Duty Washer' };
     } else if (pName.includes('dryer') || pCat.includes('dryer')) {
       return { nonComp: 9000, comp: 14000, label: 'Speed Queen / Heavy Duty Dryer' };
     }
-    return { nonComp: 12500, comp: 18500, label: 'Commercial Laundry Equipment' };
+    return { nonComp: 15000, comp: 22500, label: 'Commercial Machine Package / Equipment' };
   };
 
   const amcRates = getAmcPrices();
@@ -312,6 +349,7 @@ export default function ProductDetailPage({
           loggedInUser={loggedInUser}
           selectedCategory={selectedCategory}
           onCategoryChange={onCategoryChange}
+          products={products}
         />
         <div className="pdp-not-found">
           <h2>Product Not Found</h2>
@@ -336,11 +374,28 @@ export default function ProductDetailPage({
 
   const carouselRef = useState(null)[0] || { current: null };
 
-  // Create similar products list (using other products or duplicated to fill carousel)
-  let similarProducts = products.filter(p => p.id !== product.id && p.category === product.category);
-  if (similarProducts.length < 5) {
-    similarProducts = [...similarProducts, ...products.filter(p => p.id !== product.id)];
+  // Create recommended & similar products list prioritizing rule matches:
+  // Chemical -> Dosing Pump, Dosing Pump -> Chemical, Washer -> Dryer, Dryer -> Washer
+  const currentProductType = getProductType(product);
+  const targetRecommendedType = getRecommendedTargetType(currentProductType);
+
+  let targetRecommendedProducts = [];
+  if (targetRecommendedType) {
+    targetRecommendedProducts = products.filter(p => p.id !== product.id && getProductType(p) === targetRecommendedType);
   }
+
+  let sameCatProducts = products.filter(p => p.id !== product.id && p.category === product.category && !targetRecommendedProducts.some(t => t.id === p.id));
+  let otherProducts = products.filter(p => p.id !== product.id && !targetRecommendedProducts.some(t => t.id === p.id) && !sameCatProducts.some(s => s.id === p.id));
+
+  let similarProducts = [...targetRecommendedProducts, ...sameCatProducts, ...otherProducts];
+
+  const getSectionTitle = () => {
+    if (currentProductType === 'washer') return 'Recommended Dryers & Complementary Setup';
+    if (currentProductType === 'dryer') return 'Recommended Washers & Complementary Setup';
+    if (currentProductType === 'chemical') return 'Recommended Seko Dosing Pumps';
+    if (currentProductType === 'dosing_pump') return 'Recommended Wet Cleaning Chemicals';
+    return 'Recommended & Similar Products';
+  };
 
   const scrollCarousel = (direction) => {
     const track = document.getElementById('similar-carousel-track');
@@ -419,6 +474,7 @@ export default function ProductDetailPage({
         loggedInUser={loggedInUser}
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
+        products={products}
       />
 
       <main className="pdp-main-content">
@@ -698,25 +754,27 @@ export default function ProductDetailPage({
                     </div>
 
                     {/* MACHINE PROGRAMMING OPTION */}
-                    <div className="amc-addon-box">
-                      <label className="amc-addon-checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={includeProgramSetup}
-                          onChange={(e) => setIncludeProgramSetup(e.target.checked)}
-                        />
-                        <div className="amc-addon-info">
-                          <strong>Add Machine Program Setup (Up to 10 Programs in LG)</strong>
-                          <p>Custom program parameters & calibration setup by certified technicians (@ ₹350/program)</p>
-                        </div>
-                        <div className="amc-addon-price">+ ₹3,500</div>
-                      </label>
+                    <div className={`amc-addon-box ${includeProgramSetup ? 'selected' : ''}`}>
+                      <div className="amc-addon-info">
+                        <strong>Machine Program Setup (Up to 10 Programs in LG)</strong>
+                        <p>Custom program parameters & calibration setup by certified technicians (@ ₹350/program)</p>
+                      </div>
+                      <div className="amc-addon-action">
+                        <span className="amc-addon-price">+ ₹3,500</span>
+                        <button
+                          type="button"
+                          className={`amc-addon-btn ${includeProgramSetup ? 'active' : ''}`}
+                          onClick={() => setIncludeProgramSetup(!includeProgramSetup)}
+                        >
+                          {includeProgramSetup ? '✓ Program Setup Added' : 'Add Machine Program Setup'}
+                        </button>
+                      </div>
                     </div>
 
                     {/* ACTION BAR FOR SCHEDULE & CONTACT */}
                     <div className="amc-footer-bar">
                       <button className="amc-view-schedule-btn" onClick={() => setShowAmcScheduleModal(true)}>
-                        <Calendar size={16} /> View Services Provided
+                        <Calendar size={16} /> Annual Maintenance Coverage
                       </button>
 
                       <div className="amc-support-contact">
@@ -735,7 +793,7 @@ export default function ProductDetailPage({
                 <div className="amc-modal-content" onClick={(e) => e.stopPropagation()}>
                   <div className="amc-modal-header">
                     <div>
-                      <h3>Services Provided:</h3>
+                      <h3>Annual Maintenance Coverage:</h3>
                       <p>Quarterly maintenance breakdown for commercial laundry equipment</p>
                     </div>
                     <button className="amc-modal-close-btn" onClick={() => setShowAmcScheduleModal(false)}>
@@ -938,11 +996,11 @@ export default function ProductDetailPage({
           </div>
         </section>
 
-        {/* SIMILAR PRODUCTS SECTION */}
+        {/* SIMILAR & RECOMMENDED PRODUCTS SECTION */}
         {similarProducts.length > 0 && (
           <section className="similar-products-section">
             <div className="similar-section-header">
-              <h2>Similar Products</h2>
+              <h2>{getSectionTitle()}</h2>
               <div className="similar-top-nav">
                 <button
                   className="similar-circle-nav-btn"
@@ -959,6 +1017,7 @@ export default function ProductDetailPage({
                 {similarProducts.map((simProd, idx) => {
                   const simOrigPrice = simProd.originalPrice || Math.round(simProd.price * 1.35);
                   const simDiscount = Math.round(((simOrigPrice - simProd.price) / simOrigPrice) * 100);
+                  const isTargetRecommended = targetRecommendedType && getProductType(simProd) === targetRecommendedType;
                   const isBestseller = idx % 2 === 0;
 
                   return (
@@ -973,7 +1032,9 @@ export default function ProductDetailPage({
                       <div className="similar-image-container">
                         <img src={simProd.image} alt={simProd.name} className="similar-card-img" />
 
-                        {isBestseller ? (
+                        {isTargetRecommended ? (
+                          <span className="similar-bestseller-badge" style={{ background: 'linear-gradient(135deg, #0284c7, #0369a1)' }}>✨ Recommended</span>
+                        ) : isBestseller ? (
                           <span className="similar-bestseller-badge">Bestseller</span>
                         ) : (
                           <span className="similar-ad-badge">AD</span>

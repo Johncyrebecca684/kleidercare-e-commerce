@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import ProductDetailModal from './ProductDetailModal';
@@ -12,6 +12,7 @@ import {
   FlaskConical,
   SlidersHorizontal,
   Sparkles,
+  Package,
   ChevronDown,
   ChevronUp,
   Filter,
@@ -20,10 +21,12 @@ import {
 } from 'lucide-react';
 import './ProductList.css';
 import { getRecommendations } from '../utils/recommendationEngine';
+import { getSearchResultsWithSimilar, scoreProductSearchRelevance } from '../utils/searchEngine';
 
 const CATEGORY_ITEMS = [
   { name: 'All', icon: LayoutGrid },
   { name: 'For You', icon: Sparkles },
+  { name: 'Packages', icon: Package },
   { name: 'LG Commercial Laundry Machines', icon: WashingMachine },
   { name: 'Speed Queen Commercial Laundry Machines', icon: Zap },
   { name: 'PONY Finishing Equipments', icon: Shirt },
@@ -115,10 +118,27 @@ export default function ProductList({
     }
   }, [searchTerm]);
 
+  // Compute search result sets and similarity using searchEngine
+  const searchResultsData = useMemo(() => {
+    return getSearchResultsWithSimilar(products, searchTerm);
+  }, [products, searchTerm]);
+
   const filteredProducts = products.filter(product => {
     let matchesCategory = true;
     if (selectedCategory === 'For You' || selectedCategory === 'All') {
       matchesCategory = true;
+    } else if (selectedCategory === 'Packages') {
+      matchesCategory = product.category === 'Packages' || (product.badge && product.badge.toLowerCase().includes('package')) || (product.name && product.name.toLowerCase().includes('package'));
+    } else if (selectedCategory === 'Chemicals') {
+      const machinePackageNames = [
+        'wet pro electric 15kg package',
+        'titan electric 15kg package',
+        'titan gas 15kg package',
+        'giant electric 10kg package',
+        'giant gas 15kg package'
+      ];
+      const isMachinePackage = machinePackageNames.some(pName => (product.name || '').toLowerCase().includes(pName));
+      matchesCategory = product.category === 'Chemicals' || (product.category === 'Packages' && !isMachinePackage && (product.name.toLowerCase().includes('chemical') || product.name === 'Retail Laundry Package'));
     } else {
       matchesCategory = product.category === selectedCategory;
     }
@@ -134,10 +154,15 @@ export default function ProductList({
       matchesCategory = false;
     }
 
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
-      product.description.toLowerCase().includes(searchLower) ||
-      product.category.toLowerCase().includes(searchLower);
+    let matchesSearch = true;
+    if (searchTerm && searchTerm.trim()) {
+      if (searchResultsData.exactMatches.length > 0) {
+        matchesSearch = searchResultsData.exactMatches.some(p => p.id === product.id);
+      } else {
+        // If no exact matches, show top similar products in main grid
+        matchesSearch = searchResultsData.similarProducts.some(p => p.id === product.id);
+      }
+    }
 
     if (!matchesCategory || !matchesSearch) return false;
 
@@ -179,6 +204,12 @@ export default function ProductList({
   forYouRecommendations.forEach(r => reasonMap.set(r.product.id, r.reason));
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (searchTerm && searchTerm.trim() && sortBy === 'popular') {
+      const scoreA = scoreProductSearchRelevance(a, searchTerm);
+      const scoreB = scoreProductSearchRelevance(b, searchTerm);
+      if (scoreA !== scoreB) return scoreB - scoreA;
+    }
+
     if (selectedCategory === 'For You' && sortBy === 'popular') {
       // Use engine scores
       const scoreA = forYouRecommendations.find(r => r.product.id === a.id)?.score || 0;
@@ -499,8 +530,8 @@ export default function ProductList({
           ) : (
             <div className="no-products">
               <div className="no-products-icon">🔍</div>
-              <h3>No products match your filters</h3>
-              <p>Try adjusting your price range, ratings, or clearing filters</p>
+              <h3>No exact products found for &quot;{searchTerm}&quot;</h3>
+              <p>We couldn&apos;t find an exact match, but try browsing our recommended categories or clearing your active filters.</p>
               <button className="clear-filters-btn-inline" onClick={handleClearFilters}>
                 Clear All Filters
               </button>
@@ -517,6 +548,7 @@ export default function ProductList({
           onAddToCart={onAddToCart}
           wishlistItems={wishlistItems}
           onToggleWishlist={onToggleWishlist}
+          allProducts={products}
         />
       )}
     </section>

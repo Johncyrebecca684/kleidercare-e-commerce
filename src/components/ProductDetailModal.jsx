@@ -8,8 +8,10 @@ import {
   Share2,
   Play,
   CreditCard,
-  Zap
+  Zap,
+  Sparkles
 } from 'lucide-react';
+import { getProductType, getRecommendedTargetType, getRecommendationReason } from '../utils/recommendationEngine';
 import './ProductDetailModal.css';
 
 export default function ProductDetailModal({
@@ -18,11 +20,20 @@ export default function ProductDetailModal({
   onAddToCart,
   onBuyNow,
   wishlistItems = [],
-  onToggleWishlist
+  onToggleWishlist,
+  allProducts = []
 }) {
   if (!product) return null;
 
   const [selectedImage, setSelectedImage] = useState(product.image);
+  const [addonAdded, setAddonAdded] = useState(false);
+
+  const currentType = getProductType(product);
+  const targetType = getRecommendedTargetType(currentType);
+  const recommendedAddon = targetType && allProducts.length > 0
+    ? allProducts.find(p => p.id !== product.id && getProductType(p) === targetType)
+    : null;
+  const recommendationReason = recommendedAddon ? getRecommendationReason(currentType, recommendedAddon) : '';
   const [selectedColor, setSelectedColor] = useState('Commercial Stainless Steel');
   const [selectedVariant, setSelectedVariant] = useState(
     product.specifications?.Capacity || 'Standard Capacity'
@@ -276,6 +287,58 @@ export default function ProductDetailModal({
                 <span>{isOutOfStock ? 'Out of Stock' : `Buy Now at ₹${product.price.toLocaleString('en-IN')}`}</span>
               </button>
             </div>
+
+            {/* RECOMMENDED COMPANION BOX */}
+            {recommendedAddon && (
+              <div className="pdp-modal-recommendation-box" style={{
+                marginTop: '16px',
+                padding: '14px 18px',
+                background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                borderRadius: '12px',
+                border: '1px solid #bae6fd',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '14px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Sparkles size={22} color="#0284c7" style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                      Recommended Companion
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', marginTop: '1px' }}>
+                      {recommendedAddon.name} — <span style={{ color: '#16a34a' }}>₹{recommendedAddon.price.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#0284c7', marginTop: '2px', fontWeight: 500 }}>
+                      ✨ {recommendationReason}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    onAddToCart(recommendedAddon);
+                    setAddonAdded(true);
+                    setTimeout(() => setAddonAdded(false), 2000);
+                  }}
+                  style={{
+                    padding: '8px 14px',
+                    background: addonAdded ? '#16a34a' : '#0284c7',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.25)'
+                  }}
+                >
+                  {addonAdded ? '✓ Added to Cart' : '+ Add Companion'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -2,12 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: #ffffff;
   color: #0f2b5c;
-  border-bottom: var(--glass-border);
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .topBannerStrip {
@@ -124,6 +122,145 @@
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
+  position: relative;
+}
+
+.headerSearchInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.searchSuggestionsDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: -200px;
+  right: -50px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(15, 43, 92, 0.14);
+  max-height: 480px;
+  overflow-y: auto;
+  z-index: 1200;
+  padding: 8px 0;
+  animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestionSectionHeader {
+  padding: 8px 16px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+}
+
+.suggestionSectionSimilar {
+  border-top: 1px solid #f1f5f9;
+  margin-top: 6px;
+  padding-top: 10px;
+  color: #2563eb;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.suggestionItem:hover {
+  background: #f8fafc;
+}
+
+.suggestionItemImg {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.suggestionItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionItemTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestionItemMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.suggestionItemCategory {
+  color: #64748b;
+}
+
+.suggestionItemBadge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.suggestionItemPrice {
+  font-weight: 700;
+  color: #0f2b5c;
+}
+
+.suggestionNoMatch {
+  padding: 14px 16px 8px;
+  font-size: 13px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.suggestionViewAllBtn {
+  padding: 10px 16px;
+  background: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f2b5c;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-top: 4px;
+}
+
+.suggestionViewAllBtn:hover {
+  background: #e2e8f0;
+  color: #2563eb;
 }
 
 .locationPinBadge {

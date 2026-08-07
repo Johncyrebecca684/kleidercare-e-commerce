@@ -56,20 +56,20 @@ export default function TrackOrderPage({ userOrders = [] }) {
     e.preventDefault();
     const searchVal = trackingNumber.replace(/#/g, '').trim().toLowerCase();
     const mockOrderId = trackingNumber.toUpperCase().replace(/#/g, '').trim();
-    
+
     // Check real user orders first
     const userOrder = userOrders.find(o => {
       const orderIdLower = (o.orderId || '').toLowerCase();
       const mongoIdLower = (o.mongoId || o.id || '').toLowerCase();
-      return orderIdLower === searchVal || 
-             orderIdLower === `ord${searchVal}` || 
-             mongoIdLower === searchVal;
+      return orderIdLower === searchVal ||
+        orderIdLower === `ord${searchVal}` ||
+        mongoIdLower === searchVal;
     });
-    
+
     if (userOrder) {
       const currentStatus = userOrder.status || 'Processing';
       const statusLower = currentStatus.toLowerCase();
-      
+
       const isConfirmed = true;
       const isProcessing = ['processing', 'shipped', 'in transit', 'in-transit', 'delivered'].some(s => statusLower.includes(s));
       const isShipped = ['shipped', 'in transit', 'in-transit', 'delivered'].some(s => statusLower.includes(s));
@@ -168,7 +168,7 @@ export default function TrackOrderPage({ userOrders = [] }) {
                 const totalCount = orderData.trackingSteps.length;
                 const progressPercent = completedCount > 1 ? ((completedCount - 1) / (totalCount - 1)) * 100 : 0;
                 return (
-                  <div 
+                  <div
                     className="timelineTrack"
                     style={{
                       '--progress-percent': `${progressPercent}%`

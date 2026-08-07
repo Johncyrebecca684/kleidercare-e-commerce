@@ -61,16 +61,17 @@
   box-sizing: border-box;
 }
 
-html,
-body {
+html {
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
-  background-color: #ffffff; /* Clean white background */
-  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+  background-color: #ffffff;
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
   color: var(--primary-color);
   min-height: 100vh;
   position: relative;

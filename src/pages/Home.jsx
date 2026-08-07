@@ -45,6 +45,7 @@ export default function Home({
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
         wishlistCount={wishlistItems.length}
+        products={products}
       />
       <main role="main">
         <Hero />

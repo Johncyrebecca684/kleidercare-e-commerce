@@ -23,11 +23,13 @@ import {
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getSearchResultsWithSimilar } from '../utils/searchEngine';
 import './Header.css';
 
 const categories = [
   { label: 'All', href: '#products', icon: LayoutGrid },
   { label: 'For You', href: '#products', icon: Sparkles },
+  { label: 'Packages', href: '#products', icon: Package },
   { label: 'LG Commercial Laundry Machines', href: '#products', icon: WashingMachine },
   { label: 'Speed Queen Commercial Laundry Machines', href: '#products', icon: Zap },
   { label: 'PONY Finishing Equipments', href: '#products', icon: Shirt },
@@ -36,13 +38,30 @@ const categories = [
   { label: 'Seko', href: '#products', icon: SlidersHorizontal },
 ];
 
-export default function Header({ cartCount, wishlistCount, searchTerm, onSearchChange, onSigninClick, loggedInUser, onProfileClick, onTrackOrderClick, selectedCategory, onCategoryChange }) {
+export default function Header({ 
+  cartCount, 
+  wishlistCount, 
+  searchTerm, 
+  onSearchChange, 
+  onSigninClick, 
+  loggedInUser, 
+  onProfileClick, 
+  onTrackOrderClick, 
+  selectedCategory, 
+  onCategoryChange,
+  products = []
+}) {
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === '/profile';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deliveryLocation, setDeliveryLocation] = useState('Detecting...');
   const [isLocating, setIsLocating] = useState(true);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const liveSearchResults = useMemo(() => {
+    return getSearchResultsWithSimilar(products, searchTerm);
+  }, [products, searchTerm]);
 
   const fetchLocation = async () => {
     setIsLocating(true);
@@ -165,25 +184,128 @@ export default function Header({ cartCount, wishlistCount, searchTerm, onSearchC
             <span className="locationPinText">Deliver to <strong>{deliveryLocation}</strong></span>
           </div>
 
-          <input
-            className="headerSearchInput"
-            type="search"
-            placeholder="Search LG machines, Speed Queen, spare parts, and more..."
-            value={searchTerm || ''}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
-                document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            aria-label="Search products"
-          />
+          <div className="headerSearchInputContainer">
+            <input
+              className="headerSearchInput"
+              type="search"
+              placeholder="Search LG machines, Speed Queen, spare parts, and more..."
+              value={searchTerm || ''}
+              onChange={(e) => {
+                onSearchChange(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setShowSuggestions(false);
+                  navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
+                  document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              aria-label="Search products"
+            />
+            {showSuggestions && searchTerm && searchTerm.trim().length > 0 && (
+              <div className="searchSuggestionsDropdown">
+                {liveSearchResults.exactMatches.length > 0 ? (
+                  <>
+                    <div className="suggestionSectionHeader">Matching Products</div>
+                    {liveSearchResults.exactMatches.slice(0, 5).map((product) => (
+                      <div
+                        key={product.id}
+                        className="suggestionItem"
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          navigate(`/product/${product.id}`);
+                        }}
+                      >
+                        <img src={product.image} alt={product.name} className="suggestionItemImg" />
+                        <div className="suggestionItemInfo">
+                          <div className="suggestionItemTitle">{product.name}</div>
+                          <div className="suggestionItemMeta">
+                            <span className="suggestionItemCategory">{product.category}</span>
+                            <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {liveSearchResults.similarProducts.length > 0 && (
+                      <>
+                        <div className="suggestionSectionHeader suggestionSectionSimilar">Similar Products You May Like</div>
+                        {liveSearchResults.similarProducts.slice(0, 3).map((product) => (
+                          <div
+                            key={product.id}
+                            className="suggestionItem suggestionItemSimilar"
+                            onClick={() => {
+                              setShowSuggestions(false);
+                              navigate(`/product/${product.id}`);
+                            }}
+                          >
+                            <img src={product.image} alt={product.name} className="suggestionItemImg" />
+                            <div className="suggestionItemInfo">
+                              <div className="suggestionItemTitle">{product.name}</div>
+                              <div className="suggestionItemMeta">
+                                <span className="suggestionItemBadge">Similar</span>
+                                <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="suggestionNoMatch">
+                      No exact matches for &quot;{searchTerm}&quot;
+                    </div>
+                    {liveSearchResults.similarProducts.length > 0 && (
+                      <>
+                        <div className="suggestionSectionHeader suggestionSectionSimilar">
+                          Similar Products You Might Like
+                        </div>
+                        {liveSearchResults.similarProducts.slice(0, 5).map((product) => (
+                          <div
+                            key={product.id}
+                            className="suggestionItem suggestionItemSimilar"
+                            onClick={() => {
+                              setShowSuggestions(false);
+                              navigate(`/product/${product.id}`);
+                            }}
+                          >
+                            <img src={product.image} alt={product.name} className="suggestionItemImg" />
+                            <div className="suggestionItemInfo">
+                              <div className="suggestionItemTitle">{product.name}</div>
+                              <div className="suggestionItemMeta">
+                                <span className="suggestionItemCategory">{product.category}</span>
+                                <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </>
+                )}
+                <div 
+                  className="suggestionViewAllBtn"
+                  onClick={() => {
+                    setShowSuggestions(false);
+                    navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
+                    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  View all results for &quot;{searchTerm}&quot; &rarr;
+                </div>
+              </div>
+            )}
+          </div>
           <button
             className="headerSearchBtn"
             type="button"
             aria-label="Search"
             onClick={() => {
+              setShowSuggestions(false);
               navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
               document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
             }}

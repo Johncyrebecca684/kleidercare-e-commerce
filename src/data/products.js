@@ -1185,7 +1185,366 @@ export const products = [
       "Features": "Patented soap hopper, High-capacity water inlets (SY280), Large 76mm drain valve",
       "Usability": "Easy front access to vital components, Large door opening for easy loading & unloading"
     }
+  },
+  {
+    id: 92,
+    name: "Wet Cleaning Chemicals Package",
+    category: "Packages",
+    price: 14500,
+    originalPrice: 17500,
+    rating: 5.0,
+    reviews: 18,
+    image: "/chemicals-group-transparent.png",
+    description: "Complete professional Wet Cleaning Chemicals package including Main Detergent (KC Pro WCD 10L), Fabric Softener (KC Pro WFA 10L), Colour Protectant (KC Pro CP 10L), Oxybleach for whites (KC Oxy srl 25L), and Spotting Kit (1 Kit).",
+    badge: "Package Deal",
+    specifications: {
+      "Package Includes": "KC Pro WCD (10 Lts), KC Pro WFA (10 Lts), KC Pro CP (10 Lts), KC Oxy srl (25 Lts), KC Spotting Kit (1 Kit)",
+      "Application": "Wet Cleaning & Professional Fabric Care",
+      "Suitability": "Suitable for all known and unknown fabric types, including delicate garments like silk",
+      "Total Package": "5 Specialized Wet Cleaning Products"
+    }
+  },
+  {
+    id: 93,
+    name: "KC Pro WCD",
+    category: "Chemicals",
+    price: 3450,
+    originalPrice: 3900,
+    rating: 4.9,
+    reviews: 14,
+    image: "/kc-pro-wcd.png",
+    description: "Main detergent - suitable for all known and unknown types for fabrics. Can use for even delicate garments like silk.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "1 X 10 Lts",
+      "Type": "Main Detergent",
+      "Application": "Suitable for all known and unknown fabric types, including delicate garments like silk"
+    }
+  },
+  {
+    id: 94,
+    name: "KC Pro WFA",
+    category: "Chemicals",
+    price: 3250,
+    originalPrice: 3700,
+    rating: 4.9,
+    reviews: 11,
+    image: "/kc-pro-wfa.png",
+    description: "Fabric softener - will give a very good shine and smooth feeling to the fabric.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "1 X 10 Lts",
+      "Type": "Fabric Softener",
+      "Application": "Gives excellent shine and smooth feeling to the fabric"
+    }
+  },
+  {
+    id: 95,
+    name: "KC Pro CP",
+    category: "Chemicals",
+    price: 3650,
+    originalPrice: 4100,
+    rating: 5.0,
+    reviews: 9,
+    image: "/kc-pro-cp.png",
+    description: "Colour Protectant - protects garments in case of color bleeding. Color from other garments will not get on to other garments during the wash if this is added.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "1 X 10 Lts",
+      "Type": "Colour Protectant",
+      "Application": "Protects garments against color bleeding and color transfer during wash"
+    }
+  },
+  {
+    id: 96,
+    name: "KC Oxy srl",
+    category: "Chemicals",
+    price: 2450,
+    originalPrice: 2800,
+    rating: 4.8,
+    reviews: 16,
+    image: "/kc-oxy.png",
+    description: "Oxybleach for whites.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "25 Lts",
+      "Type": "Oxybleach",
+      "Application": "Oxygen bleaching & brightening for white garments"
+    }
+  },
+  {
+    id: 97,
+    name: "KC Spotting Kit",
+    category: "Chemicals",
+    price: 3800,
+    originalPrice: 4500,
+    rating: 5.0,
+    reviews: 22,
+    image: "/chemical 6.png",
+    description: "Professional Spotting Kit for targeted stain treatment and removal.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "1 Kit",
+      "Type": "Spotting Kit",
+      "Application": "Targeted stain removal kit"
+    }
+  },
+  {
+    id: 98,
+    name: "Retail Laundry Package",
+    category: "Packages",
+    price: 18500,
+    originalPrice: 22000,
+    rating: 5.0,
+    reviews: 12,
+    image: "/chemicals-group-transparent.png",
+    description: "Complete professional Retail Laundry package including Premium Liquid Detergent, Emulsifier Conc, Cuff & Collar Cleaner, Bleach for whites, Premium Fabric Softener, Fabric Stiffener, Color Bleeding Controller, and Stain Kit.",
+    badge: "Package Deal",
+    specifications: {
+      "Package Includes": "KC LD 373 (2×5 Lts), KC EML CONC PLUS (2×5 Lts), KC CC HD (2×5 Lts), KC Oxy (25 Lts), KC SOFT K 4500 N (2×5 Lts), KC AS1071 (2×5 Kgs), KC 1609 (2×5 Lts), Stain Kit (1 Kit)",
+      "Application": "Retail Laundry & Professional Garment Care",
+      "Suitability": "Ideal for retail laundries, commercial washing, and complete fabric treatment",
+      "Total Package": "8 Specialized Retail Laundry Products"
+    }
+  },
+  {
+    id: 99,
+    name: "KC LD 373",
+    category: "Chemicals",
+    price: 2850,
+    originalPrice: 3300,
+    rating: 4.8,
+    reviews: 15,
+    image: "/chemical 1.png",
+    description: "Premium Liquid Detergent for retail laundry applications.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "2 × 5 Lts",
+      "Type": "Premium Liquid Detergent",
+      "Application": "High-efficiency main liquid washing detergent"
+    }
+  },
+  {
+    id: 100,
+    name: "KC EML CONC PLUS",
+    category: "Chemicals",
+    price: 3100,
+    originalPrice: 3600,
+    rating: 4.9,
+    reviews: 10,
+    image: "/chemical 2.png",
+    description: "Emulsifier Conc for effective grease and oil removal in laundry.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "2 × 5 Lts",
+      "Type": "Emulsifier Conc",
+      "Application": "Grease, oil, and heavy soil emulsification"
+    }
+  },
+  {
+    id: 101,
+    name: "KC CC HD",
+    category: "Chemicals",
+    price: 2950,
+    originalPrice: 3400,
+    rating: 4.8,
+    reviews: 8,
+    image: "/chemical 3.png",
+    description: "Cuff and Collar Cleaner Conc for concentrated stain pre-treatment.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "2 × 5 Lts",
+      "Type": "Cuff and Collar Cleaner Conc",
+      "Application": "Heavy soil pre-treatment on shirt cuffs and collars"
+    }
+  },
+  {
+    id: 102,
+    name: "KC Oxy",
+    category: "Chemicals",
+    price: 2450,
+    originalPrice: 2800,
+    rating: 4.8,
+    reviews: 14,
+    image: "/kc-oxy.png",
+    description: "Bleach for whites – liquid oxygen bleaching agent.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "25 Lts",
+      "Type": "Liquid Bleach for Whites",
+      "Application": "Oxygen bleaching & brightening for white garments"
+    }
+  },
+  {
+    id: 103,
+    name: "KC SOFT K 4500 N",
+    category: "Chemicals",
+    price: 3200,
+    originalPrice: 3700,
+    rating: 4.9,
+    reviews: 11,
+    image: "/kc-pro-wfa.png",
+    description: "Premium Fabric Softener for soft feel and fragrance.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "2 × 5 Lts",
+      "Type": "Premium Fabric Softener",
+      "Application": "Softens fabrics and reduces static cling"
+    }
+  },
+  {
+    id: 104,
+    name: "KC AS1071",
+    category: "Chemicals",
+    price: 3400,
+    originalPrice: 3900,
+    rating: 4.7,
+    reviews: 7,
+    image: "/chemical 4.png",
+    description: "Fabric Stiffener for crisp finish on shirts and linens.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "2 × 5 Kgs",
+      "Type": "Fabric Stiffener",
+      "Application": "Provides crispness and body to laundered garments"
+    }
+  },
+  {
+    id: 105,
+    name: "KC 1609",
+    category: "Chemicals",
+    price: 3600,
+    originalPrice: 4100,
+    rating: 5.0,
+    reviews: 9,
+    image: "/kc-pro-cp.png",
+    description: "Color Bleeding Controller (treatment) to prevent dye transfer.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "2 × 5 Lts",
+      "Type": "Color Bleeding Controller",
+      "Application": "Prevents color bleeding and dye cross-contamination"
+    }
+  },
+  {
+    id: 106,
+    name: "Stain Kit",
+    category: "Chemicals",
+    price: 3800,
+    originalPrice: 4500,
+    rating: 5.0,
+    reviews: 19,
+    image: "/chemical 6.png",
+    description: "Complete targeted stain treatment kit for retail laundry.",
+    badge: "New",
+    specifications: {
+      "Pkg Size": "1 Kit",
+      "Type": "Stain Kit",
+      "Application": "Targeted stain treatment kit for specialized spot removal"
+    }
+  },
+  {
+    id: 119,
+    name: "Giant Electric 10kg Package",
+    category: "Packages",
+    price: 180000,
+    originalPrice: 185000,
+    rating: 5.0,
+    reviews: 32,
+    image: "/10kglggiantwasher.png",
+    description: "Complete 10kg Giant Electric Commercial Laundry Package featuring LG 10 Kg Giant C Washer (CWG27MD0HS.ASSPEIL) and LG 10 KG Giant C Dryer Electric (RV1329C7T.ASSQEEU).",
+    badge: "Package Deal",
+    specifications: {
+      "Washer Model": "CWG27MD0HS.ASSPEIL (LG 10 Kg Giant C Washer)",
+      "Dryer Model": "RV1329C7T.ASSQEEU (LG 10 KG Giant C Dryer Electric)",
+      "Capacity": "10 Kg",
+      "Heating Type": "Electric",
+      "Brand": "LG Commercial",
+      "Package Includes": "1 x LG 10kg Giant Washer + 1 x LG 10kg Giant Electric Dryer"
+    }
+  },
+  {
+    id: 120,
+    name: "Giant GAS 15kg Package",
+    category: "Packages",
+    price: 180000,
+    originalPrice: 185000,
+    rating: 5.0,
+    reviews: 28,
+    image: "/10kglggiantwasher.png",
+    description: "High-efficiency Commercial Laundry Package featuring LG 10 Kg Giant C Washer (CWG27MD0HS.ASSPEIL) and LG 10 KG Giant Dryer GAS (RN1329AN7S.ASSQEEU).",
+    badge: "Package Deal",
+    specifications: {
+      "Washer Model": "CWG27MD0HS.ASSPEIL (LG 10 Kg Giant C Washer)",
+      "Dryer Model": "RN1329AN7S.ASSQEEU (LG 10 KG Giant Dryer GAS)",
+      "Capacity": "10kg / 15kg Stack Compatible",
+      "Heating Type": "GAS",
+      "Brand": "LG Commercial",
+      "Package Includes": "1 x LG 10kg Giant Washer + 1 x LG 10kg Giant Gas Dryer"
+    }
+  },
+  {
+    id: 121,
+    name: "Titan ELECTRIC 15kg Package",
+    category: "Packages",
+    price: 275000,
+    originalPrice: 280000,
+    rating: 5.0,
+    reviews: 45,
+    image: "/titanwasher.png",
+    description: "Heavy-duty 15kg Titan Commercial Laundry Package featuring LG 15 Kg Titan C Washer (CWT29MD0HS.ASSPEIL) and LG Titan Dryer 15KG ELECTRIC (RV1840CD7.ASSQEEU).",
+    badge: "Package Deal",
+    specifications: {
+      "Washer Model": "CWT29MD0HS.ASSPEIL (LG 15 Kg Titan C Washer)",
+      "Dryer Model": "RV1840CD7.ASSQEEU (LG Titan Dryer 15KG ELECTRIC)",
+      "Capacity": "15 Kg",
+      "Heating Type": "Electric",
+      "Brand": "LG Commercial",
+      "Package Includes": "1 x LG 15kg Titan Washer + 1 x LG 15kg Titan Electric Dryer"
+    }
+  },
+  {
+    id: 122,
+    name: "Titan GAS 15kg Package",
+    category: "Packages",
+    price: 275000,
+    originalPrice: 280000,
+    rating: 5.0,
+    reviews: 40,
+    image: "/titanwasher.png",
+    description: "Heavy-duty 15kg Titan Commercial Gas Laundry Package featuring LG 15 Kg Titan C Washer (CWT29MD0HS.ASSPEIL) and LG 15KG Dryer GAS (RN1840CD7.ASSQEEU).",
+    badge: "Package Deal",
+    specifications: {
+      "Washer Model": "CWT29MD0HS.ASSPEIL (LG 15 Kg Titan C Washer)",
+      "Dryer Model": "RN1840CD7.ASSQEEU (LG 15KG Dryer GAS)",
+      "Capacity": "15 Kg",
+      "Heating Type": "GAS",
+      "Brand": "LG Commercial",
+      "Package Includes": "1 x LG 15kg Titan Washer + 1 x LG 15kg Titan Gas Dryer"
+    }
+  },
+  {
+    id: 123,
+    name: "Wet PRO ELECTRIC 15kg Package",
+    category: "Packages",
+    price: 300000,
+    originalPrice: 310000,
+    rating: 5.0,
+    reviews: 52,
+    image: "/titanwasher.png",
+    description: "Premium Professional Wet Cleaning Package featuring LG 15 Kg Wet Cleaning Washer (CWT29CDOHS.ASSQEIL) and LG Wet Cleaning Dryer 15KG ELECTRIC (CDT29CUOES.ASSQEIL).",
+    badge: "Package Deal",
+    specifications: {
+      "Washer Model": "CWT29CDOHS.ASSQEIL (LG 15 Kg Wet Cleaning Washer)",
+      "Dryer Model": "CDT29CUOES.ASSQEIL (LG Wet Cleaning Dryer 15KG ELECTRIC)",
+      "Capacity": "15 Kg",
+      "Application": "Professional Wet Cleaning & Garment Care",
+      "Heating Type": "Electric",
+      "Brand": "LG Commercial",
+      "Package Includes": "1 x LG 15kg Wet Cleaning Washer + 1 x LG 15kg Wet Cleaning Electric Dryer"
+    }
   }
 ];
 
-export const categories = ["All", "For You", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals", "Seko"];
+export const categories = ["All", "For You", "Packages", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals", "Seko"];
+

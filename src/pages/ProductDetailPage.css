@@ -1819,24 +1819,20 @@
 
 .amc-addon-box {
   margin-top: 16px;
-  padding: 12px 16px;
-  background: #f1f5f9;
+  padding: 14px 18px;
+  background: #f8fafc;
   border-radius: 10px;
   border: 1px dashed #cbd5e1;
-}
-
-.amc-addon-checkbox-label {
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.2s ease;
 }
 
-.amc-addon-checkbox-label input {
-  width: 18px;
-  height: 18px;
-  accent-color: #0f2b5c;
-  cursor: pointer;
+.amc-addon-box.selected {
+  background: #f0f9ff;
+  border: 1px solid #0284c7;
 }
 
 .amc-addon-info {
@@ -1847,6 +1843,7 @@
   display: block;
   font-size: 13px;
   color: #0f2b5c;
+  font-weight: 700;
 }
 
 .amc-addon-info p {
@@ -1855,10 +1852,42 @@
   color: #64748b;
 }
 
+.amc-addon-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .amc-addon-price {
   font-size: 14px;
   font-weight: 800;
   color: #0284c7;
+}
+
+.amc-addon-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #0f2b5c;
+  background: #ffffff;
+  color: #0f2b5c;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.amc-addon-btn:hover {
+  background: #0f2b5c;
+  color: #ffffff;
+}
+
+.amc-addon-btn.active {
+  background: #0f2b5c;
+  color: #ffffff;
+  border-color: #0f2b5c;
+  box-shadow: 0 2px 6px rgba(15, 43, 92, 0.25);
 }
 
 .amc-footer-bar {
