@@ -24,9 +24,11 @@ import {
   Download,
   Copy,
   ArrowUpDown,
-  Layers,
   Archive,
-  Minus
+  Minus,
+  Mail,
+  Building2,
+  Sliders
 } from 'lucide-react';
 import TicketingPage from './TicketingPage';
 import '../components/UserProfile.css';
@@ -318,12 +320,16 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
+      const validImages = (productForm.images || []).map(i => (typeof i === 'string' ? i.trim() : '')).filter(Boolean);
+      const primaryImage = validImages[0] || productForm.image || '';
+
       const payload = {
         name: productForm.name,
         category: productForm.category,
         price: Number(productForm.price),
         originalPrice: Number(productForm.originalPrice || productForm.price),
-        image: productForm.image,
+        image: primaryImage,
+        images: validImages.length > 0 ? validImages : [primaryImage],
         description: productForm.description || '',
         badge: productForm.badge || null,
         sku: productForm.sku || `SKU-${Date.now()}`,
@@ -526,16 +532,52 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     document.body.removeChild(link);
   };
 
+  const handleImageFieldChange = (index, value) => {
+    setProductForm(prev => {
+      const currentList = Array.isArray(prev.images) ? [...prev.images] : [];
+      currentList[index] = value;
+      return {
+        ...prev,
+        images: currentList,
+        image: currentList[0] || value || ''
+      };
+    });
+  };
+
+  const handleAddImageField = () => {
+    setProductForm(prev => ({
+      ...prev,
+      images: [...(Array.isArray(prev.images) ? prev.images : []), '']
+    }));
+  };
+
+  const handleRemoveImageField = (index) => {
+    setProductForm(prev => {
+      const currentList = Array.isArray(prev.images) ? [...prev.images] : [];
+      const updated = currentList.filter((_, i) => i !== index);
+      const finalImages = updated.length > 0 ? updated : [''];
+      return {
+        ...prev,
+        images: finalImages,
+        image: finalImages[0] || ''
+      };
+    });
+  };
+
   const openProductModal = (product = null) => {
     if (product) {
       setEditingProduct(product);
+      const existingImages = (Array.isArray(product.images) && product.images.length > 0)
+        ? product.images
+        : (product.image ? [product.image] : ['']);
       setProductForm({ 
         id: product.id,
         name: product.name || '',
         price: product.price || '',
         originalPrice: product.originalPrice || product.price || '',
         category: product.category || 'LG Commercial Laundry Machines',
-        image: product.image || '',
+        image: product.image || existingImages[0] || '',
+        images: existingImages,
         sku: product.sku || `SKU-${product.id}`,
         stock: getProductStock(product),
         lowStockThreshold: getProductThreshold(product),
@@ -552,6 +594,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         originalPrice: '',
         category: 'LG Commercial Laundry Machines',
         image: '',
+        images: [''],
         sku: `SKU-${Date.now()}`,
         stock: 50,
         lowStockThreshold: 10,
@@ -1217,13 +1260,19 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                 <span className="orderIdBadge">#{order.id}</span>
                                 <strong className="customerName">{order.customerName || 'Customer'}</strong>
                                 {order.userEmail && (
-                                  <span className="customerMeta">✉️ {order.userEmail}</span>
+                                  <span className="customerMeta" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <Mail size={12} style={{ color: '#64748b' }} /> {order.userEmail}
+                                  </span>
                                 )}
                                 {order.companyName && (
-                                  <span className="customerMeta">🏢 {order.companyName}</span>
+                                  <span className="customerMeta" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <Building2 size={12} style={{ color: '#64748b' }} /> {order.companyName}
+                                  </span>
                                 )}
                                 {order.gstNumber && (
-                                  <span className="customerMeta gst">📄 GST: {order.gstNumber}</span>
+                                  <span className="customerMeta gst" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                    <FileText size={12} style={{ color: '#0284c7' }} /> GST: {order.gstNumber}
+                                  </span>
                                 )}
                                 <button
                                   type="button"
@@ -1298,10 +1347,10 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   boxSizing: 'border-box'
                                 }}
                               >
-                                <option value="Processing">⏳ Processing</option>
-                                <option value="Shipped">🚚 Shipped</option>
-                                <option value="Delivered">✅ Delivered</option>
-                                <option value="Cancelled">❌ Cancelled</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
                               </select>
                             </td>
                             <td style={{ verticalAlign: 'top', padding: '16px 14px' }}>
@@ -1325,8 +1374,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   boxSizing: 'border-box'
                                 }}
                               >
-                                <option value="Pending">⏳ Pending (COD)</option>
-                                <option value="Paid">✅ Paid</option>
+                                <option value="Pending">Pending (COD)</option>
+                                <option value="Paid">Paid</option>
                               </select>
                             </td>
                             <td style={{ verticalAlign: 'top', padding: '16px 14px' }}>
@@ -1357,12 +1406,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   boxSizing: 'border-box'
                                 }}
                               >
-                                <option value="Pending Installation">⏳ Pending Setup</option>
-                                <option value="Scheduled for Setup">📅 Scheduled</option>
-                                <option value="In Progress">🔄 In Progress</option>
-                                <option value="Completed (Standard)">✅ Installed (Std)</option>
-                                <option value="Completed (10-Program Setup)">✅ Installed (10-Prog)</option>
-                                <option value="Cancelled / Declined">❌ Declined</option>
+                                <option value="Pending Installation">Pending Setup</option>
+                                <option value="Scheduled for Setup">Scheduled</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed (Standard)">Installed (Std)</option>
+                                <option value="Completed (10-Program Setup)">Installed (10-Prog)</option>
+                                <option value="Cancelled / Declined">Declined</option>
                               </select>
                             </td>
                           </tr>
@@ -1542,12 +1591,74 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                 </div>
 
                 <div className="formGroup">
-                  <label>Image URL *</label>
-                  <div className="imageUrlInputGroup">
-                    <input required type="text" value={productForm.image} onChange={e => setProductForm({...productForm, image: e.target.value})} placeholder="https://..." />
-                    {productForm.image && (
-                      <img src={productForm.image} alt="Preview" className="inputImgPreview" onError={(e) => e.target.style.display='none'} />
-                    )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ margin: 0, fontWeight: '700' }}>Product Images (Primary & Gallery) *</label>
+                    <button
+                      type="button"
+                      onClick={handleAddImageField}
+                      style={{
+                        background: '#f0f9ff',
+                        color: '#0284c7',
+                        border: '1px solid #bae6fd',
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Plus size={14} /> Add Image URL
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {(Array.isArray(productForm.images) && productForm.images.length > 0 ? productForm.images : ['']).map((imgUrl, idx) => (
+                      <div key={idx} className="imageUrlInputGroup" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', minWidth: '70px', textTransform: 'uppercase' }}>
+                          {idx === 0 ? 'Cover *' : `Image ${idx + 1}`}
+                        </span>
+                        <input
+                          required={idx === 0}
+                          type="text"
+                          value={imgUrl}
+                          onChange={(e) => handleImageFieldChange(idx, e.target.value)}
+                          placeholder={idx === 0 ? "/10kglggiantwasher.png or https://..." : "Additional image URL..."}
+                          style={{ flex: 1 }}
+                        />
+                        {imgUrl && (
+                          <img 
+                            src={imgUrl} 
+                            alt={`Preview ${idx + 1}`} 
+                            className="inputImgPreview" 
+                            style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            onError={(e) => e.target.style.display='none'} 
+                          />
+                        )}
+                        {productForm.images && productForm.images.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImageField(idx)}
+                            style={{
+                              background: '#fef2f2',
+                              color: '#dc2626',
+                              border: '1px solid #fecaca',
+                              borderRadius: '6px',
+                              padding: '8px',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                            title="Remove this image URL"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -1706,7 +1817,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                         <tr key={`amc-${idx}`} className="item-row amc-invoice-line" style={{ background: '#f0f7ff' }}>
                           <td></td>
                           <td className="desc-cell" style={{ paddingLeft: '16px' }}>
-                            <strong style={{ color: '#0f2b5c' }}>🛡️ Kleider Care AMC - {item.amcWarrantyInfo.type}</strong>
+                            <strong style={{ color: '#0f2b5c', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <ShieldCheck size={13} style={{ color: '#0f2b5c' }} /> Kleider Care AMC - {item.amcWarrantyInfo.type}
+                            </strong>
                             <div style={{ fontSize: '11px', color: '#475569' }}>
                               1 Year Maintenance Contract (3 PM Visits/Yr + 24–48h Priority Hotline)
                             </div>
@@ -1734,7 +1847,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                         <tr key={`prog-${idx}`} className="item-row amc-invoice-line" style={{ background: '#f8fafc' }}>
                           <td></td>
                           <td className="desc-cell" style={{ paddingLeft: '16px' }}>
-                            <strong style={{ color: '#0284c7' }}>⚙️ Machine Program Parameter Setup Add-on</strong>
+                            <strong style={{ color: '#0284c7', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <Sliders size={13} style={{ color: '#0284c7' }} /> Machine Program Parameter Setup Add-on
+                            </strong>
                             <div style={{ fontSize: '11px', color: '#475569' }}>
                               Custom programming up to 10 programs in LG commercial unit
                             </div>

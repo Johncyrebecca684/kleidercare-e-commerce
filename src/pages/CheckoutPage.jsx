@@ -1095,6 +1095,18 @@ export default function CheckoutPage({
                   </span>
                 </div>
               )}
+              <div style={{
+                marginTop: '8px',
+                padding: '8px 12px',
+                background: '#f0f9ff',
+                border: '1px solid #bae6fd',
+                borderRadius: '6px',
+                fontSize: '11px',
+                color: '#0369a1',
+                lineHeight: '1.4'
+              }}>
+                <strong>Installation Note:</strong> Free for South India region. For North region and other locations, installation charges apply based on location.
+              </div>
               {items.some(i => i.includeProgramSetup) && (
                 <div className="summary-row-page" style={{ color: '#0284c7', fontWeight: '600' }}>
                   <span>⚙️ Machine Program Setup</span>

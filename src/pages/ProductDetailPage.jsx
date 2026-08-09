@@ -35,7 +35,8 @@ import {
   Sparkles,
   Check,
   HelpCircle,
-  Info
+  Info,
+  MapPin
 } from 'lucide-react';
 import { getRecommendations, getProductType, getRecommendedTargetType } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
@@ -503,12 +504,20 @@ export default function ProductDetailPage({
 
             {/* THUMBNAIL GALLERY STRIP */}
             <div className="pdp-thumbnails-row">
-              <button
-                className={`pdp-thumb-card ${selectedImage === product.image ? 'active' : ''}`}
-                onClick={() => setSelectedImage(product.image)}
-              >
-                <img src={product.image} alt="Front View" />
-              </button>
+              {Array.from(
+                new Set([
+                  product?.image,
+                  ...(Array.isArray(product?.images) ? product.images : [])
+                ].filter(Boolean))
+              ).map((imgUrl, idx) => (
+                <button
+                  key={idx}
+                  className={`pdp-thumb-card ${selectedImage === imgUrl ? 'active' : ''}`}
+                  onClick={() => setSelectedImage(imgUrl)}
+                >
+                  <img src={imgUrl} alt={`View ${idx + 1}`} />
+                </button>
+              ))}
 
               <div className="pdp-thumb-video-card">
                 <img src={product.image} alt="Demo Video" />
@@ -738,6 +747,36 @@ export default function ProductDetailPage({
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* REGIONAL INSTALLATION POLICY NOTICE (AFTER AMC SECTION) */}
+            {((product?.name || '').toLowerCase().includes('lg') ||
+              (product?.category || '').toLowerCase().includes('lg') ||
+              (product?.name || '').toLowerCase().includes('stacker') ||
+              isAmcApplicable()) && (
+              <div className="pdp-installation-policy-card" style={{
+                marginTop: '16px',
+                padding: '14px 18px',
+                background: '#f0f9ff',
+                border: '1px solid #bae6fd',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                color: '#0369a1',
+                fontSize: '13px',
+                lineHeight: '1.5'
+              }}>
+                <MapPin size={20} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong style={{ color: '#0f2b5c', display: 'block', marginBottom: '2px', fontSize: '14px' }}>
+                    Regional Installation Policy
+                  </strong>
+                  <span>
+                    For all LG Commercial Laundry Machines, installation fees are <strong>FREE for India's South region</strong>. For the North region and other locations, installation charges apply based on the delivery location.
+                  </span>
+                </div>
               </div>
             )}
 

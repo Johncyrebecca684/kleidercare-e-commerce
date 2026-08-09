@@ -9,7 +9,8 @@ import {
   Play,
   CreditCard,
   Zap,
-  Sparkles
+  Sparkles,
+  MapPin
 } from 'lucide-react';
 import { getProductType, getRecommendedTargetType, getRecommendationReason } from '../utils/recommendationEngine';
 import './ProductDetailModal.css';
@@ -110,12 +111,20 @@ export default function ProductDetailModal({
 
             {/* GALLERY THUMBNAILS & DEMO PREVIEW */}
             <div className="pdp-thumbnails-strip">
-              <button
-                className={`pdp-thumb-btn ${selectedImage === product.image ? 'active' : ''}`}
-                onClick={() => setSelectedImage(product.image)}
-              >
-                <img src={product.image} alt="Front View" />
-              </button>
+              {Array.from(
+                new Set([
+                  product?.image,
+                  ...(Array.isArray(product?.images) ? product.images : [])
+                ].filter(Boolean))
+              ).map((imgUrl, idx) => (
+                <button
+                  key={idx}
+                  className={`pdp-thumb-btn ${selectedImage === imgUrl ? 'active' : ''}`}
+                  onClick={() => setSelectedImage(imgUrl)}
+                >
+                  <img src={imgUrl} alt={`View ${idx + 1}`} />
+                </button>
+              ))}
 
               <div className="pdp-thumb-video-box" title="Watch Product Demo">
                 <img src={product.image} alt="Video Preview" />
@@ -240,7 +249,7 @@ export default function ProductDetailModal({
                       </div>
                       <div className="pdp-spec-row">
                         <span className="pdp-spec-key">Installation</span>
-                        <span className="pdp-spec-val">Free On-site Professional Installation</span>
+                        <span className="pdp-spec-val">Free in South India region (Location charges apply for North region)</span>
                       </div>
                     </>
                   )}
@@ -250,6 +259,31 @@ export default function ProductDetailModal({
                   <p>{product.description}</p>
                 </div>
               )}
+            </div>
+
+            {/* REGIONAL INSTALLATION POLICY NOTICE */}
+            <div className="pdp-installation-policy-card" style={{
+              marginTop: '12px',
+              padding: '12px 16px',
+              background: '#f0f9ff',
+              border: '1px solid #bae6fd',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              color: '#0369a1',
+              fontSize: '12px',
+              lineHeight: '1.4'
+            }}>
+              <MapPin size={18} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong style={{ color: '#0f2b5c', display: 'block', marginBottom: '2px', fontSize: '13px' }}>
+                  Regional Installation Policy
+                </strong>
+                <span>
+                  For all LG Commercial Laundry Machines, installation fees are <strong>FREE for India's South region</strong>. For the North region and other locations, installation charges apply based on the delivery location.
+                </span>
+              </div>
             </div>
 
             {/* ACTION BUTTONS (ADD TO CART, EMI, BUY NOW) */}

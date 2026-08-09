@@ -32,12 +32,13 @@ router.get('/', async (req, res) => {
 });
 
 // POST create a new product (Admin only)
+// POST create a new product (Admin only)
 // POST /api/products
 router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, category, price, originalPrice, image, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
+    const { name, category, price, originalPrice, image, images, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
 
-    if (!name || !category || price === undefined || originalPrice === undefined || !image) {
+    if (!name || !category || price === undefined || originalPrice === undefined || (!image && (!images || images.length === 0))) {
       return res.status(400).json({ message: 'Missing required product fields' });
     }
 
@@ -49,13 +50,17 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     if (productStock <= 0) stockStatus = 'Out of Stock';
     else if (productStock <= threshold) stockStatus = 'Low Stock';
 
+    const validImages = Array.isArray(images) ? images.filter(Boolean) : (image ? [image] : []);
+    const primaryImage = validImages[0] || image || '';
+
     const newProduct = new Product({
       id,
       name,
       category,
       price: Number(price),
       originalPrice: Number(originalPrice),
-      image,
+      image: primaryImage,
+      images: validImages.length > 0 ? validImages : [primaryImage],
       description: description || '',
       badge: badge || null,
       sku: sku || `SKU-${id}`,
@@ -76,7 +81,7 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 // PUT update an existing product (Admin only)
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, category, price, originalPrice, image, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
+    const { name, category, price, originalPrice, image, images, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
     
     const reqIdStr = String(req.params.id);
     let query;
@@ -95,7 +100,20 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     if (category) product.category = category;
     if (price !== undefined) product.price = Number(price);
     if (originalPrice !== undefined) product.originalPrice = Number(originalPrice);
-    if (image) product.image = image;
+    
+    if (images !== undefined) {
+      const validImages = Array.isArray(images) ? images.filter(Boolean) : [];
+      product.images = validImages;
+      if (validImages.length > 0) {
+        product.image = validImages[0];
+      }
+    } else if (image) {
+      product.image = image;
+      if (!product.images || product.images.length === 0) {
+        product.images = [image];
+      }
+    }
+
     if (description !== undefined) product.description = description;
     if (badge !== undefined) product.badge = badge;
     if (sku !== undefined) product.sku = sku;

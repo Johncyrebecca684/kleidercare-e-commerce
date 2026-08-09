@@ -25,7 +25,6 @@ import { getSearchResultsWithSimilar, scoreProductSearchRelevance } from '../uti
 
 const CATEGORY_ITEMS = [
   { name: 'All', icon: LayoutGrid },
-  { name: 'For You', icon: Sparkles },
   { name: 'Stacker', icon: Layers },
   { name: 'Packages', icon: Package },
   { name: 'LG Commercial Laundry Machines', icon: WashingMachine },
@@ -88,6 +87,7 @@ export default function ProductList({
   const showCapacityFilter = isMachineCategory(selectedCategory);
 
   const [accordionOpen, setAccordionOpen] = useState({
+    sort: true,
     capacity: true,
     price: true,
     assured: true
@@ -102,9 +102,10 @@ export default function ProductList({
     setMaxPrice(500000);
     setOnlyAssured(false);
     setCapacityFilter('all');
+    setSortBy('popular');
   };
 
-  const isFilterActive = minPrice > 0 || maxPrice < 500000 || onlyAssured || (showCapacityFilter && capacityFilter !== 'all');
+  const isFilterActive = minPrice > 0 || maxPrice < 500000 || onlyAssured || (showCapacityFilter && capacityFilter !== 'all') || sortBy !== 'popular';
 
   // Track search history and browsing history in localStorage
   useEffect(() => {
@@ -285,7 +286,7 @@ export default function ProductList({
         </div>
       </div>
 
-      {/* CATEGORY TITLE & SORT TAB BAR */}
+      {/* CATEGORY TITLE & VIEW TOGGLE BAR */}
       <div className="category-results-bar">
         <div className="category-title-heading">
           <h3>
@@ -296,38 +297,23 @@ export default function ProductList({
           </span>
         </div>
 
-        <div className="sort-tabs-container">
-          <span className="sort-by-title">Sort By</span>
-          <div className="sort-tab-buttons">
-            {SORT_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                className={`sort-tab-btn ${sortBy === opt.id ? 'active' : ''}`}
-                onClick={() => setSortBy(opt.id)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="view-mode-toggle">
-            <button
-              className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-              onClick={() => setViewMode('list')}
-              title="List View"
-              aria-label="List View"
-            >
-              <List size={18} />
-            </button>
-            <button
-              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
-              title="Grid View"
-              aria-label="Grid View"
-            >
-              <LayoutGrid size={18} />
-            </button>
-          </div>
+        <div className="view-mode-toggle">
+          <button
+            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+            title="List View"
+            aria-label="List View"
+          >
+            <List size={18} />
+          </button>
+          <button
+            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            title="Grid View"
+            aria-label="Grid View"
+          >
+            <LayoutGrid size={18} />
+          </button>
         </div>
       </div>
 
@@ -344,6 +330,29 @@ export default function ProductList({
               <button className="clear-filters-btn" onClick={handleClearFilters}>
                 CLEAR ALL
               </button>
+            )}
+          </div>
+
+          {/* SORT BY SECTION */}
+          <div className="filter-group">
+            <button className="filter-group-header" onClick={() => toggleAccordion('sort')}>
+              <span>SORT BY</span>
+              {accordionOpen.sort ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {accordionOpen.sort && (
+              <div className="filter-group-content">
+                {SORT_OPTIONS.map((opt) => (
+                  <label key={opt.id} className="filter-checkbox-row">
+                    <input
+                      type="radio"
+                      name="sidebar-sort"
+                      checked={sortBy === opt.id}
+                      onChange={() => setSortBy(opt.id)}
+                    />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </div>
             )}
           </div>
 
