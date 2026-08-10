@@ -88,7 +88,7 @@ export async function sendInvoiceEmail(order, formData = {}) {
       orders_table_html: ordersTableHtml,
       subtotal: `₹${subtotal.toLocaleString('en-IN')}`,
       tax: `₹${taxAmount.toLocaleString('en-IN')}`,
-      shipping: shippingFee === 0 ? 'FREE' : `₹${shippingFee.toLocaleString('en-IN')}`,
+      shipping: 'Pay Freight on Delivery',
       installation_fee: installationFee > 0 ? `₹${installationFee.toLocaleString('en-IN')}` : '',
       grand_total: `₹${grandTotal.toLocaleString('en-IN')}`
     };

@@ -512,7 +512,7 @@ export default function UserProfile({
                               )}
                               {item.includeProgramSetup && (
                                 <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: '600', paddingLeft: '10px', marginTop: '2px' }}>
-                                  ⚙️ Includes Machine Program Setup (+₹3,500)
+                                  ⚙️ Includes Machine Program Setup (+₹18,000)
                                 </div>
                               )}
                             </div>
@@ -900,7 +900,7 @@ export default function UserProfile({
                     
                     // Main Item (Base product)
                     const amcPrice = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
-                    const progPrice = item.includeProgramSetup ? 3500 : 0;
+                    const progPrice = item.includeProgramSetup ? 18000 : 0;
                     const baseItemPrice = item.basePrice || Math.max(0, item.price - amcPrice - progPrice);
 
                     const baseItemTotal = baseItemPrice * item.quantity;

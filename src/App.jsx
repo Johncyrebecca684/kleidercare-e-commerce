@@ -397,32 +397,34 @@ function App() {
         const idMatches = (item.cartItemId || item.id) === productId || item.id === productId;
         if (idMatches) {
           const pName = (item.name || '').toLowerCase();
-          const pCat = (item.category || '').toLowerCase();
-          let rates = { nonComp: 12500, comp: 18500 };
-          if (pName.includes('lg') || pName.includes('stacker')) {
-            rates = { nonComp: 12500, comp: 18500 };
-          } else if (pName.includes('washer') || pCat.includes('washer')) {
-            rates = { nonComp: 15000, comp: 21500 };
-          } else if (pName.includes('dryer') || pCat.includes('dryer')) {
-            rates = { nonComp: 9000, comp: 14000 };
-          }
+          const specs = JSON.stringify(item.specifications || {}).toLowerCase();
+          const capacity = (item.specifications?.['Capacity'] || item.specifications?.['capacity'] || '').toLowerCase();
 
-          if (addonType === 'non-comprehensive') {
+          const is15kg =
+            pName.includes('15') ||
+            pName.includes('titan') ||
+            capacity.includes('15') ||
+            specs.includes('15kg') ||
+            specs.includes('15 kg') ||
+            specs.includes('titan') ||
+            specs.includes('cwt');
+
+          const price = is15kg ? 18000 : 15000;
+
+          if (addonType === 'amc' || addonType === 'non-comprehensive' || addonType === 'comprehensive') {
             const oldAmcCost = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
-            const priceDiff = rates.nonComp - oldAmcCost;
+            const priceDiff = price - oldAmcCost;
             return {
               ...item,
-              selectedWarranty: 'non-comprehensive',
-              amcWarrantyInfo: { type: 'Non-Comprehensive AMC', price: rates.nonComp, visits: '3/year', parts: 'Charged extra' },
-              price: item.price + priceDiff
-            };
-          } else if (addonType === 'comprehensive') {
-            const oldAmcCost = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
-            const priceDiff = rates.comp - oldAmcCost;
-            return {
-              ...item,
-              selectedWarranty: 'comprehensive',
-              amcWarrantyInfo: { type: 'Comprehensive AMC', price: rates.comp, visits: '3/year', parts: 'Included (excl. consumables)' },
+              selectedWarranty: 'amc',
+              amcWarrantyInfo: {
+                type: 'Kleider Care AMC',
+                price: price,
+                gst: Math.round(price * 0.18),
+                totalWithGst: Math.round(price * 1.18),
+                visits: '3 Preventive Visits / year',
+                response: '24–48 Hours Emergency Response'
+              },
               price: item.price + priceDiff
             };
           } else if (addonType === 'setup') {
@@ -430,7 +432,7 @@ function App() {
               return {
                 ...item,
                 includeProgramSetup: true,
-                price: item.price + 3500
+                price: item.price + 18000
               };
             }
           }
@@ -457,7 +459,7 @@ function App() {
             return {
               ...item,
               includeProgramSetup: false,
-              price: Math.max(item.basePrice || (item.price - 3500), item.price - 3500)
+              price: Math.max(item.basePrice || (item.price - 18000), item.price - 18000)
             };
           }
         }

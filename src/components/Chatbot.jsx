@@ -158,7 +158,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       if (lower.includes('warranty') || lower.includes('install') || lower.includes('engineer') || lower.includes('service') || lower.includes('amc') || lower.includes('namc') || lower.includes('maintenance')) {
         addMessage(
           'bot',
-          '🛠️ **Kleider Care AMC & Maintenance Agreement**:\n• **Non-Comprehensive AMC (NAMC)**: Includes quarterly 16-point service checkups, drum & vent deep cleaning, motor/bearing tests, and unlimited emergency breakdown support.\n• **Breakdown SLA**: Response within **24 to 48 hours**.\n• **Labor & Minor Repairs**: Fully covered under the agreement.\n• **LG Custom Setup**: Up to 10 LG wash/dry program configurations included.\n• **Spare Parts**: Component replacements charged extra at actuals.\n\nYou can review the full NAMC legal contract agreement in our **Terms & Conditions** page.'
+          '🛡️ **Kleider Care AMC Plan (Exclusively for LG Machines)**:\n\nIncludes:\n• **3 Preventive Visits / year**\n• **24–48 Hours Emergency Response**\n• **Safety & Performance Check**\n• **Vent Cleaning & Drum Disinfection**\n\n**Pricing**:\n• **LG 10 kg Machines**: ₹15,000 / year\n• **LG 15 kg Machines**: ₹18,000 / year\n\nYou can review full contract details on our **Terms & Conditions** page.'
         );
         return;
       }

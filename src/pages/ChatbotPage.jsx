@@ -157,7 +157,7 @@ export default function ChatbotPage({
         } else {
           addMessage(
             'bot',
-            '📦 **Kleider Care Order Tracking & Shipping Policy**:\n\n• **Free Freight Delivery**: On orders above ₹500 across India.\n• **Dispatch SLA**: Commercial machines are dispatched within 24–48 hours from regional warehouse hubs.\n• **Tracking**: Enter your Order ID on our **Track Order** page to view live GPS logistics updates.'
+            '📦 **Kleider Care Order Tracking & Shipping Policy**:\n\n• **Pay Freight Upon Delivery**: Delivery/freight charges are NOT collected online. Customers pay the transport charges directly to the courier/transport partner upon delivery.\n• **Dispatch SLA**: Commercial machines are dispatched within 24–48 hours from regional warehouse hubs.\n• **Tracking**: Enter your Order ID on our **Track Order** page to view live GPS logistics updates.'
           );
         }
         return;
@@ -166,15 +166,15 @@ export default function ChatbotPage({
       if (lower.includes('amc') || lower.includes('warranty') || lower.includes('coverage') || lower.includes('preventive') || lower.includes('namc') || lower.includes('agreement') || lower.includes('contract')) {
         addMessage(
           'bot',
-          '🛡️ **Kleider Care Commercial Washer & Dryer NAMC Agreement**:\n\n• **Non-Comprehensive AMC (NAMC)**: Includes quarterly 16-point service checkups, drum & vent deep cleaning, motor & bearing diagnostic tests, and unlimited emergency breakdown support.\n• **Breakdown Response SLA**: On-site technician within **24 to 48 hours**.\n• **Labor & Minor Complaints**: On-site labor & minor adjustments included.\n• **LG Cycle Programming**: Includes up to 10 LG custom washer & dryer program configurations.\n• **Spare Parts**: Charged extra as per actuals.\n\n**Official Pricing (LG Stack Washer/Dryer)**:\n• Base Fee: ₹12,500 + GST @18% (₹2,250) = **₹14,750 Total/Year**.\n\nYou can read the full contract template in our **Terms & Conditions** page.'
+          '🛡️ **Kleider Care Extended Warranty & AMC Plan (LG Machines Only)**:\n\nKleider Care AMC is exclusively available for LG commercial laundry equipment and includes:\n\n• **3 Preventive Visits / year**\n• **24–48 Hours Emergency Response**\n• **Safety & Performance Check**\n• **Vent Cleaning & Drum Disinfection**\n\n**Official LG AMC Pricing**:\n• **LG 10 kg Commercial Machines**: ₹15,000 / year (excl. GST)\n• **LG 15 kg Commercial Machines**: ₹18,000 / year (excl. GST)\n\nYou can review full details on our product pages and Terms & Conditions.'
         );
         return;
       }
 
-      if (lower.includes('setup') || lower.includes('program') || lower.includes('parameter') || lower.includes('3500')) {
+      if (lower.includes('setup') || lower.includes('program') || lower.includes('parameter') || lower.includes('18000') || lower.includes('3500')) {
         addMessage(
           'bot',
-          '⚙️ **Machine Program Setup Add-On (+₹3,500)**:\n\n• **Customized Programming**: Up to 10 customized wash cycle parameters configured directly on LG / Speed Queen commercial controls.\n• **Per Program Rate**: Standard LG programming rate is ₹350 / program (up to 10 programs = ₹3,500).\n• **Itemized Invoice**: Displayed under **SAC Code 998313** with 18% IGST tax credit benefit.'
+          '⚙️ **Machine Program Setup Add-On (+₹18,000)**:\n\n• **Customized Programming**: Up to 10 customized wash/dry cycle parameters configured directly on LG commercial controls.\n• **Pricing**: ₹18,000 for full setup (up to 10 programs @ ₹1,800/program).\n• **Itemized Invoice**: Displayed under **SAC Code 998313** with 18% IGST tax credit benefit.'
         );
         return;
       }

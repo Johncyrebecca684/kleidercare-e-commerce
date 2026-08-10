@@ -216,8 +216,8 @@ export default function TrackOrderPage({ userOrders = [] }) {
               </div>
               <div className="detailCard">
                 <Truck size={24} />
-                <h4>Free Delivery</h4>
-                <p>Enjoy free delivery on orders above ₹500. No hidden charges!</p>
+                <h4>Freight (Pay Upon Delivery)</h4>
+                <p>Freight charges are paid directly by the customer to the transport/courier partner upon delivery.</p>
               </div>
               <div className="detailCard">
                 <MapPin size={24} />

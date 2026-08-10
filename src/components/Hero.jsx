@@ -25,7 +25,7 @@ const slides = [
   },
   {
     id: 5,
-    image: '/slms_banner.jpg'
+    image: '/slms_banner.jpeg'
   }
 ];
 

@@ -88,8 +88,7 @@ export default function CheckoutPage({
     (appliedCoupons.includes('KCSPARE') ? Math.round(sparePartsSubtotal * 0.20) : 0) +
     (appliedCoupons.includes('KCCHM') ? Math.round(chemicalsSubtotal * 0.25) : 0);
 
-  const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
+  const shipping = 0; // ₹0 collected online because freight is To-Pay upon delivery
   const baseTax = items.reduce((sum, item) => {
     const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
     return sum + (itemGst * item.quantity);
@@ -1064,7 +1063,7 @@ export default function CheckoutPage({
                     )}
                     {item.includeProgramSetup && (
                       <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', fontWeight: '600', marginTop: '2px' }}>
-                        ⚙️ Machine Program Setup (+₹3,500)
+                        ⚙️ Machine Program Setup (+₹18,000)
                       </span>
                     )}
                   </span>
@@ -1113,14 +1112,30 @@ export default function CheckoutPage({
                   <span>
                     +₹{items
                       .filter(i => i.includeProgramSetup)
-                      .reduce((sum, i) => sum + (3500 * i.quantity), 0)
+                      .reduce((sum, i) => sum + (18000 * i.quantity), 0)
                       .toLocaleString('en-IN')}
                   </span>
                 </div>
               )}
+              {/* Freight Pay on Delivery Notice */}
+              <div style={{
+                margin: '10px 0',
+                padding: '8px 12px',
+                background: '#fff7ed',
+                border: '1px solid #fed7aa',
+                borderRadius: '6px',
+                fontSize: '11px',
+                color: '#c2410c',
+                lineHeight: '1.4'
+              }}>
+                <strong>Freight Charges Notice:</strong> Delivery charges are not collected online. Customers pay the actual freight charges directly to the delivery partner upon arrival.
+              </div>
               <div className="summary-row-page">
-                <span>Shipping</span>
-                <span>{shipping === 0 ? 'Free' : `₹${shipping.toLocaleString('en-IN')}`}</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>Shipping / Delivery</span>
+                  <span style={{ fontSize: '10px', color: '#ea580c', fontWeight: '600' }}>Pay directly to transporter on delivery</span>
+                </div>
+                <span style={{ color: '#ea580c', fontWeight: '700', fontSize: '12px' }}>PAY ON DELIVERY</span>
               </div>
               <div className="summary-row-page">
                 <span>Tax (18%)</span>

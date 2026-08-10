@@ -1673,6 +1673,12 @@
   gap: 16px;
 }
 
+.amc-cards-grid.single-plan {
+  grid-template-columns: 1fr;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
 .amc-card {
   border: 2px solid #e2e8f0;
   border-radius: 12px;

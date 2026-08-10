@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShieldCheck, MapPin, Truck } from 'lucide-react';
 import { getRecommendations } from '../utils/recommendationEngine';
 import { formatImageUrl } from '../utils/imageUtils';
 import './CartPage.css';
@@ -20,55 +20,47 @@ export default function CartPage({
 }) {
   const navigate = useNavigate();
 
-  // Helper to check if a product is eligible for AMC
+  // Helper to check if a product is eligible for AMC (ONLY for LG machines)
   const isAmcApplicable = (item) => {
-    if (!item) return false;
-    const cat = (item.category || '').toLowerCase();
-    const name = (item.name || '').toLowerCase();
+    return isLgItem(item);
+  };
 
-    if (
-      cat.includes('part') ||
-      cat.includes('chemical') ||
-      cat.includes('detergent') ||
-      cat.includes('accessory') ||
-      name.includes('bearing') ||
-      name.includes('sensor') ||
-      name.includes('pump') ||
-      name.includes('heater') ||
-      name.includes('valve') ||
-      name.includes('filter') ||
-      name.includes('hose') ||
-      name.includes('belt')
-    ) {
-      return false;
-    }
+  const isLgItem = (item) => {
+    const pName = (item?.name || '').toLowerCase();
+    const pCat = (item?.category || '').toLowerCase();
+    const brand = (item?.specifications?.['Brand'] || item?.specifications?.['brand'] || '').toLowerCase();
+    const specs = JSON.stringify(item?.specifications || {}).toLowerCase();
 
     return (
-      cat.includes('laundry machine') ||
-      cat.includes('lg') ||
-      cat.includes('speed queen') ||
-      cat.includes('pon') ||
-      cat.includes('equipment') ||
-      name.includes('washer') ||
-      name.includes('dryer') ||
-      name.includes('stacker') ||
-      name.includes('giant') ||
-      name.includes('titan') ||
-      name.includes('machine')
+      brand.includes('lg') ||
+      pCat.includes('lg') ||
+      pName.includes('lg') ||
+      pName.includes('giant') ||
+      pName.includes('titan') ||
+      specs.includes('lg') ||
+      specs.includes('cwg') ||
+      specs.includes('cwt')
     );
   };
 
   const getAmcRatesForItem = (item) => {
     const pName = (item?.name || '').toLowerCase();
-    const pCat = (item?.category || '').toLowerCase();
-    if (pName.includes('lg') || pName.includes('stacker')) {
-      return { nonComp: 12500, comp: 18500 };
-    } else if (pName.includes('washer') || pCat.includes('washer')) {
-      return { nonComp: 15000, comp: 21500 };
-    } else if (pName.includes('dryer') || pCat.includes('dryer')) {
-      return { nonComp: 9000, comp: 14000 };
+    const specs = JSON.stringify(item?.specifications || {}).toLowerCase();
+    const capacity = (item?.specifications?.['Capacity'] || item?.specifications?.['capacity'] || '').toLowerCase();
+
+    const is15kg =
+      pName.includes('15') ||
+      pName.includes('titan') ||
+      capacity.includes('15') ||
+      specs.includes('15kg') ||
+      specs.includes('15 kg') ||
+      specs.includes('titan') ||
+      specs.includes('cwt');
+
+    if (is15kg) {
+      return { price: 18000 };
     }
-    return { nonComp: 12500, comp: 18500 };
+    return { price: 15000 };
   };
 
   // Use centralized recommendation engine for cart upsell
@@ -83,14 +75,13 @@ export default function CartPage({
   });
 
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
-  const nonChemicalSubtotal = items.filter(item => item.category !== 'Chemicals').reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = (subtotal > 500 || (items.length > 0 && nonChemicalSubtotal === 0)) ? 0 : 50;
+  const shipping = 0; // ₹0 collected online because freight is To-Pay upon delivery
   const tax = items.reduce((sum, item) => {
     const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
     return sum + (itemGst * item.quantity);
   }, 0);
   const installationFee = installationAddon.selected ? installationAddon.fee : 0;
-  const total = Math.round((subtotal + shipping + tax + installationFee) * 100) / 100;
+  const total = Math.round((subtotal + tax + installationFee) * 100) / 100;
 
   const handleAddAddon = (addon) => {
     if (onAddToCart) {
@@ -190,7 +181,7 @@ export default function CartPage({
                             border: '1px solid #bae6fd'
                           }}
                         >
-                          <span>⚙️ Machine Program Setup (+₹3,500)</span>
+                          <span>⚙️ Machine Program Setup (+₹18,000)</span>
                           <button
                             type="button"
                             onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'setup')}
@@ -221,31 +212,14 @@ export default function CartPage({
                           {(!item.selectedWarranty || item.selectedWarranty === 'none') && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               <span style={{ fontSize: '11px', fontWeight: '700', color: '#0f2b5c', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <ShieldCheck size={13} color="#0284c7" /> Add Kleider Care AMC Warranty:
+                                <ShieldCheck size={13} color="#0284c7" /> Add Kleider Care AMC Plan:
                               </span>
                               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                                 <button
                                   type="button"
-                                  onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'non-comprehensive')}
+                                  onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'amc')}
                                   style={{
-                                    padding: '3px 8px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    borderRadius: '5px',
-                                    border: '1px solid #cbd5e1',
-                                    background: '#ffffff',
-                                    color: '#334155',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.15s ease'
-                                  }}
-                                >
-                                  + Non-Comprehensive (₹{getAmcRatesForItem(item).nonComp.toLocaleString('en-IN')})
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'comprehensive')}
-                                  style={{
-                                    padding: '3px 8px',
+                                    padding: '4px 10px',
                                     fontSize: '11px',
                                     fontWeight: '700',
                                     borderRadius: '5px',
@@ -256,7 +230,7 @@ export default function CartPage({
                                     transition: 'all 0.15s ease'
                                   }}
                                 >
-                                  + Comprehensive (₹{getAmcRatesForItem(item).comp.toLocaleString('en-IN')})
+                                  + Add AMC Plan (₹{getAmcRatesForItem(item).price.toLocaleString('en-IN')} + 18% GST = ₹{Math.round(getAmcRatesForItem(item).price * 1.18).toLocaleString('en-IN')})
                                 </button>
                               </div>
                             </div>
@@ -281,7 +255,7 @@ export default function CartPage({
                                 gap: '4px'
                               }}
                             >
-                              + Add Machine Program Setup (+₹3,500)
+                              + Add Machine Program Setup (+₹18,000)
                             </button>
                           )}
                         </div>
@@ -402,11 +376,16 @@ export default function CartPage({
               {/* AMC Extended Warranty Breakdown in Order Summary */}
               {items.some(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo) && (
                 <div className="summary-row addon-row" style={{ color: '#0f2b5c', fontWeight: '600' }}>
-                  <span>🛡️ Extended Warranty & AMC</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span>🛡️ Extended Warranty & AMC</span>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'normal' }}>
+                      Base: ₹{items.filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo).reduce((sum, i) => sum + (i.amcWarrantyInfo.price * i.quantity), 0).toLocaleString('en-IN')} | GST @ 18%: ₹{items.filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo).reduce((sum, i) => sum + Math.round(i.amcWarrantyInfo.price * 0.18 * i.quantity), 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
                   <span>
                     +₹{items
                       .filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo)
-                      .reduce((sum, i) => sum + (i.amcWarrantyInfo.price * i.quantity), 0)
+                      .reduce((sum, i) => sum + (Math.round(i.amcWarrantyInfo.price * 1.18) * i.quantity), 0)
                       .toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -419,20 +398,34 @@ export default function CartPage({
                   <span>
                     +₹{items
                       .filter(i => i.includeProgramSetup)
-                      .reduce((sum, i) => sum + (3500 * i.quantity), 0)
+                      .reduce((sum, i) => sum + (18000 * i.quantity), 0)
                       .toLocaleString('en-IN')}
                   </span>
                 </div>
               )}
 
+              {/* Delivery / Freight Notice Box (No Dropdown) */}
+              <div className="cart-delivery-location-box" style={{ marginTop: '14px', marginBottom: '14px', background: '#fff7ed', padding: '12px', borderRadius: '8px', border: '1px solid #fed7aa' }}>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: '#c2410c', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Truck size={15} color="#ea580c" /> Freight & Delivery Policy
+                </label>
+                <p style={{ fontSize: '11px', color: '#9a3412', margin: 0, lineHeight: '1.4' }}>
+                  Delivery charges are <strong>not collected online</strong>. Customers will pay the actual freight/transport charges directly to the delivery partner upon arrival.
+                </p>
+              </div>
+
               <div className="summary-row">
-                <span>Shipping Estimate</span>
-                <span className={shipping === 0 ? 'free' : ''}>
-                  {shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString('en-IN')}`}
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>Shipping / Delivery</span>
+                  <span style={{ fontSize: '10px', color: '#ea580c', fontWeight: '600' }}>Pay directly to transporter on delivery</span>
+                </div>
+                <span style={{ color: '#ea580c', fontWeight: '700', fontSize: '12px' }}>PAY ON DELIVERY</span>
               </div>
               <div className="summary-row">
-                <span>Tax (18% GST)</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>Tax (18% GST)</span>
+                  <span style={{ fontSize: '10px', color: '#64748b' }}>Includes 18% GST on Products & AMC</span>
+                </div>
                 <span>₹{tax.toLocaleString('en-IN')}</span>
               </div>
 
@@ -441,11 +434,7 @@ export default function CartPage({
                 <span>₹{total.toLocaleString('en-IN')}</span>
               </div>
 
-              {subtotal > 0 && shipping > 0 && (
-                <div className="free-shipping-offer-page">
-                  💡 Add ₹{(500 - subtotal).toLocaleString('en-IN')} more for FREE shipping!
-                </div>
-              )}
+
 
               <button
                 className="checkout-btn-main"

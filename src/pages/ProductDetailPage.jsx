@@ -110,95 +110,46 @@ export default function ProductDetailPage({
     setSelectedImage(allGalleryImages[nextIdx]);
   };
 
-  // Check if AMC is applicable to the current product
+  // Check if AMC is applicable to the current product (ONLY for LG machines)
   const isAmcApplicable = () => {
     if (!product) return false;
     const cat = (product.category || '').toLowerCase();
     const name = (product.name || '').toLowerCase();
-    const desc = (product.description || '').toLowerCase();
+    const brand = (product.specifications?.['Brand'] || product.specifications?.['brand'] || '').toLowerCase();
     const specs = JSON.stringify(product.specifications || {}).toLowerCase();
 
-    // 1. Exclude chemical products & chemical packages
-    const isChemicalRelated =
-      cat.includes('chemical') ||
-      cat.includes('detergent') ||
-      name.includes('chemical') ||
-      name.includes('detergent') ||
-      name.includes('retail laundry package') ||
-      name.includes('spotting') ||
-      name.includes('stain') ||
-      name.includes('emulsifier') ||
-      name.includes('softener') ||
-      desc.includes('detergent') ||
-      desc.includes('emulsifier') ||
-      desc.includes('softener') ||
-      specs.includes('kc ld') ||
-      specs.includes('eml conc');
-
-    // 2. Exclude spare parts, accessories, and individual components
-    const isSparePart =
-      cat.includes('part') ||
-      cat.includes('accessory') ||
-      name.includes('bearing') ||
-      name.includes('sensor') ||
-      name.includes('pump') ||
-      name.includes('heater') ||
-      name.includes('valve') ||
-      name.includes('filter') ||
-      name.includes('hose') ||
-      name.includes('belt');
-
-    if (isChemicalRelated || isSparePart) {
-      return false;
-    }
-
-    // 3. Check for Machine Packages (e.g. Giant Electric Package, Titan Gas Package, Wet Pro Package)
-    const isMachinePackage =
-      (cat.includes('package') || name.includes('package')) &&
-      (name.includes('washer') ||
-        name.includes('dryer') ||
-        name.includes('giant') ||
-        name.includes('titan') ||
-        name.includes('wet pro') ||
-        name.includes('machine') ||
-        specs.includes('washer') ||
-        specs.includes('dryer'));
-
-    // 4. Applicable to Commercial Laundry Machines, Heavy Equipment & Machine Packages
+    // Must be an LG machine
     return (
-      isMachinePackage ||
-      cat.includes('laundry machine') ||
+      brand.includes('lg') ||
       cat.includes('lg') ||
-      cat.includes('speed queen') ||
-      cat.includes('pon') ||
-      cat.includes('equipment') ||
-      name.includes('washer') ||
-      name.includes('dryer') ||
-      name.includes('stacker') ||
+      name.includes('lg') ||
       name.includes('giant') ||
       name.includes('titan') ||
-      name.includes('machine')
+      specs.includes('lg') ||
+      specs.includes('cwg') ||
+      specs.includes('cwt')
     );
   };
 
-  // Official Kleider Care AMC Pricing based on product type
+  // Official Kleider Care AMC Pricing for LG machines (10kg = ₹15,000, 15kg = ₹18,000)
   const getAmcPrices = () => {
     const pName = (product?.name || '').toLowerCase();
-    const pCat = (product?.category || '').toLowerCase();
     const specs = JSON.stringify(product?.specifications || {}).toLowerCase();
+    const capacity = (product?.specifications?.['Capacity'] || product?.specifications?.['capacity'] || '').toLowerCase();
 
-    if (pName.includes('titan') || specs.includes('titan')) {
-      return { nonComp: 18000, comp: 26000, label: 'LG 15 kg Titan Commercial Package / Machine' };
-    } else if (pName.includes('giant') || specs.includes('giant')) {
-      return { nonComp: 14500, comp: 21000, label: 'LG 10 kg Giant Commercial Package / Machine' };
-    } else if (pName.includes('lg') || pName.includes('stacker')) {
-      return { nonComp: 12500, comp: 18500, label: 'LG Commercial Laundry Equipment' };
-    } else if (pName.includes('washer') || pCat.includes('washer')) {
-      return { nonComp: 15000, comp: 21500, label: 'Speed Queen / Heavy Duty Washer' };
-    } else if (pName.includes('dryer') || pCat.includes('dryer')) {
-      return { nonComp: 9000, comp: 14000, label: 'Speed Queen / Heavy Duty Dryer' };
+    const is15kg =
+      pName.includes('15') ||
+      pName.includes('titan') ||
+      capacity.includes('15') ||
+      specs.includes('15kg') ||
+      specs.includes('15 kg') ||
+      specs.includes('titan') ||
+      specs.includes('cwt');
+
+    if (is15kg) {
+      return { price: 18000, label: 'LG 15 kg Commercial Machine' };
     }
-    return { nonComp: 15000, comp: 22500, label: 'Commercial Machine Package / Equipment' };
+    return { price: 15000, label: 'LG 10 kg Commercial Machine' };
   };
 
   const amcRates = getAmcPrices();
@@ -207,13 +158,11 @@ export default function ProductDetailPage({
   const getCurrentProductTotalPrice = () => {
     if (!product) return 0;
     let total = product.price;
-    if (selectedWarranty === 'non-comprehensive') {
-      total += amcRates.nonComp;
-    } else if (selectedWarranty === 'comprehensive') {
-      total += amcRates.comp;
+    if (selectedWarranty && selectedWarranty !== 'none') {
+      total += amcRates.price;
     }
     if (includeProgramSetup) {
-      total += 3500;
+      total += 18000;
     }
     return total;
   };
@@ -418,16 +367,20 @@ export default function ProductDetailPage({
     let extraCost = 0;
     let warrantyInfo = null;
 
-    if (selectedWarranty === 'non-comprehensive') {
-      extraCost += amcRates.nonComp;
-      warrantyInfo = { type: 'Non-Comprehensive AMC', price: amcRates.nonComp, visits: '3/year', parts: 'Charged extra' };
-    } else if (selectedWarranty === 'comprehensive') {
-      extraCost += amcRates.comp;
-      warrantyInfo = { type: 'Comprehensive AMC', price: amcRates.comp, visits: '3/year', parts: 'Included (excl. consumables)' };
+    if (selectedWarranty && selectedWarranty !== 'none') {
+      extraCost += amcRates.price;
+      warrantyInfo = {
+        type: 'Kleider Care AMC',
+        price: amcRates.price,
+        gst: Math.round(amcRates.price * 0.18),
+        totalWithGst: Math.round(amcRates.price * 1.18),
+        visits: '3 Preventive Visits / year',
+        response: '24–48 Hours Emergency Response'
+      };
     }
 
     if (includeProgramSetup) {
-      extraCost += 3500;
+      extraCost += 18000;
     }
 
     if (extraCost > 0) {
@@ -708,69 +661,34 @@ export default function ProductDetailPage({
 
                 {showAmcDetails && (
                   <div className="pdp-amc-body">
-                    {/* AMC PLAN CARDS GRID */}
-                    <div className="amc-cards-grid">
-                      {/* PLAN 1: Non-Comprehensive AMC */}
+                    {/* AMC SINGLE PLAN CARD */}
+                    <div className="amc-cards-grid single-plan">
                       <div
-                        className={`amc-card ${selectedWarranty === 'non-comprehensive' ? 'selected' : ''}`}
-                        onClick={() => setSelectedWarranty(selectedWarranty === 'non-comprehensive' ? 'none' : 'non-comprehensive')}
+                        className={`amc-card single-amc-card featured ${selectedWarranty === 'amc' ? 'selected' : ''}`}
+                        onClick={() => setSelectedWarranty(selectedWarranty === 'amc' ? 'none' : 'amc')}
                       >
-                        <div className="amc-card-badge non-comp">Standard Maintenance</div>
-                        <h4 className="amc-plan-title">Non-Comprehensive AMC</h4>
+                        <div className="amc-card-badge comp">★ Kleider Care AMC Plan</div>
+                        <h4 className="amc-plan-title">Annual Maintenance Contract (AMC)</h4>
                         <div className="amc-plan-price">
-                          <span className="price-num">₹{amcRates.nonComp.toLocaleString('en-IN')}</span>
-                          <span className="price-unit">/ year (excl. GST)</span>
+                          <span className="price-num">₹{amcRates.price.toLocaleString('en-IN')}</span>
+                          <span className="price-unit">/ year (+ 18% GST: ₹{Math.round(amcRates.price * 0.18).toLocaleString('en-IN')} | Total: ₹{Math.round(amcRates.price * 1.18).toLocaleString('en-IN')})</span>
                         </div>
 
                         <ul className="amc-features-list">
-                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>3 Preventive Visits</strong> / year</span></li>
-                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>Unlimited</strong> Breakdown Support</span></li>
-                          <li><Clock size={16} className="feat-icon match" /> <span><strong>24–48 Hours</strong> Emergency Response</span></li>
-                          <li><Wrench size={16} className="feat-icon match" /> <span>Safety & Performance Check</span></li>
-                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span>Vent Cleaning & Drum Disinfection</span></li>
-                          <li className="excluded"><X size={16} className="feat-icon no-match" /> <span>Spare Parts (Charged Extra)</span></li>
+                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>3 Preventive Visits / year</strong></span></li>
+                          <li><Clock size={16} className="feat-icon match" /> <span><strong>24–48 Hours Emergency Response</strong></span></li>
+                          <li><Wrench size={16} className="feat-icon match" /> <span><strong>Safety & Performance Check</strong></span></li>
+                          <li><ShieldCheck size={16} className="feat-icon match highlight" /> <span><strong>Vent Cleaning & Drum Disinfection</strong></span></li>
                         </ul>
 
                         <button
-                          className={`amc-select-btn ${selectedWarranty === 'non-comprehensive' ? 'active' : ''}`}
+                          className={`amc-select-btn featured ${selectedWarranty === 'amc' ? 'active' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedWarranty(selectedWarranty === 'non-comprehensive' ? 'none' : 'non-comprehensive');
+                            setSelectedWarranty(selectedWarranty === 'amc' ? 'none' : 'amc');
                           }}
                         >
-                          {selectedWarranty === 'non-comprehensive' ? '✓ Plan Selected' : 'Select Non-Comprehensive'}
-                        </button>
-                      </div>
-
-                      {/* PLAN 2: Comprehensive AMC */}
-                      <div
-                        className={`amc-card featured ${selectedWarranty === 'comprehensive' ? 'selected' : ''}`}
-                        onClick={() => setSelectedWarranty(selectedWarranty === 'comprehensive' ? 'none' : 'comprehensive')}
-                      >
-                        <div className="amc-card-badge comp">★ Best Protection (Parts Included)</div>
-                        <h4 className="amc-plan-title">Comprehensive AMC</h4>
-                        <div className="amc-plan-price">
-                          <span className="price-num">₹{amcRates.comp.toLocaleString('en-IN')}</span>
-                          <span className="price-unit">/ year (excl. GST)</span>
-                        </div>
-
-                        <ul className="amc-features-list">
-                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>3 Preventive Visits</strong> / year</span></li>
-                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span><strong>Unlimited</strong> Breakdown Support</span></li>
-                          <li><ShieldCheck size={16} className="feat-icon match highlight" /> <span><strong>Spare Parts Included</strong> (excl. consumables)</span></li>
-                          <li><Clock size={16} className="feat-icon match" /> <span><strong>24–48 Hours</strong> Priority Hotline Response</span></li>
-                          <li><Wrench size={16} className="feat-icon match" /> <span>Vent Cleaning & Drum Disinfection</span></li>
-                          <li><CheckCircle2 size={16} className="feat-icon match" /> <span>Calibration Check & Service Log</span></li>
-                        </ul>
-
-                        <button
-                          className={`amc-select-btn featured ${selectedWarranty === 'comprehensive' ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedWarranty(selectedWarranty === 'comprehensive' ? 'none' : 'comprehensive');
-                          }}
-                        >
-                          {selectedWarranty === 'comprehensive' ? '✓ Plan Selected' : 'Select Comprehensive'}
+                          {selectedWarranty === 'amc' ? '✓ AMC Plan Selected' : 'Select AMC Plan'}
                         </button>
                       </div>
                     </div>
@@ -779,10 +697,10 @@ export default function ProductDetailPage({
                     <div className={`amc-addon-box ${includeProgramSetup ? 'selected' : ''}`}>
                       <div className="amc-addon-info">
                         <strong>Machine Program Setup (Up to 10 Programs in LG)</strong>
-                        <p>Custom program parameters & calibration setup by certified technicians (@ ₹350/program)</p>
+                        <p>Custom program parameters & calibration setup by certified technicians (@ ₹1,800/program)</p>
                       </div>
                       <div className="amc-addon-action">
-                        <span className="amc-addon-price">+ ₹3,500</span>
+                        <span className="amc-addon-price">+ ₹18,000</span>
                         <button
                           type="button"
                           className={`amc-addon-btn ${includeProgramSetup ? 'active' : ''}`}

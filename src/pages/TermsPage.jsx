@@ -232,12 +232,12 @@ export default function TermsPage({
                 </p>
               </div>
 
-              {/* 16. Non-Comprehensive Annual Maintenance Contract (NAMC) Agreement */}
+              {/* 16. Annual Maintenance Contract (AMC) Agreement */}
               <div className="terms-section-block amc-legal-section" style={{ borderTop: '2px solid #e2e8f0', paddingTop: '25px', marginTop: '30px' }}>
                 <span className="terms-badge" style={{ backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '11px', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: '700' }}>Official Contract Template</span>
-                <h2 style={{ color: '#0f2b5c', marginTop: '10px' }}>16. Non-Comprehensive Annual Maintenance Agreement for Commercial Washer & Dryer</h2>
+                <h2 style={{ color: '#0f2b5c', marginTop: '10px' }}>16. Kleider Care Annual Maintenance Contract (AMC) Agreement for Commercial Washer & Dryer</h2>
                 <p className="terms-lead">
-                  This Non-Comprehensive Annual Maintenance Contract ("NAMC Agreement") sets forth the terms and conditions governing preventive maintenance, emergency breakdown support, and technical servicing provided by <strong>KLEIDER CARE PVT LTD</strong> for commercial laundry washers and dryers.
+                  This Annual Maintenance Contract ("AMC Agreement") sets forth the terms and conditions governing preventive maintenance, emergency breakdown support, and technical servicing provided by <strong>KLEIDER CARE PVT LTD</strong> for commercial laundry washers and dryers.
                 </p>
 
                 <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #0f2b5c', margin: '15px 0' }}>
@@ -248,13 +248,12 @@ export default function TermsPage({
                 </div>
 
                 <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '20px' }}>Scope of Work & Service Schedule</h3>
-                <p>Under the Kleider Care NAMC Plan, certified service engineers provide structured quarterly routine check-ups and unlimited emergency breakdown support:</p>
+                <p>Under the Kleider Care AMC Plan, certified service engineers provide structured preventive visits and emergency breakdown support:</p>
                 <ul className="terms-list">
-                  <li><strong>Quarterly Inspections:</strong> Certified Service Engineers visit site every quarter for comprehensive diagnostic checks, safety inspections, and preventive tuning.</li>
-                  <li><strong>Unlimited Breakdown Support:</strong> Emergency breakdown complaints are attended within <strong>24 to 48 hours</strong> of logging a ticket.</li>
-                  <li><strong>Minor Complaints & Labor Included:</strong> Covers all labor charges for on-site minor adjustments, routine checkups, parameter calibrations, and troubleshooting.</li>
-                  <li><strong>Spare Parts & Replacements:</strong> All replacement components and spare parts are charged extra as per actuals.</li>
-                  <li><strong>LG Custom Programming:</strong> Includes custom programming setup for up to 10 LG commercial washer/dryer cycles.</li>
+                  <li><strong>3 Preventive Visits / year:</strong> Certified Service Engineers conduct 3 scheduled preventive visits per year for thorough diagnostic checks and tuning.</li>
+                  <li><strong>24–48 Hours Emergency Response:</strong> Emergency breakdown complaints are attended on-site within <strong>24 to 48 hours</strong> of ticket logging.</li>
+                  <li><strong>Safety & Performance Check:</strong> Inspection and testing of electrical grounding, gas lines, safety cutoffs, drive belts, and motor performance.</li>
+                  <li><strong>Vent Cleaning & Drum Disinfection:</strong> Deep cleaning and disinfection of dryer exhaust vents, washer drums, filter assemblies, and seals.</li>
                 </ul>
 
                 <h3 style={{ fontSize: '18px', color: '#1e293b', marginTop: '20px' }}>16-Point Quarterly Service Checklist</h3>

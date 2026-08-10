@@ -2101,7 +2101,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     
                     // Main Item (Base product)
                     const amcPrice = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
-                    const progPrice = item.includeProgramSetup ? 3500 : 0;
+                    const progPrice = item.includeProgramSetup ? 18000 : 0;
                     const baseItemPrice = item.basePrice || Math.max(0, item.price - amcPrice - progPrice);
 
                     const baseItemTotal = baseItemPrice * item.quantity;
