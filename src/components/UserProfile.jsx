@@ -13,7 +13,10 @@ import {
   ChevronDown,
   Info,
   ArrowLeft,
-  Bot
+  Bot,
+  Download,
+  Printer,
+  FileText
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { updateProfile, updateAddresses, addWalletBalance } from '../services/authService';
@@ -70,6 +73,63 @@ export default function UserProfile({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('orders'); // default tab is orders like zepto
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  
+  const handlePrint = (invoice = selectedInvoice) => {
+    if (!invoice) return;
+    const originalTitle = document.title;
+    const invId = invoice.orderId || invoice.id || '203075';
+    document.title = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
+  };
+
+  const downloadAsPdf = (invoice = selectedInvoice) => {
+    if (!invoice) return;
+    const invId = invoice.orderId || invoice.id || '203075';
+    const cleanId = invId.toString().replace(/#/g, '');
+    const filename = `Invoice_KC_${cleanId}.pdf`;
+    const element = document.getElementById('invoice-print-area');
+
+    if (!element) {
+      handlePrint(invoice);
+      return;
+    }
+
+    const opt = {
+      margin: [6, 6, 6, 6],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    const triggerDownload = () => {
+      if (window.html2pdf) {
+        window.html2pdf().set(opt).from(element).save();
+      } else {
+        handlePrint(invoice);
+      }
+    };
+
+    if (window.html2pdf) {
+      triggerDownload();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      script.onload = () => triggerDownload();
+      script.onerror = () => triggerDownload();
+      document.body.appendChild(script);
+    }
+  };
+
+  const handleDownloadInvoice = (order) => {
+    setSelectedInvoice(order);
+    setTimeout(() => {
+      downloadAsPdf(order);
+    }, 300);
+  };
   
   // Profile Form State
   const [firstName, setFirstName] = useState(userData?.firstName || '');
@@ -479,9 +539,9 @@ export default function UserProfile({
                                     <button 
                                       className="view-invoice-btn" 
                                       onClick={() => setSelectedInvoice(order)}
-                                      style={{ padding: '6px 12px', border: '1px solid #0f2b5c', color: '#0f2b5c', background: 'none', borderRadius: '6px', fontWeight: '750', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}
+                                      style={{ padding: '6px 14px', border: '1px solid #0f2b5c', color: '#0f2b5c', background: '#ffffff', borderRadius: '6px', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                                     >
-                                      View Invoice
+                                      <FileText size={14} /> View Invoice
                                     </button>
                                   ) : (
                                     <button 
@@ -741,8 +801,15 @@ export default function UserProfile({
         <div className="invoice-modal-overlay" onClick={() => setSelectedInvoice(null)}>
           <div className="invoice-modal-card" onClick={e => e.stopPropagation()}>
             <div className="invoice-modal-actions-bar">
-              <button className="print-btn" onClick={() => window.print()}>Print Invoice</button>
-              <button className="close-btn" onClick={() => setSelectedInvoice(null)}>Close</button>
+              <button className="download-btn" onClick={() => downloadAsPdf(selectedInvoice)}>
+                <Download size={15} /> Download Invoice (PDF)
+              </button>
+              <button className="print-btn" onClick={() => handlePrint(selectedInvoice)}>
+                <Printer size={15} /> Print
+              </button>
+              <button className="invoice-close-btn" onClick={() => setSelectedInvoice(null)}>
+                Close
+              </button>
             </div>
             
             {/* Printable Invoice Sheet */}

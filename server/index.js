@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import dns from 'dns';
 import crypto from 'crypto';
 import tls from 'tls';
+import serverless from 'serverless-http'; // <-- 1. Import serverless-http
 import authRoutes from './routes/auth.js';
 import paymentRoutes from './routes/payment.js';
 import orderRoutes from './routes/orders.js';
@@ -18,11 +19,11 @@ if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
 
-
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// PORT is no longer strictly needed for Lambda, but kept for local testing if needed
+const PORT = process.env.PORT || 5000; 
 
 // Create a secure context with legacy renegotiation enabled for Node v24+ OpenSSL 3.x compatibility
 const secureContext = tls.createSecureContext({
@@ -60,7 +61,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
@@ -72,14 +72,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Connect to MongoDB and start server
+// Connect to MongoDB
 const connectDB = async () => {
+  // Lambda connection caching strategy: Check if already connected to prevent exhausting pool
+  if (mongoose.connection.readyState >= 1) return;
+
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 15000,
       socketTimeoutMS: 45000,
-      family: 4,
-      secureContext: secureContext
+      family: 4
     });
     console.log('✅ Connected to MongoDB Atlas');
 
@@ -132,8 +134,14 @@ mongoose.connection.on('disconnected', () => {
   console.log('📦 Mongoose disconnected');
 });
 
-connectDB().then(() => {
+// 2. Initialize DB connection outside the request handler for "cold start" optimization
+connectDB();
+
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.NETLIFY) {
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Kleider Care Server running on http://localhost:${PORT}`);
   });
-});
+}
+
+// 3. Export the serverless handler
+export const handler = serverless(app);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { getRecommendations } from '../utils/recommendationEngine';
+import { formatImageUrl } from '../utils/imageUtils';
 import './CartPage.css';
 
 export default function CartPage({
@@ -122,10 +123,14 @@ export default function CartPage({
               <div className="cart-items-list">
                 {items.map(item => (
                   <div key={item.cartItemId || item.id} className="cart-page-item">
-                    <img src={item.image} alt={item.name} className="cart-page-item-image" />
+                    <Link to={`/product/${item.id}`} className="cart-page-item-image-link">
+                      <img src={formatImageUrl(item.image)} alt={item.name} className="cart-page-item-image" />
+                    </Link>
 
                     <div className="cart-page-item-details">
-                      <h3 className="cart-page-item-name">{item.name}</h3>
+                      <Link to={`/product/${item.id}`} className="cart-page-item-name-link">
+                        <h3 className="cart-page-item-name">{item.name}</h3>
+                      </Link>
                       {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
                         <div
                           className="item-warranty-badge"
@@ -335,11 +340,15 @@ export default function CartPage({
                     return (
                       <div key={addon.id} className="addon-recommend-card">
                         <div className="addon-card-left">
-                          <img src={addon.image} alt={addon.name} className="addon-img" />
+                          <Link to={`/product/${addon.id}`} className="addon-card-left-link">
+                            <img src={addon.image} alt={addon.name} className="addon-img" />
+                          </Link>
                         </div>
 
                         <div className="addon-card-mid">
-                          <h4 className="addon-title">{addon.name}</h4>
+                          <Link to={`/product/${addon.id}`} className="addon-title-link">
+                            <h4 className="addon-title">{addon.name}</h4>
+                          </Link>
                           {reason && <p className="addon-reason-text">✨ {reason}</p>}
                           <p className="addon-desc">{addon.description || `${addon.category} spare part`}</p>
                           <div className="addon-price-line">

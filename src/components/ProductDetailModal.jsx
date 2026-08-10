@@ -10,9 +10,17 @@ import {
   CreditCard,
   Zap,
   Sparkles,
-  MapPin
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  Camera,
+  Upload,
+  Image as ImageIcon,
+  RotateCcw,
+  Plus
 } from 'lucide-react';
 import { getProductType, getRecommendedTargetType, getRecommendationReason } from '../utils/recommendationEngine';
+import { formatImageUrl } from '../utils/imageUtils';
 import './ProductDetailModal.css';
 
 export default function ProductDetailModal({
@@ -26,8 +34,30 @@ export default function ProductDetailModal({
 }) {
   if (!product) return null;
 
-  const [selectedImage, setSelectedImage] = useState(product.image);
+  const formattedProductImage = formatImageUrl(product.image);
+  const [selectedImage, setSelectedImage] = useState(formattedProductImage);
   const [addonAdded, setAddonAdded] = useState(false);
+
+  const allGalleryImages = Array.from(
+    new Set([
+      formattedProductImage,
+      ...(Array.isArray(product?.images) ? product.images : []),
+      selectedImage
+    ].filter(Boolean).map(img => formatImageUrl(img)))
+  );
+
+  const currentImgIdx = allGalleryImages.indexOf(selectedImage);
+  const safeImgIdx = currentImgIdx >= 0 ? currentImgIdx : 0;
+
+  const handlePrevImage = () => {
+    const prevIdx = safeImgIdx > 0 ? safeImgIdx - 1 : allGalleryImages.length - 1;
+    setSelectedImage(allGalleryImages[prevIdx]);
+  };
+
+  const handleNextImage = () => {
+    const nextIdx = safeImgIdx < allGalleryImages.length - 1 ? safeImgIdx + 1 : 0;
+    setSelectedImage(allGalleryImages[nextIdx]);
+  };
 
   const currentType = getProductType(product);
   const targetType = getRecommendedTargetType(currentType);
@@ -90,8 +120,28 @@ export default function ProductDetailModal({
         <div className="pdp-body">
           {/* LEFT MEDIA SHOWCASE COLUMN */}
           <div className="pdp-media-column">
-            <div className="pdp-main-image-box">
-              <img src={selectedImage} alt={product.name} className="pdp-main-image" />
+            <div className="pdp-main-image-box" style={{ position: 'relative' }}>
+              <img src={selectedImage || product.image} alt={product.name} className="pdp-main-image" />
+
+              {/* GALLERY PREV & NEXT NAVIGATION BUTTONS */}
+              {allGalleryImages.length > 1 && (
+                <>
+                  <button
+                    className="pdp-gallery-nav-btn pdp-gallery-nav-prev"
+                    onClick={handlePrevImage}
+                    title="Previous Image"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    className="pdp-gallery-nav-btn pdp-gallery-nav-next"
+                    onClick={handleNextImage}
+                    title="Next Image"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
 
               <div className="pdp-overlay-icons">
                 <button
@@ -111,12 +161,7 @@ export default function ProductDetailModal({
 
             {/* GALLERY THUMBNAILS & DEMO PREVIEW */}
             <div className="pdp-thumbnails-strip">
-              {Array.from(
-                new Set([
-                  product?.image,
-                  ...(Array.isArray(product?.images) ? product.images : [])
-                ].filter(Boolean))
-              ).map((imgUrl, idx) => (
+              {allGalleryImages.map((imgUrl, idx) => (
                 <button
                   key={idx}
                   className={`pdp-thumb-btn ${selectedImage === imgUrl ? 'active' : ''}`}
@@ -127,7 +172,7 @@ export default function ProductDetailModal({
               ))}
 
               <div className="pdp-thumb-video-box" title="Watch Product Demo">
-                <img src={product.image} alt="Video Preview" />
+                <img src={selectedImage || product.image} alt="Video Preview" />
                 <div className="pdp-play-overlay">
                   <Play size={16} fill="#fff" />
                 </div>
@@ -376,6 +421,7 @@ export default function ProductDetailModal({
           </div>
         </div>
       </div>
+
     </div>
   );
 }

@@ -20,7 +20,7 @@
   padding: 0;
   width: 100%;
   aspect-ratio: 16 / 5.5;
-  min-height: 280px;
+  min-height: 80px;
   max-height: 480px;
   color: #0f172a;
   overflow: hidden;

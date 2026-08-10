@@ -106,7 +106,7 @@
   }
 }
 
-.close-btn {
+.signup-container .close-btn {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -124,7 +124,7 @@
   z-index: 10;
 }
 
-.close-btn:hover {
+.signup-container .close-btn:hover {
   background: #f3f4f6;
 }
 

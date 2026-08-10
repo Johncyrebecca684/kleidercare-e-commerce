@@ -26,6 +26,9 @@ export function useBrowsingTracker() {
     if (!product || !product.id) return;
 
     setBrowsingHistory(prev => {
+      if (prev.length > 0 && prev[0].id === product.id) {
+        return prev;
+      }
       // Remove existing entry for this product (avoid duplicates)
       const filtered = prev.filter(item => item.id !== product.id);
 

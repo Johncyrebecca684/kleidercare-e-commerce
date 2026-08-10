@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Trash2, ArrowLeft, ArrowRight, Heart, ChevronDown, ChevronUp, Star } from 'lucide-react';
-import './WishlistPage.css';
-
+import { formatImageUrl } from '../utils/imageUtils';
 import './WishlistPage.css';
 
 function WishlistItem({ item, onAddToCart, onRemoveFromWishlist }) {
@@ -11,7 +10,7 @@ function WishlistItem({ item, onAddToCart, onRemoveFromWishlist }) {
   return (
     <div className="wishlist-page-item-container">
       <div className="wishlist-page-item">
-        <img src={item.image} alt={item.name} className="wishlist-page-item-image" />
+        <img src={formatImageUrl(item.image)} alt={item.name} className="wishlist-page-item-image" />
         
         <div className="wishlist-page-item-details">
           <h3 className="wishlist-page-item-name">{item.name}</h3>

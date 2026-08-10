@@ -20,11 +20,15 @@ import {
   Sparkles,
   Layers,
   LogOut,
-  Loader2
+  Loader2,
+  PhoneCall,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getSearchResultsWithSimilar } from '../utils/searchEngine';
+import { formatImageUrl } from '../utils/imageUtils';
 import './Header.css';
 
 const categories = [
@@ -220,7 +224,7 @@ export default function Header({
                           navigate(`/product/${product.id}`);
                         }}
                       >
-                        <img src={product.image} alt={product.name} className="suggestionItemImg" />
+                        <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
                         <div className="suggestionItemInfo">
                           <div className="suggestionItemTitle">{product.name}</div>
                           <div className="suggestionItemMeta">
@@ -242,7 +246,7 @@ export default function Header({
                               navigate(`/product/${product.id}`);
                             }}
                           >
-                            <img src={product.image} alt={product.name} className="suggestionItemImg" />
+                            <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
                             <div className="suggestionItemInfo">
                               <div className="suggestionItemTitle">{product.name}</div>
                               <div className="suggestionItemMeta">
@@ -274,7 +278,7 @@ export default function Header({
                               navigate(`/product/${product.id}`);
                             }}
                           >
-                            <img src={product.image} alt={product.name} className="suggestionItemImg" />
+                            <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
                             <div className="suggestionItemInfo">
                               <div className="suggestionItemTitle">{product.name}</div>
                               <div className="suggestionItemMeta">

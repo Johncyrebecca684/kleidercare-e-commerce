@@ -887,39 +887,71 @@
 
 .invoice-modal-actions-bar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  border-bottom: 1px solid var(--zepto-border);
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e2e8f0;
   padding-bottom: 15px;
 }
 
 .invoice-modal-actions-bar button {
-  padding: 8px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   border: none;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.invoice-modal-actions-bar .print-btn {
-  background-color: var(--zepto-purple);
+.invoice-modal-actions-bar .download-btn {
+  background-color: #0f2b5c;
   color: #ffffff;
 }
 
+.invoice-modal-actions-bar .download-btn:hover {
+  background-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.invoice-modal-actions-bar .print-btn {
+  background-color: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
 .invoice-modal-actions-bar .print-btn:hover {
-  background-color: var(--zepto-purple-hover);
+  background-color: #e0f2fe;
+  border-color: #0284c7;
 }
 
-.invoice-modal-actions-bar .close-btn {
+.invoice-modal-actions-bar .invoice-close-btn {
+  position: static !important;
   background-color: #f1f5f9;
-  color: var(--zepto-text-dark);
-  border: 1px solid var(--zepto-border);
+  color: #334155;
+  border: 1px solid #cbd5e1;
 }
 
-.invoice-modal-actions-bar .close-btn:hover {
+.invoice-modal-actions-bar .invoice-close-btn:hover {
   background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.download-invoice-btn:hover {
+  background-color: #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.view-invoice-btn:hover:not(.disabled) {
+  background-color: #f0f7ff !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
 }
 
 /* Printable Invoice sheet template matching mock */

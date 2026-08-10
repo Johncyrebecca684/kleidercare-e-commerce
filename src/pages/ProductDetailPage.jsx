@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -17,6 +17,7 @@ import {
   Truck,
   Wrench,
   ChevronRight,
+  ChevronLeft,
   ChevronUp,
   ChevronDown,
   Home,
@@ -36,10 +37,16 @@ import {
   Check,
   HelpCircle,
   Info,
-  MapPin
+  MapPin,
+  Camera,
+  Upload,
+  Image as ImageIcon,
+  RotateCcw,
+  Layers
 } from 'lucide-react';
 import { getRecommendations, getProductType, getRecommendedTargetType } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
+import { formatImageUrl } from '../utils/imageUtils';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage({
@@ -58,7 +65,17 @@ export default function ProductDetailPage({
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const product = products.find(p => String(p.id) === String(id)) || products[0];
+  const rawProduct = products.find(p => String(p.id) === String(id)) || products[0];
+  const product = useMemo(() => {
+    if (!rawProduct) return null;
+    return {
+      ...rawProduct,
+      image: formatImageUrl(rawProduct.image),
+      images: Array.isArray(rawProduct.images)
+        ? rawProduct.images.map(img => formatImageUrl(img))
+        : [formatImageUrl(rawProduct.image)]
+    };
+  }, [rawProduct]);
 
   const [selectedImage, setSelectedImage] = useState(product?.image || '');
   const [selectedColor, setSelectedColor] = useState('Commercial Stainless Steel');
@@ -70,6 +87,28 @@ export default function ProductDetailPage({
   const [includeProgramSetup, setIncludeProgramSetup] = useState(false);
   const [showAmcScheduleModal, setShowAmcScheduleModal] = useState(false);
   const [showAmcDetails, setShowAmcDetails] = useState(true);
+
+  // Gallery image list combining base product images
+  const allGalleryImages = Array.from(
+    new Set([
+      product?.image,
+      ...(Array.isArray(product?.images) ? product.images : []),
+      selectedImage
+    ].filter(Boolean).map(img => formatImageUrl(img)))
+  );
+
+  const currentImgIdx = allGalleryImages.indexOf(selectedImage);
+  const safeImgIdx = currentImgIdx >= 0 ? currentImgIdx : 0;
+
+  const handlePrevImage = () => {
+    const prevIdx = safeImgIdx > 0 ? safeImgIdx - 1 : allGalleryImages.length - 1;
+    setSelectedImage(allGalleryImages[prevIdx]);
+  };
+
+  const handleNextImage = () => {
+    const nextIdx = safeImgIdx < allGalleryImages.length - 1 ? safeImgIdx + 1 : 0;
+    setSelectedImage(allGalleryImages[nextIdx]);
+  };
 
   // Check if AMC is applicable to the current product
   const isAmcApplicable = () => {
@@ -188,12 +227,13 @@ export default function ProductDetailPage({
   const [reviewsList, setReviewsList] = useState([]);
 
   const { recordView } = useBrowsingTracker();
+  const productId = product?.id;
 
   useEffect(() => {
-    if (product) {
+    if (product && product.id) {
       recordView(product);
     }
-  }, [product, recordView]);
+  }, [productId, recordView]);
 
   // FREQUENTLY BOUGHT TOGETHER BUNDLE STATE via Recommendation Engine
   const fbtRecommendations = getRecommendations({
@@ -484,8 +524,31 @@ export default function ProductDetailPage({
           {/* LEFT COLUMN: MEDIA GALLERY & SHOWCASE */}
           <div className="pdp-media-gallery">
             <div className="pdp-main-view-container">
-              <img src={selectedImage} alt={product.name} className="pdp-hero-image" />
+              <img src={selectedImage || product.image} alt={product.name} className="pdp-hero-image" />
 
+              {/* GALLERY PREV & NEXT NAVIGATION BUTTONS */}
+              {allGalleryImages.length > 1 && (
+                <>
+                  <button
+                    className="pdp-gallery-nav-btn pdp-gallery-nav-prev"
+                    onClick={handlePrevImage}
+                    title="Previous Product Image"
+                    aria-label="Previous Image"
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+                  <button
+                    className="pdp-gallery-nav-btn pdp-gallery-nav-next"
+                    onClick={handleNextImage}
+                    title="Next Product Image"
+                    aria-label="Next Image"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                </>
+              )}
+
+              {/* FLOATING ACTION ICONS */}
               <div className="pdp-floating-actions">
                 <button
                   className={`pdp-action-icon ${isWishlisted ? 'active' : ''}`}
@@ -504,23 +567,19 @@ export default function ProductDetailPage({
 
             {/* THUMBNAIL GALLERY STRIP */}
             <div className="pdp-thumbnails-row">
-              {Array.from(
-                new Set([
-                  product?.image,
-                  ...(Array.isArray(product?.images) ? product.images : [])
-                ].filter(Boolean))
-              ).map((imgUrl, idx) => (
+              {allGalleryImages.map((imgUrl, idx) => (
                 <button
                   key={idx}
                   className={`pdp-thumb-card ${selectedImage === imgUrl ? 'active' : ''}`}
                   onClick={() => setSelectedImage(imgUrl)}
+                  title={`View product image ${idx + 1}`}
                 >
                   <img src={imgUrl} alt={`View ${idx + 1}`} />
                 </button>
               ))}
 
               <div className="pdp-thumb-video-card">
-                <img src={product.image} alt="Demo Video" />
+                <img src={selectedImage || product.image} alt="Demo Video" />
                 <div className="pdp-video-badge">
                   <Play size={14} fill="#fff" />
                 </div>

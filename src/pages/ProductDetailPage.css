@@ -2085,3 +2085,414 @@
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   PRODUCT IMAGE NAVIGATION & CHANGE IMAGE MODAL STYLES
+   ========================================================================== */
+
+/* Main View Image Container relative positioning */
+.pdp-main-view-container {
+  position: relative;
+}
+
+/* Prev / Next Navigation Circle Buttons */
+.pdp-gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.pdp-gallery-nav-prev {
+  left: 14px;
+}
+
+.pdp-gallery-nav-next {
+  right: 14px;
+}
+
+.pdp-gallery-nav-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35);
+}
+
+.pdp-gallery-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Image Counter Pill */
+.pdp-image-counter-pill {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Change Image Trigger Button Badge at bottom center of main view */
+.pdp-change-image-trigger-btn {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
+  transition: all 0.25s ease;
+  z-index: 8;
+}
+
+.pdp-change-image-trigger-btn:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.55);
+}
+
+/* Floating camera action button highlight */
+.pdp-action-icon.pdp-change-img-action:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+}
+
+/* Add Thumbnail Card Button */
+.pdp-thumb-card.pdp-add-thumb-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f0f9ff;
+  border: 2px dashed #38bdf8;
+  color: #0284c7;
+  gap: 4px;
+  padding: 4px;
+}
+
+.pdp-thumb-card.pdp-add-thumb-btn:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  transform: translateY(-2px);
+}
+
+.pdp-add-thumb-text {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* Toast Success styling */
+.pdp-copied-toast.pdp-success-toast {
+  background: #059669 !important;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   CHANGE IMAGE MODAL DIALOG
+   ========================================================================== */
+
+.pdp-image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.pdp-image-modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 580px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.pdp-image-modal-header {
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pdp-modal-icon-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #e0f2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdp-modal-close-icon {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pdp-modal-close-icon:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Tabs */
+.pdp-image-modal-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 6px;
+  gap: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pdp-img-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pdp-img-tab:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.pdp-img-tab.active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Modal Body */
+.pdp-image-modal-body {
+  padding: 24px;
+}
+
+/* File Dropzone */
+.pdp-file-dropzone {
+  border: 2px dashed #0284c7;
+  border-radius: 16px;
+  background: #f0f9ff;
+  padding: 36px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.pdp-file-dropzone:hover {
+  background: #e0f2fe;
+  border-color: #0369a1;
+}
+
+.pdp-browse-btn {
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+/* URL Form */
+.pdp-url-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.pdp-url-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pdp-url-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.pdp-apply-url-btn {
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 700;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pdp-apply-url-btn:hover {
+  background: #0369a1;
+}
+
+.pdp-url-preview-box {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.pdp-url-preview-box img {
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Presets Grid */
+.pdp-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.pdp-preset-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.pdp-preset-card:hover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+}
+
+.pdp-preset-card img {
+  width: 100%;
+  height: 90px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.pdp-preset-card span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  text-align: center;
+}
+
+/* Modal Footer */
+.pdp-image-modal-footer {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pdp-reset-img-btn {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pdp-reset-img-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.pdp-cancel-modal-btn {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pdp-cancel-modal-btn:hover {
+  background: #cbd5e1;
+}

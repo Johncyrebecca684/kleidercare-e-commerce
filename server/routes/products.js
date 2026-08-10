@@ -19,6 +19,30 @@ const adminMiddleware = async (req, res, next) => {
   }
 };
 
+// Helper function to format Google Drive URLs to direct CDN image URLs
+function formatImageUrl(url) {
+  if (!url || typeof url !== 'string') return url || '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+    let fileId = null;
+    const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileDMatch && fileDMatch[1]) {
+      fileId = fileDMatch[1];
+    }
+    if (!fileId) {
+      const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (idMatch && idMatch[1]) {
+        fileId = idMatch[1];
+      }
+    }
+    if (fileId) {
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+  }
+  return trimmed;
+}
+
 // GET all products
 // GET /api/products
 router.get('/', async (req, res) => {
@@ -50,8 +74,9 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     if (productStock <= 0) stockStatus = 'Out of Stock';
     else if (productStock <= threshold) stockStatus = 'Low Stock';
 
-    const validImages = Array.isArray(images) ? images.filter(Boolean) : (image ? [image] : []);
-    const primaryImage = validImages[0] || image || '';
+    const rawImages = Array.isArray(images) ? images.filter(Boolean) : (image ? [image] : []);
+    const validImages = rawImages.map(img => formatImageUrl(img));
+    const primaryImage = validImages[0] ? formatImageUrl(validImages[0]) : formatImageUrl(image || '');
 
     const newProduct = new Product({
       id,
@@ -102,22 +127,27 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     if (originalPrice !== undefined) product.originalPrice = Number(originalPrice);
     
     if (images !== undefined) {
-      const validImages = Array.isArray(images) ? images.filter(Boolean) : [];
+      const rawImages = Array.isArray(images) ? images.filter(Boolean) : [];
+      const validImages = rawImages.map(img => formatImageUrl(img));
       product.images = validImages;
       if (validImages.length > 0) {
         product.image = validImages[0];
       }
     } else if (image) {
-      product.image = image;
+      const formattedImg = formatImageUrl(image);
+      product.image = formattedImg;
       if (!product.images || product.images.length === 0) {
-        product.images = [image];
+        product.images = [formattedImg];
       }
     }
 
     if (description !== undefined) product.description = description;
     if (badge !== undefined) product.badge = badge;
     if (sku !== undefined) product.sku = sku;
-    if (specifications) product.specifications = specifications;
+    if (specifications !== undefined) {
+      product.specifications = specifications;
+      product.markModified('specifications');
+    }
     
     if (lowStockThreshold !== undefined) product.lowStockThreshold = Number(lowStockThreshold);
     if (stock !== undefined) {

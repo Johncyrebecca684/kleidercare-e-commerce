@@ -4,6 +4,7 @@ import {
   GitCompareArrows, ShoppingCart, Star, ArrowLeft,
   Trash2, CheckCircle, XCircle, TrendingUp, Award, Zap
 } from 'lucide-react';
+import { formatImageUrl } from '../utils/imageUtils';
 import './ComparePage.css';
 
 /* ─────────── Client-side comparison engine ─────────── */
@@ -147,7 +148,7 @@ export default function ComparePage({ onAddToCart }) {
                       <Trash2 size={14} />
                     </button>
                     <div className="compare-product-img-wrap">
-                      <img src={p.image} alt={p.name} />
+                      <img src={formatImageUrl(p.image)} alt={p.name} />
                     </div>
                     <h3 className="compare-product-name">{p.name}</h3>
                     {p.badge && <span className="compare-badge">{p.badge}</span>}

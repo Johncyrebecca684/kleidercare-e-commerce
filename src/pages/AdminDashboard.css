@@ -1460,4 +1460,153 @@
   appearance: auto;
 }
 
+/* =========================================================
+   TECHNICAL SPECIFICATIONS EDITOR & PREVIEW STYLES
+   ========================================================= */
+
+.specPreviewList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.specPreviewChip {
+  font-size: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.specPreviewChip.count {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #bae6fd;
+  font-weight: 700;
+}
+
+.iconBtn.specs {
+  color: #0284c7;
+  border-color: #bae6fd;
+  background: #f0f9ff;
+}
+
+.iconBtn.specs:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.presetChipsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.presetChipsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.presetChip {
+  font-size: 11px;
+  font-weight: 600;
+  background: #ffffff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.presetChip:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.specRowsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.specRowInputGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.specKeyInput {
+  flex: 1;
+  font-weight: 600;
+  background: #f8fafc;
+}
+
+.specValueInput {
+  flex: 1.5;
+}
+
+.addSpecBtn {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.addSpecBtn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.removeSpecBtn {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 7px 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.removeSpecBtn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.specsModalContent {
+  max-width: 580px;
+  width: 90%;
+}
+
+
 

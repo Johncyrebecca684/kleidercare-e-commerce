@@ -126,16 +126,37 @@
   padding-bottom: 0;
 }
 
+.cart-page-item-image-link {
+  display: block;
+  flex-shrink: 0;
+  text-decoration: none;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
 .cart-page-item-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+  cursor: pointer;
+}
+
+.cart-page-item-image-link:hover .cart-page-item-image {
+  transform: scale(1.04);
+  border-color: #0f2b5c;
 }
 
 .cart-page-item-details {
   flex: 1;
+}
+
+.cart-page-item-name-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
 }
 
 .cart-page-item-name {
@@ -143,6 +164,13 @@
   font-weight: 600;
   color: #111111;
   margin: 0 0 8px 0;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.cart-page-item-name-link:hover .cart-page-item-name {
+  color: #0f2b5c;
+  text-decoration: underline;
 }
 
 .cart-page-item-price {
@@ -510,10 +538,23 @@
   flex-shrink: 0;
 }
 
+.addon-card-left-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .addon-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.addon-card-left-link:hover .addon-img {
+  transform: scale(1.08);
 }
 
 .addon-card-mid {
@@ -523,11 +564,24 @@
   gap: 4px;
 }
 
+.addon-title-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+}
+
 .addon-title {
   font-size: 14px;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.addon-title-link:hover .addon-title {
+  color: #0284c7;
+  text-decoration: underline;
 }
 
 .addon-desc {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import { addProduct, updateProduct, deleteProduct, updateProductStock, bulkProductAction } from '../services/productService';
+import { formatImageUrl } from '../utils/imageUtils';
 import { 
   Users, 
   ShoppingBag, 
@@ -33,6 +34,40 @@ import {
 import TicketingPage from './TicketingPage';
 import '../components/UserProfile.css';
 import './AdminDashboard.css';
+
+// Preset Common Technical Specification Keys
+const COMMON_SPEC_KEYS = [
+  'Capacity',
+  'Voltage',
+  'Function Type',
+  'Loading Type',
+  'Automation Grade',
+  'Brand',
+  'Model Name/Number',
+  'Drum Volume',
+  'Power Source',
+  'Warranty'
+];
+
+function objToSpecRows(specsObj) {
+  if (!specsObj || typeof specsObj !== 'object') return [];
+  return Object.entries(specsObj).map(([key, value]) => ({
+    key: key || '',
+    value: typeof value === 'object' ? JSON.stringify(value) : String(value || '')
+  }));
+}
+
+function specRowsToObj(rows) {
+  const obj = {};
+  if (Array.isArray(rows)) {
+    rows.forEach(r => {
+      if (r && r.key && r.key.trim()) {
+        obj[r.key.trim()] = r.value !== undefined ? String(r.value) : '';
+      }
+    });
+  }
+  return obj;
+}
 
 // Helper to convert number to Indian currency words
 function numberToWords(num) {
@@ -184,6 +219,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     ])
   ).sort();
 
+  // Dedicated Quick Specs Modal State
+  const [isSpecsModalOpen, setIsSpecsModalOpen] = useState(false);
+  const [specsEditingProduct, setSpecsEditingProduct] = useState(null);
+  const [specsModalRows, setSpecsModalRows] = useState([]);
+  const [specsSaving, setSpecsSaving] = useState(false);
+
   // Product Form State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -199,8 +240,111 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     lowStockThreshold: 10,
     badge: '',
     description: '',
-    specifications: {}
+    specifications: {},
+    specRows: [{ key: '', value: '' }]
   });
+
+  // Specs Rows Handlers for Main Edit Product Form
+  const handleAddSpecRow = () => {
+    setProductForm(prev => ({
+      ...prev,
+      specRows: [...(prev.specRows || []), { key: '', value: '' }]
+    }));
+  };
+
+  const handleRemoveSpecRow = (index) => {
+    setProductForm(prev => ({
+      ...prev,
+      specRows: (prev.specRows || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSpecRowChange = (index, field, val) => {
+    setProductForm(prev => {
+      const rows = [...(prev.specRows || [])];
+      rows[index] = { ...rows[index], [field]: val };
+      return { ...prev, specRows: rows };
+    });
+  };
+
+  const handleAddPresetSpec = (presetKey) => {
+    setProductForm(prev => {
+      const existing = prev.specRows || [];
+      if (existing.some(r => r.key.toLowerCase() === presetKey.toLowerCase())) {
+        return prev;
+      }
+      const filtered = existing.filter(r => r.key.trim() !== '' || r.value.trim() !== '');
+      return {
+        ...prev,
+        specRows: [...filtered, { key: presetKey, value: '' }]
+      };
+    });
+  };
+
+  // Specs Modal Handlers (Dedicated Quick Specs Editor)
+  const openSpecsModal = (product) => {
+    setSpecsEditingProduct(product);
+    const rows = objToSpecRows(product.specifications || {});
+    setSpecsModalRows(rows.length > 0 ? rows : [{ key: '', value: '' }]);
+    setIsSpecsModalOpen(true);
+  };
+
+  const handleSaveSpecsModal = async () => {
+    if (!specsEditingProduct) return;
+    setSpecsSaving(true);
+    try {
+      const cleanSpecs = specRowsToObj(specsModalRows);
+      const targetId = specsEditingProduct.mongoId || specsEditingProduct._id || specsEditingProduct.id;
+
+      let updatedProduct;
+      try {
+        updatedProduct = await updateProduct(targetId, { specifications: cleanSpecs });
+      } catch (err) {
+        console.error('Failed to sync specs to DB, updating locally:', err);
+        updatedProduct = { ...specsEditingProduct, specifications: cleanSpecs };
+      }
+
+      setProducts(prev => prev.map(p => {
+        const isMatch = (p.id && (p.id === specsEditingProduct.id || p.id === specsEditingProduct._id)) ||
+                        (p._id && (p._id === specsEditingProduct.id || p._id === specsEditingProduct._id));
+        if (isMatch) {
+          return { ...p, specifications: cleanSpecs, ...(updatedProduct || {}) };
+        }
+        return p;
+      }));
+
+      setIsSpecsModalOpen(false);
+      setSpecsEditingProduct(null);
+    } catch (err) {
+      alert('Error saving technical specifications: ' + err.message);
+    } finally {
+      setSpecsSaving(false);
+    }
+  };
+
+  const handleAddSpecsModalRow = () => {
+    setSpecsModalRows(prev => [...prev, { key: '', value: '' }]);
+  };
+
+  const handleRemoveSpecsModalRow = (index) => {
+    setSpecsModalRows(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSpecsModalRowChange = (index, field, val) => {
+    setSpecsModalRows(prev => {
+      const rows = [...prev];
+      rows[index] = { ...rows[index], [field]: val };
+      return rows;
+    });
+  };
+
+  const handleAddPresetToSpecsModal = (presetKey) => {
+    setSpecsModalRows(prev => {
+      if (prev.some(r => r.key.toLowerCase() === presetKey.toLowerCase())) return prev;
+      const filtered = prev.filter(r => r.key.trim() !== '' || r.value.trim() !== '');
+      return [...filtered, { key: presetKey, value: '' }];
+    });
+  };
 
   if (!loggedInUser || loggedInUser.role !== 'admin') {
     return <Navigate to="/" replace />;
@@ -320,8 +464,10 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     try {
-      const validImages = (productForm.images || []).map(i => (typeof i === 'string' ? i.trim() : '')).filter(Boolean);
-      const primaryImage = validImages[0] || productForm.image || '';
+      const rawImages = (productForm.images || []).map(i => (typeof i === 'string' ? i.trim() : '')).filter(Boolean);
+      const validImages = rawImages.map(img => formatImageUrl(img));
+      const primaryImage = validImages[0] ? formatImageUrl(validImages[0]) : formatImageUrl(productForm.image || '');
+      const cleanSpecs = specRowsToObj(productForm.specRows);
 
       const payload = {
         name: productForm.name,
@@ -335,7 +481,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         sku: productForm.sku || `SKU-${Date.now()}`,
         stock: Number(productForm.stock || 0),
         lowStockThreshold: Number(productForm.lowStockThreshold || 10),
-        specifications: productForm.specifications || {}
+        specifications: cleanSpecs
       };
 
       if (editingProduct) {
@@ -533,13 +679,14 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   };
 
   const handleImageFieldChange = (index, value) => {
+    const formatted = formatImageUrl(value);
     setProductForm(prev => {
       const currentList = Array.isArray(prev.images) ? [...prev.images] : [];
-      currentList[index] = value;
+      currentList[index] = formatted;
       return {
         ...prev,
         images: currentList,
-        image: currentList[0] || value || ''
+        image: currentList[0] || formatted || ''
       };
     });
   };
@@ -570,6 +717,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       const existingImages = (Array.isArray(product.images) && product.images.length > 0)
         ? product.images
         : (product.image ? [product.image] : ['']);
+      const specsObj = product.specifications || {};
+      const specRows = objToSpecRows(specsObj);
       setProductForm({ 
         id: product.id,
         name: product.name || '',
@@ -583,7 +732,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         lowStockThreshold: getProductThreshold(product),
         badge: product.badge || '',
         description: product.description || '',
-        specifications: product.specifications || {}
+        specifications: specsObj,
+        specRows: specRows.length > 0 ? specRows : [{ key: '', value: '' }]
       });
     } else {
       setEditingProduct(null);
@@ -600,7 +750,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         lowStockThreshold: 10,
         badge: '',
         description: '',
-        specifications: {}
+        specifications: {},
+        specRows: [{ key: '', value: '' }]
       });
     }
     setIsProductModalOpen(true);
@@ -1016,6 +1167,18 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                 <div className="productTitleMeta">
                                   <strong>{product.name}</strong>
                                   {product.badge && <span className="invBadgeTag">{product.badge}</span>}
+                                  {product.specifications && Object.keys(product.specifications).length > 0 && (
+                                    <div className="specPreviewList">
+                                      {Object.entries(product.specifications).slice(0, 3).map(([k, v]) => (
+                                        <span key={k} className="specPreviewChip">
+                                          <strong>{k}:</strong> {v}
+                                        </span>
+                                      ))}
+                                      {Object.keys(product.specifications).length > 3 && (
+                                        <span className="specPreviewChip count">+{Object.keys(product.specifications).length - 3} specs</span>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </td>
@@ -1081,7 +1244,10 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                             </td>
                             <td>
                               <div className="actionBtns" style={{ justifyContent: 'flex-end' }}>
-                                <button className="iconBtn edit" title="Edit Details" onClick={() => openProductModal(product)}>
+                                <button className="iconBtn specs" title="Edit Technical Specifications" onClick={() => openSpecsModal(product)}>
+                                  <Sliders size={16} />
+                                </button>
+                                <button className="iconBtn edit" title="Edit Product Details" onClick={() => openProductModal(product)}>
                                   <Edit size={16} />
                                 </button>
                                 <button className="iconBtn delete" title="Delete Product" onClick={() => handleDeleteProduct(product.id)}>
@@ -1666,6 +1832,75 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   <label>Description</label>
                   <textarea rows="2" value={productForm.description || ''} onChange={e => setProductForm({...productForm, description: e.target.value})} placeholder="Product specifications and key features..." />
                 </div>
+
+                {/* TECHNICAL SPECIFICATIONS EDITOR SECTION */}
+                <div className="formGroup specsFormGroup" style={{ marginTop: '16px', borderTop: '1px dashed #cbd5e1', paddingTop: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ margin: 0, fontWeight: '700', fontSize: '14px', color: '#0f2b5c', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sliders size={16} style={{ color: '#0284c7' }} /> Technical Specifications
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAddSpecRow}
+                      className="addSpecBtn"
+                    >
+                      <Plus size={14} /> Add Spec Field
+                    </button>
+                  </div>
+                  <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#64748b' }}>
+                    Define technical parameters (e.g., Capacity, Voltage, Loading Type) for product details & comparison pages.
+                  </p>
+
+                  {/* Quick Preset Spec Chips */}
+                  <div className="presetChipsContainer">
+                    <span className="presetChipsLabel">Quick Presets:</span>
+                    {COMMON_SPEC_KEYS.map(preset => (
+                      <button
+                        key={preset}
+                        type="button"
+                        className="presetChip"
+                        onClick={() => handleAddPresetSpec(preset)}
+                      >
+                        + {preset}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Dynamic Key-Value Spec Rows */}
+                  <div className="specRowsContainer">
+                    {(productForm.specRows || []).map((row, idx) => (
+                      <div key={idx} className="specRowInputGroup">
+                        <input
+                          type="text"
+                          value={row.key || ''}
+                          onChange={(e) => handleSpecRowChange(idx, 'key', e.target.value)}
+                          placeholder="Spec Name (e.g. Capacity)"
+                          className="specKeyInput"
+                        />
+                        <input
+                          type="text"
+                          value={row.value || ''}
+                          onChange={(e) => handleSpecRowChange(idx, 'value', e.target.value)}
+                          placeholder="Spec Value (e.g. 15 Kg / 220 V)"
+                          className="specValueInput"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSpecRow(idx)}
+                          className="removeSpecBtn"
+                          title="Remove specification field"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    ))}
+                    {(!productForm.specRows || productForm.specRows.length === 0) && (
+                      <p style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', margin: '4px 0' }}>
+                        No technical specifications added yet. Click "Add Spec Field" or use a quick preset above.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="modalFooter">
@@ -1673,6 +1908,96 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                 <button type="submit" className="saveBtn">Save Product & Inventory</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DEDICATED QUICK TECHNICAL SPECS MODAL */}
+      {isSpecsModalOpen && specsEditingProduct && (
+        <div className="modalOverlay" onClick={() => setIsSpecsModalOpen(false)}>
+          <div className="modalContent inventoryModalContent specsModalContent" onClick={e => e.stopPropagation()}>
+            <div className="modalHeader">
+              <div>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sliders size={20} style={{ color: '#0284c7' }} /> Edit Technical Specifications
+                </h3>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
+                  Updating technical specs for: <strong>{specsEditingProduct.name}</strong>
+                </p>
+              </div>
+              <button className="closeModalBtn" onClick={() => setIsSpecsModalOpen(false)}>×</button>
+            </div>
+
+            <div className="modalBody">
+              <div className="presetChipsContainer" style={{ marginBottom: '16px' }}>
+                <span className="presetChipsLabel">Quick Presets:</span>
+                {COMMON_SPEC_KEYS.map(preset => (
+                  <button
+                    key={preset}
+                    type="button"
+                    className="presetChip"
+                    onClick={() => handleAddPresetToSpecsModal(preset)}
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
+
+              <div className="specRowsContainer" style={{ maxHeight: '360px', overflowY: 'auto' }}>
+                {specsModalRows.map((row, idx) => (
+                  <div key={idx} className="specRowInputGroup">
+                    <input
+                      type="text"
+                      value={row.key || ''}
+                      onChange={(e) => handleSpecsModalRowChange(idx, 'key', e.target.value)}
+                      placeholder="Spec Name (e.g. Capacity)"
+                      className="specKeyInput"
+                    />
+                    <input
+                      type="text"
+                      value={row.value || ''}
+                      onChange={(e) => handleSpecsModalRowChange(idx, 'value', e.target.value)}
+                      placeholder="Spec Value (e.g. 15 Kg, 220 V)"
+                      className="specValueInput"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSpecsModalRow(idx)}
+                      className="removeSpecBtn"
+                      title="Delete this spec pair"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                ))}
+                {specsModalRows.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8', fontSize: '13px' }}>
+                    No specifications present. Click "Add New Specification Parameter" below.
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddSpecsModalRow}
+                className="addSpecBtn"
+                style={{ marginTop: '14px', width: '100%', justifyContent: 'center' }}
+              >
+                <Plus size={15} /> Add New Specification Parameter
+              </button>
+            </div>
+
+            <div className="modalFooter">
+              <button type="button" className="cancelBtn" onClick={() => setIsSpecsModalOpen(false)}>Cancel</button>
+              <button
+                type="button"
+                className="saveBtn"
+                onClick={handleSaveSpecsModal}
+                disabled={specsSaving}
+              >
+                {specsSaving ? 'Saving Specifications...' : 'Save Technical Specifications'}
+              </button>
+            </div>
           </div>
         </div>
       )}

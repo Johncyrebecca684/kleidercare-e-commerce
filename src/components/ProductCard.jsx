@@ -1,5 +1,6 @@
 import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
 import { useState } from 'react';
+import { formatImageUrl } from '../utils/imageUtils';
 import './ProductCard.css';
 
 const WARRANTY_OPTIONS = [
@@ -177,7 +178,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
       </script>
       <div className={`product-image-container ${isOutOfStock ? 'out-of-stock-container' : ''}`} onClick={handleProductClick} style={{ cursor: 'pointer' }}>
         <img
-          src={product.image}
+          src={formattedImg}
           alt={product.name}
           className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
         />

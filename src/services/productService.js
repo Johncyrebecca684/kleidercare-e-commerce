@@ -18,10 +18,25 @@ async function apiCall(endpoint = '', options = {}) {
     headers
   });
 
-  const data = await response.json();
+  let data = {};
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = {};
+    }
+  } else {
+    const text = await response.text();
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = { message: text || `HTTP Error ${response.status}: ${response.statusText}` };
+    }
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    throw new Error(data.message || `Server error (${response.status})`);
   }
 
   return data;
