@@ -279,7 +279,6 @@ export default function Signup({ isOpen, onClose, onSwitchToLogin, onSignupSucce
                       >
                         <option value="customer">Customer</option>
                         <option value="reseller">Reseller</option>
-                        <option value="admin">Store Admin</option>
                       </select>
                     </div>
                   </div>
