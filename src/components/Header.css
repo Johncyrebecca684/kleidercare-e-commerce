@@ -135,8 +135,10 @@
 .searchSuggestionsDropdown {
   position: absolute;
   top: calc(100% + 6px);
-  left: -200px;
-  right: -50px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-width: 280px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
@@ -146,6 +148,14 @@
   z-index: 1200;
   padding: 8px 0;
   animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 769px) {
+  .searchSuggestionsDropdown {
+    left: -180px;
+    right: 0;
+    width: auto;
+  }
 }
 
 @keyframes slideDownFade {
@@ -749,36 +759,119 @@
   }
 }
 
+.mobileDeliverToStrip {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .siteHeaderTop {
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: auto 1fr auto;
     grid-template-areas:
       'brand right menu'
       'search search search';
-    gap: 12px;
+    gap: 8px 10px;
+    padding: 8px 12px;
   }
 
   .brand {
     grid-area: brand;
+    padding: 2px 4px;
+  }
+
+  .brandLogo {
+    height: 38px;
   }
 
   .mobileMenuBtn {
     grid-area: menu;
     display: grid;
     place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
   }
 
   .deliverTo {
     display: none;
   }
 
+  .desktopLocationBadge {
+    display: none !important;
+  }
+
+  .mobileDeliverToStrip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 12px;
+    color: #334155;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobileLocationPinIcon {
+    color: #0284c7;
+    flex-shrink: 0;
+  }
+
+  .mobileLocationPinText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobileLocationPinText strong {
+    color: #0f2b5c;
+  }
+
   .headerSearchWrap {
     grid-area: search;
     width: 100%;
+    grid-template-columns: auto 1fr auto;
+    background: #ffffff;
+    border: 1.5px solid #0f2b5c;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .headerSearchCategoryWrapper {
+    max-width: 110px;
+    background: #f8fafc;
+    border-right: 1px solid #cbd5e1;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+  }
+
+  .headerSearchCategorySelect {
+    max-width: 95px;
+    font-size: 12px;
+    padding-right: 20px;
+    padding-left: 8px;
+  }
+
+  .headerSearchInput {
+    padding: 0 10px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  .headerSearchBtn {
+    width: 44px;
+    background: #0f2b5c;
+    color: #ffffff;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
   }
 
   .headerRight {
     grid-area: right;
+    justify-content: flex-end;
+    gap: 8px;
   }
 
   .trackOrderBtn {
@@ -792,22 +885,25 @@
     background: transparent;
     color: #0f2b5c;
     border: 1px solid #0f2b5c;
-    padding: 6px 12px;
+    padding: 5px 10px;
     font-size: 12px;
     font-weight: 600;
-    transition: all 0.2s ease;
+    border-radius: 8px;
   }
 
-  .authBtn:hover {
-    background: #f9fafb;
-    border-color: #1a365d;
-    color: #1a365d;
+  .cartMini {
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  .cartLabel {
+    display: none;
   }
 
   .siteHeaderBottom {
     display: none;
     position: fixed;
-    top: 142px;
+    top: 145px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -815,7 +911,7 @@
     z-index: 999;
     border-top: 1px solid #e5e7eb;
     overflow-y: auto;
-    padding: 24px;
+    padding: 16px 20px;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
   }
 
@@ -837,7 +933,7 @@
   .mobileNavSection.accountSection {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
   }
 
@@ -848,23 +944,24 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #6b7280;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .mobileCategoryLinks {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 6px;
+    gap: 4px;
   }
 
   .categoryLink {
-    display: block;
+    display: flex;
+    align-items: center;
     width: 100%;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 10px 14px;
+    font-size: 13.5px;
     text-align: left;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid transparent;
   }
 
@@ -876,7 +973,7 @@
     display: block;
     height: 1px;
     background: #e5e7eb;
-    margin: 16px 0;
+    margin: 14px 0;
     width: 100%;
   }
 
@@ -884,29 +981,24 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 11px 14px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #0f2b5c;
     background: transparent;
     border: 1px solid #e5e7eb;
-    transition: all 0.2s ease;
     cursor: pointer;
     text-align: left;
     width: 100%;
-  }
-
-  .mobileNavLink:hover {
-    background: #f9fafb;
-    border-color: #0f2b5c;
+    border-radius: 8px;
   }
 
   .mobileNavUserBtn {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    font-size: 14px;
+    gap: 10px;
+    padding: 8px 14px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #0f2b5c;
     background: transparent;
@@ -914,30 +1006,7 @@
     cursor: pointer;
     width: 100%;
     text-align: left;
-    transition: all 0.2s ease;
-  }
-
-  .mobileNavUserBtn:hover {
-    border-color: #0f2b5c;
-    background: #f9fafb;
-  }
-
-  .mobileNavUserBtn .userInitials {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: #0f2b5c;
-    color: white;
-    font-weight: 600;
-    font-size: 13px;
-    flex-shrink: 0;
-  }
-
-  .mobileNavUserBtn .userNameText {
-    font-size: 14px;
-    color: #0f2b5c;
+    border-radius: 8px;
   }
 
   .mobileNavAuthBtn {
@@ -946,57 +1015,47 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 14px;
+    padding: 11px;
     background: #0f2b5c;
     color: white;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13.5px;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .mobileNavAuthBtn:hover {
-    background: #1a365d;
   }
 }
 
 @media (max-width: 480px) {
   .siteHeaderTop {
-    padding: 8px 10px;
-    gap: 8px;
+    padding: 6px 10px;
+    gap: 6px 8px;
   }
 
-  .brandText {
-    font-size: 18px;
-  }
-
-  .brandMark {
-    font-size: 18px;
-  }
-
-  .cartLabel {
-    display: none;
-  }
-
-  .headerSearchCategory {
-    padding: 0 10px;
+  .brandLogo {
+    height: 34px;
   }
 
   .headerSearchCategorySelect {
-    max-width: 90px;
+    max-width: 70px;
     font-size: 11px;
-    padding-left: 8px;
-    padding-right: 20px;
+    padding-left: 6px;
+    padding-right: 18px;
   }
 
   .headerSearchInput {
-    padding: 0 10px;
-    font-size: 13px;
+    padding: 0 8px;
+    font-size: 12.5px;
+    min-height: 36px;
+  }
+
+  .headerSearchBtn {
+    width: 38px;
   }
 
   .siteHeaderBottom {
-    top: 130px;
+    top: 135px;
+    padding: 12px 14px;
   }
 }
 

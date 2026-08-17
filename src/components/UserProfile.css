@@ -825,6 +825,29 @@
   gap: 12px;
 }
 
+@media (max-width: 600px) {
+  .form-row-three {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-right-content-card {
+    padding: 18px 14px;
+  }
+
+  .profile-page-content-wrapper {
+    padding: 0 10px;
+    margin: 20px auto;
+  }
+
+  .user-profile-header-card {
+    padding: 16px;
+  }
+
+  .saved-addresses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .address-modal-actions {
   display: flex;
   justify-content: flex-end;

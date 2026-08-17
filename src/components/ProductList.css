@@ -335,27 +335,36 @@
 @media (max-width: 1024px) {
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    gap: 18px;
   }
 
   .filters-container {
-    gap: 20px;
+    gap: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .products-section {
-    padding: 40px 15px;
+    padding: 24px 12px 40px;
+  }
+
+  .section-header {
+    margin-bottom: 20px;
   }
 
   .section-title {
-    font-size: 32px;
+    font-size: 26px;
+  }
+
+  .section-subtitle {
+    font-size: 13px;
   }
 
   .filters-container {
     flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
 
   .category-filters {
@@ -364,13 +373,17 @@
     overflow: visible;
   }
 
+  .filter-label {
+    display: none;
+  }
+
   .category-buttons {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    width: calc(100% + 40px);
-    margin-left: -20px;
-    padding: 6px 20px;
+    width: 100%;
+    margin-left: 0;
+    padding: 4px 0 8px 0;
     gap: 8px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
@@ -382,33 +395,75 @@
 
   .category-btn {
     flex-shrink: 0;
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    border-radius: 20px;
   }
 
-  .sort-container {
-    width: 100%;
-    flex-shrink: 1;
+  .category-results-bar {
+    padding: 12px 14px;
+    gap: 10px;
+    margin-bottom: 16px;
   }
 
-  .sort-dropdown {
-    width: 100%;
+  .category-title-heading h3 {
+    font-size: 17px;
+  }
+
+  .showing-count-text {
+    font-size: 12px;
+  }
+
+  .view-mode-toggle {
+    display: flex;
+    gap: 6px;
+  }
+
+  .view-btn {
+    padding: 6px 10px;
   }
 
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .products-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 }
 
 @media (max-width: 480px) {
+  .products-section {
+    padding: 18px 8px 36px;
+  }
+
   .section-title {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .products-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
+  }
+
+  .category-results-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .category-title-heading {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .view-mode-toggle {
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 8px;
   }
 }
 

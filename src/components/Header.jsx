@@ -177,7 +177,7 @@ export default function Header({
           </div>
 
           <div 
-            className="locationPinBadge" 
+            className="locationPinBadge desktopLocationBadge" 
             title="Click to refresh delivery location"
             onClick={fetchLocation}
           >
@@ -370,6 +370,18 @@ export default function Header({
         >
           {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
+      </div>
+
+      <div 
+        className="mobileDeliverToStrip" 
+        onClick={fetchLocation}
+        title="Click to refresh delivery location"
+      >
+        <MapPin size={14} className="mobileLocationPinIcon" />
+        <span className="mobileLocationPinText">
+          Deliver to <strong>{deliveryLocation}</strong>
+        </span>
+        {isLocating && <Loader2 size={12} className="animate-spin ml-1" />}
       </div>
 
       <div className={`siteHeaderBottom ${isMenuOpen ? 'open' : ''}`}>

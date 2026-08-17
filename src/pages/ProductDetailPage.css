@@ -1590,12 +1590,167 @@
   .pdp-fullscreen-grid {
     grid-template-columns: 1fr;
     padding: 20px;
+    gap: 24px;
   }
   .pdp-primary-actions {
     grid-template-columns: 1fr;
   }
   .form-row-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .pdp-main-content {
+    padding: 14px 10px 40px;
+  }
+
+  .pdp-top-bar {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .pdp-sticky-subnav {
+    top: 60px;
+    padding: 4px 8px;
+    margin-bottom: 16px;
+  }
+
+  .pdp-subnav-inner {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+  }
+
+  .pdp-subnav-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pdp-subnav-link {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .pdp-fullscreen-grid {
+    padding: 14px;
+    border-radius: 12px;
+    gap: 20px;
+  }
+
+  .pdp-main-view-container {
+    height: 280px;
+    padding: 12px;
+  }
+
+  .pdp-page-title {
+    font-size: 20px;
+  }
+
+  .pdp-big-price {
+    font-size: 24px;
+  }
+
+  .pdp-price-hero-card {
+    padding: 14px;
+  }
+
+  .pdp-primary-actions {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .pdp-btn-cart,
+  .pdp-btn-buynow {
+    padding: 14px;
+    font-size: 14px;
+  }
+
+  .pdp-models-grid {
+    gap: 8px;
+  }
+
+  .pdp-model-chip {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .pdp-spec-item {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .fbt-content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .fbt-images-combo {
+    justify-content: center;
+  }
+
+  .fbt-summary-action-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fbt-add-all-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .similar-products-section,
+  .frequently-bought-section,
+  .client-reviews-section {
+    padding: 18px 14px;
+    margin-top: 24px;
+    border-radius: 12px;
+  }
+
+  .reviews-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .write-review-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .add-review-form {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pdp-main-view-container {
+    height: 230px;
+  }
+
+  .pdp-page-title {
+    font-size: 18px;
+  }
+
+  .pdp-big-price {
+    font-size: 22px;
+  }
+
+  .pdp-thumb-card {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pdp-thumb-video-card {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pdp-gallery-nav-btn {
+    width: 34px;
+    height: 34px;
   }
 }
 

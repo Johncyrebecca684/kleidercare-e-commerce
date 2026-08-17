@@ -65,6 +65,8 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 36;
 
+  const formattedImg = formatImageUrl(product.image);
+
   if (viewMode === 'list') {
     return (
       <article className="product-card list-mode-card">
@@ -72,7 +74,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         <div className="list-col-left">
           <div className="list-image-wrapper" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
             <img
-              src={product.image}
+              src={formattedImg}
               alt={product.name}
               className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
             />

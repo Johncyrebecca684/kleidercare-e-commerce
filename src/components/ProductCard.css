@@ -694,16 +694,134 @@
   box-shadow: 0 4px 12px rgba(15, 43, 92, 0.2);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .list-mode-card {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    grid-template-areas:
+      "image details"
+      "actions actions";
+    gap: 12px 14px;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    align-items: start;
   }
+
+  .list-col-left {
+    grid-area: image;
+    width: 130px;
+  }
+
+  .list-image-wrapper {
+    height: 130px;
+    width: 130px;
+    background: #f8fafc;
+    border-radius: 6px;
+  }
+
+  .list-image-wrapper .product-image {
+    max-height: 120px;
+  }
+
+  .list-col-mid {
+    grid-area: details;
+    gap: 3px;
+  }
+
+  .list-product-name {
+    font-size: 14.5px;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .list-bullet-specs {
+    display: none; /* Hidden on mobile like Amazon for clean compact view */
+  }
+
   .list-col-right {
+    grid-area: actions;
     border-left: none;
     padding-left: 0;
     border-top: 1px solid #f1f5f9;
-    padding-top: 14px;
+    padding-top: 10px;
+    gap: 4px;
+  }
+
+  .list-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .list-current-price {
+    font-size: 18px;
+  }
+
+  .list-original-price-row {
+    font-size: 12px;
+  }
+
+  .list-cart-btn {
+    margin-top: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-mode-card {
+    grid-template-columns: 110px 1fr;
+    padding: 10px;
+    gap: 10px;
+    border-radius: 6px;
+  }
+
+  .list-col-left {
+    width: 110px;
+  }
+
+  .list-image-wrapper {
+    height: 110px;
+    width: 110px;
+  }
+
+  .list-image-wrapper .product-image {
+    max-height: 100px;
+  }
+
+  .list-product-name {
+    font-size: 13.5px;
+  }
+
+  .list-rating-row {
+    gap: 4px;
+  }
+
+  .rating-pill-green {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .rating-counts {
+    font-size: 11px;
+  }
+
+  .list-current-price {
+    font-size: 16px;
+  }
+
+  .list-bank-offer-tag {
+    font-size: 11px;
+  }
+
+  .list-cart-btn {
+    padding: 9px 12px;
+    font-size: 12.5px;
   }
 }
 

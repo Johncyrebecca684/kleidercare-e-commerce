@@ -184,17 +184,30 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .compare-bar {
+    padding: 10px 14px;
+  }
+
   .compare-bar-inner {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
+    justify-content: space-between;
   }
 
   .compare-bar-items {
     order: 3;
     width: 100%;
+    gap: 8px;
+    padding-bottom: 4px;
   }
 
   .compare-bar-chip {
-    min-width: 150px;
+    min-width: 140px;
+    padding: 6px 10px;
+  }
+
+  .compare-bar-action {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
