@@ -867,6 +867,10 @@
     display: none !important;
   }
 
+  .filters-container {
+    display: none !important;
+  }
+
   .mobile-amazon-filter-bar {
     display: flex;
     margin: 0 -10px 10px -10px;
