@@ -1,5 +1,7 @@
 import Header from '../components/Header';
+import TopServicePills from '../components/TopServicePills';
 import Hero from '../components/Hero';
+import MobileBannerCarousel from '../components/MobileBannerCarousel';
 import ProductList from '../components/ProductList';
 import Footer from '../components/Footer';
 
@@ -48,7 +50,9 @@ export default function Home({
         products={products}
       />
       <main role="main">
+        <TopServicePills onCategoryChange={onCategoryChange} selectedCategory={selectedCategory} />
         <Hero />
+        <MobileBannerCarousel onCategoryChange={onCategoryChange} />
         <ProductList
           products={products}
           onAddToCart={onAddToCart}

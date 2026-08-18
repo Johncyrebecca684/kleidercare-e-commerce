@@ -156,8 +156,6 @@ export default function Header({
           <img src="/kc-logo.png" alt="Kleider Care" className="brandLogo" />
         </a>
 
-
-
         <div className="headerSearchWrap" role="search">
           <div className="headerSearchCategoryWrapper">
             <select

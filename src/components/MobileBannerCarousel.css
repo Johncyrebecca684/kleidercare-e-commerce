@@ -1,0 +1,76 @@
+/* Amazon-style Free Horizontal Scroll / Swipe Banner Carousel - Full Uncropped */
+.amazon-mobile-banners-section {
+  display: none;
+  width: 100%;
+  padding: 8px 0 14px 0;
+  box-sizing: border-box;
+  background: transparent;
+  overflow: hidden;
+}
+
+.amazon-banner-scroll-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 16px 8px 16px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  align-items: stretch;
+}
+
+.amazon-banner-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.amazon-banner-card {
+  flex: 0 0 84%;
+  min-width: 84%;
+  max-width: 84%;
+  scroll-snap-align: center;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.amazon-banner-card:active {
+  transform: scale(0.985);
+}
+
+.amazon-banner-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Visible in mobile screens */
+@media (max-width: 768px) {
+  .amazon-mobile-banners-section {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .amazon-banner-scroll-container {
+    padding: 2px 12px 6px 12px;
+    gap: 10px;
+  }
+
+  .amazon-banner-card {
+    flex: 0 0 82%;
+    min-width: 82%;
+    max-width: 82%;
+    border-radius: 12px;
+  }
+}
