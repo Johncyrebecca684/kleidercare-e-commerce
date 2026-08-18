@@ -96,8 +96,45 @@ export default function CartPage({
           <Link to="/" className="back-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#1a4a8d', textDecoration: 'none', marginBottom: '15px', fontWeight: '600' }}>
             <ArrowLeft size={18} /> Continue Shopping
           </Link>
-          <h1>Your Shopping Cart</h1>
+          <h1 className="cart-main-heading">Your Shopping Cart</h1>
         </div>
+
+        {/* AMAZON-STYLE MOBILE TOP CHECKOUT BLOCK (MOBILE ONLY) */}
+        {items.length > 0 && (
+          <div className="mobile-cart-top-summary">
+            <h2 className="mobile-shopping-cart-title">Shopping Cart</h2>
+            <div className="mobile-cart-total-row">
+              <span className="mobile-total-label">Total </span>
+              <span className="mobile-total-val">₹{total.toLocaleString('en-IN')}.00</span>
+              <button
+                type="button"
+                className="mobile-view-details-btn"
+                onClick={() => {
+                  const summaryEl = document.querySelector('.cart-summary-section');
+                  if (summaryEl) {
+                    summaryEl.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                View details
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="mobile-proceed-to-buy-btn"
+              onClick={() => {
+                if (!loggedInUser) {
+                  onLoginOpen();
+                } else {
+                  navigate('/checkout');
+                }
+              }}
+            >
+              Proceed to Buy ({items.reduce((s, i) => s + i.quantity, 0)} {items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'})
+            </button>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="empty-cart-page">

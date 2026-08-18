@@ -17,7 +17,8 @@ import {
   ChevronDown,
   ChevronUp,
   Filter,
-  RotateCcw
+  RotateCcw,
+  Star
 } from 'lucide-react';
 import './ProductList.css';
 import { getRecommendations } from '../utils/recommendationEngine';
@@ -194,7 +195,7 @@ export default function ProductList({
     if (showCapacityFilter && capacityFilter !== 'all') {
       const capSpec = (product.specifications?.Capacity || '').toLowerCase();
       const text = (product.name + ' ' + (product.description || '')).toLowerCase();
-      
+
       if (capacityFilter === '10kg') {
         const is10 = capSpec.includes('10') || text.includes('10kg') || text.includes('10 kg') || text.includes('10.5');
         if (!is10) return false;
@@ -286,6 +287,149 @@ export default function ProductList({
         </div>
       </div>
 
+      {/* AMAZON-STYLE MOBILE 2-TIER FILTER STRIP (MOBILE VIEW ONLY) */}
+      <div className="mobile-amazon-filter-bar">
+        {/* Main Filter Icon Button with badge */}
+        <div className="mobile-filter-left-col">
+          <button
+            type="button"
+            className={`amazon-filter-btn main-filter-icon-btn ${isFilterActive ? 'active' : ''}`}
+            onClick={() => {
+              // Cycle through sort options or trigger clear if active
+              const nextSort = sortBy === 'popular' ? 'price-low' : sortBy === 'price-low' ? 'price-high' : sortBy === 'price-high' ? 'rating' : 'popular';
+              setSortBy(nextSort);
+            }}
+            title="Filter Options"
+          >
+            <SlidersHorizontal size={17} />
+            {isFilterActive && <span className="active-filter-badge-dot" />}
+          </button>
+
+          {/* Assured / Verified Toggle */}
+          <button
+            type="button"
+            className={`amazon-prime-toggle-btn ${onlyAssured ? 'active' : ''}`}
+            onClick={() => setOnlyAssured(prev => !prev)}
+            title="Toggle Top Rated / Assured"
+          >
+            <span className="prime-check">✓</span>
+            <span className={`prime-switch ${onlyAssured ? 'on' : 'off'}`}>
+              <span className="prime-switch-thumb" />
+            </span>
+          </button>
+        </div>
+
+        {/* Right 2-row horizontal scrollable pills */}
+        <div className="mobile-filter-right-grid">
+          {/* Row 1: Quick Toggles */}
+          <div className="filter-pill-row">
+            <button
+              type="button"
+              className={`amazon-filter-btn ${sortBy === 'discount' ? 'active' : ''}`}
+              onClick={() => setSortBy(sortBy === 'discount' ? 'popular' : 'discount')}
+            >
+              All Discounts
+            </button>
+
+            <button
+              type="button"
+              className={`amazon-filter-btn ${maxPrice <= 50000 ? 'active' : ''}`}
+              onClick={() => {
+                if (maxPrice <= 50000) {
+                  setMaxPrice(500000);
+                } else {
+                  setMinPrice(0);
+                  setMaxPrice(50000);
+                }
+              }}
+            >
+              Today&apos;s Deals
+            </button>
+          </div>
+
+          {/* Row 2: Dropdown Buttons */}
+          <div className="filter-pill-row">
+            {/* Sort Dropdown */}
+            <div className="amazon-select-pill-wrap">
+              <select
+                className={`amazon-filter-select ${sortBy !== 'popular' ? 'active' : ''}`}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="popular">Popular ▾</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Avg. Customer Review</option>
+                <option value="discount">Discount: High to Low</option>
+              </select>
+            </div>
+
+            {/* Brands / Categories Dropdown */}
+            <div className="amazon-select-pill-wrap">
+              <select
+                className={`amazon-filter-select ${selectedCategory !== 'All' ? 'active' : ''}`}
+                value={selectedCategory}
+                onChange={(e) => onCategoryChange(e.target.value)}
+              >
+                <option value="All">Brands ▾</option>
+                <option value="LG Commercial Laundry Machines">LG Commercial</option>
+                <option value="Speed Queen Commercial Laundry Machines">Speed Queen</option>
+                <option value="PONY Finishing Equipments">PONY</option>
+                <option value="Seko">Seko</option>
+                <option value="Genuine Spare Parts">Spare Parts</option>
+                <option value="Chemicals">Chemicals</option>
+              </select>
+            </div>
+
+            {/* Price Dropdown */}
+            <div className="amazon-select-pill-wrap">
+              <select
+                className={`amazon-filter-select ${minPrice > 0 || maxPrice < 500000 ? 'active' : ''}`}
+                value={`${minPrice}-${maxPrice}`}
+                onChange={(e) => {
+                  const [min, max] = e.target.value.split('-').map(Number);
+                  setMinPrice(min);
+                  setMaxPrice(max);
+                }}
+              >
+                <option value="0-500000">Price ▾</option>
+                <option value="0-50000">Under ₹50,000</option>
+                <option value="50000-150000">₹50,000 – ₹1.5L</option>
+                <option value="150000-300000">₹1.5L – ₹3L</option>
+                <option value="300000-500000">₹3L – ₹5L</option>
+              </select>
+            </div>
+
+            {/* Capacity Dropdown (if applicable) */}
+            {showCapacityFilter && (
+              <div className="amazon-select-pill-wrap">
+                <select
+                  className={`amazon-filter-select ${capacityFilter !== 'all' ? 'active' : ''}`}
+                  value={capacityFilter}
+                  onChange={(e) => setCapacityFilter(e.target.value)}
+                >
+                  <option value="all">Capacity ▾</option>
+                  <option value="10kg">10 Kg</option>
+                  <option value="15kg">15 Kg</option>
+                </select>
+              </div>
+            )}
+
+            {/* Reset Button when filters active */}
+            {isFilterActive && (
+              <button
+                type="button"
+                className="amazon-filter-btn clear-pill-btn"
+                onClick={handleClearFilters}
+              >
+                <RotateCcw size={11} />
+                <span>Clear</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* CATEGORY TITLE & VIEW TOGGLE BAR */}
       <div className="category-results-bar">
         <div className="category-title-heading">
@@ -317,7 +461,7 @@ export default function ProductList({
         </div>
       </div>
 
-      {/* MAIN LAYOUT WITH LEFT SIDEBAR FILTER */}
+      {/* MAIN LAYOUT WITH LEFT SIDEBAR FILTER (DESKTOP) */}
       <div className="product-catalog-layout">
         {/* LEFT FILTER SIDEBAR */}
         <aside className="left-filter-sidebar">

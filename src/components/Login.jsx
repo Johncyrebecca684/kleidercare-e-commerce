@@ -196,8 +196,11 @@ export default function Login({ isOpen, onClose, onSwitchToSignup, onSwitchToFor
   return (
     <div className="auth-overlay" onClick={onClose}>
       <div className="auth-modal login-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>
-          <X size={24} />
+        {/* Mobile Pull Handle Indicator */}
+        <div className="mobile-sheet-pull-bar" />
+
+        <button className="close-btn" onClick={onClose} aria-label="Close Login">
+          <X size={22} />
         </button>
 
         <div className="auth-content">
@@ -205,8 +208,11 @@ export default function Login({ isOpen, onClose, onSwitchToSignup, onSwitchToFor
           <div className={`auth-step ${step === 'credentials' ? 'step-active' : 'step-exit'}`}>
             {step === 'credentials' && (
               <>
-                <h2 className="auth-title">Login to Your Account</h2>
-                <p className="auth-subtitle">Access your orders and personalized experience</p>
+                <div className="mobile-login-header-block">
+                  <span className="mobile-login-brand-tag">Kleider Care Account</span>
+                  <h2 className="auth-title">Welcome Back</h2>
+                  <p className="auth-subtitle">Sign in to manage your industrial machines, AMCs & orders</p>
+                </div>
 
                 <form onSubmit={handleSubmit} className="auth-form">
                   <div className="form-group">

@@ -739,7 +739,8 @@
   }
 
   .list-bullet-specs {
-    display: none; /* Hidden on mobile like Amazon for clean compact view */
+    display: none;
+    /* Hidden on mobile like Amazon for clean compact view */
   }
 
   .list-col-right {
@@ -847,8 +848,15 @@
 }
 
 @keyframes reasonPillFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Out of Stock Styles ── */

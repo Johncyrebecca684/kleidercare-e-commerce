@@ -1,0 +1,156 @@
+/* ═══════════════════════════════════════════════════════
+   MINIMAL MOBILE BOTTOM NAVIGATION BAR
+   Clean, modern, native app-like bottom navigation dock
+   ═══════════════════════════════════════════════════════ */
+
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.25s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: block;
+  }
+
+  /* Add bottom padding to body/page container so content isn't obscured by bottom bar */
+  body {
+    padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Adjust compare bar if active */
+  .compare-bar {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Adjust floating chatbot trigger button so it sits above bottom nav */
+  .chatbot-widget-container {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+.bottom-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 2px;
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-nav-item:active {
+  transform: scale(0.92);
+}
+
+.nav-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #1e293b;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.bottom-nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #1e293b;
+  margin-top: 2px;
+  letter-spacing: -0.1px;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Active State */
+.bottom-nav-item.active .nav-icon-wrapper {
+  color: #0f2b5c;
+  transform: translateY(-1px);
+}
+
+.bottom-nav-item.active .bottom-nav-label {
+  color: #0f2b5c;
+  font-weight: 700;
+}
+
+/* Badge (Cart & Wishlist) */
+.bottom-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background: #ea580c; /* vibrant orange accent badge like Amazon/modern shopping apps */
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Special Assistant Tab (Rufus style gradient / accent) */
+.bottom-nav-item.assistant-tab .assistant-icon-wrap {
+  position: relative;
+  color: #f97316; /* Warm energetic orange-red */
+}
+
+.bottom-nav-item.assistant-tab.active .assistant-icon-wrap {
+  color: #ea580c;
+}
+
+.assistant-dot-glow {
+  position: absolute;
+  top: 1px;
+  right: 0px;
+  width: 7px;
+  height: 7px;
+  background: #3b82f6;
+  border: 1.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.8);
+}
+
+.bottom-nav-item.assistant-tab .assistant-text {
+  color: #0f172a;
+}
+
+.bottom-nav-item.assistant-tab.active .assistant-text {
+  color: #ea580c;
+  font-weight: 700;
+}

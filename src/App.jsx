@@ -14,6 +14,7 @@ import WishlistPage from './pages/WishlistPage';
 import TermsPage from './pages/TermsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ChatbotPage from './pages/ChatbotPage';
+import BottomNav from './components/BottomNav';
 import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
@@ -706,6 +707,7 @@ function App() {
                 wishlistItems={wishlistItems}
                 onRemoveFromWishlist={handleRemoveFromWishlist}
                 onAddToCart={handleAddToCart}
+                cartCount={cartCount}
               />
             }
           />
@@ -754,6 +756,13 @@ function App() {
           isOpen={isForgotPasswordOpen}
           onClose={() => setIsForgotPasswordOpen(false)}
           onSwitchToLogin={() => setIsLoginOpen(true)}
+        />
+
+        <BottomNav
+          cartCount={cartCount}
+          wishlistCount={wishlistItems.length}
+          loggedInUser={loggedInUser}
+          onLoginOpen={() => setIsLoginOpen(true)}
         />
       </div>
     </Router>

@@ -567,8 +567,63 @@
 @media (max-width: 900px) {
   .pdp-body {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .pdp-action-bar {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .pdp-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .pdp-modal-content {
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 14px 80px;
+    width: 100%;
+    margin: 0;
+  }
+
+  .pdp-close-btn {
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .pdp-breadcrumb {
+    display: none;
+  }
+
+  .pdp-main-image-box {
+    height: 240px;
+    padding: 10px;
+  }
+
+  .pdp-main-image {
+    max-height: 220px;
+  }
+
+  .pdp-title {
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .pdp-price-hero {
+    padding: 12px;
+  }
+
+  .pdp-current-price {
+    font-size: 22px;
+  }
+
+  .pdp-spec-row {
+    grid-template-columns: 110px 1fr;
+    gap: 8px;
+    font-size: 12px;
   }
 }

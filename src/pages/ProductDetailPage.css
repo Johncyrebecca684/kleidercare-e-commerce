@@ -2657,3 +2657,276 @@
 .pdp-cancel-modal-btn:hover {
   background: #cbd5e1;
 }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE RESPONSIVE ALIGNMENT & CLEANUP (<= 768px)
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+  .pdp-fullscreen-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pdp-main-content {
+    padding: 10px 12px 90px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .pdp-top-bar {
+    display: none;
+  }
+
+  .pdp-sticky-subnav {
+    display: none;
+  }
+
+  .pdp-fullscreen-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  /* MEDIA GALLERY MOBILE ALIGNMENT */
+  .pdp-media-gallery {
+    gap: 12px;
+    background: #ffffff;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .pdp-main-view-container {
+    height: 280px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .pdp-hero-image {
+    max-height: 240px;
+  }
+
+  .pdp-thumbnails-row {
+    overflow-x: auto;
+    padding-bottom: 6px;
+    gap: 8px;
+    scrollbar-width: none;
+  }
+
+  .pdp-thumbnails-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pdp-thumb-card,
+  .pdp-thumb-video-card {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+  }
+
+  .pdp-guarantee-card {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .pdp-guarantee-card strong {
+    font-size: 13px;
+  }
+
+  /* DETAILS PANEL MOBILE ALIGNMENT */
+  .pdp-details-panel {
+    gap: 14px;
+    background: #ffffff;
+    padding: 16px 14px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .pdp-page-title {
+    font-size: 19px;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .pdp-rating-strip {
+    gap: 8px;
+  }
+
+  .pdp-star-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .pdp-rating-counts {
+    font-size: 12.5px;
+  }
+
+  .pdp-price-hero-card {
+    padding: 14px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .pdp-big-price {
+    font-size: 24px;
+  }
+
+  .pdp-strike-price {
+    font-size: 14px;
+  }
+
+  .pdp-savings-badge {
+    font-size: 13px;
+  }
+
+  .pdp-tax-info {
+    font-size: 11.5px;
+  }
+
+  /* SPECS & TABS */
+  .pdp-spec-item {
+    grid-template-columns: 120px 1fr;
+    gap: 10px;
+    font-size: 12.5px;
+  }
+
+  .pdp-description-content {
+    font-size: 13px;
+    padding: 14px;
+  }
+
+  /* PROTECTION & AMC CARDS */
+  .pdp-protection-card {
+    flex: 0 0 85%;
+  }
+
+  /* AMC SECTION MOBILE ALIGNMENT */
+  .pdp-amc-section {
+    margin: 14px 0;
+    border-radius: 12px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .pdp-amc-header {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .amc-header-left {
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pdp-amc-header h3 {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .amc-subtitle {
+    font-size: 11px;
+  }
+
+  .pdp-amc-body {
+    padding: 12px;
+  }
+
+  .amc-cards-grid.single-plan {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .amc-card {
+    padding: 12px;
+  }
+
+  .amc-plan-title {
+    font-size: 14px;
+  }
+
+  .amc-plan-price {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .amc-plan-price .price-num {
+    font-size: 18px;
+  }
+
+  .amc-plan-price .price-unit {
+    font-size: 11px;
+    word-break: break-word;
+  }
+
+  .amc-features-list {
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .amc-features-list li {
+    font-size: 12px;
+  }
+
+  .amc-addon-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .amc-addon-action {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .amc-footer-bar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .amc-view-schedule-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* STICKY BOTTOM ACTION BAR ON MOBILE */
+  .pdp-actions-bar {
+    position: fixed;
+    bottom: 58px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 10px 14px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    z-index: 99;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .pdp-cart-btn,
+  .pdp-buy-btn {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  /* SIMILAR PRODUCTS CAROUSEL */
+  .pdp-similar-section {
+    padding: 16px 12px;
+  }
+
+  .pdp-similar-section h2 {
+    font-size: 17px;
+  }
+}

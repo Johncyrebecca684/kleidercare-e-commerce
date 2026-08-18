@@ -408,9 +408,259 @@
   transform: translateY(-1px);
 }
 
+.desktop-only {
+  display: flex;
+}
+
+.mobile-rufus-top-bar {
+  display: none;
+}
+
+.mobile-rufus-intro-block {
+  display: none;
+}
+
+.mobile-rufus-mic-btn {
+  display: none;
+}
+
 @media (max-width: 992px) {
   .cb-fullscreen-grid {
     grid-template-columns: 1fr;
     height: auto;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   AMAZON RUFUS AI STYLE MOBILE SUPPORT CHAT PAGE
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .chatbot-desktop-header-wrap,
+  .chatbot-desktop-footer-wrap {
+    display: none !important;
+  }
+
+  .chatbot-page-wrapper {
+    background: #ffffff;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .chatbot-page-main {
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* RUFUS TOP NAVIGATION BAR */
+  .mobile-rufus-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    z-index: 10;
+  }
+
+  .mobile-rufus-close-btn,
+  .mobile-rufus-more-btn {
+    background: transparent;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+  }
+
+  .mobile-rufus-brand-title {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: inherit;
+  }
+
+  .rufus-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.4px;
+  }
+
+  .rufus-ai-badge {
+    font-size: 15px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #0284c7, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .rufus-beta-sub {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-left: 2px;
+  }
+
+  /* CHAT PANEL & MESSAGES SCROLL AREA */
+  .cb-fullscreen-grid {
+    height: calc(100vh - 128px);
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .cb-chat-panel {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    height: 100%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .cb-chat-body {
+    flex: 1;
+    padding: 16px 16px 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: none;
+  }
+
+  .cb-chat-body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* RUFUS HOW CAN I HELP & QUESTION BUBBLES */
+  .mobile-rufus-intro-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .mobile-rufus-greeting {
+    font-size: 21px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 4px 0 6px;
+    letter-spacing: -0.3px;
+  }
+
+  .mobile-rufus-prompts-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .mobile-rufus-pill-prompt {
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+    color: #0369a1;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 24px;
+    text-align: left;
+    cursor: pointer;
+    display: inline-block;
+    max-width: 94%;
+    line-height: 1.35;
+    transition: background 0.15s ease;
+  }
+
+  .mobile-rufus-pill-prompt:active {
+    background: #bae6fd;
+  }
+
+  /* THUMBS UP / DOWN FEEDBACK ROW */
+  .mobile-rufus-feedback-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 14px;
+    padding: 4px 4px 10px;
+    color: #64748b;
+  }
+
+  .rufus-icon-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    transition: all 0.15s ease;
+  }
+
+  .rufus-icon-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+
+  /* RUFUS FLOATING BOTTOM INPUT BAR */
+  .cb-chat-input-form.mobile-rufus-input-form {
+    padding: 10px 14px 20px;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  .cb-chat-input-form.mobile-rufus-input-form input {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 12px 18px;
+    font-size: 15px;
+    color: #0f172a;
+  }
+
+  .cb-chat-input-form.mobile-rufus-input-form input:focus {
+    border-color: #0284c7;
+    background: #ffffff;
+  }
+
+  .mobile-rufus-mic-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    color: #0f172a;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .cb-send-btn {
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    height: 42px;
   }
 }

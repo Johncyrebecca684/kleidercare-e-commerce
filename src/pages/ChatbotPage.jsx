@@ -19,7 +19,13 @@ import {
   HelpCircle,
   Cpu,
   Flame,
-  Zap
+  Zap,
+  X,
+  MoreHorizontal,
+  Mic,
+  ThumbsUp,
+  ThumbsDown,
+  Share2
 } from 'lucide-react';
 import './ChatbotPage.css';
 
@@ -117,18 +123,18 @@ export default function ChatbotPage({
     });
   };
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = (e, customText = null) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const textToSend = (customText || inputMessage).trim();
+    if (!textToSend) return;
 
-    const userText = inputMessage.trim();
-    addMessage('user', userText);
-    setInputMessage('');
+    addMessage('user', textToSend);
+    if (!customText) setInputMessage('');
     setIsTyping(true);
 
     setTimeout(() => {
       setIsTyping(false);
-      const lower = userText.toLowerCase();
+      const lower = textToSend.toLowerCase();
 
       if (isHumanAgent) {
         addMessage(
@@ -220,20 +226,23 @@ export default function ChatbotPage({
 
   return (
     <div className="chatbot-page-wrapper">
-      <Header
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
-        searchTerm={searchTerm}
-        onSearchChange={onSearchChange}
-        onSigninClick={onSigninClick}
-        loggedInUser={loggedInUser}
-        selectedCategory={selectedCategory}
-        onCategoryChange={onCategoryChange}
-      />
+      {/* DESKTOP GLOBAL HEADER (Hidden on mobile via CSS) */}
+      <div className="chatbot-desktop-header-wrap">
+        <Header
+          cartCount={cartCount}
+          wishlistCount={wishlistCount}
+          searchTerm={searchTerm}
+          onSearchChange={onSearchChange}
+          onSigninClick={onSigninClick}
+          loggedInUser={loggedInUser}
+          selectedCategory={selectedCategory}
+          onCategoryChange={onCategoryChange}
+        />
+      </div>
 
       <main className="chatbot-page-main">
-        {/* TOP BAR */}
-        <div className="cb-top-bar">
+        {/* DESKTOP TOP BAR (Hidden on mobile) */}
+        <div className="cb-top-bar desktop-only">
           <button className="cb-back-btn" onClick={() => navigate(-1)}>
             <ArrowLeft size={16} /> Back
           </button>
@@ -242,11 +251,38 @@ export default function ChatbotPage({
           </div>
         </div>
 
+        {/* MOBILE RUFUS AI STYLE TOP APP BAR */}
+        <div className="mobile-rufus-top-bar">
+          <button
+            type="button"
+            className="mobile-rufus-close-btn"
+            onClick={() => navigate(-1)}
+            aria-label="Close Support Chat"
+          >
+            <X size={24} />
+          </button>
+
+          <div className="mobile-rufus-brand-title">
+            <span className="rufus-name">Kleider</span>
+            <span className="rufus-ai-badge">ai ✨</span>
+            <span className="rufus-beta-sub">beta</span>
+          </div>
+
+          <button
+            type="button"
+            className="mobile-rufus-more-btn"
+            aria-label="Chat options"
+          >
+            <MoreHorizontal size={22} />
+          </button>
+        </div>
+
         {/* FULL SCREEN CHAT CONTAINER */}
         <div className="cb-fullscreen-grid full-width">
           {/* MAIN CHAT PANEL */}
           <section className="cb-chat-panel">
-            <div className="cb-chat-header">
+            {/* DESKTOP CHAT HEADER */}
+            <div className="cb-chat-header desktop-only">
               <div className="cb-agent-info">
                 <div className="cb-avatar-circle">
                   {isHumanAgent ? <Headphones size={20} color="#fff" /> : <Bot size={20} color="#fff" />}
@@ -262,6 +298,39 @@ export default function ChatbotPage({
 
             {/* CHAT MESSAGES BODY */}
             <div className="cb-chat-body">
+              {/* MOBILE RUFUS INTRO SCREEN WHEN FIRST OPENING */}
+              <div className="mobile-rufus-intro-block">
+                <h3 className="mobile-rufus-greeting">How can I help?</h3>
+                <div className="mobile-rufus-prompts-list">
+                  {[
+                    'Does it come in other colours?',
+                    'What is the wire made of?',
+                    'Is it flame retardant?',
+                    'Is it easy to install?',
+                    'Can it be used for industrial wiring?',
+                    'Show price history',
+                    'How to track my shipment order?',
+                    'Tell me about AMC extended warranty',
+                    'Washer / Dryer troubleshooting steps'
+                  ].map((promptText, pIdx) => (
+                    <button
+                      key={pIdx}
+                      type="button"
+                      className="mobile-rufus-pill-prompt"
+                      onClick={() => handleSendMessage({ preventDefault: () => {} }, promptText)}
+                    >
+                      {promptText}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mobile-rufus-feedback-actions">
+                  <button type="button" className="rufus-icon-btn" title="Helpful"><ThumbsUp size={18} /></button>
+                  <button type="button" className="rufus-icon-btn" title="Not helpful"><ThumbsDown size={18} /></button>
+                  <button type="button" className="rufus-icon-btn" title="Share"><Share2 size={18} /></button>
+                </div>
+              </div>
+
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -273,10 +342,10 @@ export default function ChatbotPage({
                     </div>
                   )}
 
-                    <div className="cb-msg-content">
-                      <div className="cb-msg-text">{renderFormattedText(msg.text)}</div>
-                      <span className="cb-msg-time">{msg.timestamp}</span>
-                    </div>
+                  <div className="cb-msg-content">
+                    <div className="cb-msg-text">{renderFormattedText(msg.text)}</div>
+                    <span className="cb-msg-time">{msg.timestamp}</span>
+                  </div>
                 </div>
               ))}
 
@@ -292,8 +361,8 @@ export default function ChatbotPage({
               <div ref={messagesEndRef} />
             </div>
 
-            {/* E-COMMERCE SUGGESTION QUERY CHIPS */}
-            <div className="cb-suggestion-chips-container">
+            {/* E-COMMERCE SUGGESTION QUERY CHIPS (DESKTOP) */}
+            <div className="cb-suggestion-chips-container desktop-only">
               <div className="chips-scroll-row">
                 {[
                   { label: '📦 Track Order & Shipment', prompt: 'How do I track my commercial equipment shipment?' },
@@ -317,14 +386,24 @@ export default function ChatbotPage({
               </div>
             </div>
 
-            {/* CHAT INPUT FORM */}
-            <form className="cb-chat-input-form" onSubmit={handleSendMessage}>
+            {/* CHAT INPUT FORM (MOBILE SUPPORT CHAT STYLE) */}
+            <form className="cb-chat-input-form mobile-rufus-input-form" onSubmit={handleSendMessage}>
               <input
                 type="text"
-                placeholder={isHumanAgent ? 'Type message to certified service engineer...' : 'Ask about industrial washers, dryers, error codes, AMC plans...'}
+                placeholder={isHumanAgent ? 'Type message to certified engineer...' : 'Ask a question or describe your issue...'}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
               />
+              <button
+                type="button"
+                className="mobile-rufus-mic-btn"
+                title="Voice input"
+                onClick={() => {
+                  alert('Listening... Ask your question about machines or equipment.');
+                }}
+              >
+                <Mic size={20} />
+              </button>
               <button type="submit" disabled={!inputMessage.trim()} className="cb-send-btn">
                 <Send size={18} />
                 <span>Send</span>
@@ -334,7 +413,10 @@ export default function ChatbotPage({
         </div>
       </main>
 
-      <Footer />
+      {/* DESKTOP FOOTER (Hidden on mobile via CSS) */}
+      <div className="chatbot-desktop-footer-wrap">
+        <Footer />
+      </div>
     </div>
   );
 }
