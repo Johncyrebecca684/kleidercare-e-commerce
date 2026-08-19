@@ -145,7 +145,7 @@ export default function Header({
     <header className="siteHeader animate-fade-in">
       <div className="topBannerStrip">
         <div className="topBannerInner">
-          <div className="topBannerLeft">Welcome to Kleider Care - Laundry Ecommerce!</div>
+          <div className="topBannerLeft">Welcome to Kleider Care - Commercial Laundry Ecommerce!</div>
           <div className="topBannerRight">
             <button type="button" className="topBannerLink" onClick={() => navigate('/track-order')} aria-label="Track your order">Track your order</button>
           </div>

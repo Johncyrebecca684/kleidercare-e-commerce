@@ -13,7 +13,7 @@ const SERVICE_BOXES = [
   {
     id: 1,
     title: 'The Salavai Laundry',
-    shortTitle: 'The Salavai',
+    shortTitle: 'The Salavai Laundry',
     url: 'https://thesalavailaundry.com/',
     image: '/WhatsApp Image 2026-08-18 at 15.40.03.jpeg',
     color: '#0284c7'
@@ -21,7 +21,7 @@ const SERVICE_BOXES = [
   {
     id: 2,
     title: 'Business Partner Program',
-    shortTitle: 'Partner Program',
+    shortTitle: 'Business Partner Program',
     url: 'https://thesalavailaundry.com/business-partner.html',
     image: '/image 3.png',
     color: '#059669'
@@ -37,15 +37,15 @@ const SERVICE_BOXES = [
   {
     id: 4,
     title: 'The Salavai Laundry Store',
-    shortTitle: 'Salavai Store',
+    shortTitle: 'The Salavai Laundry Store',
     url: 'https://thesalavailaundry.com/our-stores.html',
     image: '/WhatsApp Image 2026-08-18 at 17.19.51.jpeg',
     color: '#ea580c'
   },
   {
     id: 5,
-    title: 'The Amalan Laundry',
-    shortTitle: 'Amalan Laundry',
+    title: 'The Amlan Laundry',
+    shortTitle: 'The Amlan Laundry',
     url: 'https://www.theamlanlaundry.com/',
     image: '/WhatsApp Image 2026-08-18 at 17.20.27.jpeg',
     color: '#7c3aed'
@@ -53,7 +53,7 @@ const SERVICE_BOXES = [
   {
     id: 6,
     title: 'System Cares IT Solutions',
-    shortTitle: 'System Cares IT',
+    shortTitle: 'System Cares IT Solutions',
     url: 'https://systemcaresitsolutions.com/',
     image: '/WhatsApp Image 2026-08-18 at 17.24.29.jpeg',
     color: '#0f2b5c'
@@ -61,8 +61,8 @@ const SERVICE_BOXES = [
   {
     id: 7,
     title: 'Digital Marketing -> SCS',
-    shortTitle: 'Digital Mktg (SCS)',
-    url: 'https://systemcaresitsolutions.com/digital-marketing.html',
+    shortTitle: 'Digital Marketing (SCS)',
+    url: 'https://systemcaresolutions.com/',
     image: '/WhatsApp Image 2026-08-18 at 17.22.01.jpeg',
     color: '#e11d48'
   }

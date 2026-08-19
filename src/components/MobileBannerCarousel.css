@@ -1,24 +1,33 @@
-/* Amazon-style Free Horizontal Scroll / Swipe Banner Carousel - Full Uncropped */
+/* Amazon / E-Commerce Style Multi-Card Banner Carousel */
 .amazon-mobile-banners-section {
-  display: none;
+  display: block;
   width: 100%;
-  padding: 8px 0 14px 0;
+  padding: 12px 0 24px 0;
   box-sizing: border-box;
   background: transparent;
   overflow: hidden;
 }
 
+.amazon-banners-wrapper {
+  position: relative;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
 .amazon-banner-scroll-container {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 16px 8px 16px;
+  padding: 6px 4px 14px 4px;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .amazon-banner-scroll-container::-webkit-scrollbar {
@@ -26,51 +35,143 @@
 }
 
 .amazon-banner-card {
-  flex: 0 0 84%;
-  min-width: 84%;
-  max-width: 84%;
-  scroll-snap-align: center;
-  border-radius: 14px;
+  flex: 0 0 calc((100% - 48px) / 4); /* 4 cards per view on desktop */
+  min-width: calc((100% - 48px) / 4);
+  max-width: calc((100% - 48px) / 4);
+  scroll-snap-align: start;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e2e8f0;
   background: #ffffff;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  user-select: none;
+}
+
+.amazon-banner-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  border-color: #cbd5e1;
 }
 
 .amazon-banner-card:active {
-  transform: scale(0.985);
+  transform: scale(0.98);
 }
 
 .amazon-banner-image {
   width: 100%;
   height: auto;
-  object-fit: contain;
   display: block;
+  border-radius: 15px;
 }
 
-/* Visible in mobile screens */
+/* Nav navigation buttons for desktop */
+.banner-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.banner-nav-btn:hover {
+  background: #ffffff;
+  color: #0284c7;
+  border-color: #0284c7;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.22);
+}
+
+.banner-nav-btn:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.banner-prev-btn {
+  left: 4px;
+}
+
+.banner-next-btn {
+  right: 4px;
+}
+
+/* Tablet & medium screens */
+@media (max-width: 1024px) {
+  .amazon-banner-card {
+    flex: 0 0 calc((100% - 32px) / 3); /* 3 cards on tablets */
+    min-width: calc((100% - 32px) / 3);
+    max-width: calc((100% - 32px) / 3);
+    border-radius: 14px;
+  }
+
+  .banner-nav-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Mobile screens */
 @media (max-width: 768px) {
   .amazon-mobile-banners-section {
-    display: block;
+    padding: 6px 0 16px 0;
+  }
+
+  .amazon-banners-wrapper {
+    padding: 0;
+  }
+
+  .banner-nav-btn {
+    display: none; /* Swipe on mobile */
+  }
+
+  .amazon-banner-scroll-container {
+    padding: 4px 16px 10px 16px;
+    gap: 12px;
+  }
+
+  .amazon-banner-card {
+    flex: 0 0 78%;
+    min-width: 78%;
+    max-width: 78%;
+    border-radius: 14px;
+    scroll-snap-align: center;
+  }
+
+  .amazon-banner-card:hover {
+    transform: none;
   }
 }
 
 @media (max-width: 480px) {
   .amazon-banner-scroll-container {
-    padding: 2px 12px 6px 12px;
+    padding: 2px 12px 8px 12px;
     gap: 10px;
   }
 
   .amazon-banner-card {
-    flex: 0 0 82%;
-    min-width: 82%;
-    max-width: 82%;
+    flex: 0 0 80%;
+    min-width: 80%;
+    max-width: 80%;
     border-radius: 12px;
   }
 }
+

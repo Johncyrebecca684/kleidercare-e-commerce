@@ -131,7 +131,7 @@ export const products = [
   },
   {
     id: 43,
-    name: "LG 15 Kg Wet Pro Electric Dryer (Moisture Content)",
+    name: "LG 15 Kg Wet Pro Electric Dryer (Moisture Control)",
     category: "LG Commercial Laundry Machines",
     price: 136500,
     rating: 5.0,
