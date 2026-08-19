@@ -77,11 +77,17 @@ export default function CheckoutPage({
   const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
   const sparePartsSubtotal = Math.round(items
-    .filter(item => item.category?.toLowerCase() === 'genuine spare parts')
+    .filter(item => {
+      const cat = item.category?.toLowerCase() || '';
+      return cat === 'lg genuine spare parts' || cat === 'genuine spare parts';
+    })
     .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
   const chemicalsSubtotal = Math.round(items
-    .filter(item => item.category?.toLowerCase() === 'chemicals')
+    .filter(item => {
+      const cat = item.category?.toLowerCase() || '';
+      return cat === 'laundry chemicals' || cat === 'chemicals';
+    })
     .reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
 
   const discountAmount =
@@ -295,8 +301,14 @@ export default function CheckoutPage({
   // Automatically apply reseller coupons based on cart contents
   useEffect(() => {
     if (loggedInUser?.role === 'reseller') {
-      const hasSpare = items.some(item => item.category?.toLowerCase() === 'genuine spare parts');
-      const hasChemicals = items.some(item => item.category?.toLowerCase() === 'chemicals');
+      const hasSpare = items.some(item => {
+        const cat = item.category?.toLowerCase() || '';
+        return cat === 'lg genuine spare parts' || cat === 'genuine spare parts';
+      });
+      const hasChemicals = items.some(item => {
+        const cat = item.category?.toLowerCase() || '';
+        return cat === 'laundry chemicals' || cat === 'chemicals';
+      });
 
       setTimeout(() => {
         setAppliedCoupons(prev => {

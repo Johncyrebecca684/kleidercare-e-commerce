@@ -9,9 +9,9 @@ export default function Footer() {
     <footer className="footer animate-fade-in">
       <div className="footer-content">
         <div className="footer-section">
-          <div className="footer-logo">
-            <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" style={{ height: '35px' }} />
-          </div>
+          <a href="/" className="footer-logo" aria-label="Kleider Care Home">
+            <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" />
+          </a>
           <p className="footer-description">
             Your trusted partner for professional laundry services and franchise oppurtunities
           </p>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Trash2, ArrowLeft, ArrowRight, Heart, ChevronDown, ChevronUp, Star, Lock, Plus } from 'lucide-react';
+import { ShoppingCart, Trash2, ArrowLeft, ArrowRight, Heart, ChevronDown, ChevronUp, Lock, Plus } from 'lucide-react';
 import { formatImageUrl } from '../utils/imageUtils';
 import './WishlistPage.css';
 
@@ -15,10 +15,6 @@ function WishlistItem({ item, onAddToCart, onRemoveFromWishlist }) {
         <div className="wishlist-page-item-details">
           <h3 className="wishlist-page-item-name">{item.name}</h3>
           <p className="wishlist-page-item-category">{item.category}</p>
-          <div className="wishlist-page-item-rating">
-            <Star size={14} fill="#FFD700" color="#FFD700" />
-            <span>{item.rating} ({item.reviews} reviews)</span>
-          </div>
           <p className="wishlist-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
         </div>
 

@@ -6,14 +6,13 @@ import ProductCard from '../components/ProductCard';
 import {
   Heart,
   ShoppingCart,
-  Star,
   ShieldCheck,
   Share2,
-  Play,
   CreditCard,
   Zap,
   ArrowLeft,
   CheckCircle,
+  CheckCircle2,
   Truck,
   Wrench,
   ChevronRight,
@@ -21,9 +20,6 @@ import {
   ChevronUp,
   ChevronDown,
   Home,
-  ThumbsUp,
-  ThumbsDown,
-  CheckCircle2,
   MessageSquare,
   Plus,
   PackageCheck,
@@ -172,9 +168,6 @@ export default function ProductDetailPage({
   const [showShareNotice, setShowShareNotice] = useState(false);
   const [addedNotice, setAddedNotice] = useState(false);
 
-  // CLIENT REVIEWS & FEEDBACK STATE
-  const [reviewsList, setReviewsList] = useState([]);
-
   const { recordView } = useBrowsingTracker();
   const productId = product?.id;
 
@@ -220,57 +213,6 @@ export default function ProductDetailPage({
 
     setBundleNotice(true);
     setTimeout(() => setBundleNotice(false), 2500);
-  };
-
-  const handleVoteHelpful = (reviewId, type) => {
-    setReviewsList(prev => prev.map(r => {
-      if (r.id === reviewId) {
-        if (r.userVoted === type) return r;
-        let newHelpful = r.helpfulCount;
-        let newUnhelpful = r.unhelpfulCount;
-
-        if (type === 'helpful') {
-          newHelpful += 1;
-          if (r.userVoted === 'unhelpful') newUnhelpful -= 1;
-        } else {
-          newUnhelpful += 1;
-          if (r.userVoted === 'helpful') newHelpful -= 1;
-        }
-
-        return {
-          ...r,
-          helpfulCount: newHelpful,
-          unhelpfulCount: newUnhelpful,
-          userVoted: type
-        };
-      }
-      return r;
-    }));
-  };
-
-  const handleCreateReview = (e) => {
-    e.preventDefault();
-    if (!newReview.headline || !newReview.comment || !newReview.author) return;
-
-    const created = {
-      id: Date.now(),
-      rating: Number(newReview.rating),
-      headline: newReview.headline,
-      specs: `Review for: ${selectedVariant} • Color ${selectedColor}`,
-      comment: newReview.comment,
-      author: newReview.author,
-      location: newReview.location || 'India',
-      helpfulCount: 0,
-      unhelpfulCount: 0,
-      date: 'Just now',
-      isVerified: true,
-      userVoted: null,
-      image: null
-    };
-
-    setReviewsList([created, ...reviewsList]);
-    setNewReview({ rating: 5, headline: '', comment: '', author: '', location: '' });
-    setShowReviewForm(false);
   };
 
   useEffect(() => {
@@ -460,15 +402,6 @@ export default function ProductDetailPage({
             >
               Tech Specs
             </button>
-            <button
-              className={`pdp-subnav-link ${activeTab === 'feedback' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveTab('feedback');
-                document.getElementById('pdp-feedback-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Customer Feedback & Reviews
-            </button>
           </div>
         </div>
 
@@ -530,13 +463,6 @@ export default function ProductDetailPage({
                   <img src={imgUrl} alt={`View ${idx + 1}`} />
                 </button>
               ))}
-
-              <div className="pdp-thumb-video-card">
-                <img src={selectedImage || product.image} alt="Demo Video" />
-                <div className="pdp-video-badge">
-                  <Play size={14} fill="#fff" />
-                </div>
-              </div>
             </div>
 
             <div className="pdp-guarantee-card">
@@ -552,14 +478,8 @@ export default function ProductDetailPage({
           <div className="pdp-details-panel">
             <h1 className="pdp-page-title">{product.name}</h1>
 
-            {/* RATING & REVIEWS & STOCK BADGE */}
+            {/* STOCK BADGE */}
             <div className="pdp-rating-strip" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <span className="pdp-star-badge">
-                {product.rating || 4.3} <Star size={12} fill="#fff" color="#fff" />
-              </span>
-              <span className="pdp-rating-counts">
-                {(product.reviews ? product.reviews * 30 : 12450).toLocaleString('en-IN')} Ratings & {(product.reviews || 890).toLocaleString('en-IN')} Reviews
-              </span>
               {isOutOfStock ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#fef2f2', color: '#dc2626', fontWeight: '700', fontSize: '13px', border: '1px solid #fecaca' }}>
                   ⚠️ Currently Out of Stock
@@ -1009,11 +929,6 @@ export default function ProductDetailPage({
                         ) : (
                           <span className="similar-ad-badge">AD</span>
                         )}
-
-                        <div className="similar-rating-pill">
-                          <span>{simProd.rating || 4.4}</span>
-                          <Star size={10} fill="#fff" color="#fff" />
-                        </div>
                       </div>
 
                       <div className="similar-card-details">
@@ -1040,90 +955,6 @@ export default function ProductDetailPage({
             </div>
           </section>
         )}
-
-        {/* CLIENT FEEDBACKS & REVIEWS SECTION */}
-        <section className="client-reviews-section" id="pdp-feedback-section">
-          <div className="reviews-section-header">
-            <div>
-              <h2 className="reviews-title">Ratings & Client Feedbacks</h2>
-              <p className="reviews-subtitle">Real verified customer feedback and operational reviews</p>
-            </div>
-          </div>
-
-          {/* CLIENT REVIEWS FEED LIST */}
-          <div className="reviews-feed-list">
-            {reviewsList.length > 0 ? (
-              reviewsList.map((rev) => (
-                <div key={rev.id} className="client-review-card">
-                  {/* RATING & HEADLINE */}
-                  <div className="rev-stars-row">
-                    <div className="rev-green-stars">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={15}
-                          fill={star <= Math.floor(rev.rating) ? '#16a34a' : '#e2e8f0'}
-                          color={star <= Math.floor(rev.rating) ? '#16a34a' : '#cbd5e1'}
-                        />
-                      ))}
-                    </div>
-                    <span className="rev-rating-score">{rev.rating.toFixed(1)}</span>
-                    <span className="rev-headline-dot">•</span>
-                    <span className="rev-headline-text">{rev.headline}</span>
-                  </div>
-
-                  {/* REVIEW SPECS SUBTITLE */}
-                  <div className="rev-specs-subtitle">{rev.specs}</div>
-
-                  {/* REVIEW COMMENT TEXT */}
-                  <p className="rev-comment-text">{rev.comment}</p>
-
-                  {/* USER ATTACHED PHOTO THUMBNAIL */}
-                  {rev.image && (
-                    <div className="rev-image-thumb-box">
-                      <img src={rev.image} alt="Client attached photo" />
-                    </div>
-                  )}
-
-                  {/* AUTHOR NAME & LOCATION */}
-                  <div className="rev-author-line">
-                    {rev.author} {rev.location && `, ${rev.location}`}
-                  </div>
-
-                  {/* HELPFUL / UNHELPFUL BUTTONS & VERIFIED TAG */}
-                  <div className="rev-action-footer">
-                    <div className="rev-helpful-buttons">
-                      <button
-                        className={`helpful-btn ${rev.userVoted === 'helpful' ? 'active' : ''}`}
-                        onClick={() => handleVoteHelpful(rev.id, 'helpful')}
-                      >
-                        <ThumbsUp size={14} />
-                        <span>Helpful for {rev.helpfulCount}</span>
-                      </button>
-
-                      <button
-                        className={`unhelpful-btn ${rev.userVoted === 'unhelpful' ? 'active' : ''}`}
-                        onClick={() => handleVoteHelpful(rev.id, 'unhelpful')}
-                      >
-                        <ThumbsDown size={14} />
-                        <span>{rev.unhelpfulCount}</span>
-                      </button>
-                    </div>
-
-                    <div className="rev-verified-tag">
-                      <CheckCircle2 size={14} className="verified-check-icon" />
-                      <span>Verified Purchase • {rev.date}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div style={{ padding: '30px', textAlign: 'center', color: '#64748b', fontSize: '14px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
-                No customer reviews yet for this product.
-              </div>
-            )}
-          </div>
-        </section>
       </main>
 
       <Footer />

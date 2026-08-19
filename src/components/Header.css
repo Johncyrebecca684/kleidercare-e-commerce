@@ -12,7 +12,7 @@
   background: #0f2b5c;
   color: #ffffff;
   font-size: 13px;
-  padding: 8px 8px;
+  padding: 8px 16px;
 }
 
 .topBannerInner {
@@ -21,12 +21,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+}
+
+.topBannerLeft {
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
 }
 
 .topBannerRight {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
 }
 
 .topBannerRight .divider {
@@ -41,6 +50,7 @@
   cursor: pointer;
   padding: 0;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .topBannerLink:hover {
@@ -764,6 +774,32 @@
 }
 
 @media (max-width: 768px) {
+  .topBannerStrip {
+    padding: 6px 12px;
+  }
+
+  .topBannerInner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topBannerLeft {
+    font-size: 11.5px;
+    line-height: 1.35;
+    text-align: left;
+  }
+
+  .topBannerRight {
+    gap: 8px;
+  }
+
+  .topBannerLink {
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+
   .siteHeaderTop {
     grid-template-columns: 1fr auto;
     grid-template-areas:
@@ -1001,6 +1037,27 @@
 }
 
 @media (max-width: 480px) {
+  .topBannerStrip {
+    padding: 5px 10px;
+  }
+
+  .topBannerInner {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 10px;
+    text-align: center;
+  }
+
+  .topBannerLeft {
+    font-size: 11px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .topBannerRight {
+    display: none;
+  }
+
   .siteHeaderTop {
     padding: 6px 10px;
     gap: 6px 8px;

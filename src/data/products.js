@@ -1,5 +1,5 @@
 export const products = [
-  // LG Commercial Laundry Machines
+  // LG Commercial Laundry Machines - WASHERS
   {
     id: 1,
     name: "10kg LG Giant Washer",
@@ -18,43 +18,6 @@ export const products = [
       "Model Name/Number": "CWG27MDOHS.ASSPEIL"
     }
   },
-  {
-    id: 2,
-    name: "10kg LG Giant Electric Dryer",
-    category: "LG Commercial Laundry Machines",
-    price: 77700,
-    rating: 4.8,
-    reviews: 98,
-    image: "/giantelectricdryer.png",
-    description: "Designed for efficient drying of laundry, this electric dryer offers high performance and energy savings for heavy-duty use.",
-    badge: "Energy Saver",
-    specifications: {
-      "Capacity": "10 Kg",
-      "Function Type": "Dryer",
-      "Brand": "LG",
-      "Loading Type": "Front Loading",
-      "Model Name/Number": "RV1329C7T.ASSQEEU"
-    }
-  },
-  {
-    id: 3,
-    name: "10kg LG Giant Gas Dryer",
-    category: "LG Commercial Laundry Machines",
-    price: 77700,
-    rating: 4.8,
-    reviews: 87,
-    image: "/giantgasdryer.png",
-    description: "Engineered for efficient and reliable drying, this gas dryer is perfect for heavy-duty applications, saving time and energy.",
-    badge: null,
-    specifications: {
-      "Capacity": "10 Kg",
-      "Brand": "LG",
-      "Loading Type": "Front Loading",
-      "Warranty": "1 Year",
-      "Voltage": "220 V"
-    }
-  },
-
   {
     id: 4,
     name: "15kg LG Titan Washer",
@@ -91,6 +54,44 @@ export const products = [
       "Loading Type": "Front Loading",
       "Model Name/Number": "CWT29CDOHS.ASSQEIL",
       "Warranty": "1 Year"
+    }
+  },
+
+  // LG Commercial Laundry Machines - DRYERS
+  {
+    id: 2,
+    name: "10kg LG Giant Electric Dryer",
+    category: "LG Commercial Laundry Machines",
+    price: 77700,
+    rating: 4.8,
+    reviews: 98,
+    image: "/giantelectricdryer.png",
+    description: "Designed for efficient drying of laundry, this electric dryer offers high performance and energy savings for heavy-duty use.",
+    badge: "Energy Saver",
+    specifications: {
+      "Capacity": "10 Kg",
+      "Function Type": "Dryer",
+      "Brand": "LG",
+      "Loading Type": "Front Loading",
+      "Model Name/Number": "RV1329C7T.ASSQEEU"
+    }
+  },
+  {
+    id: 3,
+    name: "10kg LG Giant Gas Dryer",
+    category: "LG Commercial Laundry Machines",
+    price: 77700,
+    rating: 4.8,
+    reviews: 87,
+    image: "/giantgasdryer.png",
+    description: "Engineered for efficient and reliable drying, this gas dryer is perfect for heavy-duty applications, saving time and energy.",
+    badge: null,
+    specifications: {
+      "Capacity": "10 Kg",
+      "Brand": "LG",
+      "Loading Type": "Front Loading",
+      "Warranty": "1 Year",
+      "Voltage": "220 V"
     }
   },
   {
@@ -1546,6 +1547,6 @@ export const products = [
   }
 ];
 
-export const categories = ["All", "Stacker", "Packages", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "Genuine Spare Parts", "Chemicals", "Seko"];
+export const categories = ["All", "Stacker", "Packages", "LG Commercial Laundry Machines", "Speed Queen Commercial Laundry Machines", "PONY Finishing Equipments", "LG Genuine Spare Parts", "Laundry Chemicals", "Seko"];
 
 

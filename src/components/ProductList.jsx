@@ -31,8 +31,8 @@ const CATEGORY_ITEMS = [
   { name: 'LG Commercial Laundry Machines', icon: WashingMachine },
   { name: 'Speed Queen Commercial Laundry Machines', icon: Zap },
   { name: 'PONY Finishing Equipments', icon: Shirt },
-  { name: 'Genuine Spare Parts', icon: Wrench },
-  { name: 'Chemicals', icon: FlaskConical },
+  { name: 'LG Genuine Spare Parts', icon: Wrench },
+  { name: 'Laundry Chemicals', icon: FlaskConical },
   { name: 'Seko', icon: SlidersHorizontal }
 ];
 
@@ -145,7 +145,7 @@ export default function ProductList({
       matchesCategory = product.category === 'Stacker' || product.category === 'Stackers' || (product.name && product.name.toLowerCase().includes('stacker'));
     } else if (selectedCategory === 'Packages') {
       matchesCategory = (product.category === 'Packages' || (product.badge && product.badge.toLowerCase().includes('package')) || (product.name && product.name.toLowerCase().includes('package'))) && product.category !== 'Stacker' && !(product.name && product.name.toLowerCase().includes('stacker'));
-    } else if (selectedCategory === 'Chemicals') {
+    } else if (selectedCategory === 'Laundry Chemicals' || selectedCategory === 'Chemicals') {
       const machinePackageNames = [
         'wet pro electric 15kg package',
         'titan electric 15kg package',
@@ -160,7 +160,9 @@ export default function ProductList({
         'giant gas 10kg stacker'
       ];
       const isMachinePackage = machinePackageNames.some(pName => (product.name || '').toLowerCase().includes(pName));
-      matchesCategory = product.category === 'Chemicals' || (product.category === 'Packages' && !isMachinePackage && (product.name.toLowerCase().includes('chemical') || product.name === 'Retail Laundry Package'));
+      matchesCategory = product.category === 'Laundry Chemicals' || product.category === 'Chemicals' || (product.category === 'Packages' && !isMachinePackage && (product.name.toLowerCase().includes('chemical') || product.name === 'Retail Laundry Package'));
+    } else if (selectedCategory === 'LG Genuine Spare Parts' || selectedCategory === 'Genuine Spare Parts') {
+      matchesCategory = product.category === 'LG Genuine Spare Parts' || product.category === 'Genuine Spare Parts';
     } else {
       matchesCategory = product.category === selectedCategory;
     }
@@ -253,8 +255,14 @@ export default function ProductList({
         return discB - discA;
       }
       case 'popular':
-      default:
+      default: {
+        if (selectedCategory === 'LG Commercial Laundry Machines') {
+          const isWasherA = (a.name || '').toLowerCase().includes('washer') ? 0 : 1;
+          const isWasherB = (b.name || '').toLowerCase().includes('washer') ? 0 : 1;
+          if (isWasherA !== isWasherB) return isWasherA - isWasherB;
+        }
         return (b.reviews || 0) - (a.reviews || 0);
+      }
     }
   });
 
@@ -376,8 +384,8 @@ export default function ProductList({
                 <option value="Speed Queen Commercial Laundry Machines">Speed Queen</option>
                 <option value="PONY Finishing Equipments">PONY</option>
                 <option value="Seko">Seko</option>
-                <option value="Genuine Spare Parts">Spare Parts</option>
-                <option value="Chemicals">Chemicals</option>
+                <option value="LG Genuine Spare Parts">LG Genuine Spare Parts</option>
+                <option value="Laundry Chemicals">Laundry Chemicals</option>
               </select>
             </div>
 

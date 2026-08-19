@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart, Star, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { formatImageUrl } from '../utils/imageUtils';
 import './ProductCard.css';
@@ -88,7 +88,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           </div>
         </div>
 
-        {/* MIDDLE COLUMN: Title, Rating, Bullet Specs */}
+        {/* MIDDLE COLUMN: Title, Bullet Specs */}
         <div className="list-col-mid">
           <h3 className="list-product-name" onClick={handleProductClick}>{product.name}</h3>
           {recommendationReason && (
@@ -96,15 +96,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               <Sparkles size={12} /> {recommendationReason}
             </div>
           )}
-
-          <div className="list-rating-row">
-            <span className="rating-pill-green">
-              {product.rating || 4.3} <Star size={11} fill="#fff" color="#fff" />
-            </span>
-            <span className="rating-counts">
-              {(product.reviews ? product.reviews * 40 : 15973).toLocaleString('en-IN')} Ratings & {(product.reviews || 1218).toLocaleString('en-IN')} Reviews
-            </span>
-          </div>
 
           <ul className="list-bullet-specs" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
             {bulletSpecs.map((spec, idx) => (
@@ -256,20 +247,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               {isDescExpanded ? 'less' : 'more...'}
             </button>
           )}
-        </div>
-
-        <div className="rating-section">
-          <div className="stars">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={14}
-                fill={i < Math.floor(product.rating) ? '#FFD700' : '#E0E0E0'}
-                color={i < Math.floor(product.rating) ? '#FFD700' : '#E0E0E0'}
-              />
-            ))}
-          </div>
-          <span className="rating-text">{product.rating} ({product.reviews} reviews)</span>
         </div>
 
         {product.specifications && (

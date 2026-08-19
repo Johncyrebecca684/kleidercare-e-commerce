@@ -5,7 +5,7 @@ import './Hero.css';
 const slides = [
   {
     id: 0,
-    image: '/emi_banner.jpg',
+    image: '/emi_banner.png',
     alt: 'Kleider Care EMI Offers'
   },
   {

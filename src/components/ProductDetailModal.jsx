@@ -3,10 +3,8 @@ import {
   X,
   Heart,
   ShoppingCart,
-  Star,
   ShieldCheck,
   Share2,
-  Play,
   CreditCard,
   Zap,
   Sparkles,
@@ -159,7 +157,7 @@ export default function ProductDetailModal({
               {showShareNotice && <div className="pdp-share-toast">💬 Opening WhatsApp & Link Copied!</div>}
             </div>
 
-            {/* GALLERY THUMBNAILS & DEMO PREVIEW */}
+            {/* GALLERY THUMBNAILS */}
             <div className="pdp-thumbnails-strip">
               {allGalleryImages.map((imgUrl, idx) => (
                 <button
@@ -170,13 +168,6 @@ export default function ProductDetailModal({
                   <img src={imgUrl} alt={`View ${idx + 1}`} />
                 </button>
               ))}
-
-              <div className="pdp-thumb-video-box" title="Watch Product Demo">
-                <img src={selectedImage || product.image} alt="Video Preview" />
-                <div className="pdp-play-overlay">
-                  <Play size={16} fill="#fff" />
-                </div>
-              </div>
             </div>
 
             <div className="pdp-trust-shield">
@@ -188,16 +179,6 @@ export default function ProductDetailModal({
           {/* RIGHT PRODUCT INFO COLUMN */}
           <div className="pdp-info-column">
             <h1 className="pdp-title">{product.name}</h1>
-
-            {/* RATING & REVIEWS ROW */}
-            <div className="pdp-rating-row">
-              <span className="pdp-rating-badge">
-                {product.rating || 4.3} <Star size={12} fill="#fff" color="#fff" />
-              </span>
-              <span className="pdp-reviews-count">
-                {(product.reviews ? product.reviews * 30 : 12450).toLocaleString('en-IN')} Ratings & {(product.reviews || 890).toLocaleString('en-IN')} Reviews
-              </span>
-            </div>
 
             {/* PRICE & DISCOUNT DISPLAY */}
             <div className="pdp-price-box">

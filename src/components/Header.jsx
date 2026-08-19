@@ -38,8 +38,8 @@ const categories = [
   { label: 'LG Commercial Laundry Machines', href: '#products', icon: WashingMachine },
   { label: 'Speed Queen Commercial Laundry Machines', href: '#products', icon: Zap },
   { label: 'PONY Finishing Equipments', href: '#products', icon: Shirt },
-  { label: 'Genuine Spare Parts', href: '#products', icon: Wrench },
-  { label: 'Chemicals', href: '#products', icon: FlaskConical },
+  { label: 'LG Genuine Spare Parts', href: '#products', icon: Wrench },
+  { label: 'Laundry Chemicals', href: '#products', icon: FlaskConical },
   { label: 'Seko', href: '#products', icon: SlidersHorizontal },
 ];
 

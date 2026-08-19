@@ -117,13 +117,15 @@ export function getRecommendationReason(sourceType, targetProduct) {
 
 // ── Complementary category mapping ──
 const COMPLEMENTARY_MAP = {
-  'LG Commercial Laundry Machines': ['Genuine Spare Parts', 'Chemicals', 'Seko'],
-  'Speed Queen Commercial Laundry Machines': ['Genuine Spare Parts', 'Chemicals', 'Seko'],
-  'PONY Finishing Equipments': ['Chemicals', 'Genuine Spare Parts'],
-  'Genuine Spare Parts': ['Chemicals', 'Seko'],
-  'Chemicals': ['Seko', 'Genuine Spare Parts', 'Packages'],
-  'Packages': ['Chemicals', 'Seko', 'Genuine Spare Parts'],
-  'Seko': ['Chemicals', 'Genuine Spare Parts']
+  'LG Commercial Laundry Machines': ['LG Genuine Spare Parts', 'Genuine Spare Parts', 'Laundry Chemicals', 'Chemicals', 'Seko'],
+  'Speed Queen Commercial Laundry Machines': ['LG Genuine Spare Parts', 'Genuine Spare Parts', 'Laundry Chemicals', 'Chemicals', 'Seko'],
+  'PONY Finishing Equipments': ['Laundry Chemicals', 'Chemicals', 'LG Genuine Spare Parts', 'Genuine Spare Parts'],
+  'LG Genuine Spare Parts': ['Laundry Chemicals', 'Chemicals', 'Seko'],
+  'Genuine Spare Parts': ['Laundry Chemicals', 'Chemicals', 'Seko'],
+  'Laundry Chemicals': ['Seko', 'LG Genuine Spare Parts', 'Genuine Spare Parts', 'Packages'],
+  'Chemicals': ['Seko', 'LG Genuine Spare Parts', 'Genuine Spare Parts', 'Packages'],
+  'Packages': ['Laundry Chemicals', 'Chemicals', 'Seko', 'LG Genuine Spare Parts', 'Genuine Spare Parts'],
+  'Seko': ['Laundry Chemicals', 'Chemicals', 'LG Genuine Spare Parts', 'Genuine Spare Parts']
 };
 
 function getComplementaryCategories(category) {
