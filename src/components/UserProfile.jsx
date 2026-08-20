@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../config';
-import { 
-  User, 
-  ShoppingBag, 
-  MapPin, 
-  Headset, 
-  LogOut, 
-  Trash2, 
-  Plus, 
-  Edit2, 
+import {
+  User,
+  ShoppingBag,
+  MapPin,
+  Headset,
+  LogOut,
+  Trash2,
+  Plus,
+  Edit2,
   CreditCard,
   ChevronDown,
   Info,
@@ -57,12 +57,12 @@ function numberToWords(num) {
   return words ? words + ' Rupees Only' : 'Zero Rupees Only';
 }
 
-export default function UserProfile({ 
-  userData, 
-  onLogout, 
-  orders = [], 
-  cartCount, 
-  wishlistCount, 
+export default function UserProfile({
+  userData,
+  onLogout,
+  orders = [],
+  cartCount,
+  wishlistCount,
   onUpdateUser,
   selectedCategory,
   onCategoryChange,
@@ -73,7 +73,7 @@ export default function UserProfile({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('orders'); // default tab is orders like zepto
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  
+
   const handlePrint = (invoice = selectedInvoice) => {
     if (!invoice) return;
     const originalTitle = document.title;
@@ -130,7 +130,7 @@ export default function UserProfile({
       downloadAsPdf(order);
     }, 300);
   };
-  
+
   // Profile Form State
   const [firstName, setFirstName] = useState(userData?.firstName || '');
   const [lastName, setLastName] = useState(userData?.lastName || '');
@@ -404,8 +404,8 @@ export default function UserProfile({
       />
 
       <div className="profile-page-content-wrapper">
-        <button 
-          onClick={() => navigate('/')} 
+        <button
+          onClick={() => navigate('/')}
           className="profile-back-btn-main"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', background: 'none', color: '#0f2b5c', cursor: 'pointer', fontWeight: '700', marginBottom: '20px', fontSize: '15px', padding: '0' }}
         >
@@ -429,35 +429,35 @@ export default function UserProfile({
 
             {/* Nav Menu */}
             <nav className="profile-nav-menu-list">
-              <button 
+              <button
                 className={`menu-item-btn ${activeTab === 'orders' ? 'active' : ''}`}
                 onClick={() => setActiveTab('orders')}
               >
                 <ShoppingBag size={18} />
                 <span>Orders History</span>
               </button>
-              <button 
+              <button
                 className={`menu-item-btn ${activeTab === 'addresses' ? 'active' : ''}`}
                 onClick={() => setActiveTab('addresses')}
               >
                 <MapPin size={18} />
                 <span>Saved Addresses</span>
               </button>
-              <button 
+              <button
                 className={`menu-item-btn ${activeTab === 'profile' ? 'active' : ''}`}
                 onClick={() => setActiveTab('profile')}
               >
                 <User size={18} />
                 <span>Profile Details</span>
               </button>
-              <button 
+              <button
                 className={`menu-item-btn ${activeTab === 'support' ? 'active' : ''}`}
                 onClick={() => setActiveTab('support')}
               >
                 <Headset size={18} />
                 <span>Customer Support</span>
               </button>
-              <button 
+              <button
                 className="menu-item-btn logout-menu-btn"
                 onClick={onLogout}
               >
@@ -502,7 +502,7 @@ export default function UserProfile({
                           {order.items.map((item, idx) => (
                             <div key={idx} className="order-item-block" style={{ marginBottom: '8px' }}>
                               <div className="order-item-row" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600' }}>
-                                <span>{item.name} <strong style={{color: '#64748b'}}>x{item.quantity}</strong></span>
+                                <span>{item.name} <strong style={{ color: '#64748b' }}>x{item.quantity}</strong></span>
                                 <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                               </div>
                               {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
@@ -527,8 +527,8 @@ export default function UserProfile({
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                             {(() => {
                               const isCOD = order.paymentMethod && (
-                                order.paymentMethod.toLowerCase().includes('cash') || 
-                                order.paymentMethod.toLowerCase().includes('cod') || 
+                                order.paymentMethod.toLowerCase().includes('cash') ||
+                                order.paymentMethod.toLowerCase().includes('cod') ||
                                 order.paymentMethod.toLowerCase().includes('delivery')
                               );
                               const isPaid = order.paymentStatus === 'Paid' || (!isCOD && order.paymentStatus !== 'Pending');
@@ -536,16 +536,16 @@ export default function UserProfile({
                               return (
                                 <>
                                   {isPaid ? (
-                                    <button 
-                                      className="view-invoice-btn" 
+                                    <button
+                                      className="view-invoice-btn"
                                       onClick={() => setSelectedInvoice(order)}
                                       style={{ padding: '6px 14px', border: '1px solid #0f2b5c', color: '#0f2b5c', background: '#ffffff', borderRadius: '6px', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                                     >
                                       <FileText size={14} /> View Invoice
                                     </button>
                                   ) : (
-                                    <button 
-                                      className="view-invoice-btn disabled" 
+                                    <button
+                                      className="view-invoice-btn disabled"
                                       disabled
                                       title="Invoice will be available after payment completion"
                                       style={{ padding: '6px 12px', border: '1px solid #cbd5e1', color: '#94a3b8', background: '#f8fafc', borderRadius: '6px', fontWeight: '600', fontSize: '12px', cursor: 'not-allowed', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
@@ -690,7 +690,7 @@ export default function UserProfile({
                 <div className="faqs-accordion-list">
                   {faqs.map((faq, index) => (
                     <div key={index} className="faq-item-box">
-                      <button 
+                      <button
                         className="faq-question-trigger"
                         onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                       >
@@ -756,11 +756,11 @@ export default function UserProfile({
                 <label>Address Label</label>
                 <div className="label-radio-options">
                   {['Home', 'Work', 'Other'].map(lbl => (
-                    <button 
-                      key={lbl} 
-                      type="button" 
+                    <button
+                      key={lbl}
+                      type="button"
                       className={`radio-chip ${addressForm.type === lbl ? 'active' : ''}`}
-                      onClick={() => setAddressForm({...addressForm, type: lbl})}
+                      onClick={() => setAddressForm({ ...addressForm, type: lbl })}
                     >
                       {lbl}
                     </button>
@@ -769,20 +769,20 @@ export default function UserProfile({
               </div>
               <div className="form-group">
                 <label>Street Address</label>
-                <input required type="text" value={addressForm.addressLine} onChange={e => setAddressForm({...addressForm, addressLine: e.target.value})} placeholder="Flat, House no., Building, Company, Street" />
+                <input required type="text" value={addressForm.addressLine} onChange={e => setAddressForm({ ...addressForm, addressLine: e.target.value })} placeholder="Flat, House no., Building, Company, Street" />
               </div>
               <div className="form-row-three">
                 <div className="form-group">
                   <label>City</label>
-                  <input required type="text" value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} />
+                  <input required type="text" value={addressForm.city} onChange={e => setAddressForm({ ...addressForm, city: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>State</label>
-                  <input required type="text" value={addressForm.state} onChange={e => setAddressForm({...addressForm, state: e.target.value})} />
+                  <input required type="text" value={addressForm.state} onChange={e => setAddressForm({ ...addressForm, state: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>Pincode</label>
-                  <input required type="text" value={addressForm.pincode} onChange={e => setAddressForm({...addressForm, pincode: e.target.value})} />
+                  <input required type="text" value={addressForm.pincode} onChange={e => setAddressForm({ ...addressForm, pincode: e.target.value })} />
                 </div>
               </div>
               <div className="address-modal-actions">
@@ -811,7 +811,7 @@ export default function UserProfile({
                 Close
               </button>
             </div>
-            
+
             {/* Printable Invoice Sheet */}
             <div className="invoice-sheet" id="invoice-print-area">
               <div className="invoice-header-section">
@@ -832,11 +832,11 @@ export default function UserProfile({
                   <p>Company's GSTIN: 33AALCK3365Q1ZX</p>
                 </div>
               </div>
-              
+
               <div className="invoice-title-banner">
                 Tax Invoice
               </div>
-              
+
               <div className="invoice-meta-grid">
                 <div className="meta-cell"><span className="label">Tax Invoice No:</span> <span className="value">KC {selectedInvoice.orderId?.substring(3) || '203075'}</span></div>
                 <div className="meta-cell"><span className="label">Supplier's Ref:</span> <span className="value"></span></div>
@@ -847,7 +847,7 @@ export default function UserProfile({
                 <div className="meta-cell"><span className="label">State:</span> <span className="value">Tamil Nadu (Code: 33)</span></div>
                 <div className="meta-cell"><span className="label">Place of Supply:</span> <span className="value">{selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29-Karnataka' : '33-Tamil Nadu'}</span></div>
               </div>
-              
+
               <div className="invoice-parties-grid">
                 <div className="party-column">
                   <div className="party-header">Bill to Party</div>
@@ -870,7 +870,7 @@ export default function UserProfile({
                   <p className="party-gstin"><strong>GSTIN:</strong> {selectedInvoice.gstNumber || 'N/A'}</p>
                 </div>
               </div>
-              
+
               <table className="invoice-items-table">
                 <thead>
                   <tr>
@@ -897,7 +897,7 @@ export default function UserProfile({
                     const unitLabel = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? 'Ltr' : 'Nos';
 
                     const rows = [];
-                    
+
                     // Main Item (Base product)
                     const amcPrice = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
                     const progPrice = item.includeProgramSetup ? 18000 : 0;
@@ -988,7 +988,7 @@ export default function UserProfile({
 
                     return rows;
                   })}
-                  
+
                   {/* Totals Row */}
                   {(() => {
                     const totalQty = selectedInvoice.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -996,7 +996,7 @@ export default function UserProfile({
                     const totalIgst = Math.round((selectedInvoice.total - totalBeforeTax) * 100) / 100;
                     const roundedTotal = Math.round(selectedInvoice.total);
                     const roundOff = Math.round((roundedTotal - selectedInvoice.total) * 100) / 100;
-                    
+
                     return (
                       <>
                         <tr className="totals-row">
@@ -1008,7 +1008,7 @@ export default function UserProfile({
                           <td><strong>{totalIgst.toFixed(2)}</strong></td>
                           <td><strong>{selectedInvoice.total.toFixed(2)}</strong></td>
                         </tr>
-                        
+
                         <tr className="summary-bottom-row">
                           <td colSpan="6" className="words-cell">
                             <strong>Total Amount in Words:</strong><br />
@@ -1032,7 +1032,7 @@ export default function UserProfile({
                   })()}
                 </tbody>
               </table>
-              
+
               <div className="invoice-footer-section">
                 <div className="bank-notes-column">
                   <h5>Notes</h5>

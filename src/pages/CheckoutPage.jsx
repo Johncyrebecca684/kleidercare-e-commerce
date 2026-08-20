@@ -711,7 +711,6 @@ export default function CheckoutPage({
       setCurrentOrderData(orderData);
 
 
-
       // 3. Load script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {

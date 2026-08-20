@@ -52,15 +52,11 @@ router.post('/create-order', async (req, res) => {
     const order = await rzp.orders.create(options);
     res.json({ ...order, keyId: process.env.RAZORPAY_KEY_ID });
   } catch (error) {
-    console.warn('⚠️ Razorpay live order creation failed. Falling back to mock order for development.');
-    console.error('Error details:', error.message);
-    res.json({
-      id: `order_mock_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      amount: Math.round(amount),
-      currency: 'INR',
-      receipt: `receipt_rcpt_${Date.now()}`,
-      isMock: true,
-      keyId: process.env.RAZORPAY_KEY_ID
+    console.error('❌ Razorpay order creation failed:', JSON.stringify(error?.error || error, null, 2));
+    const errorMsg = error?.error?.description || error?.message || 'Razorpay order creation failed. Check Key ID and Secret.';
+    return res.status(400).json({
+      message: `Razorpay Error: ${errorMsg}`,
+      error: error?.error || error
     });
   }
 });
