@@ -1,0 +1,687 @@
+/* ==========================================================
+   EMI OPTIONS MODAL STYLES (Amazon-inspired Clean Design)
+   ========================================================== */
+
+.emi-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 16px;
+  animation: emiFadeIn 0.2s ease-out;
+  box-sizing: border-box;
+}
+
+@keyframes emiFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.emi-modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25), 0 0 1px 1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: emiSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@keyframes emiSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* MODAL HEADER */
+.emi-modal-header {
+  padding: 18px 20px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.emi-modal-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.emi-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.emi-modal-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.emi-highlight-amount {
+  font-weight: 700;
+  color: #0284c7;
+}
+
+.emi-modal-close-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.emi-modal-close-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* TOP TABS NAVIGATION */
+.emi-tabs-nav-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 16px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.emi-tab-nav-item {
+  padding: 12px 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  margin-bottom: -1px;
+}
+
+.emi-tab-nav-item:hover {
+  color: #0284c7;
+}
+
+.emi-tab-nav-item.active {
+  color: #0284c7;
+  font-weight: 700;
+  border-bottom: 3px solid #0284c7;
+}
+
+/* SCROLLABLE BODY */
+.emi-modal-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #fafafa;
+}
+
+/* INNER FRAMED BOX (Amazon Style Container) */
+.emi-inner-framed-box {
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* TOGGLE BAR */
+.emi-toggle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.emi-toggle-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.emi-switch-toggle {
+  width: 44px;
+  height: 24px;
+  background: #cbd5e1;
+  border-radius: 20px;
+  position: relative;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.emi-switch-toggle.checked {
+  background: #0284c7;
+}
+
+.emi-switch-handle {
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.emi-switch-toggle.checked .emi-switch-handle {
+  transform: translateX(20px);
+}
+
+/* LOADING & EMPTY STATES */
+.emi-loading-container,
+.emi-empty-container {
+  padding: 36px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #64748b;
+  font-size: 13.5px;
+  gap: 10px;
+}
+
+.emi-spinner {
+  color: #0284c7;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.emi-empty-icon {
+  color: #94a3b8;
+}
+
+.emi-clear-filter-btn {
+  margin-top: 4px;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* BANK LIST & ROWS */
+.emi-bank-list-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.emi-bank-row-card {
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  transition: background-color 0.15s ease;
+}
+
+.emi-bank-row-card:last-child {
+  border-bottom: none;
+}
+
+.emi-bank-row-card.is-open {
+  background: #ffffff;
+}
+
+.emi-bank-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  gap: 12px;
+  user-select: none;
+}
+
+.emi-bank-row-header:hover {
+  background: #f8fafc;
+}
+
+.emi-bank-brand-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.emi-bank-text-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.emi-bank-display-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emi-bank-fee-note {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b91c1c;
+  line-height: 1.2;
+}
+
+.emi-bank-action-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.emi-no-cost-pill-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+  white-space: nowrap;
+}
+
+.emi-accordion-chevron {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* BANK LOGO BADGES */
+.bank-logo-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.amazon-pay-bg {
+  background: #232f3e;
+  color: #ff9900;
+}
+
+.logo-text-pay {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.hdfc-bg {
+  background: #004c8f;
+  color: #ffffff;
+}
+
+.hdfc-inner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #ed1c24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hdfc-box {
+  width: 6px;
+  height: 6px;
+  background: #004c8f;
+}
+
+.sbi-bg {
+  background: #280071;
+  color: #ffffff;
+}
+
+.sbi-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00a5df;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sbi-cutout {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #280071;
+}
+
+.axis-bg {
+  background: #97144d;
+  color: #ffffff;
+}
+
+.axis-triangle {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid #ffffff;
+}
+
+.icici-bg {
+  background: #b82a2b;
+  color: #f58220;
+}
+
+.icici-i {
+  font-size: 20px;
+  font-weight: 900;
+  font-family: serif;
+}
+
+.bajaj-bg {
+  background: #005c97;
+  color: #ffffff;
+}
+
+.bajaj-b {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.rbl-bg {
+  background: #1b365d;
+  color: #ff3333;
+}
+
+.rbl-b {
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.kotak-bg {
+  background: #ed1c24;
+  color: #ffffff;
+}
+
+.kotak-k {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.generic-bg {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* EXPANDABLE TABLE */
+.emi-table-dropdown-area {
+  padding: 0 16px 14px;
+  background: #fafafa;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.emi-plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+  margin-top: 8px;
+}
+
+.emi-plan-table th {
+  padding: 8px 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.emi-plan-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.emi-plan-table tr:last-child td {
+  border-bottom: none;
+}
+
+.emi-plan-table tr.is-no-cost-row {
+  background: rgba(240, 253, 244, 0.75);
+}
+
+.emi-col-tenure {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.tenure-title {
+  font-weight: 600;
+}
+
+.no-cost-green-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.emi-col-monthly {
+  white-space: nowrap;
+}
+
+.emi-price-bold {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0284c7;
+}
+
+.emi-month-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+.zero-pct-pill {
+  color: #15803d;
+  font-weight: 700;
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: inline-block;
+}
+
+.rate-text {
+  font-size: 12px;
+  color: #334155;
+}
+
+.total-amount-bold {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.interest-sub-note {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* MODAL BOTTOM BAR */
+.emi-modal-bottom-bar {
+  padding: 12px 18px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.emi-bottom-icon {
+  color: #0284c7;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.emi-bottom-text {
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* PRODUCT DETAIL PAGE INLINE TEASER STRIP */
+.pdp-emi-teaser-card {
+  margin-top: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.pdp-emi-teaser-card:hover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+}
+
+.pdp-emi-teaser-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdp-emi-badge-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #bfdbfe;
+}
+
+.pdp-emi-text-wrapper {
+  font-size: 13.5px;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.pdp-emi-amount {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pdp-emi-nocost-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+  margin-left: 6px;
+}
+
+.pdp-emi-options-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #0284c7;
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pdp-emi-teaser-card:hover .pdp-emi-options-trigger {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .emi-modal-card {
+    max-height: 94vh;
+    border-radius: 12px;
+  }
+  .emi-modal-header {
+    padding: 14px 16px;
+  }
+  .emi-tabs-nav-bar {
+    padding: 0 12px;
+    gap: 10px;
+  }
+  .emi-tab-nav-item {
+    font-size: 13px;
+    padding: 10px 4px;
+  }
+  .emi-modal-scrollable {
+    padding: 12px;
+  }
+  .pdp-emi-teaser-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .pdp-emi-options-trigger {
+    align-self: flex-end;
+  }
+}

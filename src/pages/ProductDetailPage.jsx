@@ -38,8 +38,10 @@ import {
   Upload,
   Image as ImageIcon,
   RotateCcw,
-  Layers
+  Layers,
+  Percent
 } from 'lucide-react';
+import EmiOptionsModal from '../components/EmiOptionsModal';
 import { getRecommendations, getProductType, getRecommendedTargetType } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
 import { formatImageUrl } from '../utils/imageUtils';
@@ -83,6 +85,40 @@ export default function ProductDetailPage({
   const [includeProgramSetup, setIncludeProgramSetup] = useState(false);
   const [showAmcScheduleModal, setShowAmcScheduleModal] = useState(false);
   const [showAmcDetails, setShowAmcDetails] = useState(true);
+  const [showEmiModal, setShowEmiModal] = useState(false);
+
+  // Check if EMI is applicable to the current product (LG & Speed Queen products)
+  const isEmiApplicable = () => {
+    if (!product) return false;
+    const cat = (product.category || '').toLowerCase();
+    const subcat = (product.subcategory || '').toLowerCase();
+    const name = (product.name || '').toLowerCase();
+    const brand = (product.specifications?.['Brand'] || product.specifications?.['brand'] || '').toLowerCase();
+    const specs = JSON.stringify(product.specifications || {}).toLowerCase();
+
+    const isLg =
+      brand.includes('lg') ||
+      cat.includes('lg') ||
+      name.includes('lg') ||
+      name.includes('giant') ||
+      name.includes('titan') ||
+      specs.includes('lg') ||
+      specs.includes('cwg') ||
+      specs.includes('cwt');
+
+    const isSpeedQueen =
+      brand.includes('speed queen') ||
+      brand.includes('speedqueen') ||
+      cat.includes('speed queen') ||
+      cat.includes('speedqueen') ||
+      subcat.includes('speed queen') ||
+      subcat.includes('speedqueen') ||
+      name.includes('speed queen') ||
+      name.includes('speedqueen') ||
+      name.includes('quantum touch');
+
+    return isLg || isSpeedQueen;
+  };
 
   // Gallery image list combining base product images
   const allGalleryImages = Array.from(
@@ -507,6 +543,32 @@ export default function ProductDetailPage({
               </div>
               <div className="pdp-tax-info">Inclusive of all taxes. GST invoice available for business claims.</div>
             </div>
+
+            {/* EMI CHECKING TEASER STRIP (LG & SPEED QUEEN PRODUCTS) */}
+            {isEmiApplicable() && (
+              <div
+                className="pdp-emi-teaser-card"
+                onClick={() => setShowEmiModal(true)}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="pdp-emi-teaser-left">
+                  <div className="pdp-emi-badge-icon">
+                    <Percent size={17} />
+                  </div>
+                  <div className="pdp-emi-text-wrapper">
+                    <div>
+                      <strong>EMI</strong> starts at <span className="pdp-emi-amount">₹{Math.round(currentTotalPrice * 0.048).toLocaleString('en-IN')}</span>/mo.
+                      <span className="pdp-emi-nocost-badge">No Cost EMI available</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="pdp-emi-options-trigger">
+                  <span>EMI options</span>
+                  <ChevronDown size={16} />
+                </div>
+              </div>
+            )}
 
 
             {/* PRODUCT SPECIFICATIONS & DESCRIPTION */}
@@ -956,6 +1018,14 @@ export default function ProductDetailPage({
           </section>
         )}
       </main>
+
+      {/* RAZORPAY EMI CHECKING MODAL */}
+      <EmiOptionsModal
+        isOpen={showEmiModal}
+        onClose={() => setShowEmiModal(false)}
+        productPrice={currentTotalPrice}
+        productName={product.name}
+      />
 
       <Footer />
     </div>
