@@ -128,95 +128,101 @@
   right: 14px;
 }
 
-@media (max-width: 768px) {
-  .hero {
-    padding: 16px 12px;
-  }
-
-  .carouselBanner {
-    aspect-ratio: 16 / 5.5;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  }
-
-  .carouselIndicators {
-    bottom: 8px;
-    padding: 3px 8px;
-    gap: 5px;
-  }
-
-  .dot {
-    width: 6px;
-    height: 6px;
-  }
-
-  .dot.active {
-    width: 16px;
-  }
-
-  .carouselNavBtn {
-    width: 30px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(226, 232, 240, 0.8);
-  }
-
-  .prevBtn {
-    left: 8px;
-  }
-
-  .nextBtn {
-    right: 8px;
-  }
+.heroMobileWrapper {
+  display: none;
+  width: 100%;
 }
 
-@media (max-width: 480px) {
+.heroDesktopWrapper {
+  display: block;
+}
+
+@media (max-width: 768px) {
   .hero {
-    padding: 10px 8px;
+    padding: 0;
+    width: 100%;
+    overflow: hidden;
   }
 
-  .carouselBanner {
-    aspect-ratio: 16 / 5.5;
+  .heroDesktopWrapper {
+    display: none;
+  }
+
+  .heroMobileWrapper {
+    display: block;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+  }
+
+  .heroMobileBanner {
+    width: 100%;
+    line-height: 0;
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .heroMobileTrack {
+    display: flex;
+    width: 100%;
+    will-change: transform;
+  }
+
+  .heroMobileSlideItem {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    position: relative;
+    line-height: 0;
+  }
+
+  .hero-mobile-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+  }
+
+  .heroMobileIndicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .mobileDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #94a3b8;
+    opacity: 0.55;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .mobileDot.active {
+    opacity: 1;
+    width: 16px;
     border-radius: 10px;
-    border: 1px solid #edf2f7;
-  }
-
-  .carouselIndicators {
-    bottom: 5px;
-    padding: 2px 6px;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.8);
-  }
-
-  .dot {
-    width: 5px;
-    height: 5px;
-  }
-
-  .dot.active {
-    width: 13px;
-  }
-
-  .carouselNavBtn {
-    width: 26px;
-    height: 26px;
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  }
-
-  .carouselNavBtn svg {
-    width: 15px;
-    height: 15px;
-  }
-
-  .prevBtn {
-    left: 4px;
-  }
-
-  .nextBtn {
-    right: 4px;
+    background: #0284c7;
   }
 }
 
