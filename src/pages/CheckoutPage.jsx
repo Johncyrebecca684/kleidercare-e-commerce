@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, ArrowLeft, Smartphone, QrCode } from 'lucide-react';
+import { CheckCircle, CheckCircle2, ArrowLeft, Smartphone, QrCode, MapPin, Plus, Lock, ShieldCheck, Settings, Sparkles, Tag, X, AlertCircle, Info } from 'lucide-react';
 import './CheckoutPage.css';
 import { API_URL } from '../config';
 import { sendInvoiceEmail } from '../utils/sendInvoiceEmail';
@@ -199,7 +199,7 @@ export default function CheckoutPage({
 
           if (data.status === 'Paid') {
             clearInterval(intervalId);
-            setUpiStatusText('✅ Payment detected successfully!');
+            setUpiStatusText('Payment detected successfully!');
 
             // Automatically complete order and save to database
             setIsProcessing(true);
@@ -605,92 +605,6 @@ export default function CheckoutPage({
       }
     }
 
-    if (paymentMethod === 'Cash') {
-      try {
-        const token = localStorage.getItem('kc_auth_token');
-        const orderPayload = {
-          customerName: formData.name,
-          userEmail: formData.email,
-          phone: formData.phone,
-          companyName: formData.companyName || '',
-          gstNumber: formData.gstNumber || '',
-          shippingAddress: {
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            pincode: formData.pincode
-          },
-          items: items.map(item => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            extendedWarranty: item.selectedWarranty || { type: 'None', title: 'Standard (1-Yr Included)', price: 0 }
-          })),
-          totalAmount: finalTotal,
-          paymentMethod: 'Cash',
-          paymentStatus: 'Pending',
-          installationAddon: installationAddon || { selected: false, fee: 0 },
-          summaryBreakdown: {
-            subtotal,
-            totalWarrantyFee: items.reduce((sum, i) => sum + ((i.selectedWarranty?.price || 0) * i.quantity), 0),
-            installationFee,
-            grandTotal: finalTotal
-          },
-          warranty: items.some(i => i.selectedWarranty?.type === '3-Year')
-            ? 'Active (3 Years)'
-            : items.some(i => i.selectedWarranty?.type === '1-Year')
-              ? 'Active (2 Years)'
-              : 'Active (1 Year)'
-        };
-
-        const orderSaveResponse = await fetch(`${API_URL}/api/orders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
-          },
-          body: JSON.stringify(orderPayload)
-        });
-
-        if (!orderSaveResponse.ok) {
-          const saveErr = await orderSaveResponse.json();
-          throw new Error(saveErr.message || 'Failed to save order details in database');
-        }
-
-        const savedOrderData = await orderSaveResponse.json();
-        const savedOrder = savedOrderData.order;
-
-        // Trigger EmailJS invoice email send
-        sendInvoiceEmail(savedOrder, formData).catch(err => console.error('[Checkout] Failed to dispatch invoice email:', err));
-
-        setIsSuccess(true);
-
-        const newOrder = {
-          id: savedOrder.orderId || savedOrder._id || 'ORD' + Math.floor(Math.random() * 1000000),
-          orderId: savedOrder.orderId || savedOrder._id,
-          date: new Date(savedOrder.createdAt).toLocaleDateString(),
-          items: savedOrder.items,
-          total: savedOrder.totalAmount,
-          status: savedOrder.status,
-          paymentMethod: savedOrder.paymentMethod,
-          companyName: savedOrder.companyName || '',
-          gstNumber: savedOrder.gstNumber || ''
-        };
-
-        setTimeout(() => {
-          onPlaceOrder(newOrder);
-          navigate('/');
-        }, 4000);
-      } catch (err) {
-        console.error(err);
-        setPaymentError(err.message || 'An error occurred while placing the order.');
-        setIsProcessing(false);
-      }
-      return;
-    }
-
-
-
     try {
       // 1. Create order on backend (Amount in paise)
       const amountInPaise = Math.round(finalTotal * 100);
@@ -901,7 +815,11 @@ export default function CheckoutPage({
                       gap: '5px'
                     }}
                   >
-                    {isLocating ? 'Locating...' : '📍 Use Current Location'}
+                    {isLocating ? 'Locating...' : (
+                      <>
+                        <MapPin size={14} /> Use Current Location
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -965,7 +883,7 @@ export default function CheckoutPage({
                           color: '#2563eb'
                         }}
                       >
-                        ➕ Add New
+                        <Plus size={14} style={{ marginRight: '4px' }} /> Add New
                       </div>
                     </div>
                   </div>
@@ -1002,58 +920,40 @@ export default function CheckoutPage({
               </div>
 
               <div className="checkout-page-section" style={{ marginTop: '25px' }}>
-                <h3>Select Payment Method</h3>
-                <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
-
-                  <label style={{
-                    flex: '1 1 200px',
+                <h3>Payment Method</h3>
+                <div style={{ marginTop: '15px' }}>
+                  <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    padding: '14px',
-                    border: paymentMethod === 'Card' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    background: paymentMethod === 'Card' ? '#f0f4ff' : '#ffffff',
-                    fontWeight: '700',
-                    transition: 'all 0.2s',
+                    gap: '14px',
+                    padding: '16px 18px',
+                    border: '2px solid #1a4a8d',
+                    borderRadius: '10px',
+                    background: '#f0f4ff',
+                    color: '#0f2b5c',
                     boxSizing: 'border-box'
                   }}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="Card"
-                      checked={paymentMethod === 'Card'}
-                      onChange={() => setPaymentMethod('Card')}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    💳 Credit / Debit Card / Netbanking
-                  </label>
-
-                  <label style={{
-                    flex: '1 1 200px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '14px',
-                    border: paymentMethod === 'Cash' ? '2px solid #1a4a8d' : '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    background: paymentMethod === 'Cash' ? '#f0f4ff' : '#ffffff',
-                    fontWeight: '700',
-                    transition: 'all 0.2s',
-                    boxSizing: 'border-box'
-                  }}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="Cash"
-                      checked={paymentMethod === 'Cash'}
-                      onChange={() => setPaymentMethod('Cash')}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    💵 Cash on Delivery (COD)
-                  </label>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      background: '#dbeafe',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <Lock size={20} color="#1a4a8d" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f2b5c' }}>
+                        100% Secure Online Payment (Razorpay)
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#475569', fontWeight: '500', marginTop: '3px' }}>
+                        UPI (GPay, PhonePe, Paytm), Credit / Debit Cards, Netbanking &amp; EMI
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </form>
@@ -1068,13 +968,13 @@ export default function CheckoutPage({
                   <span className="summary-item-page-name">
                     {item.name} <span style={{ color: '#888' }}>x {item.quantity}</span>
                     {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
-                      <span style={{ display: 'block', fontSize: '11px', color: '#0f2b5c', fontWeight: '600', marginTop: '2px' }}>
-                        🛡️ {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#0f2b5c', fontWeight: '600', marginTop: '2px' }}>
+                        <ShieldCheck size={13} color="#0f2b5c" /> {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)
                       </span>
                     )}
                     {item.includeProgramSetup && (
-                      <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', fontWeight: '600', marginTop: '2px' }}>
-                        ⚙️ Machine Program Setup (+₹18,000)
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#0284c7', fontWeight: '600', marginTop: '2px' }}>
+                        <Settings size={13} color="#0284c7" /> Machine Program Setup (+₹18,000)
                       </span>
                     )}
                   </span>
@@ -1096,7 +996,9 @@ export default function CheckoutPage({
               )}
               {items.some(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo) && (
                 <div className="summary-row-page" style={{ color: '#0f2b5c', fontWeight: '600' }}>
-                  <span>🛡️ Extended Warranty & AMC</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <ShieldCheck size={14} color="#0f2b5c" /> Extended Warranty &amp; AMC
+                  </span>
                   <span>
                     +₹{items
                       .filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo)
@@ -1119,7 +1021,9 @@ export default function CheckoutPage({
               </div>
               {items.some(i => i.includeProgramSetup) && (
                 <div className="summary-row-page" style={{ color: '#0284c7', fontWeight: '600' }}>
-                  <span>⚙️ Machine Program Setup</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <Settings size={14} color="#0284c7" /> Machine Program Setup
+                  </span>
                   <span>
                     +₹{items
                       .filter(i => i.includeProgramSetup)
@@ -1185,8 +1089,8 @@ export default function CheckoutPage({
                 flexDirection: 'column',
                 gap: '8px'
               }}>
-                <div>
-                  💡 <strong>Reseller Discounts Automatically Applied!</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={16} color="#1e40af" /> <strong>Reseller Discounts Automatically Applied!</strong>
                 </div>
                 <div style={{ paddingLeft: '12px' }}>
                   • 20% discount on Genuine Spare Parts.
@@ -1245,7 +1149,7 @@ export default function CheckoutPage({
                       fontWeight: '600',
                       gap: '6px'
                     }}>
-                      🏷️ {coupon}
+                      <Tag size={12} color="#166534" /> {coupon}
                       <button
                         type="button"
                         onClick={() => handleRemoveCoupon(coupon)}
@@ -1254,14 +1158,13 @@ export default function CheckoutPage({
                           border: 'none',
                           color: '#166534',
                           cursor: 'pointer',
-                          fontSize: '14px',
-                          lineHeight: 1,
+                          display: 'inline-flex',
+                          alignItems: 'center',
                           padding: 0,
-                          marginLeft: '4px',
-                          fontWeight: 'bold'
+                          marginLeft: '2px'
                         }}
                       >
-                        ×
+                        <X size={12} strokeWidth={2.5} />
                       </button>
                     </span>
                   ))}
@@ -1292,8 +1195,9 @@ export default function CheckoutPage({
             </div>
 
             {paymentError && (
-              <div style={{ color: '#dc2626', backgroundColor: '#fef2f2', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginTop: '10px', fontWeight: '600', border: '1px solid #fee2e2', textAlign: 'left' }}>
-                ⚠️ {paymentError}
+              <div style={{ color: '#dc2626', backgroundColor: '#fef2f2', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginTop: '10px', fontWeight: '600', border: '1px solid #fee2e2', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertCircle size={16} color="#dc2626" style={{ flexShrink: 0 }} />
+                <span>{paymentError}</span>
               </div>
             )}
 
@@ -1304,10 +1208,7 @@ export default function CheckoutPage({
               disabled={isProcessing}
               style={isProcessing ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#64748b' } : {}}
             >
-              {isProcessing ? 'Processing...' :
-                paymentMethod === 'Cash' ? `Confirm Order (₹${finalTotal.toLocaleString('en-IN')})` :
-                  paymentMethod === 'UPI' ? `Pay via UPI & Place Order (₹${finalTotal.toLocaleString('en-IN')})` :
-                    `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
+              {isProcessing ? 'Processing Payment...' : `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
             </button>
           </div>
 

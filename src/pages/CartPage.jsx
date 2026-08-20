@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShieldCheck, MapPin, Truck } from 'lucide-react';
+import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShoppingCart, ShieldCheck, Settings, MapPin, Truck, X } from 'lucide-react';
 import { getRecommendations } from '../utils/recommendationEngine';
 import { formatImageUrl } from '../utils/imageUtils';
 import './CartPage.css';
@@ -138,7 +138,9 @@ export default function CartPage({
 
         {items.length === 0 ? (
           <div className="empty-cart-page">
-            <div className="empty-cart-icon">🛒</div>
+            <div className="empty-cart-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+              <ShoppingCart size={72} strokeWidth={1.5} color="#0f2b5c" />
+            </div>
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any laundry products to your cart yet.</p>
             <Link to="/" className="continue-shopping-btn-main">
@@ -176,7 +178,9 @@ export default function CartPage({
                             border: '1px solid #bfdbfe'
                           }}
                         >
-                          <span>🛡️ {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                            <ShieldCheck size={14} color="#0f2b5c" /> {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)
+                          </span>
                           <button
                             type="button"
                             onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'warranty')}
@@ -191,13 +195,11 @@ export default function CartPage({
                               alignItems: 'center',
                               justifyContent: 'center',
                               cursor: 'pointer',
-                              fontWeight: 'bold',
-                              fontSize: '11px',
                               marginLeft: '4px'
                             }}
                             title="Remove AMC Extended Warranty"
                           >
-                            ✕
+                            <X size={11} strokeWidth={2.5} />
                           </button>
                         </div>
                       )}
@@ -218,7 +220,9 @@ export default function CartPage({
                             border: '1px solid #bae6fd'
                           }}
                         >
-                          <span>⚙️ Machine Program Setup (+₹18,000)</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                            <Settings size={14} color="#0284c7" /> Machine Program Setup (+₹18,000)
+                          </span>
                           <button
                             type="button"
                             onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'setup')}
@@ -233,13 +237,11 @@ export default function CartPage({
                               alignItems: 'center',
                               justifyContent: 'center',
                               cursor: 'pointer',
-                              fontWeight: 'bold',
-                              fontSize: '11px',
                               marginLeft: '4px'
                             }}
                             title="Remove Machine Program Setup"
                           >
-                            ✕
+                            <X size={11} strokeWidth={2.5} />
                           </button>
                         </div>
                       )}
@@ -338,7 +340,7 @@ export default function CartPage({
                   <Sparkles size={20} className="sparkle-icon" />
                   <div>
                     <h3>Recommended Add-Ons for Your Cart</h3>
-                    <p>Frequently bought together to improve performance & machine longevity</p>
+                    <p>Frequently bought together to improve performance &amp; machine longevity</p>
                   </div>
                 </div>
 
@@ -360,7 +362,11 @@ export default function CartPage({
                           <Link to={`/product/${addon.id}`} className="addon-title-link">
                             <h4 className="addon-title">{addon.name}</h4>
                           </Link>
-                          {reason && <p className="addon-reason-text">✨ {reason}</p>}
+                          {reason && (
+                            <p className="addon-reason-text" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <Sparkles size={12} color="#f59e0b" /> {reason}
+                            </p>
+                          )}
                           <p className="addon-desc">{addon.description || `${addon.category} spare part`}</p>
                           <div className="addon-price-line">
                             <span className="addon-curr-price">₹{addon.price.toLocaleString('en-IN')}</span>
@@ -414,7 +420,9 @@ export default function CartPage({
               {items.some(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo) && (
                 <div className="summary-row addon-row" style={{ color: '#0f2b5c', fontWeight: '600' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span>🛡️ Extended Warranty & AMC</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <ShieldCheck size={14} color="#0f2b5c" /> Extended Warranty &amp; AMC
+                    </span>
                     <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'normal' }}>
                       Base: ₹{items.filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo).reduce((sum, i) => sum + (i.amcWarrantyInfo.price * i.quantity), 0).toLocaleString('en-IN')} | GST @ 18%: ₹{items.filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo).reduce((sum, i) => sum + Math.round(i.amcWarrantyInfo.price * 0.18 * i.quantity), 0).toLocaleString('en-IN')}
                     </span>
@@ -431,7 +439,9 @@ export default function CartPage({
               {/* Machine Program Setup Breakdown in Order Summary */}
               {items.some(i => i.includeProgramSetup) && (
                 <div className="summary-row addon-row" style={{ color: '#0284c7', fontWeight: '600' }}>
-                  <span>⚙️ Machine Program Setup</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <Settings size={14} color="#0284c7" /> Machine Program Setup
+                  </span>
                   <span>
                     +₹{items
                       .filter(i => i.includeProgramSetup)
