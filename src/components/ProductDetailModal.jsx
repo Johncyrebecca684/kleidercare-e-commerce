@@ -19,6 +19,10 @@ import {
 } from 'lucide-react';
 import { getProductType, getRecommendedTargetType, getRecommendationReason } from '../utils/recommendationEngine';
 import { formatImageUrl } from '../utils/imageUtils';
+import LottieAnimation from './LottieAnimation';
+import AddToCartButton from './AddToCartButton';
+import BuyNowButton from './BuyNowButton';
+import EmiButton from './EmiButton';
 import './ProductDetailModal.css';
 
 export default function ProductDetailModal({
@@ -35,6 +39,7 @@ export default function ProductDetailModal({
   const formattedProductImage = formatImageUrl(product.image);
   const [selectedImage, setSelectedImage] = useState(formattedProductImage);
   const [addonAdded, setAddonAdded] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const allGalleryImages = Array.from(
     new Set([
@@ -314,38 +319,52 @@ export default function ProductDetailModal({
 
             {/* ACTION BUTTONS (ADD TO CART, EMI, BUY NOW) */}
             <div className="pdp-action-bar">
-              <button
-                className={`pdp-cart-btn ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
-                onClick={() => { if (!isOutOfStock) { onAddToCart(product); onClose(); } }}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
-              >
-                <ShoppingCart size={18} />
-                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+              <AddToCartButton
+                className="pdp-cart-btn-animated"
+                onClick={() => {
+                  if (!isOutOfStock) {
+                    onAddToCart(product);
+                    setTimeout(() => {
+                      onClose();
+                    }, 1400);
+                  }
+                }}
+                isOutOfStock={isOutOfStock}
+                defaultText="Add to Cart"
+                addedText="Added to Cart!"
+                size="md"
+              />
 
-              <button
-                className={`pdp-emi-btn ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
-                onClick={() => { if (!isOutOfStock) { onAddToCart(product); onClose(); } }}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#64748b' } : {}}
-              >
-                <CreditCard size={18} />
-                <span>
-                  <strong>{isOutOfStock ? 'Unavailable' : 'Buy with EMI'}</strong>
-                  <small>{isOutOfStock ? 'Item Out of Stock' : `From ₹${Math.round(product.price / 12).toLocaleString('en-IN')}/mo`}</small>
-                </span>
-              </button>
+              <EmiButton
+                className="pdp-emi-btn-animated"
+                onClick={() => {
+                  onAddToCart(product);
+                  onClose();
+                }}
+                isOutOfStock={isOutOfStock}
+                monthlyPrice={product.price / 12}
+                defaultTitle="Buy with EMI"
+                size="md"
+              />
 
-              <button
-                className={`pdp-buynow-btn ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
-                onClick={() => { if (!isOutOfStock) { onBuyNow ? onBuyNow(product) : onAddToCart(product); onClose(); } }}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#475569' } : {}}
-              >
-                <Zap size={18} />
-                <span>{isOutOfStock ? 'Out of Stock' : `Buy Now at ₹${product.price.toLocaleString('en-IN')}`}</span>
-              </button>
+              <BuyNowButton
+                className="pdp-buynow-btn-animated"
+                onClick={() => {
+                  if (!isOutOfStock) {
+                    if (onBuyNow) {
+                      onBuyNow(product);
+                    } else {
+                      onAddToCart(product);
+                    }
+                    onClose();
+                  }
+                }}
+                isOutOfStock={isOutOfStock}
+                price={product.price}
+                defaultText="Buy Now"
+                processingText="Proceeding..."
+                size="md"
+              />
             </div>
 
             {/* RECOMMENDED COMPANION BOX */}

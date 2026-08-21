@@ -1,0 +1,199 @@
+/* Animated Pay & Place Order Button Styles */
+.animated-pay-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.3);
+  letter-spacing: 0.3px;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.animated-pay-btn.lg {
+  height: 52px;
+  padding: 0 24px;
+  font-size: 15px;
+}
+
+.animated-pay-btn.md {
+  height: 46px;
+  padding: 0 20px;
+  font-size: 14px;
+}
+
+.animated-pay-btn:hover:not(.is-disabled):not(.is-animating) {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(22, 163, 74, 0.45);
+}
+
+.animated-pay-btn:active:not(.is-disabled):not(.is-animating) {
+  transform: scale(0.98);
+}
+
+.animated-pay-btn.is-disabled {
+  background: #94a3b8 !important;
+  color: #f1f5f9 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.65;
+  border-color: transparent !important;
+}
+
+.animated-pay-btn .pay-btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.animated-pay-btn .pay-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.animated-pay-btn .pay-vehicle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-pay-btn .pay-icon-svg {
+  width: 20px;
+  height: 20px;
+  stroke: #bbf7d0;
+}
+
+.animated-pay-btn .pay-token-drop {
+  position: absolute;
+  top: -24px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #fef08a;
+  box-shadow: 0 0 6px #fde047;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.animated-pay-btn .pay-btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.animated-pay-btn .pay-lock-icon {
+  color: #dcfce7;
+}
+
+.animated-pay-btn .pay-authorized-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Animation sequence */
+.animated-pay-btn.is-animating {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  pointer-events: none;
+}
+
+.animated-pay-btn.is-animating:not(.is-authorized) .pay-btn-text {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.animated-pay-btn.is-animating:not(.is-authorized) .pay-stage {
+  animation: payZoomAcross 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animated-pay-btn.is-animating:not(.is-authorized) .pay-token-drop {
+  animation: payTokenDrop 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Authorized state */
+.animated-pay-btn.is-authorized {
+  background: #0f2b5c !important;
+  box-shadow: 0 4px 18px rgba(15, 43, 92, 0.4) !important;
+}
+
+.animated-pay-btn.is-authorized .pay-stage {
+  display: none;
+}
+
+.animated-pay-btn.is-authorized .pay-btn-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Keyframes */
+@keyframes payTokenDrop {
+  0% {
+    opacity: 0;
+    top: -26px;
+    transform: scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    top: -18px;
+    transform: scale(1.2);
+  }
+  38% {
+    top: 6px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    top: 6px;
+  }
+  100% {
+    opacity: 0;
+    top: 6px;
+  }
+}
+
+@keyframes payZoomAcross {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  20% {
+    transform: translateX(16px) scale(1.1);
+  }
+  40% {
+    transform: translateX(14px) scale(1.15);
+  }
+  65% {
+    transform: translateX(35px) scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(140px) scale(1.25);
+    opacity: 0;
+  }
+}

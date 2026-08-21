@@ -45,6 +45,12 @@ import EmiOptionsModal from '../components/EmiOptionsModal';
 import { getRecommendations, getProductType, getRecommendedTargetType } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
 import { formatImageUrl } from '../utils/imageUtils';
+import LottieAnimation from '../components/LottieAnimation';
+import AddToCartButton from '../components/AddToCartButton';
+import BuyNowButton from '../components/BuyNowButton';
+import EmiButton from '../components/EmiButton';
+import SetupProgramButton from '../components/SetupProgramButton';
+import AmcPlanButton from '../components/AmcPlanButton';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage({
@@ -374,13 +380,19 @@ export default function ProductDetailPage({
     return product;
   };
 
+  const [isAdding, setIsAdding] = useState(false);
+
   const isOutOfStock = (product.stock !== undefined && Number(product.stock) <= 0) || product.stockStatus === 'Out of Stock';
 
   const handleAddToCartClick = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isAdding) return;
+    setIsAdding(true);
     onAddToCart(getProductForCart());
     setAddedNotice(true);
-    setTimeout(() => setAddedNotice(false), 2000);
+    setTimeout(() => {
+      setIsAdding(false);
+      setAddedNotice(false);
+    }, 1800);
   };
 
   const handleBuyNowClick = () => {
@@ -663,15 +675,12 @@ export default function ProductDetailPage({
                           <li><ShieldCheck size={16} className="feat-icon match highlight" /> <span><strong>Vent Cleaning & Drum Disinfection</strong></span></li>
                         </ul>
 
-                        <button
-                          className={`amc-select-btn featured ${selectedWarranty === 'amc' ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedWarranty(selectedWarranty === 'amc' ? 'none' : 'amc');
-                          }}
-                        >
-                          {selectedWarranty === 'amc' ? '✓ AMC Plan Selected' : 'Select AMC Plan'}
-                        </button>
+                        <AmcPlanButton
+                          active={selectedWarranty === 'amc'}
+                          onToggle={(active) => setSelectedWarranty(active ? 'amc' : 'none')}
+                          defaultText="Select AMC Plan"
+                          activeText="✓ AMC Plan Selected"
+                        />
                       </div>
                     </div>
 
@@ -683,13 +692,12 @@ export default function ProductDetailPage({
                       </div>
                       <div className="amc-addon-action">
                         <span className="amc-addon-price">+ ₹18,000</span>
-                        <button
-                          type="button"
-                          className={`amc-addon-btn ${includeProgramSetup ? 'active' : ''}`}
-                          onClick={() => setIncludeProgramSetup(!includeProgramSetup)}
-                        >
-                          {includeProgramSetup ? '✓ Program Setup Added' : 'Add Machine Program Setup'}
-                        </button>
+                        <SetupProgramButton
+                          active={includeProgramSetup}
+                          onToggle={(val) => setIncludeProgramSetup(val)}
+                          defaultText="Add Machine Program Setup"
+                          activeText="✓ Program Setup Added"
+                        />
                       </div>
                     </div>
 
@@ -807,38 +815,33 @@ export default function ProductDetailPage({
 
             {/* FIXED ACTION BUTTONS BAR */}
             <div className="pdp-primary-actions">
-              <button
-                className={`pdp-btn-cart ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+              <AddToCartButton
+                className="pdp-btn-cart-animated"
                 onClick={handleAddToCartClick}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
-              >
-                <ShoppingCart size={18} />
-                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+                isOutOfStock={isOutOfStock}
+                defaultText="Add to Cart"
+                addedText="Added to Cart!"
+                size="lg"
+              />
 
-              <button
-                className={`pdp-btn-emi ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
-                onClick={handleAddToCartClick}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#64748b' } : {}}
-              >
-                <CreditCard size={18} />
-                <div>
-                  <strong>{isOutOfStock ? 'Unavailable' : 'Buy with EMI'}</strong>
-                  <small>{isOutOfStock ? 'Item Out of Stock' : `From ₹${Math.round(currentTotalPrice / 12).toLocaleString('en-IN')}/mo`}</small>
-                </div>
-              </button>
+              <EmiButton
+                className="pdp-btn-emi-animated"
+                onClick={() => setShowEmiModal(true)}
+                isOutOfStock={isOutOfStock}
+                monthlyPrice={currentTotalPrice / 12}
+                defaultTitle="Buy with EMI"
+                size="lg"
+              />
 
-              <button
-                className={`pdp-btn-buynow ${isOutOfStock ? 'pdp-btn-disabled' : ''}`}
+              <BuyNowButton
+                className="pdp-btn-buynow-animated"
                 onClick={handleBuyNowClick}
-                disabled={isOutOfStock}
-                style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#475569' } : {}}
-              >
-                <Zap size={18} />
-                <span>{isOutOfStock ? 'Out of Stock' : `Buy Now at ₹${currentTotalPrice.toLocaleString('en-IN')}`}</span>
-              </button>
+                isOutOfStock={isOutOfStock}
+                price={currentTotalPrice}
+                defaultText="Buy Now"
+                processingText="Proceeding..."
+                size="lg"
+              />
             </div>
 
             {addedNotice && (
@@ -937,12 +940,13 @@ export default function ProductDetailPage({
                   </div>
                 </div>
 
-                <button className="fbt-add-all-btn" onClick={handleAddBundleToCart}>
-                  <ShoppingBag size={18} />
-                  Add Selected ({selectedBundleCount} items) to Cart
-                </button>
-
-                {bundleNotice && <div className="fbt-added-toast">✓ Added bundle items to cart!</div>}
+                <AddToCartButton
+                  className="fbt-add-all-btn-animated"
+                  onClick={handleAddBundleToCart}
+                  defaultText={`Add Selected (${selectedBundleCount} items) to Cart`}
+                  addedText={`Added ${selectedBundleCount} items to Cart!`}
+                  size="md"
+                />
               </div>
             </div>
           </div>

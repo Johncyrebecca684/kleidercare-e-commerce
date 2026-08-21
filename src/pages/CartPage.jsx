@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ArrowRight, ArrowLeft, Sparkles, Check, ShoppingBag, ShoppingCart, ShieldCheck, Settings, MapPin, Truck, X } from 'lucide-react';
 import { getRecommendations } from '../utils/recommendationEngine';
 import { formatImageUrl } from '../utils/imageUtils';
+import EmptyCartAnimation from '../components/EmptyCartAnimation';
+import SetupProgramButton from '../components/SetupProgramButton';
+import ProceedToCheckoutButton from '../components/ProceedToCheckoutButton';
 import './CartPage.css';
 
 export default function CartPage({
@@ -120,27 +123,26 @@ export default function CartPage({
               </button>
             </div>
 
-            <button
-              type="button"
-              className="mobile-proceed-to-buy-btn"
-              onClick={() => {
-                if (!loggedInUser) {
-                  onLoginOpen();
-                } else {
-                  navigate('/checkout');
-                }
-              }}
-            >
-              Proceed to Buy ({items.reduce((s, i) => s + i.quantity, 0)} {items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'})
-            </button>
+            <div style={{ flex: 1, minWidth: '180px' }}>
+              <ProceedToCheckoutButton
+                onClick={() => {
+                  if (!loggedInUser) {
+                    onLoginOpen();
+                  } else {
+                    navigate('/checkout');
+                  }
+                }}
+                defaultText={`Proceed to Buy (${items.reduce((s, i) => s + i.quantity, 0)} ${items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'})`}
+                proceedingText="Securing Checkout..."
+                size="md"
+              />
+            </div>
           </div>
         )}
 
         {items.length === 0 ? (
           <div className="empty-cart-page">
-            <div className="empty-cart-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-              <ShoppingCart size={72} strokeWidth={1.5} color="#0f2b5c" />
-            </div>
+            <EmptyCartAnimation />
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any laundry products to your cart yet.</p>
             <Link to="/" className="continue-shopping-btn-main">
@@ -276,26 +278,15 @@ export default function CartPage({
                           )}
 
                           {!item.includeProgramSetup && (
-                            <button
-                              type="button"
-                              onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'setup')}
-                              style={{
-                                marginTop: '6px',
-                                padding: '3px 8px',
-                                fontSize: '11px',
-                                fontWeight: '600',
-                                borderRadius: '5px',
-                                border: '1px dashed #0284c7',
-                                background: '#ffffff',
-                                color: '#0284c7',
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                              }}
-                            >
-                              + Add Machine Program Setup (+₹18,000)
-                            </button>
+                            <div style={{ marginTop: '6px' }}>
+                              <SetupProgramButton
+                                active={false}
+                                onToggle={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'setup')}
+                                defaultText="+ Add Machine Program Setup (+₹18,000)"
+                                activeText="✓ Program Setup Added"
+                                style={{ padding: '4px 10px', fontSize: '11px' }}
+                              />
+                            </div>
                           )}
                         </div>
                       )}
@@ -481,21 +472,20 @@ export default function CartPage({
                 <span>₹{total.toLocaleString('en-IN')}</span>
               </div>
 
-
-
-              <button
-                className="checkout-btn-main"
-                onClick={() => {
-                  if (!loggedInUser) {
-                    onLoginOpen();
-                  } else {
-                    navigate('/checkout');
-                  }
-                }}
-              >
-                Proceed to Checkout
-                <ArrowRight size={20} />
-              </button>
+              <div style={{ marginTop: '24px' }}>
+                <ProceedToCheckoutButton
+                  onClick={() => {
+                    if (!loggedInUser) {
+                      onLoginOpen();
+                    } else {
+                      navigate('/checkout');
+                    }
+                  }}
+                  defaultText="Proceed to Checkout"
+                  proceedingText="Securing Checkout..."
+                  size="lg"
+                />
+              </div>
             </div>
           </div>
         )}

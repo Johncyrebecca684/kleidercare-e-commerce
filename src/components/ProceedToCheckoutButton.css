@@ -1,0 +1,204 @@
+/* Animated Proceed to Checkout Button Styles */
+.animated-checkout-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f2b5c;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(15, 43, 92, 0.25);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.animated-checkout-btn.lg {
+  height: 52px;
+  padding: 0 24px;
+  font-size: 14px;
+}
+
+.animated-checkout-btn.md {
+  height: 46px;
+  padding: 0 20px;
+  font-size: 13.5px;
+}
+
+.animated-checkout-btn:hover:not(.is-disabled):not(.is-animating) {
+  background: #1e3a8a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(15, 43, 92, 0.35);
+}
+
+.animated-checkout-btn:active:not(.is-disabled):not(.is-animating) {
+  transform: scale(0.98);
+}
+
+.animated-checkout-btn.is-disabled {
+  background: #94a3b8 !important;
+  color: #f1f5f9 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.65;
+}
+
+.animated-checkout-btn .checkout-btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.animated-checkout-btn .checkout-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.animated-checkout-btn .checkout-vehicle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-checkout-btn .checkout-icon-svg {
+  width: 18px;
+  height: 18px;
+  stroke: #38bdf8;
+}
+
+.animated-checkout-btn .checkout-token-drop {
+  position: absolute;
+  top: -24px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #38bdf8;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.animated-checkout-btn .checkout-btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.animated-checkout-btn .checkout-arrow-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.animated-checkout-btn:hover .checkout-arrow-icon {
+  transform: translateX(3px);
+}
+
+.animated-checkout-btn .proceeding-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Animation sequence */
+.animated-checkout-btn.is-animating {
+  background: #09101f;
+  pointer-events: none;
+}
+
+.animated-checkout-btn.is-animating:not(.is-proceeding) .checkout-btn-text {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.animated-checkout-btn.is-animating:not(.is-proceeding) .checkout-stage {
+  animation: checkoutZoomAcross 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animated-checkout-btn.is-animating:not(.is-proceeding) .checkout-token-drop {
+  animation: checkoutTokenDrop 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Proceeding active state */
+.animated-checkout-btn.is-proceeding {
+  background: #10b981 !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4) !important;
+}
+
+.animated-checkout-btn.is-proceeding .checkout-stage {
+  display: none;
+}
+
+.animated-checkout-btn.is-proceeding .checkout-btn-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Keyframes */
+@keyframes checkoutTokenDrop {
+  0% {
+    opacity: 0;
+    top: -26px;
+    transform: scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    top: -18px;
+    transform: scale(1.2);
+  }
+  38% {
+    top: 6px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    top: 6px;
+  }
+  100% {
+    opacity: 0;
+    top: 6px;
+  }
+}
+
+@keyframes checkoutZoomAcross {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  20% {
+    transform: translateX(16px) scale(1.1);
+  }
+  40% {
+    transform: translateX(14px) scale(1.15);
+  }
+  65% {
+    transform: translateX(35px) scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(140px) scale(1.25);
+    opacity: 0;
+  }
+}

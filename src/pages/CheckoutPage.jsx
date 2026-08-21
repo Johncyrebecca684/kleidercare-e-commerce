@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, CheckCircle2, ArrowLeft, Smartphone, QrCode, MapPin, Plus, Lock, ShieldCheck, Settings, Sparkles, Tag, X, AlertCircle, Info } from 'lucide-react';
+import PayAndPlaceOrderButton from '../components/PayAndPlaceOrderButton';
 import './CheckoutPage.css';
 import { API_URL } from '../config';
 import { sendInvoiceEmail } from '../utils/sendInvoiceEmail';
@@ -718,7 +719,13 @@ export default function CheckoutPage({
       <div className="checkout-page-wrapper animate-fade-in">
         <div className="checkout-page-container">
           <div className="checkout-success-page">
-            <CheckCircle size={80} className="success-icon-page" />
+            <div className="order-confirmed-media-container">
+              <img
+                src="/Order%20Confirmed.svg"
+                alt="Order Confirmed Animation"
+                className="order-confirmed-svg"
+              />
+            </div>
             <h2>Order Placed Successfully!</h2>
             <p>Thank you for your purchase, {formData.name}. We've sent a confirmation email to {formData.email}.</p>
             <p>You will be redirected to the homepage shortly...</p>
@@ -1201,15 +1208,15 @@ export default function CheckoutPage({
               </div>
             )}
 
-            <button
-              type="submit"
-              className="place-order-btn-page"
+            <PayAndPlaceOrderButton
               onClick={handleSubmit}
+              amount={finalTotal}
+              isProcessing={isProcessing}
               disabled={isProcessing}
-              style={isProcessing ? { opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#64748b' } : {}}
-            >
-              {isProcessing ? 'Processing Payment...' : `Pay & Place Order (₹${finalTotal.toLocaleString('en-IN')})`}
-            </button>
+              defaultText="Pay & Place Order"
+              processingText="Processing Payment..."
+              size="lg"
+            />
           </div>
 
         </div>

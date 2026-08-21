@@ -509,8 +509,26 @@
   transition: all 0.2s ease;
 }
 
+.pdp-cart-btn-animated {
+  width: 100% !important;
+  border-radius: 10px !important;
+  min-height: 46px;
+}
+
 .pdp-cart-btn:hover {
   background: #f0f9ff;
+}
+
+.pdp-cart-btn.adding-animated {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.pdp-emi-btn-animated {
+  width: 100% !important;
+  border-radius: 10px !important;
+  min-height: 46px;
 }
 
 .pdp-emi-btn {
@@ -541,6 +559,12 @@
 
 .pdp-emi-btn:hover {
   border-color: #0f2b5c;
+}
+
+.pdp-buynow-btn-animated {
+  width: 100% !important;
+  border-radius: 10px !important;
+  min-height: 46px;
 }
 
 .pdp-buynow-btn {

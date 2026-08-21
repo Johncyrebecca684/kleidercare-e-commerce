@@ -5,6 +5,7 @@ import {
   Trash2, CheckCircle, XCircle, TrendingUp, Award, Zap
 } from 'lucide-react';
 import { formatImageUrl } from '../utils/imageUtils';
+import AddToCartButton from '../components/AddToCartButton';
 import './ComparePage.css';
 
 /* ─────────── Client-side comparison engine ─────────── */
@@ -220,14 +221,14 @@ export default function ComparePage({ onAddToCart }) {
                 const isOutOfStock = (p.stock !== undefined && Number(p.stock) <= 0) || p.stockStatus === 'Out of Stock';
                 return (
                   <td key={p.id} className="compare-val-cell">
-                    <button
-                      className="compare-add-cart-btn"
+                    <AddToCartButton
+                      className="compare-add-cart-btn-animated"
                       onClick={() => !isOutOfStock && handleAddToCart(p)}
-                      disabled={isOutOfStock}
-                      style={isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
-                    >
-                      <ShoppingCart size={15} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-                    </button>
+                      isOutOfStock={isOutOfStock}
+                      defaultText="Add to Cart"
+                      addedText="Added!"
+                      size="sm"
+                    />
                   </td>
                 );
               })}

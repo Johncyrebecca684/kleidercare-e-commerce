@@ -1,0 +1,247 @@
+/* Animated Buy Now Button Styles */
+.animated-buynow-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+  letter-spacing: 0.02em;
+}
+
+/* Sizing Options */
+.animated-buynow-btn.sm {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 0.85rem;
+}
+
+.animated-buynow-btn.md {
+  height: 46px;
+  padding: 0 20px;
+  font-size: 0.95rem;
+}
+
+.animated-buynow-btn.lg {
+  height: 52px;
+  padding: 0 24px;
+  font-size: 1.02rem;
+}
+
+.animated-buynow-btn:hover:not(.is-disabled):not(.is-animating) {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.45);
+}
+
+.animated-buynow-btn:active:not(.is-disabled):not(.is-animating) {
+  transform: scale(0.98);
+}
+
+.animated-buynow-btn.is-disabled {
+  background: #94a3b8 !important;
+  color: #f1f5f9 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.65;
+  border-color: transparent !important;
+}
+
+/* Content Container */
+.animated-buynow-btn .buynow-btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Stage & Vehicle / Icon */
+.animated-buynow-btn .buynow-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.animated-buynow-btn .buynow-vehicle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-buynow-btn .buynow-icon-svg {
+  width: 20px;
+  height: 20px;
+  color: #fef08a;
+  filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.8));
+}
+
+/* Lightning Spark Dropping in */
+.animated-buynow-btn .buynow-energy-drop {
+  position: absolute;
+  top: -24px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #fef08a;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Speed streaks */
+.animated-buynow-btn .speed-streak {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
+  border-radius: 2px;
+  opacity: 0;
+}
+
+.animated-buynow-btn .speed-streak.streak-1 {
+  top: 4px;
+  left: -20px;
+  width: 18px;
+}
+
+.animated-buynow-btn .speed-streak.streak-2 {
+  bottom: 4px;
+  left: -28px;
+  width: 24px;
+}
+
+/* Text */
+.animated-buynow-btn .buynow-btn-text {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.animated-buynow-btn .proceeding-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   ANIMATION SEQUENCE
+   ========================================================================== */
+
+.animated-buynow-btn.is-animating {
+  background: linear-gradient(135deg, #c2410c 0%, #9a3412 100%);
+  pointer-events: none;
+}
+
+/* Hide text during fast zoom */
+.animated-buynow-btn.is-animating:not(.is-proceeding) .buynow-btn-text {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+/* Move stage across */
+.animated-buynow-btn.is-animating:not(.is-proceeding) .buynow-stage {
+  animation: buyNowZoomAcross 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animated-buynow-btn.is-animating:not(.is-proceeding) .buynow-energy-drop {
+  animation: buyNowEnergyDrop 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animated-buynow-btn.is-animating:not(.is-proceeding) .speed-streak {
+  opacity: 1;
+  animation: streakGlow 0.4s ease infinite;
+}
+
+/* Success / Proceeding state */
+.animated-buynow-btn.is-proceeding {
+  background: #10b981 !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4) !important;
+}
+
+.animated-buynow-btn.is-proceeding .buynow-stage {
+  display: none;
+}
+
+.animated-buynow-btn.is-proceeding .buynow-btn-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* KEYFRAMES */
+@keyframes buyNowEnergyDrop {
+  0% {
+    opacity: 0;
+    top: -26px;
+    transform: scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    top: -18px;
+    transform: scale(1.2);
+  }
+  38% {
+    top: 6px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    top: 6px;
+  }
+  100% {
+    opacity: 0;
+    top: 6px;
+  }
+}
+
+@keyframes buyNowZoomAcross {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  20% {
+    transform: translateX(16px) scale(1.1);
+  }
+  40% {
+    transform: translateX(14px) scale(1.15);
+  }
+  65% {
+    transform: translateX(35px) scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(140px) scale(1.25);
+    opacity: 0;
+  }
+}
+
+@keyframes streakGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleX(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.3);
+  }
+}

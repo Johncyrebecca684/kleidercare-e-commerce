@@ -237,6 +237,12 @@
   padding-bottom: 18px;
 }
 
+.compare-add-cart-btn-animated {
+  width: 100% !important;
+  max-width: 160px;
+  border-radius: 8px !important;
+}
+
 .compare-add-cart-btn {
   display: inline-flex;
   align-items: center;

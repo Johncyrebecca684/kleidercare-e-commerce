@@ -1,0 +1,140 @@
+/* Animated AMC Plan Button Styles */
+.animated-amc-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  outline: none;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.animated-amc-btn:hover:not(.is-active):not(.is-animating) {
+  background: #f8fafc;
+  border-color: #0284c7;
+  color: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
+}
+
+.animated-amc-btn:active:not(.is-active):not(.is-animating) {
+  transform: scale(0.98);
+}
+
+.animated-amc-btn .amc-btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  width: 100%;
+}
+
+.animated-amc-btn .amc-shield-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.animated-amc-btn .amc-shield-icon {
+  color: #0284c7;
+  transition: transform 0.3s ease;
+}
+
+/* Falling protection spark */
+.animated-amc-btn .amc-spark-drop {
+  position: absolute;
+  top: -18px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  background: #38bdf8;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.animated-amc-btn.is-animating .amc-spark-drop {
+  animation: sparkDrop 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animated-amc-btn.is-animating .amc-shield-icon.shield-pulse {
+  animation: shieldPulseGlow 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  color: #38bdf8;
+}
+
+/* Active State */
+.animated-amc-btn.is-active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 3px 12px rgba(2, 132, 199, 0.3);
+}
+
+.animated-amc-btn.is-active .amc-shield-icon {
+  color: #ffffff;
+}
+
+.animated-amc-btn .amc-active-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+}
+
+.animated-amc-btn .amc-check-icon {
+  color: #ffffff;
+}
+
+/* Keyframes */
+@keyframes shieldPulseGlow {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes sparkDrop {
+  0% {
+    opacity: 0;
+    top: -20px;
+    transform: scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    top: -14px;
+    transform: scale(1.2);
+  }
+  50% {
+    top: 4px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    top: 4px;
+    opacity: 0.8;
+  }
+  100% {
+    top: 4px;
+    opacity: 0;
+  }
+}

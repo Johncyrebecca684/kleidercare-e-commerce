@@ -415,14 +415,28 @@
   box-shadow: var(--shadow-sm);
 }
 
+.card-cart-btn-animated {
+  width: 100% !important;
+  margin-top: auto;
+  border-radius: 8px !important;
+}
+
+.list-cart-btn-animated {
+  width: 100% !important;
+  border-radius: 8px !important;
+}
+
 .add-to-cart-btn:hover {
   background: var(--btn-grad-primary-hover);
   transform: none;
   box-shadow: 0 4px 12px rgba(15, 43, 92, 0.2);
 }
 
-.add-to-cart-btn.added {
-  background: var(--btn-grad-success);
+.add-to-cart-btn.added,
+.add-to-cart-btn.adding-animated {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
 }
 
 .add-to-cart-btn:active {

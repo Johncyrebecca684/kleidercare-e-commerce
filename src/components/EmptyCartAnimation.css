@@ -1,0 +1,236 @@
+/* Empty Cart Stage & Animation CSS */
+.empty-cart-stage {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Background Ambient Glow */
+.empty-cart-glow {
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(15, 43, 92, 0.05) 60%, transparent 80%);
+  animation: glowPulse 3.5s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+/* Orbit rings */
+.empty-cart-orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(56, 189, 248, 0.35);
+  pointer-events: none;
+}
+
+.empty-cart-orbit.orbit-1 {
+  width: 190px;
+  height: 190px;
+  animation: orbitSpin 14s linear infinite;
+}
+
+.empty-cart-orbit.orbit-2 {
+  width: 140px;
+  height: 140px;
+  border: 1px dotted rgba(15, 43, 92, 0.2);
+  animation: orbitSpinRev 10s linear infinite;
+}
+
+/* Floating particle bubbles */
+.floating-bubble {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bubble-1 {
+  width: 10px;
+  height: 10px;
+  background: #38bdf8;
+  top: 25px;
+  left: 35px;
+  animation: floatBubble1 3s ease-in-out infinite alternate;
+}
+
+.bubble-2 {
+  width: 8px;
+  height: 8px;
+  background: #0284c7;
+  top: 40px;
+  right: 30px;
+  animation: floatBubble2 2.6s ease-in-out infinite alternate;
+}
+
+.bubble-3 {
+  width: 6px;
+  height: 6px;
+  background: #93c5fd;
+  bottom: 45px;
+  left: 25px;
+  animation: floatBubble3 3.4s ease-in-out infinite alternate;
+}
+
+.bubble-4 {
+  width: 12px;
+  height: 12px;
+  background: rgba(14, 165, 233, 0.4);
+  top: 15px;
+  right: 75px;
+  animation: floatBubble1 4s ease-in-out infinite alternate;
+}
+
+/* Main SVG */
+.empty-cart-main-svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: visible;
+}
+
+/* Floating cart rig */
+.cart-floating-rig {
+  animation: cartLevitate 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  transform-origin: 120px 140px;
+}
+
+/* Cart shadow expanding and shrinking inversely to height */
+.cart-ground-shadow {
+  animation: shadowPulse 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  transform-origin: 120px 205px;
+}
+
+/* Wheels spin */
+.wheel-spin.wheel-left {
+  animation: wheelRock 3s ease-in-out infinite;
+  transform-origin: 95px 176px;
+}
+
+.wheel-spin.wheel-right {
+  animation: wheelRock 3s ease-in-out infinite;
+  transform-origin: 165px 176px;
+}
+
+/* Spirit Question Mark bouncing */
+.floating-cart-spirit {
+  animation: spiritFloat 2.2s ease-in-out infinite alternate;
+  transform-origin: 135px 62px;
+}
+
+/* ==========================================================================
+   KEYFRAME ANIMATIONS
+   ========================================================================== */
+
+@keyframes cartLevitate {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  35% {
+    transform: translateY(-14px) rotate(-2.5deg);
+  }
+  65% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes shadowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  35% {
+    transform: scale(0.75);
+    opacity: 0.25;
+  }
+  65% {
+    transform: scale(0.88);
+    opacity: 0.38;
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}
+
+@keyframes orbitSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbitSpinRev {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes wheelRock {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(-35deg);
+  }
+  70% {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes spiritFloat {
+  0% {
+    transform: translateY(0px) scale(0.95);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-10px) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes floatBubble1 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(8px, -14px);
+  }
+}
+
+@keyframes floatBubble2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-10px, -12px);
+  }
+}
+
+@keyframes floatBubble3 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(6px, -10px);
+  }
+}

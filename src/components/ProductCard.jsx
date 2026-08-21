@@ -1,6 +1,7 @@
 import { Heart, ShoppingCart, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { formatImageUrl } from '../utils/imageUtils';
+import AddToCartButton from './AddToCartButton';
 import './ProductCard.css';
 
 const WARRANTY_OPTIONS = [
@@ -37,7 +38,7 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
   const isOutOfStock = (product.stock !== undefined && Number(product.stock) <= 0) || product.stockStatus === 'Out of Stock';
 
   const handleAddToCart = (e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
     if (isOutOfStock) return;
     onAddToCart({
       ...product,
@@ -45,8 +46,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
       priceWithWarranty: currentPrice,
       effectiveGstPrice: currentGstPrice
     });
-    setShowAddedNotice(true);
-    setTimeout(() => setShowAddedNotice(false), 2000);
   };
 
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
@@ -125,15 +124,14 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
             <div className="in-stock-pill list-mode-pill">✓ In Stock</div>
           )}
 
-          <button
-            className={`add-to-cart-btn list-cart-btn ${isOutOfStock ? 'out-of-stock-btn' : ''}`}
+          <AddToCartButton
+            className="list-cart-btn-animated"
             onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            aria-label={isOutOfStock ? `${product.name} is Out of Stock` : `Add ${product.name} to cart`}
-          >
-            <ShoppingCart size={16} />
-            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-          </button>
+            isOutOfStock={isOutOfStock}
+            defaultText="Add to Cart"
+            addedText="Added!"
+            size="sm"
+          />
 
           {showAddedNotice && (
             <div className="added-notice">✓ Added to cart!</div>
@@ -260,17 +258,6 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               {isExpanded ? 'Hide Specifications' : 'View Specifications'}
               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
-
-            {isExpanded && (
-              <ul className="specs-list">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <li key={key}>
-                    <span className="spec-key">{key}:</span>
-                    <span className="spec-value">{value}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         )}
 
@@ -290,15 +277,14 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           </div>
         </div>
 
-        <button
-          className={`add-to-cart-btn ${isOutOfStock ? 'out-of-stock-btn' : ''}`}
+        <AddToCartButton
+          className="card-cart-btn-animated"
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
-          aria-label={isOutOfStock ? `${product.name} is Out of Stock` : `Add ${product.name} to cart`}
-        >
-          <ShoppingCart size={18} />
-          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-        </button>
+          isOutOfStock={isOutOfStock}
+          defaultText="Add to Cart"
+          addedText="Added to Cart!"
+          size="md"
+        />
 
         {showAddedNotice && (
           <div className="added-notice">✓ Added to cart!</div>

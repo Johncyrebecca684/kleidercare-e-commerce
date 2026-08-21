@@ -1,0 +1,133 @@
+/* Animated Setup / Machine Program Button Styles */
+.animated-setup-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #0284c7;
+  background: #ffffff;
+  color: #0284c7;
+  outline: none;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.animated-setup-btn:hover:not(.is-active):not(.is-animating) {
+  background: #f0f9ff;
+  border-color: #0369a1;
+  color: #0369a1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+}
+
+.animated-setup-btn:active:not(.is-active):not(.is-animating) {
+  transform: scale(0.98);
+}
+
+.animated-setup-btn .setup-btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.animated-setup-btn .setup-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.animated-setup-btn .setup-gear-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Falling calibration chip */
+.animated-setup-btn .setup-chip-drop {
+  position: absolute;
+  top: -18px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  background: #38bdf8;
+  border-radius: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.animated-setup-btn.is-animating .setup-chip-drop {
+  animation: setupChipDrop 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animated-setup-btn.is-animating .setup-gear-icon.gear-spin {
+  animation: gearSpinRapid 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  color: #0284c7;
+}
+
+/* Active State */
+.animated-setup-btn.is-active {
+  background: #0f2b5c;
+  color: #ffffff;
+  border-color: #0f2b5c;
+  box-shadow: 0 3px 10px rgba(15, 43, 92, 0.25);
+}
+
+.animated-setup-btn.is-active .setup-gear-icon {
+  color: #38bdf8;
+}
+
+.animated-setup-btn .setup-active-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+}
+
+.animated-setup-btn .setup-check-icon {
+  color: #38bdf8;
+}
+
+/* Keyframes */
+@keyframes gearSpinRapid {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes setupChipDrop {
+  0% {
+    opacity: 0;
+    top: -20px;
+    transform: scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    top: -14px;
+    transform: scale(1.1);
+  }
+  50% {
+    top: 4px;
+    opacity: 1;
+    transform: scale(0.9);
+  }
+  80% {
+    top: 4px;
+    opacity: 0.8;
+  }
+  100% {
+    top: 4px;
+    opacity: 0;
+  }
+}

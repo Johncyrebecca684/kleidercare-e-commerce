@@ -1,0 +1,222 @@
+/* Animated Buy with EMI Button Styles */
+.animated-emi-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #1e293b;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(15, 43, 92, 0.06);
+}
+
+/* Sizing Options */
+.animated-emi-btn.sm {
+  height: 38px;
+  padding: 0 14px;
+}
+
+.animated-emi-btn.md {
+  height: 46px;
+  padding: 0 16px;
+}
+
+.animated-emi-btn.lg {
+  height: 52px;
+  padding: 0 20px;
+}
+
+.animated-emi-btn:hover:not(.is-disabled):not(.is-animating) {
+  border-color: #0f2b5c;
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 43, 92, 0.12);
+}
+
+.animated-emi-btn:active:not(.is-disabled):not(.is-animating) {
+  transform: scale(0.98);
+}
+
+.animated-emi-btn.is-disabled {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.7;
+}
+
+/* Content */
+.animated-emi-btn .emi-btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.animated-emi-btn .emi-btn-text-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  line-height: 1.2;
+}
+
+.animated-emi-btn .emi-btn-text-wrap strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f2b5c;
+}
+
+.animated-emi-btn .emi-btn-text-wrap small {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Stage & Icons */
+.animated-emi-btn .emi-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.animated-emi-btn .emi-vehicle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-emi-btn .emi-icon-svg {
+  width: 20px;
+  height: 20px;
+  color: #0284c7;
+}
+
+/* Falling chip / token */
+.animated-emi-btn .emi-token-drop {
+  position: absolute;
+  top: -24px;
+  left: 6px;
+  width: 8px;
+  height: 6px;
+  background: #f59e0b;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.animated-emi-btn .emi-opened-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ==========================================================================
+   ANIMATION SEQUENCE
+   ========================================================================== */
+
+.animated-emi-btn.is-animating {
+  background: #0f2b5c;
+  border-color: #0f2b5c;
+  pointer-events: none;
+}
+
+.animated-emi-btn.is-animating .emi-icon-svg {
+  color: #38bdf8;
+}
+
+/* Hide text while driving */
+.animated-emi-btn.is-animating:not(.is-opened) .emi-btn-text-wrap {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.animated-emi-btn.is-animating:not(.is-opened) .emi-stage {
+  animation: emiDriveAcross 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animated-emi-btn.is-animating:not(.is-opened) .emi-token-drop {
+  animation: emiTokenDrop 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Success / Opened state */
+.animated-emi-btn.is-opened {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+}
+
+.animated-emi-btn.is-opened .emi-stage {
+  display: none;
+}
+
+.animated-emi-btn.is-opened .emi-btn-text-wrap {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* KEYFRAMES */
+@keyframes emiTokenDrop {
+  0% {
+    opacity: 0;
+    top: -26px;
+    transform: scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    top: -18px;
+    transform: scale(1.1);
+  }
+  38% {
+    top: 6px;
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    top: 6px;
+  }
+  100% {
+    opacity: 0;
+    top: 6px;
+  }
+}
+
+@keyframes emiDriveAcross {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(18px);
+  }
+  40% {
+    transform: translateX(16px);
+  }
+  65% {
+    transform: translateX(35px) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(130px) scale(1.15);
+    opacity: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import ProductDetailModal from './ProductDetailModal';
@@ -16,6 +16,8 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Filter,
   RotateCcw,
   Star
@@ -25,15 +27,15 @@ import { getRecommendations } from '../utils/recommendationEngine';
 import { getSearchResultsWithSimilar, scoreProductSearchRelevance } from '../utils/searchEngine';
 
 const CATEGORY_ITEMS = [
-  { name: 'All', icon: LayoutGrid },
-  { name: 'Stacker', icon: Layers },
-  { name: 'Packages', icon: Package },
-  { name: 'LG Commercial Laundry Machines', icon: WashingMachine },
-  { name: 'Speed Queen Commercial Laundry Machines', icon: Zap },
-  { name: 'PONY Finishing Equipments', icon: Shirt },
-  { name: 'LG Genuine Spare Parts', icon: Wrench },
-  { name: 'Laundry Chemicals', icon: FlaskConical },
-  { name: 'Seko', icon: SlidersHorizontal }
+  { name: 'All', icon: LayoutGrid, image: '/kc-logo.png', isLogo: true },
+  { name: 'Stacker', icon: Layers, image: '/10kg stack.jpeg' },
+  { name: 'Packages', icon: Package, image: '/washing-machine.png.png' },
+  { name: 'LG Commercial Laundry Machines', icon: WashingMachine, image: '/10kglggiantwasher.png' },
+  { name: 'Speed Queen Commercial Laundry Machines', icon: Zap, image: '/Speed Queen Quantum Touch Washer Extractor 18kg.png' },
+  { name: 'PONY Finishing Equipments', icon: Shirt, image: '/PONY FVC Utility Ironing Tables.png' },
+  { name: 'LG Genuine Spare Parts', icon: Wrench, image: '/Motor Assembly.png' },
+  { name: 'Laundry Chemicals', icon: FlaskConical, image: '/chemical 1.png' },
+  { name: 'Seko', icon: SlidersHorizontal, image: '/seko-3p.png' }
 ];
 
 const SORT_OPTIONS = [
@@ -59,6 +61,14 @@ export default function ProductList({
   const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
   const [searchHistory, setSearchHistory] = useState([]);
   const [browsingHistory, setBrowsingHistory] = useState([]);
+  const categoryScrollRef = useRef(null);
+
+  const scrollCategoryNav = (direction) => {
+    if (categoryScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -260 : 260;
+      categoryScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   const handleProductSelect = (product) => {
     navigate(`/product/${product.id}`);
@@ -278,20 +288,50 @@ export default function ProductList({
       </div>
 
       <div className="filters-container">
-        <div className="category-filters">
-          <div className="filter-label">Categories:</div>
-          <div className="category-buttons">
-            {CATEGORY_ITEMS.map(({ name, icon: Icon }) => (
-              <button
-                key={name}
-                className={`category-btn ${selectedCategory === name ? 'active' : ''}`}
-                onClick={() => onCategoryChange(name)}
-              >
-                <Icon size={16} className="category-btn-icon" />
-                <span>{name}</span>
-              </button>
-            ))}
+        <div className="category-filters-wrapper">
+          <button
+            type="button"
+            className="category-nav-arrow left"
+            onClick={() => scrollCategoryNav('left')}
+            aria-label="Scroll Categories Left"
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          <div className="category-filters" ref={categoryScrollRef}>
+            <div className="category-buttons">
+              {CATEGORY_ITEMS.map(({ name, image, icon: Icon, isLogo }) => (
+                <button
+                  key={name}
+                  type="button"
+                  className={`category-item-pill ${selectedCategory === name ? 'active' : ''}`}
+                  onClick={() => onCategoryChange(name)}
+                >
+                  <div className="category-img-circle">
+                    {image ? (
+                      <img
+                        src={image}
+                        alt={name}
+                        className={`category-thumbnail-img ${isLogo ? 'logo-img' : ''}`}
+                      />
+                    ) : (
+                      <Icon size={18} className="category-fallback-icon" />
+                    )}
+                  </div>
+                  <span className="category-item-label">{name}</span>
+                </button>
+              ))}
+            </div>
           </div>
+
+          <button
+            type="button"
+            className="category-nav-arrow right"
+            onClick={() => scrollCategoryNav('right')}
+            aria-label="Scroll Categories Right"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
 
