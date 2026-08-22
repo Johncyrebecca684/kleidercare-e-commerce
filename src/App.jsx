@@ -18,6 +18,7 @@ import BottomNav from './components/BottomNav';
 import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
+import Loader from './components/Loader';
 import './App.css';
 import { API_URL } from './config';
 
@@ -545,12 +546,7 @@ function App() {
   };
 
   if (productsLoading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'sans-serif', background: '#f8fafc' }}>
-        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a4a8d', marginBottom: '10px' }}>Kleider Care</div>
-        <div style={{ fontSize: '16px', color: '#64748b' }}>Loading Inventory...</div>
-      </div>
-    );
+    return <Loader title="Kleider Care" subtitle="Loading Inventory & Catalog..." fullPage />;
   }
 
   return (
@@ -684,7 +680,7 @@ function App() {
             path="/checkout"
             element={
               authLoading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '20px', color: '#1a4a8d' }}>Loading...</div>
+                <Loader title="Kleider Care" subtitle="Preparing Checkout..." fullPage />
               ) : loggedInUser ? (
                 <CheckoutPage
                   items={cartItems}
@@ -715,7 +711,7 @@ function App() {
             path="/profile"
             element={
               authLoading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '20px', color: '#1a4a8d' }}>Loading...</div>
+                <Loader title="Kleider Care" subtitle="Authenticating..." fullPage />
               ) : loggedInUser ? (
                 <UserProfile
                   userData={loggedInUser}
