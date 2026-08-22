@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Check } from 'lucide-react';
+import { playAmcPlanSound } from '../utils/soundEffects';
 import './AmcPlanButton.css';
 
 /**
@@ -25,6 +26,7 @@ export default function AmcPlanButton({
     if (animating) return;
 
     if (!active) {
+      playAmcPlanSound();
       setAnimating(true);
       setTimeout(() => {
         if (onToggle) onToggle(true);

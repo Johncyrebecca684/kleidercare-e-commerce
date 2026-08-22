@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { playBuyNowSound } from '../utils/soundEffects';
 import './BuyNowButton.css';
 
 /**
@@ -29,6 +30,7 @@ export default function BuyNowButton({
 
   const handleClick = (e) => {
     if (disabled || isOutOfStock || animating) return;
+    playBuyNowSound();
     setAnimating(true);
 
     // After animation zooms across (900ms), show proceeding state

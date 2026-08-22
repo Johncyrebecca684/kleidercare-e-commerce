@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Settings, Check, Plus } from 'lucide-react';
+import { playProgramSetupSound } from '../utils/soundEffects';
 import './SetupProgramButton.css';
 
 /**
@@ -26,6 +27,7 @@ export default function SetupProgramButton({
     if (animating) return;
 
     if (!active) {
+      playProgramSetupSound();
       setAnimating(true);
       setTimeout(() => {
         if (onToggle) onToggle(true);

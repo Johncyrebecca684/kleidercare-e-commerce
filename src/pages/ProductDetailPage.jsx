@@ -51,6 +51,7 @@ import BuyNowButton from '../components/BuyNowButton';
 import EmiButton from '../components/EmiButton';
 import SetupProgramButton from '../components/SetupProgramButton';
 import AmcPlanButton from '../components/AmcPlanButton';
+import WishlistButton from '../components/WishlistButton';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage({
@@ -484,13 +485,11 @@ export default function ProductDetailPage({
 
               {/* FLOATING ACTION ICONS */}
               <div className="pdp-floating-actions">
-                <button
-                  className={`pdp-action-icon ${isWishlisted ? 'active' : ''}`}
-                  onClick={() => onToggleWishlist(product)}
-                  title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                >
-                  <Heart size={20} fill={isWishlisted ? '#ef4444' : 'none'} color={isWishlisted ? '#ef4444' : '#475569'} />
-                </button>
+                <WishlistButton
+                  isWishlisted={isWishlisted}
+                  onToggle={() => onToggleWishlist(product)}
+                  size="lg"
+                />
                 <button className="pdp-action-icon" onClick={handleShare} title="Share Link">
                   <Share2 size={20} />
                 </button>
@@ -722,30 +721,30 @@ export default function ProductDetailPage({
               (product?.category || '').toLowerCase().includes('lg') ||
               (product?.name || '').toLowerCase().includes('stacker') ||
               isAmcApplicable()) && (
-              <div className="pdp-installation-policy-card" style={{
-                marginTop: '16px',
-                padding: '14px 18px',
-                background: '#f0f9ff',
-                border: '1px solid #bae6fd',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                color: '#0369a1',
-                fontSize: '13px',
-                lineHeight: '1.5'
-              }}>
-                <MapPin size={20} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <strong style={{ color: '#0f2b5c', display: 'block', marginBottom: '2px', fontSize: '14px' }}>
-                    Regional Installation Policy
-                  </strong>
-                  <span>
-                    For all LG Commercial Laundry Machines, installation fees are <strong>FREE for India's South region</strong>. For the North region and other locations, installation charges apply based on the delivery location.
-                  </span>
+                <div className="pdp-installation-policy-card" style={{
+                  marginTop: '16px',
+                  padding: '14px 18px',
+                  background: '#f0f9ff',
+                  border: '1px solid #bae6fd',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  color: '#0369a1',
+                  fontSize: '13px',
+                  lineHeight: '1.5'
+                }}>
+                  <MapPin size={20} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <strong style={{ color: '#0f2b5c', display: 'block', marginBottom: '2px', fontSize: '14px' }}>
+                      Regional Installation Policy
+                    </strong>
+                    <span>
+                      For all LG Commercial Laundry Machines, installation fees are <strong>FREE for India's South region</strong>. For the North region and other locations, installation charges apply based on the delivery location.
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* 16-TASK QUARTERLY SCHEDULE MODAL */}
             {showAmcScheduleModal && (

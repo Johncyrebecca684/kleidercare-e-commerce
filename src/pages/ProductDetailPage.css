@@ -1637,9 +1637,11 @@
     padding: 20px;
     gap: 24px;
   }
+
   .pdp-primary-actions {
     grid-template-columns: 1fr;
   }
+
   .form-row-grid {
     grid-template-columns: 1fr;
   }
@@ -2162,8 +2164,15 @@
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .amc-modal-header {
@@ -2287,6 +2296,7 @@
   .amc-cards-grid {
     grid-template-columns: 1fr;
   }
+
   .amc-footer-bar {
     flex-direction: column;
     align-items: flex-start;

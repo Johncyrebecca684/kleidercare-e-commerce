@@ -2,6 +2,7 @@ import { Heart, ShoppingCart, ChevronDown, ChevronUp, Sparkles, Share2 } from 'l
 import { useState } from 'react';
 import { formatImageUrl } from '../utils/imageUtils';
 import AddToCartButton from './AddToCartButton';
+import WishlistButton from './WishlistButton';
 import './ProductCard.css';
 
 const WARRANTY_OPTIONS = [
@@ -77,13 +78,13 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               alt={product.name}
               className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
             />
-            <button
-              className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
-              onClick={(e) => { e.stopPropagation(); onToggleWishlist(product); }}
-              aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-            >
-              <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
-            </button>
+            <WishlistButton
+              isWishlisted={isWishlisted}
+              onToggle={() => onToggleWishlist(product)}
+              size="sm"
+              className="wishlist-btn-card-wrapper"
+              style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 5 }}
+            />
           </div>
         </div>
 
@@ -178,13 +179,13 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           <div className="out-of-stock-banner">OUT OF STOCK</div>
         )}
 
-        <button
-          className={`wishlist-btn-card ${isWishlisted ? 'wishlisted' : ''}`}
-          onClick={(e) => { e.stopPropagation(); onToggleWishlist(product); }}
-          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-        >
-          <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
-        </button>
+        <WishlistButton
+          isWishlisted={isWishlisted}
+          onToggle={() => onToggleWishlist(product)}
+          size="md"
+          className="wishlist-btn-card-wrapper"
+          style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5 }}
+        />
 
         <button
           className="share-btn-card"

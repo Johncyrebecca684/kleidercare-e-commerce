@@ -1,0 +1,154 @@
+/* Animated Heart Wishlist Checkbox Button Styles */
+
+.heart-checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.heart-checkbox-wrapper .heart-container {
+  --heart-color: #ff385c;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.heart-checkbox-wrapper .heart-container:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(255, 56, 92, 0.25);
+}
+
+.heart-checkbox-wrapper.size-sm .heart-container {
+  width: 32px;
+  height: 32px;
+}
+
+.heart-checkbox-wrapper.size-lg .heart-container {
+  width: 46px;
+  height: 46px;
+}
+
+.heart-checkbox-wrapper .heart-container .checkbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 20;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.heart-checkbox-wrapper .heart-container .svg-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  pointer-events: none;
+}
+
+.heart-checkbox-wrapper .heart-container .svg-outline,
+.heart-checkbox-wrapper .heart-container .svg-filled {
+  fill: var(--heart-color);
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.heart-checkbox-wrapper.size-sm .heart-container .svg-outline,
+.heart-checkbox-wrapper.size-sm .heart-container .svg-filled {
+  width: 16px;
+  height: 16px;
+}
+
+.heart-checkbox-wrapper.size-lg .heart-container .svg-outline,
+.heart-checkbox-wrapper.size-lg .heart-container .svg-filled {
+  width: 24px;
+  height: 24px;
+}
+
+.heart-checkbox-wrapper .heart-container .svg-outline {
+  fill: #64748b;
+  opacity: 0.85;
+}
+
+.heart-checkbox-wrapper .heart-container:hover .svg-outline {
+  fill: var(--heart-color);
+}
+
+.heart-checkbox-wrapper .heart-container .svg-filled {
+  display: none;
+}
+
+.heart-checkbox-wrapper .heart-container .svg-celebrate {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  display: none;
+  stroke: var(--heart-color);
+  fill: var(--heart-color);
+  stroke-width: 2px;
+  pointer-events: none;
+}
+
+.heart-checkbox-wrapper .heart-container .checkbox:checked ~ .svg-container .svg-outline {
+  display: none;
+}
+
+.heart-checkbox-wrapper .heart-container .checkbox:checked ~ .svg-container .svg-filled {
+  display: block;
+  animation: keyframes-svg-filled 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.heart-checkbox-wrapper .heart-container .checkbox:checked ~ .svg-container .svg-celebrate {
+  display: block;
+  animation: keyframes-svg-celebrate 0.6s cubic-bezier(0.1, 0.9, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes keyframes-svg-filled {
+  0% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes keyframes-svg-celebrate {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+    display: none;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { playAddToCartSound } from '../utils/soundEffects';
 import './AddToCartButton.css';
 
 /**
@@ -28,6 +29,7 @@ export default function AddToCartButton({
 
   const handleClick = (e) => {
     if (disabled || isOutOfStock || animating) return;
+    playAddToCartSound();
     setAnimating(true);
 
     if (onClick) {

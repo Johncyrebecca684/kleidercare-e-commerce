@@ -23,6 +23,7 @@ import LottieAnimation from './LottieAnimation';
 import AddToCartButton from './AddToCartButton';
 import BuyNowButton from './BuyNowButton';
 import EmiButton from './EmiButton';
+import WishlistButton from './WishlistButton';
 import './ProductDetailModal.css';
 
 export default function ProductDetailModal({
@@ -147,13 +148,11 @@ export default function ProductDetailModal({
               )}
 
               <div className="pdp-overlay-icons">
-                <button
-                  className={`pdp-icon-btn ${isWishlisted ? 'wishlisted' : ''}`}
-                  onClick={() => onToggleWishlist(product)}
-                  title="Wishlist"
-                >
-                  <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
-                </button>
+                <WishlistButton
+                  isWishlisted={isWishlisted}
+                  onToggle={() => onToggleWishlist(product)}
+                  size="md"
+                />
                 <button className="pdp-icon-btn" onClick={handleShare} title="Share via WhatsApp">
                   <Share2 size={18} />
                 </button>
