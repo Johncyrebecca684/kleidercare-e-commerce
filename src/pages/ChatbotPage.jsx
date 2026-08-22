@@ -298,38 +298,43 @@ export default function ChatbotPage({
 
             {/* CHAT MESSAGES BODY */}
             <div className="cb-chat-body">
-              {/* MOBILE RUFUS INTRO SCREEN WHEN FIRST OPENING */}
-              <div className="mobile-rufus-intro-block">
-                <h3 className="mobile-rufus-greeting">How can I help?</h3>
-                <div className="mobile-rufus-prompts-list">
-                  {[
-                    'Does it come in other colours?',
-                    'What is the wire made of?',
-                    'Is it flame retardant?',
-                    'Is it easy to install?',
-                    'Can it be used for industrial wiring?',
-                    'Show price history',
-                    'How to track my shipment order?',
-                    'Tell me about AMC extended warranty',
-                    'Washer / Dryer troubleshooting steps'
-                  ].map((promptText, pIdx) => (
-                    <button
-                      key={pIdx}
-                      type="button"
-                      className="mobile-rufus-pill-prompt"
-                      onClick={() => handleSendMessage({ preventDefault: () => {} }, promptText)}
-                    >
-                      {promptText}
-                    </button>
-                  ))}
-                </div>
+              {/* MOBILE SUPPORT INTRO SCREEN (shown when few messages) */}
+              {messages.length <= 1 && (
+                <div className="mobile-rufus-intro-block">
+                  <div className="mobile-support-hero">
+                    <div className="mobile-support-icon-ring">
+                      <Bot size={28} />
+                    </div>
+                    <h3 className="mobile-rufus-greeting">How can we help you?</h3>
+                    <p className="mobile-rufus-subtext">Ask about commercial washers, dryers, AMC plans, error codes, or shipping</p>
+                  </div>
 
-                <div className="mobile-rufus-feedback-actions">
-                  <button type="button" className="rufus-icon-btn" title="Helpful"><ThumbsUp size={18} /></button>
-                  <button type="button" className="rufus-icon-btn" title="Not helpful"><ThumbsDown size={18} /></button>
-                  <button type="button" className="rufus-icon-btn" title="Share"><Share2 size={18} /></button>
+                  <div className="mobile-rufus-prompts-list">
+                    {[
+                      '📦 How do I track my equipment shipment?',
+                      '🛡️ Tell me about AMC extended warranty',
+                      '🛠️ Washer / Dryer error code diagnostics',
+                      '📄 GST Tax Invoice & SAC Codes',
+                      '⚙️ Machine Program Setup on LG',
+                      '🎧 Connect with certified service engineer'
+                    ].map((promptText, pIdx) => (
+                      <button
+                        key={pIdx}
+                        type="button"
+                        className="mobile-rufus-pill-prompt"
+                        onClick={() => handleSendMessage({ preventDefault: () => {} }, promptText)}
+                      >
+                        {promptText}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mobile-support-emergency-box">
+                    <Phone size={15} />
+                    <span>Emergency Breakdown Hotline: <strong>+91 93848 14933</strong></span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {messages.map((msg) => (
                 <div
@@ -338,7 +343,7 @@ export default function ChatbotPage({
                 >
                   {msg.sender !== 'user' && (
                     <div className="cb-msg-avatar">
-                      {msg.sender === 'agent' ? <Headphones size={16} /> : <Bot size={16} />}
+                      {msg.sender === 'agent' ? <Headphones size={15} /> : <Bot size={15} />}
                     </div>
                   )}
 
@@ -351,7 +356,7 @@ export default function ChatbotPage({
 
               {isTyping && (
                 <div className="cb-msg-row bot">
-                  <div className="cb-msg-avatar"><Bot size={16} /></div>
+                  <div className="cb-msg-avatar"><Bot size={15} /></div>
                   <div className="cb-msg-content typing-dots">
                     <span /><span /><span />
                   </div>

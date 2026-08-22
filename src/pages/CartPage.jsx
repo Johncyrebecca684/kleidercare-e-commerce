@@ -96,46 +96,52 @@ export default function CartPage({
     <div className="cart-page-wrapper animate-fade-in">
       <div className="cart-page-container">
         <div className="cart-page-header">
-          <Link to="/" className="back-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#1a4a8d', textDecoration: 'none', marginBottom: '15px', fontWeight: '600' }}>
-            <ArrowLeft size={18} /> Continue Shopping
+          <Link to="/" className="back-link">
+            <ArrowLeft size={16} /> Continue Shopping
           </Link>
-          <h1 className="cart-main-heading">Your Shopping Cart</h1>
+          <h1 className="cart-main-heading">Shopping Cart</h1>
         </div>
 
         {/* AMAZON-STYLE MOBILE TOP CHECKOUT BLOCK (MOBILE ONLY) */}
         {items.length > 0 && (
           <div className="mobile-cart-top-summary">
-            <h2 className="mobile-shopping-cart-title">Shopping Cart</h2>
-            <div className="mobile-cart-total-row">
-              <span className="mobile-total-label">Total </span>
-              <span className="mobile-total-val">₹{total.toLocaleString('en-IN')}.00</span>
-              <button
-                type="button"
-                className="mobile-view-details-btn"
-                onClick={() => {
-                  const summaryEl = document.querySelector('.cart-summary-section');
-                  if (summaryEl) {
-                    summaryEl.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                View details
-              </button>
+            <div className="mobile-top-subnav">
+              <Link to="/" className="mobile-back-link">
+                <ArrowLeft size={15} /> Continue Shopping
+              </Link>
             </div>
+            <div className="mobile-top-summary-content">
+              <div className="mobile-cart-total-row">
+                <span className="mobile-total-label">Subtotal:</span>
+                <span className="mobile-total-val">₹{total.toLocaleString('en-IN')}</span>
+                <button
+                  type="button"
+                  className="mobile-view-details-btn"
+                  onClick={() => {
+                    const summaryEl = document.querySelector('.cart-summary-section');
+                    if (summaryEl) {
+                      summaryEl.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  Details
+                </button>
+              </div>
 
-            <div style={{ flex: 1, minWidth: '180px' }}>
-              <ProceedToCheckoutButton
-                onClick={() => {
-                  if (!loggedInUser) {
-                    onLoginOpen();
-                  } else {
-                    navigate('/checkout');
-                  }
-                }}
-                defaultText={`Proceed to Buy (${items.reduce((s, i) => s + i.quantity, 0)} ${items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'})`}
-                proceedingText="Securing Checkout..."
-                size="md"
-              />
+              <div className="mobile-checkout-btn-wrap">
+                <ProceedToCheckoutButton
+                  onClick={() => {
+                    if (!loggedInUser) {
+                      onLoginOpen();
+                    } else {
+                      navigate('/checkout');
+                    }
+                  }}
+                  defaultText={`Proceed to Buy (${items.reduce((s, i) => s + i.quantity, 0)} ${items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'})`}
+                  proceedingText="Securing Checkout..."
+                  size="md"
+                />
+              </div>
             </div>
           </div>
         )}

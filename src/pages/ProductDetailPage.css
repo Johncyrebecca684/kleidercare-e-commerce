@@ -2715,7 +2715,7 @@
 }
 
 /* ═══════════════════════════════════════════════════
-   MOBILE RESPONSIVE ALIGNMENT & CLEANUP (<= 768px)
+   MOBILE RESPONSIVE ALIGNMENT & CLEANUP (<= 992px & <= 768px)
    ═══════════════════════════════════════════════════ */
 @media (max-width: 992px) {
   .pdp-fullscreen-grid {
@@ -2723,16 +2723,58 @@
     gap: 24px;
     padding: 20px;
   }
+
+  .pdp-primary-actions {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 @media (max-width: 768px) {
-  .pdp-main-content {
-    padding: 10px 12px 90px;
+  .pdp-page-wrapper {
+    overflow-x: hidden;
     width: 100%;
+  }
+
+  .pdp-main-content {
+    padding: 10px 12px calc(80px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     overflow-x: hidden;
   }
 
+  /* Compact modern mobile top bar */
   .pdp-top-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .pdp-back-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+
+  .pdp-breadcrumb-trail {
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pdp-breadcrumb-trail::-webkit-scrollbar {
     display: none;
   }
 
@@ -2742,31 +2784,62 @@
 
   .pdp-fullscreen-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 12px;
-    border-radius: 12px;
+    gap: 14px;
+    padding: 0;
+    border-radius: 0;
     border: none;
     box-shadow: none;
     background: transparent;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* MEDIA GALLERY MOBILE ALIGNMENT */
   .pdp-media-gallery {
-    gap: 12px;
+    gap: 10px;
     background: #ffffff;
-    padding: 14px;
-    border-radius: 14px;
+    padding: 12px;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .pdp-main-view-container {
-    height: 280px;
-    padding: 12px;
+    height: 260px;
+    padding: 10px;
     border-radius: 10px;
+    background: #f8fafc;
   }
 
   .pdp-hero-image {
-    max-height: 240px;
+    max-height: 230px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .pdp-gallery-nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .pdp-gallery-nav-prev {
+    left: 8px;
+  }
+
+  .pdp-gallery-nav-next {
+    right: 8px;
+  }
+
+  .pdp-floating-actions {
+    top: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+
+  .pdp-action-icon {
+    width: 36px;
+    height: 36px;
   }
 
   .pdp-thumbnails-row {
@@ -2774,6 +2847,8 @@
     padding-bottom: 6px;
     gap: 8px;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
   }
 
   .pdp-thumbnails-row::-webkit-scrollbar {
@@ -2782,97 +2857,186 @@
 
   .pdp-thumb-card,
   .pdp-thumb-video-card {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
     flex-shrink: 0;
+    border-radius: 8px;
+    padding: 4px;
   }
 
   .pdp-guarantee-card {
     padding: 10px 12px;
-    font-size: 12px;
+    font-size: 11.5px;
+    border-radius: 8px;
+    gap: 8px;
   }
 
   .pdp-guarantee-card strong {
-    font-size: 13px;
+    font-size: 12.5px;
+  }
+
+  .pdp-guarantee-card p {
+    font-size: 11px;
+    line-height: 1.35;
   }
 
   /* DETAILS PANEL MOBILE ALIGNMENT */
   .pdp-details-panel {
-    gap: 14px;
+    gap: 12px;
     background: #ffffff;
-    padding: 16px 14px;
-    border-radius: 14px;
+    padding: 14px;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .pdp-page-title {
-    font-size: 19px;
+    font-size: 18px;
     line-height: 1.35;
     word-break: break-word;
+    font-weight: 700;
   }
 
   .pdp-rating-strip {
-    gap: 8px;
+    gap: 6px;
   }
 
   .pdp-star-badge {
-    font-size: 12px;
-    padding: 3px 8px;
+    font-size: 11px;
+    padding: 2px 7px;
   }
 
   .pdp-rating-counts {
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   .pdp-price-hero-card {
-    padding: 14px;
+    padding: 12px;
     gap: 6px;
     border-radius: 10px;
   }
 
+  .pdp-price-top {
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
   .pdp-big-price {
     font-size: 24px;
+    font-weight: 800;
+  }
+
+  .pdp-base-breakdown {
+    font-size: 11.5px !important;
+    margin-left: 0 !important;
+    display: block;
+    width: 100%;
+  }
+
+  .pdp-price-savings {
+    gap: 8px;
   }
 
   .pdp-strike-price {
-    font-size: 14px;
+    font-size: 13.5px;
   }
 
   .pdp-savings-badge {
-    font-size: 13px;
+    font-size: 12px;
+    padding: 2px 6px;
   }
 
   .pdp-tax-info {
-    font-size: 11.5px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  /* EMI TEASER STRIP ON MOBILE */
+  .pdp-emi-teaser-card {
+    margin-top: 10px;
+    padding: 10px 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .pdp-emi-teaser-left {
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pdp-emi-badge-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .pdp-emi-text-wrapper {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .pdp-emi-nocost-badge {
+    display: inline-block;
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  .pdp-emi-options-trigger {
+    font-size: 12px;
+    align-self: center;
+    flex-shrink: 0;
   }
 
   /* SPECS & TABS */
-  .pdp-spec-item {
-    grid-template-columns: 120px 1fr;
-    gap: 10px;
+  .pdp-info-tabs-box {
+    border-radius: 10px;
+    margin-top: 6px;
+  }
+
+  .pdp-tabs-nav {
+    display: flex;
+  }
+
+  .pdp-tab {
+    padding: 10px 8px;
     font-size: 12.5px;
   }
 
-  .pdp-description-content {
-    font-size: 13px;
-    padding: 14px;
+  .pdp-specs-grid {
+    padding: 12px;
+    gap: 8px;
   }
 
-  /* PROTECTION & AMC CARDS */
-  .pdp-protection-card {
-    flex: 0 0 85%;
+  .pdp-spec-item {
+    grid-template-columns: 110px 1fr;
+    gap: 8px;
+    font-size: 12px;
+    padding-bottom: 8px;
+    word-break: break-word;
+  }
+
+  .pdp-description-content {
+    font-size: 12.5px;
+    padding: 12px;
+    line-height: 1.5;
   }
 
   /* AMC SECTION MOBILE ALIGNMENT */
   .pdp-amc-section {
-    margin: 14px 0;
-    border-radius: 12px;
+    margin: 12px 0;
+    border-radius: 10px;
     width: 100%;
     overflow: hidden;
+    box-sizing: border-box;
   }
 
   .pdp-amc-header {
-    padding: 12px 14px;
+    padding: 10px 12px;
     gap: 8px;
   }
 
@@ -2882,17 +3046,25 @@
     min-width: 0;
   }
 
+  .amc-shield-icon {
+    width: 18px;
+    height: 18px;
+  }
+
   .pdp-amc-header h3 {
-    font-size: 14px;
+    font-size: 13.5px;
     line-height: 1.3;
   }
 
   .amc-subtitle {
-    font-size: 11px;
+    font-size: 10.5px;
   }
 
   .pdp-amc-body {
-    padding: 12px;
+    padding: 10px;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
   }
 
   .amc-cards-grid.single-plan {
@@ -2902,87 +3074,381 @@
 
   .amc-card {
     padding: 12px;
+    border-radius: 10px;
+  }
+
+  .amc-card-badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
   }
 
   .amc-plan-title {
-    font-size: 14px;
+    font-size: 13.5px;
+    margin-top: 6px;
   }
 
   .amc-plan-price {
     flex-wrap: wrap;
     gap: 4px;
+    margin: 6px 0;
   }
 
   .amc-plan-price .price-num {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .amc-plan-price .price-unit {
-    font-size: 11px;
+    font-size: 10.5px;
     word-break: break-word;
+    line-height: 1.35;
   }
 
   .amc-features-list {
-    gap: 8px;
-    margin: 12px 0;
+    gap: 6px;
+    margin: 10px 0;
   }
 
   .amc-features-list li {
-    font-size: 12px;
+    font-size: 11.5px;
+    gap: 6px;
   }
 
   .amc-addon-box {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 12px;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .amc-addon-info strong {
+    font-size: 12px;
+  }
+
+  .amc-addon-info p {
+    font-size: 10.5px;
   }
 
   .amc-addon-action {
     width: 100%;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .amc-addon-price {
+    font-size: 13px;
   }
 
   .amc-footer-bar {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     align-items: stretch;
+    margin-top: 10px;
+    padding-top: 10px;
   }
 
   .amc-view-schedule-btn {
     width: 100%;
     justify-content: center;
+    padding: 6px 10px;
+    font-size: 12px;
   }
 
-  /* STICKY BOTTOM ACTION BAR ON MOBILE */
-  .pdp-actions-bar {
-    position: fixed;
-    bottom: 58px;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    padding: 10px 14px;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
-    z-index: 99;
+  .amc-support-contact {
+    font-size: 11px;
+    justify-content: center;
+    text-align: center;
+    flex-wrap: wrap;
+  }
+
+  /* INSTALLATION POLICY NOTICE ON MOBILE */
+  .pdp-installation-policy-card {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    font-size: 11.5px !important;
+    border-radius: 8px !important;
+  }
+
+  /* PRIMARY ACTIONS BUTTONS (Add to Cart, Buy with EMI, Buy Now) */
+  .pdp-primary-actions {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    border-top: 1px solid #e2e8f0;
+    margin-top: 12px;
+    width: 100%;
   }
 
-  .pdp-cart-btn,
-  .pdp-buy-btn {
-    flex: 1;
-    padding: 12px 14px;
-    font-size: 13px;
+  .pdp-primary-actions > * {
+    width: 100% !important;
+  }
+
+  .pdp-btn-cart-animated,
+  .pdp-btn-emi-animated,
+  .pdp-btn-buynow-animated {
+    width: 100% !important;
+    min-height: 46px !important;
+    font-size: 0.95rem !important;
+    border-radius: 10px !important;
+  }
+
+  /* FREQUENTLY BOUGHT TOGETHER ON MOBILE */
+  .frequently-bought-section {
+    margin-top: 18px;
+    padding: 14px 12px;
+    border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fbt-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .fbt-heading {
+    font-size: 17px;
+  }
+
+  .fbt-subheading {
+    font-size: 11.5px;
+  }
+
+  .fbt-discount-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .fbt-content-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .fbt-images-combo {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .fbt-img-box {
+    width: 68px;
+    height: 68px;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .fbt-item-tag {
+    font-size: 9px;
+    padding: 1px 4px;
+    bottom: -6px;
+  }
+
+  .fbt-plus-symbol {
+    font-size: 16px;
+  }
+
+  .fbt-details-summary {
+    gap: 12px;
+  }
+
+  .fbt-checkbox-list {
+    gap: 8px;
+  }
+
+  .fbt-checkbox-row {
+    font-size: 12px;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .fbt-checkbox-row input[type="checkbox"] {
+    margin-top: 2px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .fbt-summary-action-box {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .fbt-price-total {
+    gap: 2px;
+  }
+
+  .fbt-total-label {
+    font-size: 11.5px;
+  }
+
+  .fbt-final {
+    font-size: 20px;
+  }
+
+  .fbt-add-all-btn-animated {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* SIMILAR & RECOMMENDED PRODUCTS ON MOBILE */
+  .similar-products-section {
+    margin-top: 18px;
+    padding: 14px 12px;
+    border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .similar-section-header {
+    margin-bottom: 12px;
+  }
+
+  .similar-section-header h2 {
+    font-size: 16px;
+  }
+
+  .similar-carousel-track {
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+
+  .similar-product-card {
+    min-width: 150px;
+    max-width: 150px;
     border-radius: 10px;
   }
 
-  /* SIMILAR PRODUCTS CAROUSEL */
-  .pdp-similar-section {
-    padding: 16px 12px;
+  .similar-image-container {
+    height: 130px;
+    padding: 8px;
   }
 
-  .pdp-similar-section h2 {
-    font-size: 17px;
+  .similar-bestseller-badge {
+    font-size: 9.5px;
+    padding: 2px 6px;
+    top: 6px;
+    left: 6px;
+  }
+
+  .similar-ad-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+    top: 6px;
+    right: 6px;
+  }
+
+  .similar-card-details {
+    padding: 8px 10px 12px;
+    gap: 3px;
+  }
+
+  .similar-card-name {
+    font-size: 11.5px;
+    height: 32px;
+    line-height: 1.35;
+  }
+
+  .similar-discount-text {
+    font-size: 11px;
+  }
+
+  .similar-card-curr-price {
+    font-size: 13.5px;
+  }
+
+  .similar-card-orig-price {
+    font-size: 10.5px;
+  }
+
+  .similar-bank-offer-text {
+    font-size: 10px;
+  }
+
+  .similar-floating-arrow-btn {
+    display: none;
+  }
+
+  /* AMC SCHEDULE MODAL ON MOBILE */
+  .amc-modal-overlay {
+    padding: 10px;
+  }
+
+  .amc-modal-content {
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+
+  .amc-modal-header {
+    padding: 14px 16px;
+  }
+
+  .amc-modal-header h3 {
+    font-size: 15px;
+  }
+
+  .amc-modal-header p {
+    font-size: 11.5px;
+  }
+
+  .amc-modal-body {
+    padding: 10px 12px;
+  }
+
+  .amc-tasks-table {
+    font-size: 11.5px;
+  }
+
+  .amc-tasks-table th,
+  .amc-tasks-table td {
+    padding: 8px 6px;
+  }
+
+  .task-num {
+    width: 32px;
+  }
+
+  .task-check {
+    width: 45px;
+  }
+
+  .amc-modal-footer {
+    padding: 10px 14px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .pdp-main-content {
+    padding: 8px 8px calc(75px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pdp-main-view-container {
+    height: 230px;
+  }
+
+  .pdp-hero-image {
+    max-height: 200px;
+  }
+
+  .pdp-page-title {
+    font-size: 16.5px;
+  }
+
+  .pdp-big-price {
+    font-size: 21px;
+  }
+
+  .pdp-spec-item {
+    grid-template-columns: 100px 1fr;
+    font-size: 11.5px;
   }
 }
