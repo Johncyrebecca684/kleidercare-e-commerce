@@ -38,15 +38,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware
+// CORS Configuration (supports Bluehost domain, local dev, and Vercel)
 const allowedOrigins = [
+  'https://www.laundryecommerce.com',
+  'https://laundryecommerce.com',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
-  'https://kleidercare-e-commerce.vercel.app',
-  'https://laundryecommerce.com',
-  'https://www.laundryecommerce.com'
+  'https://kleidercare-e-commerce.vercel.app'
 ];
 
 app.use(cors({
@@ -57,6 +57,8 @@ app.use(cors({
     }
     return callback(null, true);
   },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true
 }));
 app.use(express.json());
