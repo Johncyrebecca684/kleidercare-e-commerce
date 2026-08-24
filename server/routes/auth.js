@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import User from '../models/User.js';
 import Otp from '../models/Otp.js';
@@ -66,19 +67,80 @@ function verifyPendingOtp(email, otp) {
 }
 
 // ─────────────────────────────────────────────
-// Resend HTTP API client (works on Render free tier — no SMTP ports needed)
-// SMTP port 465/587 is blocked on Render; Resend uses HTTPS (port 443).
+// EMAIL DELIVERY (Resend with Nodemailer SMTP Fallback)
 // ─────────────────────────────────────────────
-const getResendClient = () => {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('⚠️  RESEND_API_KEY not set. Email will run in fallback console mode.');
-    return null;
-  }
-  return new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = process.env.RESEND_FROM || 'Kleider Care <onboarding@resend.dev>';
+
+const getSmtpTransporter = () => {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  const user = process.env.SMTP_USER || 'thesalavailaundry@gmail.com';
+  const pass = process.env.SMTP_PASS || 'seue jwpf jkth qqyw';
+
+  if (!user || !pass) return null;
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: {
+      user,
+      pass: pass.replace(/\s+/g, '') // remove spaces from Gmail app passwords
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
 };
 
-// Sender address: use your verified Resend domain, or 'onboarding@resend.dev' for testing
-const EMAIL_FROM = process.env.RESEND_FROM || 'Kleider Care <onboarding@resend.dev>';
+async function sendMail({ to, subject, text, html }) {
+  // 1. Try Resend if a real API key is configured
+  const hasResendKey = process.env.RESEND_API_KEY &&
+                       process.env.RESEND_API_KEY !== 're_REPLACE_WITH_YOUR_API_KEY' &&
+                       process.env.RESEND_API_KEY.startsWith('re_');
+
+  if (hasResendKey) {
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const { error } = await resend.emails.send({
+        from: EMAIL_FROM,
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        text,
+        html
+      });
+      if (!error) {
+        console.log(`📧 [Resend] Email successfully sent to ${to}`);
+        return true;
+      }
+      console.warn(`⚠️ [Resend] ${error.message || JSON.stringify(error)}. Trying SMTP fallback...`);
+    } catch (err) {
+      console.warn(`⚠️ [Resend] ${err.message}. Trying SMTP fallback...`);
+    }
+  }
+
+  // 2. Try Nodemailer / Gmail SMTP fallback
+  const transporter = getSmtpTransporter();
+  if (transporter) {
+    try {
+      const mailUser = process.env.SMTP_USER || 'thesalavailaundry@gmail.com';
+      await transporter.sendMail({
+        from: `"Kleider Care" <${mailUser}>`,
+        to,
+        subject,
+        text,
+        html
+      });
+      console.log(`📧 [SMTP] Email successfully delivered to ${to}`);
+      return true;
+    } catch (smtpErr) {
+      console.error(`❌ [SMTP] Error sending email to ${to}:`, smtpErr.message);
+    }
+  }
+
+  console.log(`📧 [FALLBACK] Email delivery failed or unconfigured for ${to}.`);
+  return false;
+}
 
 // ─── OTP digit boxes helper ────────────────────────────────────────────────
 function otpDigitBoxes(otp) {
@@ -89,13 +151,6 @@ function otpDigitBoxes(otp) {
 
 // Send OTP to client's email address
 async function sendOtpEmail(email, otp) {
-  const resend = getResendClient();
-
-  if (!resend) {
-    console.log(`📧 [FALLBACK] Email not sent to ${email} (RESEND_API_KEY unconfigured). OTP code: ${otp}`);
-    return false;
-  }
-
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -183,37 +238,16 @@ async function sendOtpEmail(email, otp) {
 </body>
 </html>`;
 
-  try {
-    const { error } = await resend.emails.send({
-      from: EMAIL_FROM,
-      to: [email],
-      subject: '✅ Your Kleider Care Verification Code',
-      text: `Your Kleider Care verification code is: ${otp}. Valid for 5 minutes. Do not share this code.`,
-      html
-    });
-
-    if (error) {
-      console.error('❌ Failed to send OTP email via Resend:', error);
-      return false;
-    }
-
-    console.log(`📧 OTP successfully sent to email: ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Failed to send OTP email via Resend:', error);
-    return false;
-  }
+  return sendMail({
+    to: email,
+    subject: '✅ Your Kleider Care Verification Code',
+    text: `Your Kleider Care verification code is: ${otp}. Valid for 5 minutes. Do not share this code.`,
+    html
+  });
 }
 
 // Send Password Reset OTP to client's email address
 async function sendResetPasswordEmail(email, otp) {
-  const resend = getResendClient();
-
-  if (!resend) {
-    console.log(`📧 [FALLBACK] Reset password email not sent to ${email} (RESEND_API_KEY unconfigured). OTP code: ${otp}`);
-    return false;
-  }
-
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -309,26 +343,12 @@ async function sendResetPasswordEmail(email, otp) {
 </body>
 </html>`;
 
-  try {
-    const { error } = await resend.emails.send({
-      from: EMAIL_FROM,
-      to: [email],
-      subject: '🔐 Your Kleider Care Password Reset Code',
-      text: `Your Kleider Care password reset code is: ${otp}. Valid for 5 minutes. Do not share this code.`,
-      html
-    });
-
-    if (error) {
-      console.error('❌ Failed to send reset password email via Resend:', error);
-      return false;
-    }
-
-    console.log(`📧 Password reset OTP successfully sent to email: ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Failed to send reset password email via Resend:', error);
-    return false;
-  }
+  return sendMail({
+    to: email,
+    subject: '🔐 Your Kleider Care Password Reset Code',
+    text: `Your Kleider Care password reset code is: ${otp}. Valid for 5 minutes. Do not share this code.`,
+    html
+  });
 }
 
 // Generate a random 6-digit OTP
@@ -570,37 +590,62 @@ router.post('/resend-otp', async (req, res) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    // Check user exists
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase();
+    const otpCode = generateOtp();
+
+    // 1. If this is a pending signup (in-memory flow)
+    const pendingSignup = getPendingSignup(normalizedEmail);
+    if (pendingSignup || purpose === 'signup') {
+      if (!pendingSignup) {
+        return res.status(400).json({ message: 'Signup session expired. Please sign up again.' });
+      }
+
+      // Update in-memory OTP
+      setPendingSignup(normalizedEmail, {
+        ...pendingSignup,
+        otp: otpCode
+      });
+
+      console.log(`📧 [DEV] Resent Signup OTP for ${normalizedEmail}: ${otpCode}`);
+
+      res.json({
+        success: true,
+        message: 'New OTP code sent to your email!',
+        email: normalizedEmail
+      });
+
+      sendOtpEmail(normalizedEmail, otpCode).catch(err =>
+        console.error('❌ Background resend OTP email error:', err.message)
+      );
+      return;
+    }
+
+    // 2. For existing user flows (password reset / login verification)
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    // Generate new OTP
-    const otpCode = generateOtp();
-
     // Remove old OTPs
-    await Otp.deleteMany({ email: email.toLowerCase() });
+    await Otp.deleteMany({ email: normalizedEmail });
 
     // Save new OTP
     const otpDoc = new Otp({
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       otp: otpCode,
       purpose: purpose || 'login'
     });
     await otpDoc.save();
 
-    console.log(`📧 [DEV] Resent OTP for ${email}: ${otpCode}`);
+    console.log(`📧 [DEV] Resent OTP for ${normalizedEmail}: ${otpCode}`);
 
-    // Respond immediately — don't wait for email to send
     res.json({
       success: true,
       message: 'New OTP code sent to your email!',
-      email: email.toLowerCase()
+      email: normalizedEmail
     });
 
-    // Send email in the background (fire-and-forget)
-    sendOtpEmail(email.toLowerCase(), otpCode).catch(err =>
+    sendOtpEmail(normalizedEmail, otpCode).catch(err =>
       console.error('❌ Background resend OTP email error:', err.message)
     );
 
