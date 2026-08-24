@@ -346,41 +346,6 @@
     border: 1.5px solid #ffffff;
   }
 
-  /* WHITE UNDERLINED TABS (MY COLLECTIONS / COLLECTIONS I FOLLOW) */
-  .mobile-wishlist-tabs-bar {
-    display: flex;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .mobile-wishlist-tab {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 14px 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #475569;
-    cursor: pointer;
-    position: relative;
-    text-align: center;
-  }
-
-  .mobile-wishlist-tab.active {
-    color: #0f2b5c;
-    font-weight: 700;
-  }
-
-  .mobile-wishlist-tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2.5px;
-    background: #0f2b5c;
-  }
-
   /* MOBILE COLLECTIONS VIEW */
   .mobile-collections-view {
     display: flex;
@@ -488,41 +453,6 @@
   }
 
   .dot-sep {
-    font-size: 14px;
-  }
-
-  /* CREATE A NEW COLLECTION BUTTON (OUTLINED PILL) */
-  .mobile-create-collection-wrap {
-    margin-top: 14px;
-  }
-
-  .mobile-create-collection-btn {
-    width: 100%;
-    padding: 13px;
-    background: #ffffff;
-    border: 1.5px solid #0f2b5c;
-    border-radius: 6px;
-    color: #0f2b5c;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.15s ease;
-  }
-
-  .mobile-create-collection-btn:active {
-    background: #f0f4fa;
-  }
-
-  .mobile-empty-following-collections {
-    padding: 40px 20px;
-    text-align: center;
-    background: #ffffff;
-    border-radius: 8px;
-    color: #64748b;
     font-size: 14px;
   }
 

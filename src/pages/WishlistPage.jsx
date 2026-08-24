@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Trash2, ArrowLeft, ArrowRight, Heart, ChevronDown, ChevronUp, Lock, Plus } from 'lucide-react';
+import { ShoppingCart, Trash2, ArrowLeft, ArrowRight, Heart, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { formatImageUrl } from '../utils/imageUtils';
 import './WishlistPage.css';
 
@@ -69,8 +69,7 @@ function WishlistItem({ item, onAddToCart, onRemoveFromWishlist }) {
 
 export default function WishlistPage({ wishlistItems = [], onRemoveFromWishlist, onAddToCart, cartCount = 0 }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('my-collections');
-  const [showItemDetails, setShowItemDetails] = useState(false);
+  const [showItemDetails, setShowItemDetails] = useState(true);
 
   const handleAddToCart = (item) => {
     onAddToCart(item);
@@ -83,7 +82,7 @@ export default function WishlistPage({ wishlistItems = [], onRemoveFromWishlist,
 
   return (
     <div className="wishlist-page-wrapper animate-fade-in">
-      {/* MOBILE TOP BLUE HEADER (EXACTLY MATCHING USER SCREENSHOT) */}
+      {/* MOBILE TOP BLUE HEADER */}
       <div className="mobile-wishlist-top-bar">
         <div className="mobile-wishlist-header-left">
           <button
@@ -103,24 +102,6 @@ export default function WishlistPage({ wishlistItems = [], onRemoveFromWishlist,
         </Link>
       </div>
 
-      {/* MOBILE TABS (MY COLLECTIONS / COLLECTIONS I FOLLOW) */}
-      <div className="mobile-wishlist-tabs-bar">
-        <button
-          type="button"
-          className={`mobile-wishlist-tab ${activeTab === 'my-collections' ? 'active' : ''}`}
-          onClick={() => setActiveTab('my-collections')}
-        >
-          My collections
-        </button>
-        <button
-          type="button"
-          className={`mobile-wishlist-tab ${activeTab === 'following' ? 'active' : ''}`}
-          onClick={() => setActiveTab('following')}
-        >
-          Collections I follow
-        </button>
-      </div>
-
       <div className="wishlist-page-container">
         {/* DESKTOP HEADER (HIDDEN ON MOBILE) */}
         <div className="wishlist-page-header desktop-only">
@@ -132,76 +113,59 @@ export default function WishlistPage({ wishlistItems = [], onRemoveFromWishlist,
 
         {/* MOBILE COLLECTIONS CARD VIEW */}
         <div className="mobile-collections-view">
-          {activeTab === 'my-collections' ? (
-            <div className="mobile-collection-card" onClick={() => setShowItemDetails(!showItemDetails)}>
-              {/* 4 THUMBNAIL PREVIEWS ROW */}
-              <div className="collection-preview-grid">
-                {previewItems.length > 0 ? (
-                  <>
-                    <div className="preview-img-slot">
-                      <img src={formatImageUrl(previewItems[0]?.image)} alt={previewItems[0]?.name} />
-                    </div>
-                    <div className="preview-img-slot">
-                      {previewItems[1] ? (
-                        <img src={formatImageUrl(previewItems[1]?.image)} alt={previewItems[1]?.name} />
-                      ) : (
-                        <div className="empty-preview-slot" />
-                      )}
-                    </div>
-                    <div className="preview-img-slot">
-                      {previewItems[2] ? (
-                        <img src={formatImageUrl(previewItems[2]?.image)} alt={previewItems[2]?.name} />
-                      ) : (
-                        <div className="empty-preview-slot" />
-                      )}
-                    </div>
-                    <div className="preview-img-slot overlay-slot">
-                      {previewItems[3] ? (
-                        <img src={formatImageUrl(previewItems[3]?.image)} alt={previewItems[3]?.name} />
-                      ) : (
-                        <div className="empty-preview-slot" />
-                      )}
-                      {wishlistItems.length > 3 && (
-                        <div className="preview-count-overlay">
-                          +{remainingCount} more
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="no-items-preview-placeholder">
-                    <Heart size={28} color="#94a3b8" />
-                    <span>0 items</span>
+          <div className="mobile-collection-card" onClick={() => setShowItemDetails(!showItemDetails)}>
+            {/* 4 THUMBNAIL PREVIEWS ROW */}
+            <div className="collection-preview-grid">
+              {previewItems.length > 0 ? (
+                <>
+                  <div className="preview-img-slot">
+                    <img src={formatImageUrl(previewItems[0]?.image)} alt={previewItems[0]?.name} />
                   </div>
-                )}
-              </div>
-
-              {/* CARD INFO FOOTER */}
-              <div className="collection-card-meta">
-                <h3 className="collection-card-title">My Wishlist</h3>
-                <div className="collection-subtext">
-                  <Lock size={14} className="privacy-lock-icon" />
-                  <span>Private</span>
-                  <span className="dot-sep">•</span>
-                  <span>{wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'}</span>
+                  <div className="preview-img-slot">
+                    {previewItems[1] ? (
+                      <img src={formatImageUrl(previewItems[1]?.image)} alt={previewItems[1]?.name} />
+                    ) : (
+                      <div className="empty-preview-slot" />
+                    )}
+                  </div>
+                  <div className="preview-img-slot">
+                    {previewItems[2] ? (
+                      <img src={formatImageUrl(previewItems[2]?.image)} alt={previewItems[2]?.name} />
+                    ) : (
+                      <div className="empty-preview-slot" />
+                    )}
+                  </div>
+                  <div className="preview-img-slot overlay-slot">
+                    {previewItems[3] ? (
+                      <img src={formatImageUrl(previewItems[3]?.image)} alt={previewItems[3]?.name} />
+                    ) : (
+                      <div className="empty-preview-slot" />
+                    )}
+                    {wishlistItems.length > 3 && (
+                      <div className="preview-count-overlay">
+                        +{remainingCount} more
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="no-items-preview-placeholder">
+                  <Heart size={28} color="#94a3b8" />
+                  <span>0 items</span>
                 </div>
+              )}
+            </div>
+
+            {/* CARD INFO FOOTER */}
+            <div className="collection-card-meta">
+              <h3 className="collection-card-title">My Wishlist</h3>
+              <div className="collection-subtext">
+                <Lock size={14} className="privacy-lock-icon" />
+                <span>Private</span>
+                <span className="dot-sep">•</span>
+                <span>{wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'}</span>
               </div>
             </div>
-          ) : (
-            <div className="mobile-empty-following-collections">
-              <p>You are not following any public collections yet.</p>
-            </div>
-          )}
-
-          {/* FLOATING/BOTTOM CREATE NEW COLLECTION BUTTON */}
-          <div className="mobile-create-collection-wrap">
-            <button
-              type="button"
-              className="mobile-create-collection-btn"
-              onClick={() => alert('New collection created.')}
-            >
-              <Plus size={18} /> Create a new collection
-            </button>
           </div>
         </div>
 
