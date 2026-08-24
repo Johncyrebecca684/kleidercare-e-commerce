@@ -17,7 +17,7 @@ import {
   RotateCcw,
   Plus
 } from 'lucide-react';
-import { getProductType, getRecommendedTargetType, getRecommendationReason } from '../utils/recommendationEngine';
+import { getProductType, getRecommendedTargetType, getRecommendationReason, getProductCapacity } from '../utils/recommendationEngine';
 import { formatImageUrl } from '../utils/imageUtils';
 import LottieAnimation from './LottieAnimation';
 import AddToCartButton from './AddToCartButton';
@@ -64,11 +64,22 @@ export default function ProductDetailModal({
   };
 
   const currentType = getProductType(product);
+  const currentCapacity = getProductCapacity(product);
   const targetType = getRecommendedTargetType(currentType);
   const recommendedAddon = targetType && allProducts.length > 0
-    ? allProducts.find(p => p.id !== product.id && getProductType(p) === targetType)
+    ? allProducts
+        .filter(p => p.id !== product.id && getProductType(p) === targetType)
+        .sort((a, b) => {
+          const aCap = getProductCapacity(a);
+          const bCap = getProductCapacity(b);
+          const aMatch = currentCapacity && aCap === currentCapacity;
+          const bMatch = currentCapacity && bCap === currentCapacity;
+          if (aMatch && !bMatch) return -1;
+          if (!aMatch && bMatch) return 1;
+          return 0;
+        })[0]
     : null;
-  const recommendationReason = recommendedAddon ? getRecommendationReason(currentType, recommendedAddon) : '';
+  const recommendationReason = recommendedAddon ? getRecommendationReason(product, recommendedAddon) : '';
   const [selectedColor, setSelectedColor] = useState('Commercial Stainless Steel');
   const [selectedVariant, setSelectedVariant] = useState(
     product.specifications?.Capacity || 'Standard Capacity'
@@ -311,7 +322,7 @@ export default function ProductDetailModal({
                   Regional Installation Policy
                 </strong>
                 <span>
-                  For all LG Commercial Laundry Machines, installation fees are <strong>FREE for India's South region</strong>. For the North region and other locations, installation charges apply based on the delivery location.
+                  For all LG Commercial Laundry Machines, installation is <strong>FREE in South India</strong>. For North India and other regions, installation charges apply based on the location.
                 </span>
               </div>
             </div>

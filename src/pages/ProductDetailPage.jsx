@@ -42,7 +42,7 @@ import {
   Percent
 } from 'lucide-react';
 import EmiOptionsModal from '../components/EmiOptionsModal';
-import { getRecommendations, getProductType, getRecommendedTargetType } from '../utils/recommendationEngine';
+import { getRecommendations, getProductType, getRecommendedTargetType, getProductCapacity, getDryerFuelType } from '../utils/recommendationEngine';
 import { useBrowsingTracker } from '../hooks/useBrowsingTracker';
 import { formatImageUrl } from '../utils/imageUtils';
 import LottieAnimation from '../components/LottieAnimation';
@@ -304,13 +304,33 @@ export default function ProductDetailPage({
   const carouselRef = useState(null)[0] || { current: null };
 
   // Create recommended & similar products list prioritizing rule matches:
+  // 15kg Washer -> 15kg Electric Dryer & 15kg Gas Dryer
   // Chemical -> Dosing Pump, Dosing Pump -> Chemical, Washer -> Dryer, Dryer -> Washer
   const currentProductType = getProductType(product);
+  const currentProductCapacity = getProductCapacity(product);
   const targetRecommendedType = getRecommendedTargetType(currentProductType);
 
   let targetRecommendedProducts = [];
   if (targetRecommendedType) {
-    targetRecommendedProducts = products.filter(p => p.id !== product.id && getProductType(p) === targetRecommendedType);
+    targetRecommendedProducts = products
+      .filter(p => p.id !== product.id && getProductType(p) === targetRecommendedType)
+      .sort((a, b) => {
+        const aCap = getProductCapacity(a);
+        const bCap = getProductCapacity(b);
+        const aMatch = currentProductCapacity && aCap === currentProductCapacity;
+        const bMatch = currentProductCapacity && bCap === currentProductCapacity;
+
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+
+        // If both match or both don't match, sort electric before gas
+        const aFuel = getDryerFuelType(a);
+        const bFuel = getDryerFuelType(b);
+        if (aFuel === 'electric' && bFuel === 'gas') return -1;
+        if (aFuel === 'gas' && bFuel === 'electric') return 1;
+
+        return 0;
+      });
   }
 
   let sameCatProducts = products.filter(p => p.id !== product.id && p.category === product.category && !targetRecommendedProducts.some(t => t.id === p.id));
@@ -740,7 +760,7 @@ export default function ProductDetailPage({
                       Regional Installation Policy
                     </strong>
                     <span>
-                      For all LG Commercial Laundry Machines, installation fees are <strong>FREE for India's South region</strong>. For the North region and other locations, installation charges apply based on the delivery location.
+                      For all LG Commercial Laundry Machines, installation is <strong>FREE in South India</strong>. For North India and other regions, installation charges apply based on the location.
                     </span>
                   </div>
                 </div>

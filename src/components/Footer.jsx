@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <a href="/" className="footer-logo" aria-label="Kleider Care Home">
-            <img src="/kc-logo.png" alt="Kleider Care" className="footer-brand-logo" />
+            <img src="/final Poster (1).svg" alt="Kleider Care" className="footer-brand-logo" />
           </a>
           <p className="footer-description">
             Your trusted partner for professional laundry services and franchise oppurtunities
@@ -54,7 +54,7 @@ export default function Footer() {
         <div className="footer-section">
           <h4>Contact Info</h4>
           <div className="contact-info">
-            <div className="contact-item" style={{ color: '#ffffff', fontWeight: '600' }}>
+            <div className="contact-item" style={{ color: '#0f2b5c', fontWeight: '700' }}>
               Kleider Care Pvt Ltd
             </div>
             <div className="contact-item">

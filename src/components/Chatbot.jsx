@@ -158,7 +158,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       if (lower.includes('warranty') || lower.includes('install') || lower.includes('engineer') || lower.includes('service') || lower.includes('amc') || lower.includes('namc') || lower.includes('maintenance')) {
         addMessage(
           'bot',
-          '🛡️ **Kleider Care AMC Plan (Exclusively for LG Machines)**:\n\nIncludes:\n• **3 Preventive Visits / year**\n• **24–48 Hours Emergency Response**\n• **Safety & Performance Check**\n• **Vent Cleaning & Drum Disinfection**\n\n**Pricing**:\n• **LG 10 kg Machines**: ₹15,000 / year\n• **LG 15 kg Machines**: ₹18,000 / year\n\nYou can review full contract details on our **Terms & Conditions** page.'
+          '🛡️ **Regional Installation & AMC Policy**:\n\n• **Installation**: For all LG Commercial Laundry Machines, installation is **FREE in South India**. For North India and other regions, installation charges apply based on the location.\n\n• **Kleider Care AMC Plan (LG Commercial Machines)**:\n  - 3 Preventive Visits / year\n  - 24–48 Hours Emergency Response\n  - Safety & Performance Check\n  - Vent Cleaning & Drum Disinfection\n\n**AMC Pricing**:\n• LG 10 kg Machines: ₹15,000 / year\n• LG 15 kg Machines: ₹18,000 / year\n\nYou can review full contract details on our **Terms & Conditions** page.'
         );
         return;
       }

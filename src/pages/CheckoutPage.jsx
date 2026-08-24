@@ -1024,7 +1024,7 @@ export default function CheckoutPage({
                 color: '#0369a1',
                 lineHeight: '1.4'
               }}>
-                <strong>Installation Note:</strong> Free for South India region. For North region and other locations, installation charges apply based on location.
+                <strong>Regional Installation Policy:</strong> For all LG Commercial Laundry Machines, installation is FREE in South India. For North India and other regions, installation charges apply based on the location.
               </div>
               {items.some(i => i.includeProgramSetup) && (
                 <div className="summary-row-page" style={{ color: '#0284c7', fontWeight: '600' }}>

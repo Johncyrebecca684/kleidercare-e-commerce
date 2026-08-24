@@ -2,11 +2,79 @@
  * Centralized Recommendation Engine for KleiderCare E-Commerce
  * 
  * Rules:
+ *   - 15kg Washer -> Recommends 15kg Electric Dryer & 15kg Gas Dryer
+ *   - 10kg Washer -> Recommends 10kg Electric Dryer & 10kg Gas Dryer
  *   - Chemical viewed/added -> Recommend Dosing Pump (Seko)
  *   - Dosing Pump viewed/added -> Recommend Chemical
- *   - Washer viewed/added -> Recommend Dryer
- *   - Dryer viewed/added -> Recommend Washer
+ *   - Washer viewed/added -> Recommend matching Dryer
+ *   - Dryer viewed/added -> Recommend matching Washer
  */
+
+// ── Helper: Extract Equipment Capacity ──
+export function getProductCapacity(product) {
+  if (!product) return null;
+  const name = (product.name || '').toLowerCase();
+  const desc = (product.description || '').toLowerCase();
+  const specStr = JSON.stringify(product.specifications || {}).toLowerCase();
+  const sku = (product.sku || '').toLowerCase();
+  const capacitySpec = (product.specifications?.['Capacity'] || product.specifications?.['capacity'] || '').toLowerCase();
+
+  if (
+    capacitySpec.includes('15') ||
+    name.includes('15kg') || name.includes('15 kg') || name.includes('15-kg') || name.includes('15k') ||
+    name.includes('titan') || name.includes('cwt29') || name.includes('rv1840') ||
+    name.includes('rn1840') || name.includes('cdt29') ||
+    specStr.includes('15 kg') || specStr.includes('15kg') || specStr.includes('titan') ||
+    desc.includes('15 kg') || desc.includes('15kg') || desc.includes('titan') ||
+    sku.includes('15kg') || sku.includes('15-kg') || sku.includes('titan')
+  ) {
+    return '15kg';
+  }
+
+  if (
+    capacitySpec.includes('10') ||
+    name.includes('10kg') || name.includes('10 kg') || name.includes('10-kg') || name.includes('10k') ||
+    name.includes('giant') || name.includes('cwg27') || name.includes('rv1329') ||
+    name.includes('rn1329') ||
+    specStr.includes('10 kg') || specStr.includes('10kg') || specStr.includes('giant') ||
+    desc.includes('10 kg') || desc.includes('10kg') || desc.includes('giant') ||
+    sku.includes('10kg') || sku.includes('10-kg') || sku.includes('giant')
+  ) {
+    return '10kg';
+  }
+
+  return null;
+}
+
+// ── Helper: Extract Dryer Heating / Fuel Type ──
+export function getDryerFuelType(product) {
+  if (!product) return null;
+  const name = (product.name || '').toLowerCase();
+  const desc = (product.description || '').toLowerCase();
+  const specStr = JSON.stringify(product.specifications || {}).toLowerCase();
+  const sku = (product.sku || '').toLowerCase();
+  const heatingSpec = (product.specifications?.['Heating Type'] || product.specifications?.['Heating'] || '').toLowerCase();
+
+  const isElectric =
+    heatingSpec.includes('elec') ||
+    name.includes('electric') ||
+    specStr.includes('electric') ||
+    desc.includes('electric') ||
+    sku.includes('elec');
+
+  const isGas =
+    heatingSpec.includes('gas') ||
+    name.includes('gas') ||
+    specStr.includes('gas') ||
+    desc.includes('gas') ||
+    sku.includes('gas');
+
+  if (isElectric && !isGas) return 'electric';
+  if (isGas && !isElectric) return 'gas';
+  if (isElectric) return 'electric';
+  if (isGas) return 'gas';
+  return null;
+}
 
 // ── Helper: Product Type Classifier ──
 export function getProductType(product) {
@@ -97,8 +165,15 @@ export function getRecommendedTargetType(sourceType) {
 }
 
 // ── Helper: Dynamic Reason Generator ──
-export function getRecommendationReason(sourceType, targetProduct) {
+export function getRecommendationReason(sourceProductOrType, targetProduct) {
+  const sourceType = typeof sourceProductOrType === 'string'
+    ? sourceProductOrType
+    : getProductType(sourceProductOrType);
+  const sourceProduct = typeof sourceProductOrType === 'object' ? sourceProductOrType : null;
   const targetType = getProductType(targetProduct);
+  const sourceCapacity = sourceProduct ? getProductCapacity(sourceProduct) : null;
+  const targetCapacity = getProductCapacity(targetProduct);
+  const targetFuel = getDryerFuelType(targetProduct);
 
   if (sourceType === 'chemical' || targetType === 'dosing_pump') {
     return `Recommended Seko Dosing Pump for automatic chemical dispensing`;
@@ -106,12 +181,42 @@ export function getRecommendationReason(sourceType, targetProduct) {
   if (sourceType === 'dosing_pump' || targetType === 'chemical') {
     return `Recommended Wet Cleaning Chemical for optimal dosing pump performance`;
   }
-  if (sourceType === 'washer' || (sourceType !== 'dryer' && targetType === 'dryer')) {
+
+  // Washer -> Dryer specific capacity & fuel recommendations
+  if (sourceType === 'washer' || targetType === 'dryer') {
+    if (sourceCapacity === '15kg' || targetCapacity === '15kg') {
+      if (targetFuel === 'electric') {
+        return `Recommended 15kg Electric Dryer to complete your 15kg commercial washer setup`;
+      }
+      if (targetFuel === 'gas') {
+        return `Recommended 15kg Gas Dryer for high-efficiency commercial gas drying`;
+      }
+      return `Recommended 15kg Commercial Dryer to pair with your 15kg Washer`;
+    }
+
+    if (sourceCapacity === '10kg' || targetCapacity === '10kg') {
+      if (targetFuel === 'electric') {
+        return `Recommended 10kg Electric Dryer to complete your 10kg commercial washer setup`;
+      }
+      if (targetFuel === 'gas') {
+        return `Recommended 10kg Gas Dryer for high-efficiency commercial gas drying`;
+      }
+      return `Recommended 10kg Commercial Dryer to pair with your 10kg Washer`;
+    }
+
     return `Recommended Dryer to complete your commercial washer setup`;
   }
-  if (sourceType === 'dryer' || (sourceType !== 'washer' && targetType === 'washer')) {
+
+  if (sourceType === 'dryer' || targetType === 'washer') {
+    if (sourceCapacity === '15kg' || targetCapacity === '15kg') {
+      return `Recommended 15kg Commercial Washer to pair with your 15kg Dryer`;
+    }
+    if (sourceCapacity === '10kg' || targetCapacity === '10kg') {
+      return `Recommended 10kg Commercial Washer to pair with your 10kg Dryer`;
+    }
     return `Recommended High-Performance Washer to pair with your dryer`;
   }
+
   return `Frequently recommended equipment companion`;
 }
 
@@ -176,15 +281,23 @@ export function getRecommendations({
   if (currentProduct) excludeIds.add(currentProduct.id);
 
   // Analyze active source product or cart items to determine mandatory target recommendation type
+  let primarySourceProduct = null;
   let primarySourceType = null;
+  let primarySourceCapacity = null;
+
   if (currentProduct) {
+    primarySourceProduct = currentProduct;
     primarySourceType = getProductType(currentProduct);
+    primarySourceCapacity = getProductCapacity(currentProduct);
   } else if (cartItems.length > 0) {
-    // Pick most recently added or primary cart item
-    primarySourceType = getProductType(cartItems[cartItems.length - 1]);
+    primarySourceProduct = cartItems[cartItems.length - 1];
+    primarySourceType = getProductType(primarySourceProduct);
+    primarySourceCapacity = getProductCapacity(primarySourceProduct);
   } else if (browsingHistory.length > 0) {
     const lastBrowsed = browsingHistory[browsingHistory.length - 1];
-    primarySourceType = getProductType(lastBrowsed);
+    primarySourceProduct = typeof lastBrowsed === 'object' ? lastBrowsed : null;
+    primarySourceType = getProductType(primarySourceProduct);
+    primarySourceCapacity = getProductCapacity(primarySourceProduct);
   }
 
   const primaryTargetType = getRecommendedTargetType(primarySourceType);
@@ -208,12 +321,27 @@ export function getRecommendations({
       let score = 0;
       const signals = {};
       const candidateType = getProductType(product);
+      const candidateCapacity = getProductCapacity(product);
+      const candidateFuel = getDryerFuelType(product);
 
-      // Check strict rule match: Chemical <-> Dosing Pump, Washer <-> Dryer
+      // Check strict rule match: Washer <-> Dryer, Chemical <-> Dosing Pump
       if (primaryTargetType && candidateType === primaryTargetType) {
-        score += 250; // Highest priority bonus
+        score += 250;
         signals.explicitRuleMatch = true;
-        signals.explicitReason = getRecommendationReason(primarySourceType, product);
+
+        // Specific capacity matching bonus: e.g. 15kg washer -> 15kg electric & gas dryer
+        if (primarySourceCapacity && candidateCapacity === primarySourceCapacity) {
+          score += 150; // Extra bonus for exact capacity match (15kg -> 15kg)
+
+          // Prioritize electric dryer first, then gas dryer (or both at top)
+          if (candidateFuel === 'electric') {
+            score += 20;
+          } else if (candidateFuel === 'gas') {
+            score += 15;
+          }
+        }
+
+        signals.explicitReason = getRecommendationReason(primarySourceProduct || primarySourceType, product);
       }
 
       if (type === 'for_you_homepage') {
@@ -250,11 +378,18 @@ export function getRecommendations({
         // Check matching target types from all items in cart
         for (const cItem of cartItems) {
           const cType = getProductType(cItem);
+          const cCap = getProductCapacity(cItem);
           const tType = getRecommendedTargetType(cType);
+
           if (tType && candidateType === tType) {
             score += 100;
+            if (cCap && candidateCapacity === cCap) {
+              score += 100;
+              if (candidateFuel === 'electric') score += 15;
+              if (candidateFuel === 'gas') score += 10;
+            }
             signals.explicitRuleMatch = true;
-            signals.explicitReason = getRecommendationReason(cType, product);
+            signals.explicitReason = getRecommendationReason(cItem, product);
             break;
           }
         }

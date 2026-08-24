@@ -1,8 +1,9 @@
 .footer {
-  background: linear-gradient(180deg, #0f2b5c 0%, #081630 100%);
-  color: #ffffff;
+  background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+  color: #1e293b;
   padding-top: 60px;
   position: relative;
+  border-top: 1px solid #e2e8f0;
 }
 
 .footer-content {
@@ -23,36 +24,36 @@
 .footer-logo {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  padding: 10px 18px;
-  border-radius: 14px;
+  justify-content: flex-start;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
   width: fit-content;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(255, 255, 255, 0.25);
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
-  margin-bottom: 12px;
+  box-shadow: none;
+  border: none;
+  margin-bottom: 14px;
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.footer-logo:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 32px rgba(96, 165, 250, 0.5);
-  border-color: #60a5fa;
 }
 
 .footer-brand-logo {
-  height: 64px;
+  height: 100px;
   width: auto;
-  max-width: 240px;
+  max-width: 280px;
   object-fit: contain;
   display: block;
+  filter: drop-shadow(0 4px 12px rgba(15, 43, 92, 0.12));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer-logo:hover .footer-brand-logo {
+  transform: translateY(-2px) scale(1.04);
+  filter: drop-shadow(0 6px 18px rgba(2, 132, 199, 0.28));
 }
 
 .footer-description {
   font-size: 14px;
   line-height: 1.7;
-  color: #9ca3af;
+  color: #475569;
   margin: 0;
 }
 
@@ -80,15 +81,18 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  color: #ffffff;
-  background-color: transparent;
-  border: 1px solid #1a365d;
+  color: #0f2b5c;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
   text-decoration: none;
 }
 .example-2 .icon-content a:hover {
-  background-color: #1a365d;
-  border-color: #ffffff;
+  background-color: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
 }
 .example-2 .icon-content a svg {
   position: relative;
@@ -100,8 +104,8 @@
 
 .footer-section h4 {
   font-size: 14px;
-  font-weight: 600;
-  color: white;
+  font-weight: 700;
+  color: #0f2b5c;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -117,7 +121,7 @@
 }
 
 .footer-links a {
-  color: #9ca3af;
+  color: #475569;
   text-decoration: none;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -125,14 +129,14 @@
 }
 
 .footer-links a:hover {
-  color: #ffffff;
-  transform: translateX(2px);
+  color: #0284c7;
+  transform: translateX(3px);
 }
 
 .trackOrderLink {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #475569;
   text-decoration: none;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -143,8 +147,8 @@
 }
 
 .trackOrderLink:hover {
-  color: #ffffff;
-  transform: translateX(2px);
+  color: #0284c7;
+  transform: translateX(3px);
 }
 
 .contact-info {
@@ -158,22 +162,22 @@
   align-items: center;
   gap: 12px;
   font-size: 14px;
-  color: #9ca3af;
+  color: #334155;
 }
 
 .contact-item svg {
-  color: #9ca3af;
+  color: #0284c7;
   flex-shrink: 0;
 }
 
 .contact-item a {
-  color: #9ca3af;
+  color: #334155;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .contact-item a:hover {
-  color: #ffffff;
+  color: #0284c7;
 }
 
 .newsletter-form {
@@ -185,27 +189,28 @@
 .newsletter-form input {
   flex: 1;
   padding: 10px 12px;
-  background: transparent;
-  border: 1px solid #1a365d;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 12px;
-  color: white;
+  color: #1e293b;
   font-size: 13px;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .newsletter-form input::placeholder {
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .newsletter-form input:focus {
-  border-color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 
 .newsletter-form button {
   padding: 10px 16px;
-  background: #ffffff;
-  color: #0f2b5c;
+  background: #0f2b5c;
+  color: #ffffff;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -216,12 +221,12 @@
 }
 
 .newsletter-form button:hover {
-  background: #e5e7eb;
+  background: #0284c7;
 }
 
 .footer-bottom {
   padding: 20px 40px;
-  border-top: 1px solid #1a365d;
+  border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -234,7 +239,7 @@
 .footer-bottom p {
   font-size: 13px;
   margin: 0;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .footer-bottom-links {
@@ -243,14 +248,14 @@
 }
 
 .footer-bottom-links a {
-  color: #6b7280;
+  color: #64748b;
   text-decoration: none;
   font-size: 13px;
   transition: color 0.2s ease;
 }
 
 .footer-bottom-links a:hover {
-  color: #ffffff;
+  color: #0284c7;
 }
 
 .payment-methods {
@@ -258,7 +263,7 @@
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .payment-icons {
@@ -308,12 +313,12 @@
   }
 
   .footer-logo {
-    padding: 8px 14px;
+    padding: 0;
     margin-bottom: 10px;
   }
 
   .footer-brand-logo {
-    height: 52px;
-    max-width: 200px;
+    height: 80px;
+    max-width: 240px;
   }
 }
