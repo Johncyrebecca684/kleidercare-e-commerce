@@ -644,9 +644,9 @@ export default function ProductList({
               {selectedCategory === 'Genuine Spare Parts' ? (
                 <>
                   <div className={viewMode === 'grid' ? 'products-grid' : 'products-list-wrapper'}>
-                    {sortedProducts.filter(p => p.subcategory !== 'Speed Queen').map(product => (
+                    {sortedProducts.filter(p => p.subcategory !== 'Speed Queen').map((product, idx) => (
                       <ProductCard
-                        key={product.id}
+                        key={product._id || product.id || product.sku || `sp-${idx}`}
                         product={product}
                         onAddToCart={onAddToCart}
                         wishlistItems={wishlistItems}
@@ -663,9 +663,9 @@ export default function ProductList({
                         <h2 style={{ fontSize: '1.75rem', color: '#0f2b5c', fontWeight: 'bold' }}>Speed Queen Spare Parts</h2>
                       </div>
                       <div className={viewMode === 'grid' ? 'products-grid' : 'products-list-wrapper'}>
-                        {sortedProducts.filter(p => p.subcategory === 'Speed Queen').map(product => (
+                        {sortedProducts.filter(p => p.subcategory === 'Speed Queen').map((product, idx) => (
                           <ProductCard
-                            key={product.id}
+                            key={product._id || product.id || product.sku || `sq-${idx}`}
                             product={product}
                             onAddToCart={onAddToCart}
                             wishlistItems={wishlistItems}
@@ -680,9 +680,9 @@ export default function ProductList({
                 </>
               ) : (
                 <div className={viewMode === 'grid' ? 'products-grid' : 'products-list-wrapper'}>
-                  {sortedProducts.map(product => (
+                  {sortedProducts.map((product, idx) => (
                     <ProductCard
-                      key={product.id}
+                      key={product._id || product.id || product.sku || `prod-${idx}`}
                       product={product}
                       onAddToCart={onAddToCart}
                       wishlistItems={wishlistItems}

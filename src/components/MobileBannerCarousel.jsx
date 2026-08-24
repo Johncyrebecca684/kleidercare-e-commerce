@@ -104,7 +104,8 @@ export default function MobileBannerCarousel({ onCategoryChange }) {
                 src={banner.image}
                 alt={banner.alt}
                 className="amazon-banner-image"
-                loading={index < 3 ? 'eager' : 'lazy'}
+                loading={index < 2 ? 'eager' : 'lazy'}
+                decoding="async"
               />
             </div>
           ))}

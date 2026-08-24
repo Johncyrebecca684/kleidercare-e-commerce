@@ -1,26 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import ForgotPassword from './components/ForgotPassword';
-import UserProfile from './components/UserProfile';
 import Home from './pages/Home';
-import TrackOrderPage from './pages/TrackOrderPage';
-import CartPage from './pages/CartPage';
-import CheckoutPage from './pages/CheckoutPage';
-import TicketingPage from './pages/TicketingPage';
-import AdminDashboard from './pages/AdminDashboard';
-import WishlistPage from './pages/WishlistPage';
-import TermsPage from './pages/TermsPage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import ChatbotPage from './pages/ChatbotPage';
 import BottomNav from './components/BottomNav';
-import { products } from './data/products';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
 import { getAllProducts } from './services/productService';
 import Loader from './components/Loader';
 import './App.css';
 import { API_URL } from './config';
+
+// Lazy load secondary routes for instant first page render
+const TrackOrderPage = lazy(() => import('./pages/TrackOrderPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const TicketingPage = lazy(() => import('./pages/TicketingPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const WishlistPage = lazy(() => import('./pages/WishlistPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
+const ChatbotPage = lazy(() => import('./pages/ChatbotPage'));
+const UserProfile = lazy(() => import('./components/UserProfile'));
 
 const mergeCarts = (localCart, serverCart) => {
   const server = serverCart || [];
@@ -127,14 +128,37 @@ function App() {
     }
   }, [searchTerm, selectedCategory]);
 
-  // App Data States
-  const [appProducts, setAppProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(true);
+  // App Data States - Loaded dynamically from MongoDB Database / API
+  const [appProducts, setAppProducts] = useState(() => {
+    try {
+      const raw = localStorage.getItem('kc_app_products');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing kc_app_products from localStorage:', e);
+    }
+    return [];
+  });
+  const [productsLoading, setProductsLoading] = useState(() => {
+    try {
+      const raw = localStorage.getItem('kc_app_products');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch {
+      // ignore
+    }
+    return true;
+  });
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Fetch products from database with local storage sync
+  // Fetch products from database in background with local storage sync
   useEffect(() => {
+    let isMounted = true;
     const fetchProducts = async () => {
       let localSaved = null;
       try {
@@ -146,8 +170,9 @@ function App() {
 
       try {
         const data = await getAllProducts();
-        if (Array.isArray(data) && data.length > 0) {
-          if (localSaved && Array.isArray(localSaved)) {
+        if (!isMounted) return;
+        if (Array.isArray(data)) {
+          if (localSaved && Array.isArray(localSaved) && localSaved.length > 0) {
             const stockMap = {};
             localSaved.forEach(p => {
               const key = String(p.id || p._id || p.sku);
@@ -171,23 +196,15 @@ function App() {
           } else {
             setAppProducts(data);
           }
-        } else if (localSaved && Array.isArray(localSaved) && localSaved.length > 0) {
-          setAppProducts(localSaved);
-        } else {
-          setAppProducts(products);
         }
       } catch (error) {
-        console.error('Error fetching products from database:', error);
-        if (localSaved && Array.isArray(localSaved) && localSaved.length > 0) {
-          setAppProducts(localSaved);
-        } else {
-          setAppProducts(products);
-        }
+        console.warn('Error fetching products from database API:', error.message || error);
       } finally {
-        setProductsLoading(false);
+        if (isMounted) setProductsLoading(false);
       }
     };
     fetchProducts();
+    return () => { isMounted = false; };
   }, []);
 
   const [appUsers, setAppUsers] = useState([]);
@@ -545,193 +562,191 @@ function App() {
     handleClearCart();
   };
 
-  if (productsLoading) {
-    return <Loader title="Kleider Care" subtitle="Loading Inventory & Catalog..." fullPage />;
-  }
-
   return (
     <Router>
       <div className="app">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Home
-                cartItems={cartItems}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                cartCount={cartCount}
-                onAddToCart={handleAddToCart}
-                onRemoveItem={handleRemoveItem}
-                onUpdateQuantity={handleUpdateQuantity}
-                isLoginOpen={isLoginOpen}
-                onLoginOpen={() => setIsLoginOpen(true)}
-                onLoginClose={() => setIsLoginOpen(false)}
-                isSignupOpen={isSignupOpen}
-                onSignupOpen={() => setIsSignupOpen(true)}
-                onSignupClose={() => setIsSignupOpen(false)}
-                isForgotPasswordOpen={isForgotPasswordOpen}
-                onForgotPasswordOpen={() => setIsForgotPasswordOpen(true)}
-                onForgotPasswordClose={() => setIsForgotPasswordOpen(false)}
-                loggedInUser={loggedInUser}
-                onLoginSuccess={handleLoginSuccess}
-                onSignupSuccess={handleSignupSuccess}
-                onLogout={handleLogout}
-                products={appProducts}
-                wishlistItems={wishlistItems}
-                onToggleWishlist={handleToggleWishlist}
-              />
-            }
-          />
-          <Route path="/track-order" element={<TrackOrderPage userOrders={userOrders} />} />
-          <Route
-            path="/product/:id"
-            element={
-              <ProductDetailPage
-                products={appProducts}
-                onAddToCart={handleAddToCart}
-                cartCount={cartCount}
-                wishlistItems={wishlistItems}
-                onToggleWishlist={handleToggleWishlist}
-                loggedInUser={loggedInUser}
-                onLoginOpen={() => setIsLoginOpen(true)}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-              />
-            }
-          />
-          <Route
-            path="/terms"
-            element={
-              <TermsPage
-                cartCount={cartCount}
-                wishlistCount={wishlistItems.length}
-                loggedInUser={loggedInUser}
-                onLoginOpen={() => setIsLoginOpen(true)}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-              />
-            }
-          />
-          <Route
-            path="/support"
-            element={
-              loggedInUser?.role === 'admin' ? (
-                <TicketingPage loggedInUser={loggedInUser} userOrders={userOrders} isAdmin={true} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/chatbot"
-            element={
-              <ChatbotPage
-                loggedInUser={loggedInUser}
-                userOrders={userOrders}
-                cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-                wishlistCount={wishlistItems.length}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                onSigninClick={() => setIsLoginOpen(true)}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-              />
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <AdminDashboard
-                products={appProducts}
-                setProducts={setAppProducts}
-                users={appUsers}
-                orders={userOrders}
-                onUpdateOrderSetup={handleUpdateOrderSetup}
-                loggedInUser={loggedInUser}
-              />
-            }
-          />
-          <Route
-            path="/cart"
-            element={
-              <CartPage
-                items={cartItems}
-                allProducts={appProducts}
-                onAddToCart={handleAddToCart}
-                onUpdateQuantity={handleUpdateQuantity}
-                onRemoveItem={handleRemoveItem}
-                onAddAddon={handleAddAddon}
-                onRemoveAddon={handleRemoveAddon}
-                loggedInUser={loggedInUser}
-                onLoginOpen={() => setIsLoginOpen(true)}
-                installationAddon={installationAddon}
-                setInstallationAddon={setInstallationAddon}
-              />
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              authLoading ? (
-                <Loader title="Kleider Care" subtitle="Preparing Checkout..." fullPage />
-              ) : loggedInUser ? (
-                <CheckoutPage
-                  items={cartItems}
-                  total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 500
-                    ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18) + (installationAddon.selected ? installationAddon.fee : 0)
-                    : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18) + (installationAddon.selected ? installationAddon.fee : 0)}
-                  onPlaceOrder={handlePlaceOrder}
-                  loggedInUser={loggedInUser}
-                  installationAddon={installationAddon}
-                />
-              ) : (
-                <NavigateToCartAndLogin onLoginOpen={() => setIsLoginOpen(true)} />
-              )
-            }
-          />
-          <Route
-            path="/wishlist"
-            element={
-              <WishlistPage
-                wishlistItems={wishlistItems}
-                onRemoveFromWishlist={handleRemoveFromWishlist}
-                onAddToCart={handleAddToCart}
-                cartCount={cartCount}
-              />
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              authLoading ? (
-                <Loader title="Kleider Care" subtitle="Authenticating..." fullPage />
-              ) : loggedInUser ? (
-                <UserProfile
-                  userData={loggedInUser}
-                  onLogout={handleLogout}
-                  orders={userOrders}
-                  cartCount={cartCount}
-                  wishlistCount={wishlistItems.length}
-                  onUpdateUser={(updatedUser) => setLoggedInUser(updatedUser)}
+        <Suspense fallback={<Loader title="Kleider Care" subtitle="Loading page..." fullPage />}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home
+                  cartItems={cartItems}
                   selectedCategory={selectedCategory}
                   onCategoryChange={setSelectedCategory}
                   searchTerm={searchTerm}
                   onSearchChange={setSearchTerm}
+                  cartCount={cartCount}
+                  onAddToCart={handleAddToCart}
+                  onRemoveItem={handleRemoveItem}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  isLoginOpen={isLoginOpen}
                   onLoginOpen={() => setIsLoginOpen(true)}
+                  onLoginClose={() => setIsLoginOpen(false)}
+                  isSignupOpen={isSignupOpen}
+                  onSignupOpen={() => setIsSignupOpen(true)}
+                  onSignupClose={() => setIsSignupOpen(false)}
+                  isForgotPasswordOpen={isForgotPasswordOpen}
+                  onForgotPasswordOpen={() => setIsForgotPasswordOpen(true)}
+                  onForgotPasswordClose={() => setIsForgotPasswordOpen(false)}
+                  loggedInUser={loggedInUser}
+                  onLoginSuccess={handleLoginSuccess}
+                  onSignupSuccess={handleSignupSuccess}
+                  onLogout={handleLogout}
+                  products={appProducts}
+                  wishlistItems={wishlistItems}
+                  onToggleWishlist={handleToggleWishlist}
                 />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-        </Routes>
+              }
+            />
+            <Route path="/track-order" element={<TrackOrderPage userOrders={userOrders} />} />
+            <Route
+              path="/product/:id"
+              element={
+                <ProductDetailPage
+                  products={appProducts}
+                  onAddToCart={handleAddToCart}
+                  cartCount={cartCount}
+                  wishlistItems={wishlistItems}
+                  onToggleWishlist={handleToggleWishlist}
+                  loggedInUser={loggedInUser}
+                  onLoginOpen={() => setIsLoginOpen(true)}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                />
+              }
+            />
+            <Route
+              path="/terms"
+              element={
+                <TermsPage
+                  cartCount={cartCount}
+                  wishlistCount={wishlistItems.length}
+                  loggedInUser={loggedInUser}
+                  onLoginOpen={() => setIsLoginOpen(true)}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                />
+              }
+            />
+            <Route
+              path="/support"
+              element={
+                loggedInUser?.role === 'admin' ? (
+                  <TicketingPage loggedInUser={loggedInUser} userOrders={userOrders} isAdmin={true} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/chatbot"
+              element={
+                <ChatbotPage
+                  loggedInUser={loggedInUser}
+                  userOrders={userOrders}
+                  cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                  wishlistCount={wishlistItems.length}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  onSigninClick={() => setIsLoginOpen(true)}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                />
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminDashboard
+                  products={appProducts}
+                  setProducts={setAppProducts}
+                  users={appUsers}
+                  orders={userOrders}
+                  onUpdateOrderSetup={handleUpdateOrderSetup}
+                  loggedInUser={loggedInUser}
+                />
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <CartPage
+                  items={cartItems}
+                  allProducts={appProducts}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onRemoveItem={handleRemoveItem}
+                  onAddAddon={handleAddAddon}
+                  onRemoveAddon={handleRemoveAddon}
+                  loggedInUser={loggedInUser}
+                  onLoginOpen={() => setIsLoginOpen(true)}
+                  installationAddon={installationAddon}
+                  setInstallationAddon={setInstallationAddon}
+                />
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                authLoading ? (
+                  <Loader title="Kleider Care" subtitle="Preparing Checkout..." fullPage />
+                ) : loggedInUser ? (
+                  <CheckoutPage
+                    items={cartItems}
+                    total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 500
+                      ? cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18) + (installationAddon.selected ? installationAddon.fee : 0)
+                      : cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 50 + Math.round(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18) + (installationAddon.selected ? installationAddon.fee : 0)}
+                    onPlaceOrder={handlePlaceOrder}
+                    loggedInUser={loggedInUser}
+                    installationAddon={installationAddon}
+                  />
+                ) : (
+                  <NavigateToCartAndLogin onLoginOpen={() => setIsLoginOpen(true)} />
+                )
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <WishlistPage
+                  wishlistItems={wishlistItems}
+                  onRemoveFromWishlist={handleRemoveFromWishlist}
+                  onAddToCart={handleAddToCart}
+                  cartCount={cartCount}
+                />
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                authLoading ? (
+                  <Loader title="Kleider Care" subtitle="Authenticating..." fullPage />
+                ) : loggedInUser ? (
+                  <UserProfile
+                    userData={loggedInUser}
+                    onLogout={handleLogout}
+                    orders={userOrders}
+                    cartCount={cartCount}
+                    wishlistCount={wishlistItems.length}
+                    onUpdateUser={(updatedUser) => setLoggedInUser(updatedUser)}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onLoginOpen={() => setIsLoginOpen(true)}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+          </Routes>
+        </Suspense>
 
         <Login
           isOpen={isLoginOpen}

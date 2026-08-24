@@ -104,6 +104,8 @@ export default function TopServicePills({ onCategoryChange, selectedCategory }) 
                   <img
                     src={box.image}
                     alt={box.title}
+                    loading="lazy"
+                    decoding="async"
                     className="service-pill-img"
                   />
                 ) : (

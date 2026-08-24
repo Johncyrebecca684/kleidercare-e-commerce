@@ -76,6 +76,8 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
             <img
               src={formattedImg}
               alt={product.name}
+              loading="lazy"
+              decoding="async"
               className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
             />
             <WishlistButton
@@ -172,6 +174,8 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         <img
           src={formattedImg}
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
         />
 

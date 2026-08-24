@@ -186,6 +186,8 @@ export default function Hero() {
                   alt={item.alt}
                   className="hero-mobile-img"
                   loading={idx === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={idx === 0 ? 'high' : 'auto'}
+                  decoding="async"
                   draggable={false}
                 />
               </div>
@@ -223,7 +225,14 @@ export default function Hero() {
           onMouseLeave={() => setIsPaused(false)}
         >
           <div className="carouselBackground animate-fade-in" key={`bg-${slide.id}`}>
-            <img src={slide.image} alt={slide.alt || 'Banner'} className="banner-hero-img" />
+            <img
+              src={slide.image}
+              alt={slide.alt || 'Banner'}
+              className="banner-hero-img"
+              loading={currentSlide === 0 ? 'eager' : 'lazy'}
+              fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
+              decoding="async"
+            />
           </div>
 
           <button
