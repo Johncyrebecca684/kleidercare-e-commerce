@@ -18,11 +18,11 @@ import {
 import './Chatbot.css';
 
 const QUICK_CHIPS = [
-  { id: 'order', label: '📦 Where is my order?', icon: Package },
-  { id: 'return', label: '🔄 Return & Refund Policy', icon: RotateCcw },
-  { id: 'warranty', label: '🛠️ Installation & Warranty', icon: Wrench },
-  { id: 'gst', label: '📄 GST Invoice & Business', icon: FileText },
-  { id: 'human', label: '🎧 Talk to Human Support', icon: Headphones }
+  { id: 'order', label: 'Where is my order?', icon: Package },
+  { id: 'return', label: 'Return & Refund Policy', icon: RotateCcw },
+  { id: 'warranty', label: 'Installation & Warranty', icon: Wrench },
+  { id: 'gst', label: 'GST Invoice & Business', icon: FileText },
+  { id: 'human', label: 'Talk to Human Support', icon: Headphones }
 ];
 
 export default function Chatbot({ loggedInUser, userOrders = [], embedded = false }) {
@@ -40,8 +40,8 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       id: 1,
       sender: 'bot',
       text: loggedInUser
-        ? `Hello ${loggedInUser.firstName || 'there'}! 👋 Welcome to KleiderCare Support. How can I assist you with your commercial laundry equipment today?`
-        : 'Hello! 👋 Welcome to KleiderCare Support. How can I help you today?',
+        ? `Hello ${loggedInUser.firstName || 'there'}! Welcome to KleiderCare Support. How can I assist you with your commercial laundry equipment today?`
+        : 'Hello! Welcome to KleiderCare Support. How can I help you today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -158,7 +158,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       if (lower.includes('warranty') || lower.includes('install') || lower.includes('engineer') || lower.includes('service') || lower.includes('amc') || lower.includes('namc') || lower.includes('maintenance')) {
         addMessage(
           'bot',
-          '🛡️ **Regional Installation & AMC Policy**:\n\n• **Installation**: For all LG Commercial Laundry Machines, installation is **FREE in South India**. For North India and other regions, installation charges apply based on the location.\n\n• **Kleider Care AMC Plan (LG Commercial Machines)**:\n  - 3 Preventive Visits / year\n  - 24–48 Hours Emergency Response\n  - Safety & Performance Check\n  - Vent Cleaning & Drum Disinfection\n\n**AMC Pricing**:\n• LG 10 kg Machines: ₹15,000 / year\n• LG 15 kg Machines: ₹18,000 / year\n\nYou can review full contract details on our **Terms & Conditions** page.'
+          '**Regional Installation & AMC Policy**:\n\n• **Installation**: For all LG Commercial Laundry Machines, installation is **FREE in South India**. For North India and other regions, installation charges apply based on the location.\n\n• **Kleider Care AMC Plan (LG Commercial Machines)**:\n  - 3 Preventive Visits / year\n  - 24–48 Hours Emergency Response\n  - Safety & Performance Check\n  - Vent Cleaning & Drum Disinfection\n\n**AMC Pricing**:\n• LG 10 kg Machines: ₹15,000 / year\n• LG 15 kg Machines: ₹18,000 / year\n\nYou can review full contract details on our **Terms & Conditions** page.'
         );
         return;
       }
@@ -167,7 +167,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
       if (lower.includes('gst') || lower.includes('invoice') || lower.includes('tax') || lower.includes('business')) {
         addMessage(
           'bot',
-          '📄 **GST Invoice & Business Claims**:\n• Input GST credit is available for all registered commercial purchases.\n• Automated GST tax invoices are issued immediately upon order confirmation.\n\nDo you need help downloading an invoice or updating your GST details?'
+          '**GST Invoice & Business Claims**:\n• Input GST credit is available for all registered commercial purchases.\n• Automated GST tax invoices are issued immediately upon order confirmation.\n\nDo you need help downloading an invoice or updating your GST details?'
         );
         return;
       }
@@ -191,7 +191,7 @@ export default function Chatbot({ loggedInUser, userOrders = [], embedded = fals
     const ticketId = 'KC-SUP-' + Math.floor(100000 + Math.random() * 900000);
     addMessage(
       'agent',
-      `🎧 ${actionTag}\n**Connected to Senior Support Agent** (Ticket #${ticketId})\n\nHello! I am Rajesh from KleiderCare Senior Technical Support. I have reviewed your query and am here to assist you directly. How can I help resolve your issue today?`
+      `${actionTag}\n**Connected to Senior Support Agent** (Ticket #${ticketId})\n\nHello! I am Rajesh from KleiderCare Senior Technical Support. I have reviewed your query and am here to assist you directly. How can I help resolve your issue today?`
     );
   };
 

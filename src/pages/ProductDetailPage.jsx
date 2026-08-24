@@ -39,7 +39,8 @@ import {
   Image as ImageIcon,
   RotateCcw,
   Layers,
-  Percent
+  Percent,
+  AlertTriangle
 } from 'lucide-react';
 import EmiOptionsModal from '../components/EmiOptionsModal';
 import { getRecommendations, getProductType, getRecommendedTargetType, getProductCapacity, getDryerFuelType } from '../utils/recommendationEngine';
@@ -294,6 +295,11 @@ export default function ProductDetailPage({
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
   const effectiveOriginalPrice = product.originalPrice || Math.round(product.price * 1.32);
   const discountPct = Math.round(((effectiveOriginalPrice - product.price) / effectiveOriginalPrice) * 100);
+  const gst18Amount = Math.round(currentTotalPrice * 0.18);
+  const totalWith18Gst = product.priceWithGst
+    ? (product.priceWithGst + Math.round((currentTotalPrice - product.price) * 1.18))
+    : Math.round(currentTotalPrice * 1.18);
+  const originalWith18Gst = Math.round((effectiveOriginalPrice + (currentTotalPrice - product.price)) * 1.18);
 
   const sameCategoryProducts = products.filter(p => p.category === product.category);
 
@@ -515,7 +521,12 @@ export default function ProductDetailPage({
                 </button>
               </div>
 
-              {showShareNotice && <div className="pdp-copied-toast">💬 Opening WhatsApp & Link Copied!</div>}
+              {showShareNotice && (
+                <div className="pdp-copied-toast">
+                  <MessageSquare size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                  Opening WhatsApp & Link Copied!
+                </div>
+              )}
             </div>
 
             {/* THUMBNAIL GALLERY STRIP */}
@@ -549,30 +560,47 @@ export default function ProductDetailPage({
             <div className="pdp-rating-strip" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               {isOutOfStock ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#fef2f2', color: '#dc2626', fontWeight: '700', fontSize: '13px', border: '1px solid #fecaca' }}>
-                  ⚠️ Currently Out of Stock
+                  <AlertTriangle size={15} /> Currently Out of Stock
                 </span>
               ) : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#f0fdf4', color: '#16a34a', fontWeight: '700', fontSize: '13px', border: '1px solid #bbf7d0' }}>
-                  ✓ In Stock (Ready to Dispatch)
+                  <CheckCircle2 size={15} /> In Stock (Ready to Dispatch)
                 </span>
               )}
             </div>
 
-            {/* PRICE CARD */}
+            {/* PRICE CARD WITH 18% GST */}
             <div className="pdp-price-hero-card">
               <div className="pdp-price-top">
-                <span className="pdp-big-price">₹{currentTotalPrice.toLocaleString('en-IN')}</span>
-                {currentTotalPrice > product.price && (
-                  <span className="pdp-base-breakdown" style={{ fontSize: '13px', color: '#64748b', marginLeft: '10px', fontWeight: '500' }}>
-                    (Base Machine: ₹{product.price.toLocaleString('en-IN')} + AMC/Add-on)
-                  </span>
-                )}
+                <span className="pdp-big-price">₹{totalWith18Gst.toLocaleString('en-IN')}</span>
+                <span className="pdp-gst-pill">Incl. 18% GST</span>
               </div>
+
+              <div className="pdp-gst-breakdown-row">
+                <span className="pdp-breakdown-item">
+                  Base Price: <strong>₹{currentTotalPrice.toLocaleString('en-IN')}</strong>
+                </span>
+                <span className="pdp-breakdown-sep">+</span>
+                <span className="pdp-breakdown-item">
+                  18% GST: <strong>₹{gst18Amount.toLocaleString('en-IN')}</strong>
+                </span>
+              </div>
+
+              {currentTotalPrice > product.price && (
+                <div className="pdp-base-breakdown" style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
+                  (Base Machine: ₹{Math.round(product.price * 1.18).toLocaleString('en-IN')} + AMC/Add-on with GST)
+                </div>
+              )}
+
               <div className="pdp-price-savings">
-                <span className="pdp-strike-price">₹{(effectiveOriginalPrice + (currentTotalPrice - product.price)).toLocaleString('en-IN')}</span>
+                <span className="pdp-strike-price">₹{originalWith18Gst.toLocaleString('en-IN')}</span>
                 <span className="pdp-savings-badge">↓{discountPct}% OFF</span>
               </div>
-              <div className="pdp-tax-info">Inclusive of all taxes. GST invoice available for business claims.</div>
+
+              <div className="pdp-tax-info">
+                <FileText size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', color: '#0284c7' }} />
+                Inclusive of 18% GST. Valid Tax Invoice provided for B2B Input Tax Credit (ITC) claims.
+              </div>
             </div>
 
             {/* EMI CHECKING TEASER STRIP (LG & SPEED QUEEN PRODUCTS) */}
@@ -680,7 +708,10 @@ export default function ProductDetailPage({
                         className={`amc-card single-amc-card featured ${selectedWarranty === 'amc' ? 'selected' : ''}`}
                         onClick={() => setSelectedWarranty(selectedWarranty === 'amc' ? 'none' : 'amc')}
                       >
-                        <div className="amc-card-badge comp">★ Kleider Care AMC Plan</div>
+                        <div className="amc-card-badge comp">
+                          <ShieldCheck size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
+                          Kleider Care AMC Plan
+                        </div>
                         <h4 className="amc-plan-title">Annual Maintenance Contract (AMC)</h4>
                         <div className="amc-plan-price">
                           <span className="price-num">₹{amcRates.price.toLocaleString('en-IN')}</span>
@@ -698,7 +729,7 @@ export default function ProductDetailPage({
                           active={selectedWarranty === 'amc'}
                           onToggle={(active) => setSelectedWarranty(active ? 'amc' : 'none')}
                           defaultText="Select AMC Plan"
-                          activeText="✓ AMC Plan Selected"
+                          activeText="AMC Plan Selected"
                         />
                       </div>
                     </div>
@@ -715,7 +746,7 @@ export default function ProductDetailPage({
                           active={includeProgramSetup}
                           onToggle={(val) => setIncludeProgramSetup(val)}
                           defaultText="Add Machine Program Setup"
-                          activeText="✓ Program Setup Added"
+                          activeText="Program Setup Added"
                         />
                       </div>
                     </div>
@@ -847,7 +878,7 @@ export default function ProductDetailPage({
                 className="pdp-btn-emi-animated"
                 onClick={() => setShowEmiModal(true)}
                 isOutOfStock={isOutOfStock}
-                monthlyPrice={currentTotalPrice / 12}
+                monthlyPrice={Math.round(totalWith18Gst / 12)}
                 defaultTitle="Buy with EMI"
                 size="lg"
               />
@@ -856,7 +887,7 @@ export default function ProductDetailPage({
                 className="pdp-btn-buynow-animated"
                 onClick={handleBuyNowClick}
                 isOutOfStock={isOutOfStock}
-                price={currentTotalPrice}
+                price={totalWith18Gst}
                 defaultText="Buy Now"
                 processingText="Proceeding..."
                 size="lg"
@@ -864,7 +895,10 @@ export default function ProductDetailPage({
             </div>
 
             {addedNotice && (
-              <div className="pdp-added-banner">✓ Added to cart successfully!</div>
+              <div className="pdp-added-banner">
+                <CheckCircle2 size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                Added to cart successfully!
+              </div>
             )}
           </div>
         </div>
@@ -879,7 +913,10 @@ export default function ProductDetailPage({
                 <p className="fbt-subheading">Bundle these complementary items with your product and save an extra 10% on the total order</p>
               </div>
             </div>
-            <span className="fbt-discount-badge">⚡ 10% Extra Bundle Discount</span>
+            <span className="fbt-discount-badge">
+              <Zap size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
+              10% Extra Bundle Discount
+            </span>
           </div>
 
           <div className="fbt-content-grid">
@@ -928,7 +965,11 @@ export default function ProductDetailPage({
                     />
                     <span>
                       <strong>Add-on 1:</strong> {bundleAddon1.name} — <span className="fbt-item-price">₹{bundleAddon1.price.toLocaleString('en-IN')}</span>
-                      {bundleAddon1Reason && <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>✨ {bundleAddon1Reason}</span>}
+                      {bundleAddon1Reason && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>
+                          <Sparkles size={12} /> {bundleAddon1Reason}
+                        </span>
+                      )}
                     </span>
                   </label>
                 )}
@@ -942,7 +983,11 @@ export default function ProductDetailPage({
                     />
                     <span>
                       <strong>Add-on 2:</strong> {bundleAddon2.name} — <span className="fbt-item-price">₹{bundleAddon2.price.toLocaleString('en-IN')}</span>
-                      {bundleAddon2Reason && <span style={{ display: 'block', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>✨ {bundleAddon2Reason}</span>}
+                      {bundleAddon2Reason && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>
+                          <Sparkles size={12} /> {bundleAddon2Reason}
+                        </span>
+                      )}
                     </span>
                   </label>
                 )}
@@ -982,7 +1027,7 @@ export default function ProductDetailPage({
                   onClick={() => scrollCarousel('right')}
                   aria-label="Next products"
                 >
-                  →
+                  <ChevronRight size={18} />
                 </button>
               </div>
             </div>
@@ -1008,7 +1053,9 @@ export default function ProductDetailPage({
                         <img src={simProd.image} alt={simProd.name} className="similar-card-img" />
 
                         {isTargetRecommended ? (
-                          <span className="similar-bestseller-badge" style={{ background: 'linear-gradient(135deg, #0284c7, #0369a1)' }}>✨ Recommended</span>
+                          <span className="similar-bestseller-badge" style={{ background: 'linear-gradient(135deg, #0284c7, #0369a1)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Sparkles size={12} /> Recommended
+                          </span>
                         ) : isBestseller ? (
                           <span className="similar-bestseller-badge">Bestseller</span>
                         ) : (

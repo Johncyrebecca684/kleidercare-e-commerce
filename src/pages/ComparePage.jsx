@@ -50,7 +50,7 @@ function generateComparison(items) {
   const ratings = items.map(p => p.rating || 0);
   const allHighRated = ratings.every(r => r >= 4.5);
   if (allHighRated) {
-    sharedTraits.push(`All are highly rated (${ratings.map(r => r.toFixed(1)).join(', ')} ★)`);
+    sharedTraits.push(`All are highly rated (${ratings.map(r => r.toFixed(1)).join(', ')} / 5)`);
   }
 
   // 4. Price analysis
@@ -335,7 +335,7 @@ export default function ComparePage({ onAddToCart }) {
               {comparison.recommendation.bestRated.id !== comparison.recommendation.bestValue.name && (
                 <p>
                   If you want the <strong>highest-rated</strong> option, choose{' '}
-                  <strong>{comparison.recommendation.bestRated.name}</strong> ({comparison.recommendation.bestRated.rating}★
+                  <strong>{comparison.recommendation.bestRated.name}</strong> ({comparison.recommendation.bestRated.rating} / 5
                   with {(comparison.recommendation.bestRated.reviews || 0).toLocaleString()} reviews).
                 </p>
               )}

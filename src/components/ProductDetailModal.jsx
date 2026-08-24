@@ -15,7 +15,9 @@ import {
   Upload,
   Image as ImageIcon,
   RotateCcw,
-  Plus
+  Plus,
+  MessageSquare,
+  Check
 } from 'lucide-react';
 import { getProductType, getRecommendedTargetType, getRecommendationReason, getProductCapacity } from '../utils/recommendationEngine';
 import { formatImageUrl } from '../utils/imageUtils';
@@ -169,7 +171,12 @@ export default function ProductDetailModal({
                 </button>
               </div>
 
-              {showShareNotice && <div className="pdp-share-toast">💬 Opening WhatsApp & Link Copied!</div>}
+              {showShareNotice && (
+                <div className="pdp-share-toast">
+                  <MessageSquare size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                  Opening WhatsApp & Link Copied!
+                </div>
+              )}
             </div>
 
             {/* GALLERY THUMBNAILS */}
@@ -195,17 +202,32 @@ export default function ProductDetailModal({
           <div className="pdp-info-column">
             <h1 className="pdp-title">{product.name}</h1>
 
-            {/* PRICE & DISCOUNT DISPLAY */}
-            <div className="pdp-price-box">
-              <div className="pdp-price-main">
-                <span className="pdp-current-price">₹{product.price.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="pdp-discount-row">
-                <span className="pdp-original-price">₹{effectiveOriginalPrice.toLocaleString('en-IN')}</span>
-                <span className="pdp-discount-pct">↓{discountPct}% OFF</span>
-              </div>
-              <div className="pdp-gst-note">Inclusive of all taxes & GST invoice available</div>
-            </div>
+            {/* PRICE & DISCOUNT DISPLAY WITH 18% GST */}
+            {(() => {
+              const basePrice = product.price;
+              const gstAmount = Math.round(basePrice * 0.18);
+              const priceWith18Gst = product.priceWithGst || Math.round(basePrice * 1.18);
+              const origWith18Gst = Math.round(effectiveOriginalPrice * 1.18);
+
+              return (
+                <div className="pdp-price-box">
+                  <div className="pdp-price-main">
+                    <span className="pdp-current-price">₹{priceWith18Gst.toLocaleString('en-IN')}</span>
+                    <span className="pdp-modal-gst-badge">Incl. 18% GST</span>
+                  </div>
+                  <div className="pdp-modal-breakdown">
+                    <span>Base: <strong>₹{basePrice.toLocaleString('en-IN')}</strong></span>
+                    <span className="pdp-modal-breakdown-sep">+</span>
+                    <span>18% GST: <strong>₹{gstAmount.toLocaleString('en-IN')}</strong></span>
+                  </div>
+                  <div className="pdp-discount-row">
+                    <span className="pdp-original-price">₹{origWith18Gst.toLocaleString('en-IN')}</span>
+                    <span className="pdp-discount-pct">↓{discountPct}% OFF</span>
+                  </div>
+                  <div className="pdp-gst-note">Inclusive of 18% GST & B2B Tax Invoice Available</div>
+                </div>
+              );
+            })()}
 
             {/* COLOR / FINISH SELECTOR */}
             <div className="pdp-option-section">
@@ -352,7 +374,7 @@ export default function ProductDetailModal({
                   onClose();
                 }}
                 isOutOfStock={isOutOfStock}
-                monthlyPrice={product.price / 12}
+                monthlyPrice={Math.round((product.priceWithGst || Math.round(product.price * 1.18)) / 12)}
                 defaultTitle="Buy with EMI"
                 size="md"
               />
@@ -370,7 +392,7 @@ export default function ProductDetailModal({
                   }
                 }}
                 isOutOfStock={isOutOfStock}
-                price={product.price}
+                price={product.priceWithGst || Math.round(product.price * 1.18)}
                 defaultText="Buy Now"
                 processingText="Proceeding..."
                 size="md"
@@ -399,8 +421,8 @@ export default function ProductDetailModal({
                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', marginTop: '1px' }}>
                       {recommendedAddon.name} — <span style={{ color: '#16a34a' }}>₹{recommendedAddon.price.toLocaleString('en-IN')}</span>
                     </div>
-                    <div style={{ fontSize: '12px', color: '#0284c7', marginTop: '2px', fontWeight: 500 }}>
-                      ✨ {recommendationReason}
+                    <div style={{ fontSize: '12px', color: '#0284c7', marginTop: '2px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Sparkles size={12} /> {recommendationReason}
                     </div>
                   </div>
                 </div>
@@ -421,10 +443,19 @@ export default function ProductDetailModal({
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                     transition: 'all 0.2s ease',
-                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.25)'
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.25)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}
                 >
-                  {addonAdded ? '✓ Added to Cart' : '+ Add Companion'}
+                  {addonAdded ? (
+                    <>
+                      <Check size={14} /> Added to Cart
+                    </>
+                  ) : (
+                    '+ Add Companion'
+                  )}
                 </button>
               </div>
             )}

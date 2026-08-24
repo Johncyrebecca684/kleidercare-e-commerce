@@ -244,7 +244,7 @@ function reasonForYou(product, signals) {
   if (signals.searchMatch) return `Based on your recent search for "${signals.searchMatch}"`;
   if (signals.browsingMatch) return `Similar to products you recently viewed`;
   if (product.badge === 'Best Seller') return `Top seller in ${product.category}`;
-  if (product.rating >= 4.8) return `Highly rated at ${product.rating}★ by customers`;
+  if (product.rating >= 4.8) return `Highly rated at ${product.rating} / 5 by customers`;
   return `Popular in ${product.category}`;
 }
 

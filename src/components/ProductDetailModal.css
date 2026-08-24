@@ -294,6 +294,40 @@
   color: #0f2b5c;
 }
 
+.pdp-modal-gst-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
+.pdp-modal-breakdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+  background: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  width: fit-content;
+}
+
+.pdp-modal-breakdown strong {
+  color: #0f2b5c;
+}
+
+.pdp-modal-breakdown-sep {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 .pdp-assured-tag {
   color: #0284c7;
   font-size: 13px;

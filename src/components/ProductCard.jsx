@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart, ChevronDown, ChevronUp, Sparkles, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, ChevronDown, ChevronUp, Sparkles, Share2, AlertTriangle, CheckCircle2, Check } from 'lucide-react';
 import { useState } from 'react';
 import { formatImageUrl } from '../utils/imageUtils';
 import AddToCartButton from './AddToCartButton';
@@ -109,12 +109,16 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         {/* RIGHT COLUMN: Price, Badges, Offer, Add to Cart */}
         <div className="list-col-right">
           <div className="list-price-row">
-            <span className="list-current-price">₹{currentPrice.toLocaleString('en-IN')}</span>
+            <span className="list-current-price">₹{currentGstPrice.toLocaleString('en-IN')}</span>
+            <span className="list-gst-pill" style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontWeight: '700', marginLeft: '6px' }}>Incl. 18% GST</span>
+          </div>
+          <div className="list-base-breakdown" style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
+            Base: ₹{currentPrice.toLocaleString('en-IN')} + 18% GST
           </div>
 
           <div className="list-original-price-row">
             <span className="list-original-price">
-              ₹{(product.originalPrice || Math.round(product.price * 1.35)).toLocaleString('en-IN')}
+              ₹{Math.round((product.originalPrice || Math.round(product.price * 1.35)) * 1.18).toLocaleString('en-IN')}
             </span>
             <span className="list-discount-tag">{discountPercent}% off</span>
           </div>
@@ -122,9 +126,13 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           <div className="list-bank-offer-tag">Bank Offer & GST Invoice Available</div>
 
           {isOutOfStock ? (
-            <div className="out-of-stock-pill list-mode-pill">⚠️ Out of Stock</div>
+            <div className="out-of-stock-pill list-mode-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <AlertTriangle size={13} /> Out of Stock
+            </div>
           ) : (
-            <div className="in-stock-pill list-mode-pill">✓ In Stock</div>
+            <div className="in-stock-pill list-mode-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <CheckCircle2 size={13} /> In Stock
+            </div>
           )}
 
           <AddToCartButton
@@ -137,7 +145,9 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           />
 
           {showAddedNotice && (
-            <div className="added-notice">✓ Added to cart!</div>
+            <div className="added-notice" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <Check size={14} /> Added to cart!
+            </div>
           )}
         </div>
       </article>
@@ -268,16 +278,17 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
 
         <div className="price-section">
           <div className="price-row-main">
-            <span className="current-price">₹{currentPrice.toLocaleString('en-IN')}</span>
+            <span className="current-price">₹{currentGstPrice.toLocaleString('en-IN')}</span>
+            <span className="card-gst-badge" style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontWeight: '700', marginLeft: '6px' }}>Incl. 18% GST</span>
             {product.originalPrice &&
               product.originalPrice !== product.price &&
               !(product.category && ['lg', 'speed queen', 'pony', 'seko'].some(keyword => product.category.toLowerCase().includes(keyword))) && (
-                <span className="original-price">₹{(product.originalPrice + selectedWarranty.price).toLocaleString('en-IN')}</span>
+                <span className="original-price">₹{Math.round((product.originalPrice + selectedWarranty.price) * 1.18).toLocaleString('en-IN')}</span>
               )}
           </div>
           <div className="gst-info">
-            <span className="inclusive-text">
-              ₹{currentGstPrice.toLocaleString('en-IN')} (Inclusive of GST)
+            <span className="inclusive-text" style={{ fontSize: '12px', color: '#64748b' }}>
+              Base: ₹{currentPrice.toLocaleString('en-IN')} + 18% GST
             </span>
           </div>
         </div>
@@ -292,7 +303,9 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
         />
 
         {showAddedNotice && (
-          <div className="added-notice">✓ Added to cart!</div>
+          <div className="added-notice" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Check size={14} /> Added to cart!
+          </div>
         )}
       </div>
     </article>

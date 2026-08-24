@@ -343,6 +343,42 @@
   color: #0f2b5c;
 }
 
+.pdp-gst-pill {
+  display: inline-flex;
+  align-items: center;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
+.pdp-gst-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #475569;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  width: fit-content;
+}
+
+.pdp-breakdown-item strong {
+  color: #0f2b5c;
+  font-weight: 700;
+}
+
+.pdp-breakdown-sep {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 .pdp-assured-pill {
   color: #0284c7;
   font-size: 14px;
@@ -370,7 +406,8 @@
 
 .pdp-tax-info {
   font-size: 13px;
-  color: #64748b;
+  color: #475569;
+  line-height: 1.5;
 }
 
 /* SELECTORS */

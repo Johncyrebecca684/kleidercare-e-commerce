@@ -54,18 +54,18 @@ export default function ChatbotPage({
       id: 1,
       sender: 'bot',
       text: loggedInUser
-        ? `Hello ${loggedInUser.firstName || 'there'}! 👋 Welcome to Kleider Care Full-Screen Technical Support. I am your AI Equipment Assistant. How can I help resolve your industrial washer or commercial dryer issue today?`
-        : 'Hello! 👋 Welcome to Kleider Care Full-Screen Technical Support. How can I assist you with your commercial laundry equipment today?',
+        ? `Hello ${loggedInUser.firstName || 'there'}! Welcome to Kleider Care Full-Screen Technical Support. I am your AI Equipment Assistant. How can I help resolve your industrial washer or commercial dryer issue today?`
+        : 'Hello! Welcome to Kleider Care Full-Screen Technical Support. How can I assist you with your commercial laundry equipment today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
 
   const TECHNICAL_TOPICS = [
-    { id: 'technical', title: '🛠️ Washer & Dryer Diagnostics', icon: Wrench, prompt: 'I need help diagnosing an issue with my commercial laundry machine.' },
-    { id: 'amc', title: '🛡️ AMC Extended Warranty', icon: ShieldCheck, prompt: 'Tell me about Kleider Care AMC plans, preventive maintenance visits, and coverage.' },
-    { id: 'orders', title: '📦 Order & Shipment Tracking', icon: Package, prompt: 'How do I track my commercial equipment shipment?' },
-    { id: 'invoice', title: '📄 GST Invoice & SAC Codes', icon: FileText, prompt: 'I need assistance with my GST Tax Invoice and business claims.' },
-    { id: 'engineer', title: '🎧 Connect to Live Engineer', icon: Headphones, prompt: 'Please connect me directly to a Kleider Care certified service engineer.' }
+    { id: 'technical', title: 'Washer & Dryer Diagnostics', icon: Wrench, prompt: 'I need help diagnosing an issue with my commercial laundry machine.' },
+    { id: 'amc', title: 'AMC Extended Warranty', icon: ShieldCheck, prompt: 'Tell me about Kleider Care AMC plans, preventive maintenance visits, and coverage.' },
+    { id: 'orders', title: 'Order & Shipment Tracking', icon: Package, prompt: 'How do I track my commercial equipment shipment?' },
+    { id: 'invoice', title: 'GST Invoice & SAC Codes', icon: FileText, prompt: 'I need assistance with my GST Tax Invoice and business claims.' },
+    { id: 'engineer', title: 'Connect to Live Engineer', icon: Headphones, prompt: 'Please connect me directly to a Kleider Care certified service engineer.' }
   ];
 
   const scrollToBottom = () => {
@@ -264,7 +264,9 @@ export default function ChatbotPage({
 
           <div className="mobile-rufus-brand-title">
             <span className="rufus-name">Kleider</span>
-            <span className="rufus-ai-badge">ai ✨</span>
+            <span className="rufus-ai-badge">
+              ai <Sparkles size={11} style={{ display: 'inline', marginLeft: '3px' }} />
+            </span>
             <span className="rufus-beta-sub">beta</span>
           </div>
 
@@ -311,12 +313,12 @@ export default function ChatbotPage({
 
                   <div className="mobile-rufus-prompts-list">
                     {[
-                      '📦 How do I track my equipment shipment?',
-                      '🛡️ Tell me about AMC extended warranty',
-                      '🛠️ Washer / Dryer error code diagnostics',
-                      '📄 GST Tax Invoice & SAC Codes',
-                      '⚙️ Machine Program Setup on LG',
-                      '🎧 Connect with certified service engineer'
+                      'How do I track my equipment shipment?',
+                      'Tell me about AMC extended warranty',
+                      'Washer / Dryer error code diagnostics',
+                      'GST Tax Invoice & SAC Codes',
+                      'Machine Program Setup on LG',
+                      'Connect with certified service engineer'
                     ].map((promptText, pIdx) => (
                       <button
                         key={pIdx}
@@ -370,12 +372,12 @@ export default function ChatbotPage({
             <div className="cb-suggestion-chips-container desktop-only">
               <div className="chips-scroll-row">
                 {[
-                  { label: '📦 Track Order & Shipment', prompt: 'How do I track my commercial equipment shipment?' },
-                  { label: '🛡️ AMC Plans & Coverage', prompt: 'Tell me about Kleider Care AMC plans, preventive maintenance visits, and coverage.' },
-                  { label: '⚙️ Machine Program Setup', prompt: 'How do I configure 10-program parameter setup on LG machines?' },
-                  { label: '📄 GST Invoice & Business Claims', prompt: 'I need assistance with my GST Tax Invoice and business claims.' },
-                  { label: '🛠️ Washer & Dryer Diagnostics', prompt: 'I need help diagnosing an issue with my commercial laundry machine.' },
-                  { label: '🎧 Talk to Certified Engineer', prompt: 'Please connect me directly to a Kleider Care certified service engineer.' }
+                  { label: 'Track Order & Shipment', prompt: 'How do I track my commercial equipment shipment?' },
+                  { label: 'AMC Plans & Coverage', prompt: 'Tell me about Kleider Care AMC plans, preventive maintenance visits, and coverage.' },
+                  { label: 'Machine Program Setup', prompt: 'How do I configure 10-program parameter setup on LG machines?' },
+                  { label: 'GST Invoice & Business Claims', prompt: 'I need assistance with my GST Tax Invoice and business claims.' },
+                  { label: 'Washer & Dryer Diagnostics', prompt: 'I need help diagnosing an issue with my commercial laundry machine.' },
+                  { label: 'Talk to Certified Engineer', prompt: 'Please connect me directly to a Kleider Care certified service engineer.' }
                 ].map((chip, idx) => (
                   <button
                     key={idx}
