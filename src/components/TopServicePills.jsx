@@ -50,14 +50,6 @@ const SERVICE_BOXES = [
     color: '#ea580c'
   },
   {
-    id: 5,
-    title: 'The Amlan Laundry',
-    shortTitle: 'The Amlan Laundry',
-    url: 'https://www.theamlanlaundry.com/',
-    image: '/WhatsApp Image 2026-08-18 at 17.20.27.jpeg',
-    color: '#7c3aed'
-  },
-  {
     id: 6,
     title: 'Salavai Laundry Management System',
     shortTitle: 'Salavai Laundry Management System',
@@ -80,6 +72,15 @@ const SERVICE_BOXES = [
     url: 'https://systemcaresolutions.com/',
     image: '/WhatsApp Image 2026-08-18 at 17.22.01.jpeg',
     color: '#e11d48'
+  },
+  {
+    id: 5,
+    title: 'The Amlan Laundry',
+    shortTitle: 'The Amlan Laundry',
+    url: 'https://www.theamlanlaundry.com/',
+    image: '/WhatsApp Image 2026-08-18 at 17.20.27.jpeg',
+    color: '#7c3aed',
+    directNavigate: true
   }
 ];
 
@@ -107,6 +108,10 @@ export default function TopServicePills({ onCategoryChange, selectedCategory }) 
   }, [inAppModal]);
 
   const handleClick = (item) => {
+    if (item.directNavigate && item.url) {
+      window.location.href = item.url;
+      return;
+    }
     if (item.url) {
       setIframeBlocked(false);
       setIframeLoading(true);
