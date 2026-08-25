@@ -173,8 +173,26 @@ export default function ProductList({
       matchesCategory = product.category === 'Laundry Chemicals' || product.category === 'Chemicals' || (product.category === 'Packages' && !isMachinePackage && (product.name.toLowerCase().includes('chemical') || product.name === 'Retail Laundry Package'));
     } else if (selectedCategory === 'LG Genuine Spare Parts' || selectedCategory === 'Genuine Spare Parts') {
       matchesCategory = product.category === 'LG Genuine Spare Parts' || product.category === 'Genuine Spare Parts';
+    } else if (
+      selectedCategory === 'Speed Queen Commercial Laundry Machines' ||
+      selectedCategory === 'Speed Queen' ||
+      selectedCategory === 'Speed Queen Commercial Laundry'
+    ) {
+      const prodCat = (product.category || '').toLowerCase().trim();
+      const prodSubcat = (product.subcategory || '').toLowerCase().trim();
+      const prodName = (product.name || '').toLowerCase().trim();
+      matchesCategory =
+        prodCat.includes('speed queen') ||
+        prodCat.includes('speedqueen') ||
+        prodCat === 'speed queen commercial laundry machines' ||
+        prodSubcat.includes('speed queen') ||
+        prodSubcat.includes('speedqueen') ||
+        prodName.includes('speed queen') ||
+        prodName.includes('speedqueen') ||
+        prodName.includes('quantum touch') ||
+        prodName.includes('quantum');
     } else {
-      matchesCategory = product.category === selectedCategory;
+      matchesCategory = (product.category || '').trim().toLowerCase() === (selectedCategory || '').trim().toLowerCase();
     }
 
     if (
@@ -201,12 +219,12 @@ export default function ProductList({
     if (!matchesCategory || !matchesSearch) return false;
 
     // Sidebar Filters
-    if (product.price < minPrice || product.price > maxPrice) return false;
+    if (product.price !== undefined && (product.price < minPrice || (maxPrice < 500000 && product.price > maxPrice))) return false;
     if (onlyAssured && (product.rating || 0) < 4.2) return false;
 
     if (showCapacityFilter && capacityFilter !== 'all') {
       const capSpec = (product.specifications?.Capacity || '').toLowerCase();
-      const text = (product.name + ' ' + (product.description || '')).toLowerCase();
+      const text = ((product.name || '') + ' ' + (product.description || '')).toLowerCase();
 
       if (capacityFilter === '10kg') {
         const is10 = capSpec.includes('10') || text.includes('10kg') || text.includes('10 kg') || text.includes('10.5');
