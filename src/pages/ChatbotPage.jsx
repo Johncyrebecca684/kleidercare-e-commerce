@@ -27,6 +27,7 @@ import {
   ThumbsDown,
   Share2
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 import './ChatbotPage.css';
 
 export default function ChatbotPage({
@@ -41,6 +42,7 @@ export default function ChatbotPage({
   onCategoryChange
 }) {
   const navigate = useNavigate();
+  const { showInfo } = useToast();
 
   const [activeCategory, setActiveCategory] = useState('technical');
   const [inputMessage, setInputMessage] = useState('');
@@ -406,7 +408,7 @@ export default function ChatbotPage({
                 className="mobile-rufus-mic-btn"
                 title="Voice input"
                 onClick={() => {
-                  alert('Listening... Ask your question about machines or equipment.');
+                  showInfo('Listening... Ask your question about machines or equipment.');
                 }}
               >
                 <Mic size={20} />

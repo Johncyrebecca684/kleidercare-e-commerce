@@ -96,20 +96,21 @@
   display: block;
 }
 
-/* Uniform, centered 2-line label below box */
+/* Uniform, centered label below box */
 .service-pill-title {
   font-size: 11px;
   font-weight: 600;
   color: #334155;
-  line-height: 1.25;
+  line-height: 1.2;
   width: 100%;
-  height: 28px;
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   letter-spacing: -0.1px;
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .service-pill-box.active .service-pill-title {
@@ -131,7 +132,7 @@
   }
 
   .service-pill-box {
-    width: 68px;
+    width: 72px;
     gap: 4px;
   }
 
@@ -148,8 +149,215 @@
   }
 
   .service-pill-title {
-    font-size: 10px;
-    height: 24px;
-    line-height: 1.2;
+    font-size: 9.5px;
+    min-height: 24px;
+    line-height: 1.15;
+  }
+}
+
+/* =========================================================
+   IN-APP BROWSER MODAL (EMBEDDED VIEWER)
+   ========================================================= */
+.inapp-browser-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  animation: inAppFadeIn 0.2s ease-out;
+}
+
+.inapp-browser-modal {
+  width: 100%;
+  height: 100%;
+  max-width: 950px;
+  max-height: 92vh;
+  background: #ffffff;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  animation: inAppScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.inapp-browser-header {
+  height: 52px;
+  background: #0f2b5c;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  gap: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.inapp-browser-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.inapp-browser-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.inapp-browser-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.inapp-browser-btn:active {
+  transform: scale(0.95);
+}
+
+.inapp-browser-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.inapp-browser-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.inapp-browser-url {
+  font-size: 10.5px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inapp-browser-lock {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.inapp-browser-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.inapp-browser-body {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.inapp-browser-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: #ffffff;
+}
+
+.inapp-browser-loader {
+  position: absolute;
+  inset: 0;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 5;
+}
+
+.inapp-browser-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0f2b5c;
+  border-radius: 50%;
+  animation: inAppSpin 0.75s linear infinite;
+}
+
+@keyframes inAppSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes inAppFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes inAppScaleUp {
+  from {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Full screen mobile view */
+@media (max-width: 768px) {
+  .inapp-browser-modal {
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+    border-radius: 0;
+    animation: inAppSlideMobile 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .inapp-browser-header {
+    height: 56px;
+    padding: 0 10px;
+  }
+
+  @keyframes inAppSlideMobile {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
 }

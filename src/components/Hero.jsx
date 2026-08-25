@@ -236,9 +236,11 @@ export default function Hero() {
           </div>
 
           <button
+            type="button"
             className="carouselNavBtn prevBtn"
             aria-label="Previous slide"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               prevSlide();
             }}
@@ -247,9 +249,11 @@ export default function Hero() {
           </button>
 
           <button
+            type="button"
             className="carouselNavBtn nextBtn"
             aria-label="Next slide"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               nextSlide();
             }}

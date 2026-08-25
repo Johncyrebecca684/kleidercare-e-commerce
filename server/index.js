@@ -10,8 +10,10 @@ import authRoutes from './routes/auth.js';
 import paymentRoutes from './routes/payment.js';
 import orderRoutes from './routes/orders.js';
 import productRoutes from './routes/products.js';
+import categoryRoutes from './routes/categories.js';
 import Product from './models/Product.js';
-import { products as defaultProducts } from '../src/data/products.js';
+import Category from './models/Category.js';
+import { products as defaultProducts, categories as defaultCategoriesList } from '../src/data/products.js';
 
 // Use Google DNS to resolve MongoDB Atlas SRV records
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -68,6 +70,51 @@ app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+
+// In-app proxy endpoint to allow embedding third-party pages with X-Frame-Options headers
+app.get('/api/proxy-embed', async (req, res) => {
+  try {
+    const targetUrl = req.query.url;
+    if (!targetUrl) {
+      return res.status(400).send('Missing url parameter');
+    }
+
+    const parsedUrl = new URL(targetUrl);
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5'
+      }
+    });
+
+    const contentType = response.headers.get('content-type') || 'text/html';
+    res.setHeader('Content-Type', contentType);
+    res.removeHeader('X-Frame-Options');
+    res.removeHeader('Content-Security-Policy');
+
+    if (contentType.includes('text/html')) {
+      let html = await response.text();
+      // Inject <base href="..."> so relative scripts, styles, and assets resolve to the original domain
+      const baseTag = `<base href="${parsedUrl.origin}/">`;
+      if (html.includes('<head>')) {
+        html = html.replace('<head>', `<head>${baseTag}`);
+      } else if (html.includes('<html>')) {
+        html = html.replace('<html>', `<html><head>${baseTag}</head>`);
+      } else {
+        html = baseTag + html;
+      }
+      return res.send(html);
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error('[Proxy-Embed] Error fetching target page:', error);
+    res.status(500).send('Failed to load page in-app');
+  }
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -110,6 +157,30 @@ const connectDB = async () => {
         }));
         await Product.insertMany(formattedProducts);
         console.log(`✅ Seeded ${formattedProducts.length} default products into database.`);
+      }
+
+      // Seed initial categories if collection is empty
+      const catCount = await Category.countDocuments();
+      if (catCount === 0) {
+        console.log('🏷️ Category collection is empty. Seeding initial categories...');
+        const uniqueCats = Array.from(new Set([
+          ...defaultCategoriesList.filter(c => c && c !== 'All'),
+          'LG Commercial Laundry Machines',
+          'Speed Queen Commercial Laundry Machines',
+          'PONY Finishing Equipments',
+          'LG Genuine Spare Parts',
+          'Laundry Chemicals',
+          'Stacker',
+          'Packages',
+          'Seko'
+        ]));
+        const formattedCats = uniqueCats.map(catName => ({
+          name: catName,
+          slug: catName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+          description: `Commercial catalog category for ${catName}`
+        }));
+        await Category.insertMany(formattedCats);
+        console.log(`✅ Seeded ${formattedCats.length} default categories into database.`);
       }
 
       // Cleanup 'Paper' product if present in database

@@ -31,7 +31,7 @@ import { getSearchResultsWithSimilar } from '../utils/searchEngine';
 import { formatImageUrl } from '../utils/imageUtils';
 import './Header.css';
 
-const categories = [
+const defaultCategoriesList = [
   { label: 'All', href: '#products', icon: LayoutGrid },
   { label: 'Stacker', href: '#products', icon: Layers },
   { label: 'Packages', href: '#products', icon: Package },
@@ -63,6 +63,17 @@ export default function Header({
   const [deliveryLocation, setDeliveryLocation] = useState('Detecting...');
   const [isLocating, setIsLocating] = useState(true);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const activeCategories = useMemo(() => {
+    const customNames = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
+    const mapped = [...defaultCategoriesList];
+    customNames.forEach(name => {
+      if (!mapped.some(c => c.label.toLowerCase() === name.toLowerCase())) {
+        mapped.push({ label: name, href: '#products', icon: Sparkles });
+      }
+    });
+    return mapped;
+  }, [products]);
 
   const liveSearchResults = useMemo(() => {
     return getSearchResultsWithSimilar(products, searchTerm);
@@ -167,7 +178,7 @@ export default function Header({
               }}
               aria-label="Select category"
             >
-              {categories.map(c => (
+              {activeCategories.map(c => (
                 <option key={c.label} value={c.label}>{c.label}</option>
               ))}
             </select>
@@ -387,7 +398,7 @@ export default function Header({
           <div className="mobileNavSection categorySection">
             <span className="mobileNavSectionTitle">Categories</span>
             <div className="mobileCategoryLinks">
-              {categories.map((c) => {
+              {activeCategories.map((c) => {
                 const IconComponent = c.icon;
                 return (
                   <a

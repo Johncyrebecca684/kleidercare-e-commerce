@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Product from '../models/Product.js';
+import Category from '../models/Category.js';
 import User from '../models/User.js';
 import { authMiddleware } from './auth.js';
 
@@ -43,6 +44,18 @@ function formatImageUrl(url) {
   return trimmed;
 }
 
+// GET all product categories fallback route
+// GET /api/products/categories/all
+router.get('/categories/all', async (req, res) => {
+  try {
+    const categories = await Category.find({}).sort({ name: 1 });
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching categories from products router:', error);
+    res.status(500).json({ message: 'Server error while fetching categories' });
+  }
+});
+
 // GET all products
 // GET /api/products
 router.get('/', async (req, res) => {
@@ -56,17 +69,18 @@ router.get('/', async (req, res) => {
 });
 
 // POST create a new product (Admin only)
-// POST create a new product (Admin only)
 // POST /api/products
 router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, category, price, originalPrice, image, images, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
+    const { productId, name, category, price, originalPrice, image, images, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
 
     if (!name || !category || price === undefined || originalPrice === undefined || (!image && (!images || images.length === 0))) {
       return res.status(400).json({ message: 'Missing required product fields' });
     }
 
-    const id = `PROD-${Date.now()}`;
+    const generatedId = productId ? String(productId).trim() : `PROD-${Date.now()}`;
+    const id = generatedId;
+    const finalProductId = productId ? String(productId).trim() : id;
     const productStock = stock !== undefined ? Number(stock) : 50;
     const threshold = lowStockThreshold !== undefined ? Number(lowStockThreshold) : 10;
     
@@ -80,6 +94,7 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 
     const newProduct = new Product({
       id,
+      productId: finalProductId,
       name,
       category,
       price: Number(price),
@@ -106,14 +121,14 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 // PUT update an existing product (Admin only)
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, category, price, originalPrice, image, images, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
+    const { productId, name, category, price, originalPrice, image, images, description, badge, specifications, sku, stock, lowStockThreshold } = req.body;
     
     const reqIdStr = String(req.params.id);
     let query;
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      query = { $or: [{ _id: req.params.id }, { id: req.params.id }, { id: reqIdStr }] };
+      query = { $or: [{ _id: req.params.id }, { id: req.params.id }, { id: reqIdStr }, { productId: req.params.id }, { productId: reqIdStr }] };
     } else {
-      query = { $or: [{ id: req.params.id }, { id: reqIdStr }] };
+      query = { $or: [{ id: req.params.id }, { id: reqIdStr }, { productId: req.params.id }, { productId: reqIdStr }] };
     }
 
     const product = await Product.findOne(query);
@@ -121,6 +136,10 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
+    if (productId !== undefined) {
+      product.productId = String(productId).trim();
+      if (!product.id) product.id = product.productId;
+    }
     if (name) product.name = name;
     if (category) product.category = category;
     if (price !== undefined) product.price = Number(price);

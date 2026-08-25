@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import { addProduct, updateProduct, deleteProduct, updateProductStock, bulkProductAction } from '../services/productService';
+import { getAllCategories, addCategory as apiAddCategory, deleteCategory as apiDeleteCategory } from '../services/categoryService';
 import { formatImageUrl } from '../utils/imageUtils';
 import { 
   Users, 
@@ -29,9 +30,32 @@ import {
   Minus,
   Mail,
   Building2,
-  Sliders
+  Sliders,
+  Bold,
+  List,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Heading,
+  Type,
+  HelpCircle,
+  Image as ImageIcon,
+  Layers,
+  Eye,
+  Check,
+  Tag,
+  ArrowLeft,
+  ArrowRight,
+  Sparkles,
+  Percent,
+  RefreshCw,
+  FolderPlus,
+  FolderTree,
+  ExternalLink,
+  Hash
 } from 'lucide-react';
 import TicketingPage from './TicketingPage';
+import { useToast } from '../context/ToastContext';
 import '../components/UserProfile.css';
 import './AdminDashboard.css';
 
@@ -102,6 +126,7 @@ function numberToWords(num) {
 }
 
 export default function AdminDashboard({ products, setProducts, users, orders, onUpdateOrderSetup, loggedInUser }) {
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
   
@@ -212,12 +237,93 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     'Seko'
   ];
 
+  const [dbCategories, setDbCategories] = useState([]);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatDesc, setNewCatDesc] = useState('');
+  const [catSearchTerm, setCatSearchTerm] = useState('');
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCats = async () => {
+      try {
+        const data = await getAllCategories();
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setDbCategories(data);
+        }
+      } catch (err) {
+        // Silently use existing product categories
+      }
+    };
+    fetchCats();
+    return () => { isMounted = false; };
+  }, [products]);
+
   const availableCategories = Array.from(
     new Set([
       ...defaultCategories,
+      ...dbCategories.map(c => c.name).filter(Boolean),
       ...products.map(p => p.category).filter(Boolean)
     ])
   ).sort();
+
+  const handleAddCategory = async (e) => {
+    if (e) e.preventDefault();
+    if (!newCatName.trim()) return;
+
+    const trimmed = newCatName.trim();
+    if (availableCategories.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+      showWarning(`Category "${trimmed}" already exists.`);
+      return;
+    }
+
+    setIsAddingCategory(true);
+    try {
+      let createdCat;
+      try {
+        createdCat = await apiAddCategory({ name: trimmed, description: newCatDesc.trim() });
+      } catch (apiErr) {
+        console.warn('API category creation failed, updating local state:', apiErr);
+        createdCat = {
+          _id: `cat-${Date.now()}`,
+          name: trimmed,
+          slug: trimmed.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          description: newCatDesc.trim()
+        };
+      }
+      setDbCategories(prev => [createdCat, ...prev]);
+      showSuccess(`Category "${trimmed}" created successfully!`);
+      setNewCatName('');
+      setNewCatDesc('');
+    } catch (err) {
+      showError('Failed to add category: ' + err.message);
+    } finally {
+      setIsAddingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async (categoryName) => {
+    const attachedCount = products.filter(p => (p.category || '').toLowerCase() === categoryName.toLowerCase()).length;
+    const confirmMsg = attachedCount > 0
+      ? `Category "${categoryName}" is currently assigned to ${attachedCount} product(s). Are you sure you want to remove it?`
+      : `Are you sure you want to remove category "${categoryName}"?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      const targetCat = dbCategories.find(c => c.name.toLowerCase() === categoryName.toLowerCase() || c._id === categoryName);
+      const catId = targetCat?._id || categoryName;
+      try {
+        await apiDeleteCategory(catId);
+      } catch (apiErr) {
+        console.warn('API category delete warning:', apiErr);
+      }
+      setDbCategories(prev => prev.filter(c => c.name.toLowerCase() !== categoryName.toLowerCase() && c._id !== categoryName));
+      showSuccess(`Category "${categoryName}" removed successfully.`);
+    } catch (err) {
+      showError('Failed to delete category: ' + err.message);
+    }
+  };
 
   // Dedicated Quick Specs Modal State
   const [isSpecsModalOpen, setIsSpecsModalOpen] = useState(false);
@@ -228,8 +334,10 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   // Product Form State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [productEditActiveTab, setProductEditActiveTab] = useState('general');
   const [productForm, setProductForm] = useState({
     id: '',
+    productId: '',
     name: '',
     price: '',
     originalPrice: '',
@@ -243,6 +351,103 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     specifications: {},
     specRows: [{ key: '', value: '' }]
   });
+
+  // Helper for generating Product ID
+  const handleGenerateProductId = () => {
+    const catCode = (productForm.category || 'LG')
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 4) || 'PRD';
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    setProductForm(prev => ({ ...prev, productId: `PRD-${catCode}-${randNum}` }));
+  };
+
+  // Helper for generating SKU
+  const handleGenerateSku = () => {
+    const catCode = (productForm.category || 'LG')
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 4) || 'LG';
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    setProductForm(prev => ({ ...prev, sku: `SKU-${catCode}-${randNum}` }));
+  };
+
+  // Description Rich Text Formatter Ref & Handler
+  const descTextareaRef = useRef(null);
+
+  const applyTextFormat = (type) => {
+    const textarea = descTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const currentVal = productForm.description || '';
+    const selectedText = currentVal.substring(start, end);
+
+    let formatted = '';
+    let newCursorPos = start;
+
+    switch (type) {
+      case 'bold': {
+        const textToWrap = selectedText || 'Bold text';
+        formatted = `**${textToWrap}**`;
+        newCursorPos = start + formatted.length;
+        break;
+      }
+      case 'bullet': {
+        if (selectedText.length > 0) {
+          const lines = selectedText.split('\n');
+          const bulleted = lines.map(line => line.startsWith('• ') ? line : `• ${line}`).join('\n');
+          formatted = bulleted;
+          newCursorPos = start + formatted.length;
+        } else {
+          formatted = '\n• ';
+          newCursorPos = start + formatted.length;
+        }
+        break;
+      }
+      case 'heading': {
+        const text = selectedText || 'Section Heading';
+        formatted = `\n### ${text}\n`;
+        newCursorPos = start + formatted.length;
+        break;
+      }
+      case 'align-center': {
+        const text = selectedText || 'Centered text';
+        formatted = `[center]${text}[/center]`;
+        newCursorPos = start + formatted.length;
+        break;
+      }
+      case 'align-right': {
+        const text = selectedText || 'Right-aligned text';
+        formatted = `[right]${text}[/right]`;
+        newCursorPos = start + formatted.length;
+        break;
+      }
+      case 'align-left': {
+        const text = selectedText || 'Left-aligned text';
+        formatted = `[left]${text}[/left]`;
+        newCursorPos = start + formatted.length;
+        break;
+      }
+      default:
+        return;
+    }
+
+    const newVal = currentVal.substring(0, start) + formatted + currentVal.substring(end);
+    setProductForm(prev => ({ ...prev, description: newVal }));
+
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+      }
+    }, 10);
+  };
 
   // Specs Rows Handlers for Main Edit Product Form
   const handleAddSpecRow = () => {
@@ -315,8 +520,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
       setIsSpecsModalOpen(false);
       setSpecsEditingProduct(null);
+      showSuccess('Technical specifications updated successfully!');
     } catch (err) {
-      alert('Error saving technical specifications: ' + err.message);
+      showError('Error saving technical specifications: ' + err.message);
     } finally {
       setSpecsSaving(false);
     }
@@ -469,7 +675,11 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       const primaryImage = validImages[0] ? formatImageUrl(validImages[0]) : formatImageUrl(productForm.image || '');
       const cleanSpecs = specRowsToObj(productForm.specRows);
 
+      const generatedProdId = productForm.productId ? productForm.productId.trim() : (productForm.id || `PROD-${Date.now()}`);
+
       const payload = {
+        id: generatedProdId,
+        productId: generatedProdId,
         name: productForm.name,
         category: productForm.category,
         price: Number(productForm.price),
@@ -500,14 +710,15 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           created = await addProduct(payload);
         } catch (apiErr) {
           console.error('Database product creation failed, adding to local state:', apiErr);
-          created = { id: `PROD-${Date.now()}`, ...payload };
+          created = { id: generatedProdId, productId: generatedProdId, ...payload };
         }
         setProducts(prev => [created, ...prev]);
       }
       setIsProductModalOpen(false);
+      showSuccess(editingProduct ? 'Product updated successfully!' : 'Product created successfully!');
     } catch (error) {
       console.error('Error submitting product:', error);
-      alert('Failed to save product: ' + error.message);
+      showError('Failed to save product: ' + error.message);
     }
   };
 
@@ -520,6 +731,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       }
       setProducts(prev => prev.filter(p => p.id !== id && p._id !== id));
       setSelectedProductIds(prev => prev.filter(pId => pId !== id));
+      showSuccess('Product deleted successfully.');
     }
   };
 
@@ -597,8 +809,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       };
       const created = await addProduct(payload);
       setProducts(prev => [created, ...prev]);
+      showSuccess(`Duplicated "${product.name}" successfully!`);
     } catch (err) {
-      alert('Failed to duplicate product: ' + err.message);
+      showError('Failed to duplicate product: ' + err.message);
     }
   };
 
@@ -720,7 +933,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       const specsObj = product.specifications || {};
       const specRows = objToSpecRows(specsObj);
       setProductForm({ 
-        id: product.id,
+        id: product.id || product._id || '',
+        productId: product.productId || product.id || product._id || '',
         name: product.name || '',
         price: product.price || '',
         originalPrice: product.originalPrice || product.price || '',
@@ -737,12 +951,14 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       });
     } else {
       setEditingProduct(null);
+      const newProdId = `PROD-${Date.now()}`;
       setProductForm({ 
-        id: '',
+        id: newProdId,
+        productId: newProdId,
         name: '',
         price: '',
         originalPrice: '',
-        category: 'LG Commercial Laundry Machines',
+        category: availableCategories[0] || 'LG Commercial Laundry Machines',
         image: '',
         images: [''],
         sku: `SKU-${Date.now()}`,
@@ -754,6 +970,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         specRows: [{ key: '', value: '' }]
       });
     }
+    setProductEditActiveTab('general');
     setIsProductModalOpen(true);
   };
 
@@ -784,6 +1001,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           >
             <Package size={20} />
             Product Inventory
+          </button>
+          <button 
+            className={`navBtn ${activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => setActiveTab('categories')}
+          >
+            <FolderTree size={20} />
+            Category Manager
           </button>
           <button 
             className={`navBtn ${activeTab === 'customers' ? 'active' : ''}`}
@@ -922,348 +1146,1262 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           )}
 
           {activeTab === 'products' && (
-            <div className="tabPane fade-in">
-              <div className="paneHeader">
-                <div>
-                  <h3>Product Inventory & Stock Management</h3>
-                  <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                    Manage store catalog, track real-time stock levels, update prices, and process inventory operations
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <button className="exportCsvBtn" onClick={handleExportCSV}>
-                    <Download size={18} /> Export CSV
-                  </button>
-                  <button className="addBtn" onClick={() => openProductModal()}>
-                    <Plus size={20} /> Add New Product
-                  </button>
-                </div>
-              </div>
+            isProductModalOpen ? (() => {
+              const pricingInsights = (() => {
+                const p = parseFloat(productForm.price) || 0;
+                const op = parseFloat(productForm.originalPrice) || 0;
+                if (op > p && p > 0) {
+                  const discountPct = Math.round(((op - p) / op) * 100);
+                  const savings = op - p;
+                  return { discountPct, savings };
+                }
+                return null;
+              })();
 
-              {/* INVENTORY METRICS CARDS */}
-              <div className="inventoryKpiGrid">
-                <div 
-                  className={`inventoryKpiCard ${productStockFilter === 'All' && productCategoryFilter === 'All' && !productSearchTerm ? 'active' : ''}`}
-                  onClick={() => { setProductStockFilter('All'); setProductCategoryFilter('All'); setProductSearchTerm(''); }}
-                  style={{ cursor: 'pointer' }}
-                  title="Click to show all products"
-                >
-                  <div className="kpiIcon"><Package size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Total Products</span>
-                    <div className="kpiValRow">
-                      <strong className="kpiValue">{products.length}</strong>
+              const currentStockNum = Number(productForm.stock) || 0;
+              const lowStockThresh = Number(productForm.lowStockThreshold) || 10;
+              const stockStatusTag = currentStockNum === 0 
+                ? { text: 'Out of Stock', class: 'danger', icon: XCircle } 
+                : currentStockNum <= lowStockThresh 
+                  ? { text: 'Low Stock Alert', class: 'warning', icon: AlertTriangle } 
+                  : { text: 'In Stock', class: 'success', icon: CheckCircle2 };
+              const StatusIcon = stockStatusTag.icon;
+
+              const specsCount = (productForm.specRows || []).filter(r => r.key?.trim() && r.value?.trim()).length;
+              const imagesCount = (Array.isArray(productForm.images) && productForm.images.filter(Boolean).length > 0)
+                ? productForm.images.filter(Boolean).length
+                : (productForm.image ? 1 : 0);
+
+              const modalTabs = [
+                { id: 'general', label: 'General Info', icon: Package, badge: null },
+                { id: 'pricing', label: 'Pricing & Stock', icon: DollarSign, badge: productForm.price ? `₹${Number(productForm.price).toLocaleString('en-IN')}` : null },
+                { id: 'media', label: 'Images & Media', icon: ImageIcon, badge: imagesCount > 0 ? `${imagesCount} img` : null },
+                { id: 'description', label: 'Description', icon: FileText, badge: (productForm.description || '').length > 0 ? `${(productForm.description || '').length}c` : null },
+                { id: 'specs', label: 'Technical Specs', icon: Sliders, badge: specsCount > 0 ? `${specsCount} specs` : null },
+                { id: 'preview', label: 'Storefront Live Preview', icon: Eye, badge: 'Live' }
+              ];
+
+              const tabIdx = modalTabs.findIndex(t => t.id === productEditActiveTab);
+
+              return (
+                <div className="productEditorFullScreenPane fade-in">
+                  {/* TOP NAVIGATION / BREADCRUMB BAR */}
+                  <div className="editorTopBar">
+                    <div className="editorBreadcrumbGroup">
+                      <button 
+                        type="button" 
+                        className="backToInventoryBtn"
+                        onClick={() => setIsProductModalOpen(false)}
+                      >
+                        <ArrowLeft size={16} /> Back to Product Inventory
+                      </button>
+                      <span className="breadcrumbDivider">/</span>
+                      <span className="breadcrumbCurrent">
+                        {editingProduct ? `Edit: ${editingProduct.name || 'Product'}` : 'New Inventory Product'}
+                      </span>
                     </div>
-                    <span className="subVal">{totalStockItems} total units in store</span>
+
+                    <div className="editorTopActions">
+                      <button 
+                        type="button" 
+                        className="editorCancelBtn"
+                        onClick={() => setIsProductModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="button" 
+                        className="editorPreviewBtn"
+                        onClick={() => setProductEditActiveTab('preview')}
+                      >
+                        <Eye size={15} /> Storefront Preview
+                      </button>
+                      <button 
+                        type="button" 
+                        className="editorSaveHeaderBtn"
+                        onClick={handleProductSubmit}
+                      >
+                        <Check size={16} /> Save Product
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* HERO HEADER CARD */}
+                  <div className="editorHeroCard">
+                    <div className="editorHeroInfo">
+                      <div className="editorHeroIcon">
+                        <Package size={26} />
+                      </div>
+                      <div>
+                        <div className="editorHeroTitleRow">
+                          <h2>{editingProduct ? 'Edit Product & Stock Parameters' : 'Create New Inventory Product'}</h2>
+                          {editingProduct && (
+                            <span className="skuBadge">{productForm.sku || `ID: ${editingProduct.id || editingProduct._id}`}</span>
+                          )}
+                          {productForm.badge && (
+                            <span className="invBadgeTag">{productForm.badge}</span>
+                          )}
+                          <span className="editorCatBadge">{productForm.category || 'General Equipment'}</span>
+                        </div>
+                        <p>
+                          {editingProduct 
+                            ? `Full screen control: Update catalog information, pricing structure, live stock level, high-res photos, and technical parameters for ${editingProduct.name || 'this product'}` 
+                            : 'Fill in catalog attributes, SKU identifier, pricing structure, initial warehouse stock, and technical specifications'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FULL-SCREEN TAB NAVIGATION BAR */}
+                  <div className="fullScreenTabBar">
+                    {modalTabs.map(tab => {
+                      const Icon = tab.icon;
+                      const isActive = productEditActiveTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          className={`fullScreenTabBtn ${isActive ? 'active' : ''}`}
+                          onClick={() => setProductEditActiveTab(tab.id)}
+                        >
+                          <Icon size={17} className="tabIcon" />
+                          <span>{tab.label}</span>
+                          {tab.badge && <span className={`tabBadge ${isActive ? 'activeBadge' : ''}`}>{tab.badge}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* TAB CONTENT FORM */}
+                  <form onSubmit={handleProductSubmit} className="fullScreenEditorForm">
+                    <div className="fullScreenEditorBody">
+                      {/* TAB 1: GENERAL INFO */}
+                      {productEditActiveTab === 'general' && (
+                        <div className="editTabPane fade-in">
+                          <div className="tabSectionHeader">
+                            <div>
+                              <h4>General Information</h4>
+                              <p>Basic catalog details, SKU identification, category assignment, and promotional badge tags</p>
+                            </div>
+                          </div>
+
+                          <div className="formGrid">
+                            <div className="formGroup fullWidth">
+                              <label>Product Name <span className="reqStar">*</span></label>
+                              <input 
+                                required 
+                                type="text" 
+                                value={productForm.name} 
+                                onChange={e => setProductForm({...productForm, name: e.target.value})} 
+                                placeholder="e.g. LG Titan C Max Commercial Front Load Washer (15 Kg)" 
+                              />
+                            </div>
+
+                            <div className="formGroup">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <label>Product ID / Code <span className="reqStar">*</span></label>
+                                <button
+                                  type="button"
+                                  className="inlineTextActionBtn"
+                                  onClick={handleGenerateProductId}
+                                  title="Generate standard Product ID"
+                                >
+                                  <RefreshCw size={11} /> Auto-Generate
+                                </button>
+                              </div>
+                              <input 
+                                required
+                                type="text" 
+                                value={productForm.productId || ''} 
+                                onChange={e => setProductForm({...productForm, productId: e.target.value})} 
+                                placeholder="e.g. PRD-LG-101 or PROD-1725890" 
+                              />
+                            </div>
+
+                            <div className="formGroup">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <label>SKU Code</label>
+                                <button
+                                  type="button"
+                                  className="inlineTextActionBtn"
+                                  onClick={handleGenerateSku}
+                                  title="Generate standard SKU code"
+                                >
+                                  <RefreshCw size={11} /> Auto-Generate
+                                </button>
+                              </div>
+                              <input 
+                                type="text" 
+                                value={productForm.sku} 
+                                onChange={e => setProductForm({...productForm, sku: e.target.value})} 
+                                placeholder="e.g. SKU-LG-WM15" 
+                              />
+                            </div>
+
+                            <div className="formGroup fullWidth">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <label>Product Category <span className="reqStar">*</span></label>
+                                <button
+                                  type="button"
+                                  className="inlineTextActionBtn"
+                                  onClick={() => { setIsProductModalOpen(false); setActiveTab('categories'); }}
+                                  title="Add or remove categories"
+                                >
+                                  <FolderPlus size={11} /> Manage Categories
+                                </button>
+                              </div>
+                              <select 
+                                value={productForm.category} 
+                                onChange={e => setProductForm({...productForm, category: e.target.value})}
+                              >
+                                {availableCategories.map(cat => (
+                                  <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="formGroup fullWidth">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <label style={{ margin: 0 }}>Badge / Promotional Tag</label>
+                                <span style={{ fontSize: '11px', color: '#64748b' }}>Quick suggestions:</span>
+                              </div>
+                              <input 
+                                type="text" 
+                                value={productForm.badge || ''} 
+                                onChange={e => setProductForm({...productForm, badge: e.target.value})} 
+                                placeholder="e.g. Best Seller, New Arrival, 20% OFF, Commercial Heavy Duty" 
+                              />
+                              <div className="quickTagChips">
+                                {['Best Seller', 'New Arrival', 'Commercial Pick', '20% OFF', 'Heavy Duty', 'Energy Efficient'].map(tag => (
+                                  <button
+                                    key={tag}
+                                    type="button"
+                                    className="quickTagChip"
+                                    onClick={() => setProductForm({ ...productForm, badge: tag })}
+                                  >
+                                    + {tag}
+                                  </button>
+                                ))}
+                                {productForm.badge && (
+                                  <button
+                                    type="button"
+                                    className="quickTagChip clear"
+                                    onClick={() => setProductForm({ ...productForm, badge: '' })}
+                                  >
+                                    Clear Badge
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="infoCalloutBox">
+                            <Package size={18} style={{ color: '#0284c7', flexShrink: 0 }} />
+                            <div>
+                              <strong>Catalog Organization Tip:</strong>
+                              <p>Products are indexed under the selected category for instant filtering in both admin reports and customer navigation.</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 2: PRICING & STOCK */}
+                      {productEditActiveTab === 'pricing' && (
+                        <div className="editTabPane fade-in">
+                          <div className="tabSectionHeader">
+                            <div>
+                              <h4>Pricing & Inventory Control</h4>
+                              <p>Set selling price, original MRP, warehouse stock quantities, and low stock threshold alerts</p>
+                            </div>
+                          </div>
+
+                          <div className="formGrid">
+                            <div className="formGroup">
+                              <label>Selling Price (₹) <span className="reqStar">*</span></label>
+                              <div className="inputWithPrefix">
+                                <span className="inputPrefix">₹</span>
+                                <input 
+                                  required 
+                                  type="number" 
+                                  min="0" 
+                                  value={productForm.price} 
+                                  onChange={e => setProductForm({...productForm, price: e.target.value})} 
+                                  placeholder="349000" 
+                                />
+                              </div>
+                            </div>
+
+                            <div className="formGroup">
+                              <label>Original / MRP Price (₹)</label>
+                              <div className="inputWithPrefix">
+                                <span className="inputPrefix">₹</span>
+                                <input 
+                                  type="number" 
+                                  min="0" 
+                                  value={productForm.originalPrice} 
+                                  onChange={e => setProductForm({...productForm, originalPrice: e.target.value})} 
+                                  placeholder="389000" 
+                                />
+                              </div>
+                            </div>
+
+                            {/* Pricing Insights Card */}
+                            <div className="formGroup fullWidth">
+                              <div className="pricingInsightBanner">
+                                {pricingInsights ? (
+                                  <div className="insightContent">
+                                    <div className="discountTag">
+                                      <Percent size={14} /> {pricingInsights.discountPct}% DISCOUNT
+                                    </div>
+                                    <span className="savingText">
+                                      Customer saves <strong>₹{pricingInsights.savings.toLocaleString('en-IN')}</strong> compared to MRP
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="insightContent regular">
+                                    <Tag size={15} style={{ color: '#64748b' }} />
+                                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                                      {productForm.originalPrice && Number(productForm.originalPrice) <= Number(productForm.price)
+                                        ? 'MRP is equal to or less than selling price. No discount banner will show.'
+                                        : 'Enter an Original MRP higher than the Selling Price to display a discount badge to customers.'}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="formGroup">
+                              <label>Stock Quantity (Units) <span className="reqStar">*</span></label>
+                              <div className="stockInputWithButtons">
+                                <button
+                                  type="button"
+                                  className="stockStepBtn"
+                                  onClick={() => setProductForm(prev => ({ ...prev, stock: Math.max(0, (Number(prev.stock) || 0) - 1) }))}
+                                >
+                                  <Minus size={14} />
+                                </button>
+                                <input 
+                                  required 
+                                  type="number" 
+                                  min="0" 
+                                  value={productForm.stock} 
+                                  onChange={e => setProductForm({...productForm, stock: e.target.value})} 
+                                  placeholder="50" 
+                                />
+                                <button
+                                  type="button"
+                                  className="stockStepBtn"
+                                  onClick={() => setProductForm(prev => ({ ...prev, stock: (Number(prev.stock) || 0) + 1 }))}
+                                >
+                                  <Plus size={14} />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="formGroup">
+                              <label>Low Stock Alert Threshold</label>
+                              <input 
+                                type="number" 
+                                min="1" 
+                                value={productForm.lowStockThreshold} 
+                                onChange={e => setProductForm({...productForm, lowStockThreshold: e.target.value})} 
+                                placeholder="10" 
+                              />
+                            </div>
+
+                            <div className="formGroup fullWidth">
+                              <div className={`stockStatusPreviewBox ${stockStatusTag.class}`}>
+                                <StatusIcon size={18} />
+                                <div className="stockStatusInfo">
+                                  <strong>Current Status: {stockStatusTag.text}</strong>
+                                  <span>
+                                    {currentStockNum === 0 
+                                      ? 'Item will show as Out of Stock and cannot be added to customer carts.' 
+                                      : currentStockNum <= lowStockThresh 
+                                        ? `Item is in Low Stock zone (≤${lowStockThresh} units). Consider reordering.` 
+                                        : `Item has sufficient inventory (${currentStockNum} available units).`}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 3: IMAGES & MEDIA */}
+                      {productEditActiveTab === 'media' && (
+                        <div className="editTabPane fade-in">
+                          <div className="tabSectionHeader">
+                            <div>
+                              <h4>Product Images & Gallery</h4>
+                              <p>Manage primary cover image and supplementary gallery product photos</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleAddImageField}
+                              className="addSpecBtn"
+                            >
+                              <Plus size={14} /> Add Image URL
+                            </button>
+                          </div>
+
+                          {/* Cover Image Feature Card */}
+                          <div className="coverImageFeatureCard">
+                            <div className="coverPreviewWrapper">
+                              <img 
+                                src={Array.isArray(productForm.images) && productForm.images[0] ? productForm.images[0] : (productForm.image || '/10kglggiantwasher.png')} 
+                                alt="Cover Preview" 
+                                className="coverPreviewImg"
+                                onError={(e) => { e.target.src = 'https://via.placeholder.com/160?text=No+Image'; }}
+                              />
+                              <span className="primaryCoverBadge">Primary Cover</span>
+                            </div>
+                            <div className="coverInputWrapper">
+                              <label>Cover Photo URL <span className="reqStar">*</span></label>
+                              <input
+                                required
+                                type="text"
+                                value={Array.isArray(productForm.images) && productForm.images[0] !== undefined ? productForm.images[0] : (productForm.image || '')}
+                                onChange={(e) => handleImageFieldChange(0, e.target.value)}
+                                placeholder="e.g. /10kglggiantwasher.png or https://images.unsplash.com/..."
+                              />
+                              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#64748b' }}>
+                                This image appears on catalog lists, search results, and as the main display photo.
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Additional Gallery URLs */}
+                          <div className="gallerySection">
+                            <label style={{ fontSize: '13px', fontWeight: '700', color: '#0f2b5c', marginBottom: '8px', display: 'block' }}>
+                              Gallery Photos ({(Array.isArray(productForm.images) ? productForm.images.length : 1) - 1} additional)
+                            </label>
+
+                            <div className="galleryRowsList">
+                              {(Array.isArray(productForm.images) && productForm.images.length > 1) ? (
+                                productForm.images.slice(1).map((imgUrl, sliceIdx) => {
+                                  const realIdx = sliceIdx + 1;
+                                  return (
+                                    <div key={realIdx} className="galleryRowCard">
+                                      <span className="galleryIndexBadge">#{realIdx + 1}</span>
+                                      {imgUrl ? (
+                                        <img 
+                                          src={imgUrl} 
+                                          alt={`Gallery ${realIdx + 1}`} 
+                                          className="galleryRowThumb"
+                                          onError={(e) => { e.target.style.display = 'none'; }}
+                                        />
+                                      ) : (
+                                        <div className="galleryThumbPlaceholder"><ImageIcon size={16} /></div>
+                                      )}
+                                      <input
+                                        type="text"
+                                        value={imgUrl}
+                                        onChange={(e) => handleImageFieldChange(realIdx, e.target.value)}
+                                        placeholder="https://... or /image-name.png"
+                                        className="galleryUrlInput"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveImageField(realIdx)}
+                                        className="removeSpecBtn"
+                                        title="Remove this image"
+                                      >
+                                        <Trash2 size={15} />
+                                      </button>
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div className="emptyGalleryPrompt">
+                                  <ImageIcon size={24} style={{ color: '#94a3b8' }} />
+                                  <p>No additional gallery images added. Click "Add Image URL" above to add more angles.</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 4: DESCRIPTION */}
+                      {productEditActiveTab === 'description' && (
+                        <div className="editTabPane fade-in">
+                          <div className="tabSectionHeader">
+                            <div>
+                              <h4>Product Description & Features</h4>
+                              <p>Format rich product overview, key features, and commercial benefits</p>
+                            </div>
+                            <span className="descHelpBadge">
+                              <HelpCircle size={12} /> Markdown Enabled
+                            </span>
+                          </div>
+
+                          <div className="descriptionEditorGroup">
+                            {/* Rich Text Toolbar */}
+                            <div className="descToolbar">
+                              <div className="descToolbarGroup">
+                                <button
+                                  type="button"
+                                  className="descToolBtn"
+                                  onClick={() => applyTextFormat('bold')}
+                                  title="Bold Text (**text**)"
+                                >
+                                  <Bold size={14} /> <span>Bold</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="descToolBtn"
+                                  onClick={() => applyTextFormat('bullet')}
+                                  title="Add Bullet Point (• item)"
+                                >
+                                  <List size={14} /> <span>Bullet</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="descToolBtn"
+                                  onClick={() => applyTextFormat('heading')}
+                                  title="Add Subheading (### Title)"
+                                >
+                                  <Heading size={14} /> <span>Heading</span>
+                                </button>
+                              </div>
+
+                              <div className="descToolbarDivider" />
+
+                              <div className="descToolbarGroup">
+                                <button
+                                  type="button"
+                                  className="descToolBtn"
+                                  onClick={() => applyTextFormat('align-left')}
+                                  title="Left Align"
+                                >
+                                  <AlignLeft size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="descToolBtn"
+                                  onClick={() => applyTextFormat('align-center')}
+                                  title="Center Align"
+                                >
+                                  <AlignCenter size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="descToolBtn"
+                                  onClick={() => applyTextFormat('align-right')}
+                                  title="Right Align"
+                                >
+                                  <AlignRight size={14} />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Enlarged Description Textarea */}
+                            <textarea
+                              ref={descTextareaRef}
+                              rows="12"
+                              className="expandedDescTextarea"
+                              value={productForm.description || ''}
+                              onChange={e => setProductForm({ ...productForm, description: e.target.value })}
+                              placeholder={`Enter detailed description, features, and technical points:\n\n• High-efficiency inverter direct drive motor\n• **Energy Saving:** Up to 40% water & power reduction\n• Heavy-duty commercial stainless steel construction\n\nUse the toolbar above to apply Bold, Bullet Points, or Alignments.`}
+                            />
+
+                            <div className="descFooterMeta">
+                              <span>
+                                {(productForm.description || '').length} characters | {(productForm.description || '').split('\n').filter(Boolean).length} lines
+                              </span>
+                              <span className="descQuickTips">
+                                Tip: Highlight text and click <strong>Bold</strong>, <strong>Bullet</strong>, or alignment.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 5: TECHNICAL SPECIFICATIONS */}
+                      {productEditActiveTab === 'specs' && (
+                        <div className="editTabPane fade-in">
+                          <div className="tabSectionHeader">
+                            <div>
+                              <h4>Technical Specifications</h4>
+                              <p>Define structured machine parameters (e.g. Capacity, Voltage, Loading Type)</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleAddSpecRow}
+                              className="addSpecBtn"
+                            >
+                              <Plus size={14} /> Add Spec Field
+                            </button>
+                          </div>
+
+                          {/* Quick Presets */}
+                          <div className="presetChipsContainer">
+                            <span className="presetChipsLabel">Quick Presets:</span>
+                            {COMMON_SPEC_KEYS.map(preset => (
+                              <button
+                                key={preset}
+                                type="button"
+                                className="presetChip"
+                                onClick={() => handleAddPresetSpec(preset)}
+                              >
+                                + {preset}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Dynamic Key-Value Rows */}
+                          <div className="specRowsContainer">
+                            {(productForm.specRows || []).map((row, idx) => (
+                              <div key={idx} className="specRowInputGroup">
+                                <input
+                                  type="text"
+                                  value={row.key || ''}
+                                  onChange={(e) => handleSpecRowChange(idx, 'key', e.target.value)}
+                                  placeholder="Spec Parameter (e.g. Capacity)"
+                                  className="specKeyInput"
+                                />
+                                <input
+                                  type="text"
+                                  value={row.value || ''}
+                                  onChange={(e) => handleSpecRowChange(idx, 'value', e.target.value)}
+                                  placeholder="Spec Value (e.g. 15 Kg Commercial)"
+                                  className="specValueInput"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveSpecRow(idx)}
+                                  className="removeSpecBtn"
+                                  title="Remove specification field"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            ))}
+
+                            {(!productForm.specRows || productForm.specRows.length === 0) && (
+                              <div className="emptyGalleryPrompt">
+                                <Sliders size={22} style={{ color: '#94a3b8' }} />
+                                <p>No specifications added. Click "Add Spec Field" or use quick presets above.</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 6: LIVE STORE PREVIEW */}
+                      {productEditActiveTab === 'preview' && (
+                        <div className="editTabPane fade-in">
+                          <div className="tabSectionHeader">
+                            <div>
+                              <h4>Storefront Live Preview</h4>
+                              <p>Real-time rendering of how customers will see this product on the store catalog</p>
+                            </div>
+                            <span className="livePreviewBadge">
+                              <Eye size={13} /> Interactive Preview
+                            </span>
+                          </div>
+
+                          <div className="storeLivePreviewCard">
+                            <div className="previewImageCol">
+                              <img 
+                                src={Array.isArray(productForm.images) && productForm.images[0] ? productForm.images[0] : (productForm.image || '/10kglggiantwasher.png')} 
+                                alt={productForm.name || 'Product'} 
+                                className="previewProductImg"
+                                onError={(e) => { e.target.src = 'https://via.placeholder.com/260?text=Kleider+Care'; }}
+                              />
+                              {productForm.badge && (
+                                <span className="previewBadgeTag">{productForm.badge}</span>
+                              )}
+                            </div>
+
+                            <div className="previewDetailsCol">
+                              <div className="previewCatRow">
+                                <span className="previewCatTag">{productForm.category || 'Commercial Equipment'}</span>
+                                <code className="previewSkuTag">{productForm.sku || 'SKU-SAMPLE'}</code>
+                              </div>
+
+                              <h3 className="previewTitle">{productForm.name || 'Untitled Product Name'}</h3>
+
+                              <div className="previewPriceRow">
+                                <span className="previewCurrentPrice">
+                                  ₹{Number(productForm.price || 0).toLocaleString('en-IN')}
+                                </span>
+                                {productForm.originalPrice && Number(productForm.originalPrice) > Number(productForm.price) && (
+                                  <span className="previewOrigPrice">
+                                    ₹{Number(productForm.originalPrice).toLocaleString('en-IN')}
+                                  </span>
+                                )}
+                                {pricingInsights && (
+                                  <span className="previewDiscountBadge">
+                                    {pricingInsights.discountPct}% OFF
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="previewStockRow">
+                                <span className={`stockStatusPill ${stockStatusTag.class}`}>
+                                  <StatusIcon size={13} />
+                                  {stockStatusTag.text} ({productForm.stock || 0} units)
+                                </span>
+                              </div>
+
+                              {/* Preview Specifications */}
+                              {productForm.specRows && productForm.specRows.some(r => r.key?.trim()) && (
+                                <div className="previewSpecsSection">
+                                  <strong>Key Specifications:</strong>
+                                  <div className="previewSpecsChips">
+                                    {productForm.specRows.filter(r => r.key?.trim()).slice(0, 4).map((r, i) => (
+                                      <span key={i} className="previewSpecChip">
+                                        <strong>{r.key}:</strong> {r.value || '-'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Preview Description Snippet */}
+                              {productForm.description && (
+                                <div className="previewDescSnippet">
+                                  <p>{productForm.description.slice(0, 180)}{productForm.description.length > 180 ? '...' : ''}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* BOTTOM STICKY ACTION BAR */}
+                    <div className="editorBottomBar">
+                      <div className="footerLeftGroup">
+                        <button type="button" className="editorCancelBtn" onClick={() => setIsProductModalOpen(false)}>
+                          Discard Changes
+                        </button>
+                        {productEditActiveTab !== 'preview' && (
+                          <button 
+                            type="button" 
+                            className="previewShortcutBtn"
+                            onClick={() => setProductEditActiveTab('preview')}
+                          >
+                            <Eye size={14} /> Quick Preview
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="footerRightGroup">
+                        {tabIdx > 0 && (
+                          <button
+                            type="button"
+                            className="stepNavBtn prev"
+                            onClick={() => setProductEditActiveTab(modalTabs[tabIdx - 1].id)}
+                          >
+                            <ArrowLeft size={15} /> Previous Step
+                          </button>
+                        )}
+
+                        {tabIdx < modalTabs.length - 1 && (
+                          <button
+                            type="button"
+                            className="stepNavBtn next"
+                            onClick={() => setProductEditActiveTab(modalTabs[tabIdx + 1].id)}
+                          >
+                            Next Step <ArrowRight size={15} />
+                          </button>
+                        )}
+
+                        <button type="submit" className="saveBtn">
+                          <Check size={16} /> Save Product & Inventory
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              );
+            })() : (
+              <div className="tabPane fade-in">
+                <div className="paneHeader">
+                  <div>
+                    <h3>Product Inventory & Stock Management</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                      Manage store catalog, track real-time stock levels, update prices, and process inventory operations
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button className="exportCsvBtn" onClick={handleExportCSV}>
+                      <Download size={18} /> Export CSV
+                    </button>
+                    <button className="addBtn" onClick={() => openProductModal()}>
+                      <Plus size={20} /> Add New Product
+                    </button>
                   </div>
                 </div>
 
-                <div 
-                  className={`inventoryKpiCard success ${productStockFilter === 'In Stock' ? 'active' : ''}`}
-                  onClick={() => setProductStockFilter(productStockFilter === 'In Stock' ? 'All' : 'In Stock')}
-                  style={{ cursor: 'pointer' }}
-                  title="Click to filter In Stock items"
-                >
-                  <div className="kpiIcon success"><CheckCircle2 size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">In Stock</span>
-                    <div className="kpiValRow">
-                      <strong className="kpiValue" style={{ color: '#10b981' }}>{inStockCount}</strong>
+                {/* INVENTORY METRICS CARDS */}
+                <div className="inventoryKpiGrid">
+                  <div 
+                    className={`inventoryKpiCard ${productStockFilter === 'All' && productCategoryFilter === 'All' && !productSearchTerm ? 'active' : ''}`}
+                    onClick={() => { setProductStockFilter('All'); setProductCategoryFilter('All'); setProductSearchTerm(''); }}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to show all products"
+                  >
+                    <div className="kpiIcon"><Package size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Total Products</span>
+                      <div className="kpiValRow">
+                        <strong className="kpiValue">{products.length}</strong>
+                      </div>
+                      <span className="subVal">{totalStockItems} total units in store</span>
                     </div>
-                    <span className="subVal">Sufficient stock available</span>
+                  </div>
+
+                  <div 
+                    className={`inventoryKpiCard success ${productStockFilter === 'In Stock' ? 'active' : ''}`}
+                    onClick={() => setProductStockFilter(productStockFilter === 'In Stock' ? 'All' : 'In Stock')}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to filter In Stock items"
+                  >
+                    <div className="kpiIcon success"><CheckCircle2 size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">In Stock</span>
+                      <div className="kpiValRow">
+                        <strong className="kpiValue" style={{ color: '#10b981' }}>{inStockCount}</strong>
+                      </div>
+                      <span className="subVal">Sufficient stock available</span>
+                    </div>
+                  </div>
+
+                  <div 
+                    className={`inventoryKpiCard warning ${productStockFilter === 'Low Stock' ? 'active' : ''}`}
+                    onClick={() => setProductStockFilter(productStockFilter === 'Low Stock' ? 'All' : 'Low Stock')}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to filter Low Stock items"
+                  >
+                    <div className="kpiIcon warning"><AlertTriangle size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Low Stock Alert</span>
+                      <div className="kpiValRow">
+                        <strong className="kpiValue" style={{ color: '#f59e0b' }}>{lowStockCount}</strong>
+                      </div>
+                      <span className="subVal">Items near threshold (≤10)</span>
+                    </div>
+                  </div>
+
+                  <div 
+                    className={`inventoryKpiCard danger ${productStockFilter === 'Out of Stock' ? 'active' : ''}`}
+                    onClick={() => setProductStockFilter(productStockFilter === 'Out of Stock' ? 'All' : 'Out of Stock')}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to filter Out of Stock items"
+                  >
+                    <div className="kpiIcon danger"><XCircle size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Out of Stock</span>
+                      <div className="kpiValRow">
+                        <strong className="kpiValue" style={{ color: '#ef4444' }}>{outOfStockCount}</strong>
+                      </div>
+                      <span className="subVal">Action required immediately</span>
+                    </div>
+                  </div>
+
+                  <div className="inventoryKpiCard primary valuationCard">
+                    <div className="kpiIcon primary"><DollarSign size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Total Inventory Valuation</span>
+                      <div className="kpiValRow">
+                        <strong className="kpiValue valuationValue">₹{Math.round(totalInventoryValue).toLocaleString('en-IN')}</strong>
+                      </div>
+                      <span className="subVal">Combined total asset value of all products in stock</span>
+                    </div>
                   </div>
                 </div>
 
-                <div 
-                  className={`inventoryKpiCard warning ${productStockFilter === 'Low Stock' ? 'active' : ''}`}
-                  onClick={() => setProductStockFilter(productStockFilter === 'Low Stock' ? 'All' : 'Low Stock')}
-                  style={{ cursor: 'pointer' }}
-                  title="Click to filter Low Stock items"
-                >
-                  <div className="kpiIcon warning"><AlertTriangle size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Low Stock Alert</span>
-                    <div className="kpiValRow">
-                      <strong className="kpiValue" style={{ color: '#f59e0b' }}>{lowStockCount}</strong>
-                    </div>
-                    <span className="subVal">Items near threshold (≤10)</span>
+                {/* SEARCH, FILTER & SORT TOOLBAR */}
+                <div className="inventoryFilterBar">
+                  <div className="searchBox">
+                    <Search size={18} className="searchIcon" />
+                    <input 
+                      type="text" 
+                      placeholder="Search product name, SKU, category, ID..." 
+                      value={productSearchTerm}
+                      onChange={e => setProductSearchTerm(e.target.value)}
+                    />
+                    {productSearchTerm && (
+                      <button 
+                        type="button" 
+                        onClick={() => setProductSearchTerm('')}
+                        style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 'bold', padding: '0 4px' }}
+                        title="Clear search"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
-                </div>
 
-                <div 
-                  className={`inventoryKpiCard danger ${productStockFilter === 'Out of Stock' ? 'active' : ''}`}
-                  onClick={() => setProductStockFilter(productStockFilter === 'Out of Stock' ? 'All' : 'Out of Stock')}
-                  style={{ cursor: 'pointer' }}
-                  title="Click to filter Out of Stock items"
-                >
-                  <div className="kpiIcon danger"><XCircle size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Out of Stock</span>
-                    <div className="kpiValRow">
-                      <strong className="kpiValue" style={{ color: '#ef4444' }}>{outOfStockCount}</strong>
-                    </div>
-                    <span className="subVal">Action required immediately</span>
+                  <div className="filterGroup">
+                    <Filter size={16} />
+                    <select value={productCategoryFilter} onChange={e => setProductCategoryFilter(e.target.value)}>
+                      <option value="All">All Categories ({products.length})</option>
+                      {availableCategories.map(cat => {
+                        const count = products.filter(p => (p.category || '').toLowerCase() === cat.toLowerCase()).length;
+                        return (
+                          <option key={cat} value={cat}>{cat} ({count})</option>
+                        );
+                      })}
+                    </select>
                   </div>
-                </div>
 
-                <div className="inventoryKpiCard primary valuationCard">
-                  <div className="kpiIcon primary"><DollarSign size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Total Inventory Valuation</span>
-                    <div className="kpiValRow">
-                      <strong className="kpiValue valuationValue">₹{Math.round(totalInventoryValue).toLocaleString('en-IN')}</strong>
-                    </div>
-                    <span className="subVal">Combined total asset value of all products in stock</span>
+                  <div className="filterGroup">
+                    <Archive size={16} />
+                    <select value={productStockFilter} onChange={e => setProductStockFilter(e.target.value)}>
+                      <option value="All">All Stock Statuses ({products.length})</option>
+                      <option value="In Stock">In Stock ({inStockCount})</option>
+                      <option value="Low Stock">Low Stock ({lowStockCount})</option>
+                      <option value="Out of Stock">Out of Stock ({outOfStockCount})</option>
+                    </select>
                   </div>
-                </div>
-              </div>
 
-              {/* SEARCH, FILTER & SORT TOOLBAR */}
-              <div className="inventoryFilterBar">
-                <div className="searchBox">
-                  <Search size={18} className="searchIcon" />
-                  <input 
-                    type="text" 
-                    placeholder="Search product name, SKU, category, ID..." 
-                    value={productSearchTerm}
-                    onChange={e => setProductSearchTerm(e.target.value)}
-                  />
-                  {productSearchTerm && (
+                  <div className="filterGroup">
+                    <ArrowUpDown size={16} />
+                    <select value={productSortBy} onChange={e => setProductSortBy(e.target.value)}>
+                      <option value="name-asc">Sort: Name (A-Z)</option>
+                      <option value="name-desc">Sort: Name (Z-A)</option>
+                      <option value="price-asc">Sort: Price (Low to High)</option>
+                      <option value="price-desc">Sort: Price (High to Low)</option>
+                      <option value="stock-desc">Sort: Stock Level (High First)</option>
+                      <option value="stock-asc">Sort: Stock Level (Low First)</option>
+                    </select>
+                  </div>
+
+                  {(productSearchTerm || productCategoryFilter !== 'All' || productStockFilter !== 'All') && (
                     <button 
                       type="button" 
-                      onClick={() => setProductSearchTerm('')}
-                      style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 'bold', padding: '0 4px' }}
-                      title="Clear search"
+                      onClick={() => { setProductSearchTerm(''); setProductCategoryFilter('All'); setProductStockFilter('All'); setProductSortBy('name-asc'); }}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                      title="Reset all search and filter criteria"
                     >
-                      ×
+                      Reset Filters
                     </button>
                   )}
                 </div>
 
-                <div className="filterGroup">
-                  <Filter size={16} />
-                  <select value={productCategoryFilter} onChange={e => setProductCategoryFilter(e.target.value)}>
-                    <option value="All">All Categories ({products.length})</option>
-                    {availableCategories.map(cat => {
-                      const count = products.filter(p => (p.category || '').toLowerCase() === cat.toLowerCase()).length;
-                      return (
-                        <option key={cat} value={cat}>{cat} ({count})</option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                <div className="filterGroup">
-                  <Archive size={16} />
-                  <select value={productStockFilter} onChange={e => setProductStockFilter(e.target.value)}>
-                    <option value="All">All Stock Statuses ({products.length})</option>
-                    <option value="In Stock">In Stock ({inStockCount})</option>
-                    <option value="Low Stock">Low Stock ({lowStockCount})</option>
-                    <option value="Out of Stock">Out of Stock ({outOfStockCount})</option>
-                  </select>
-                </div>
-
-                <div className="filterGroup">
-                  <ArrowUpDown size={16} />
-                  <select value={productSortBy} onChange={e => setProductSortBy(e.target.value)}>
-                    <option value="name-asc">Sort: Name (A-Z)</option>
-                    <option value="name-desc">Sort: Name (Z-A)</option>
-                    <option value="price-asc">Sort: Price (Low to High)</option>
-                    <option value="price-desc">Sort: Price (High to Low)</option>
-                    <option value="stock-desc">Sort: Stock Level (High First)</option>
-                    <option value="stock-asc">Sort: Stock Level (Low First)</option>
-                  </select>
-                </div>
-
-                {(productSearchTerm || productCategoryFilter !== 'All' || productStockFilter !== 'All') && (
-                  <button 
-                    type="button" 
-                    onClick={() => { setProductSearchTerm(''); setProductCategoryFilter('All'); setProductStockFilter('All'); setProductSortBy('name-asc'); }}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
-                      background: '#f8fafc',
-                      color: '#475569',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                    title="Reset all search and filter criteria"
-                  >
-                    Reset Filters
-                  </button>
-                )}
-              </div>
-
-              {/* BULK ACTIONS TOOLBAR */}
-              {selectedProductIds.length > 0 && (
-                <div className="bulkActionBar">
-                  <span>Selected <strong>{selectedProductIds.length}</strong> items</span>
-                  <div className="bulkControls">
-                    <div className="bulkStockInput">
-                      <input 
-                        type="number" 
-                        placeholder="Set Stock" 
-                        value={bulkStockVal}
-                        onChange={e => setBulkStockVal(e.target.value)}
-                      />
-                      <button onClick={handleBulkUpdateStock} className="bulkBtn">Update Stock</button>
-                    </div>
-                    <button onClick={handleBulkDelete} className="bulkBtn delete">
-                      <Trash2 size={16} /> Delete Selected
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* INVENTORY PRODUCTS DATA TABLE */}
-              <div className="tableContainer">
-                <table className="adminTable inventoryTable">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '40px' }}>
+                {/* BULK ACTIONS TOOLBAR */}
+                {selectedProductIds.length > 0 && (
+                  <div className="bulkActionBar">
+                    <span>Selected <strong>{selectedProductIds.length}</strong> items</span>
+                    <div className="bulkControls">
+                      <div className="bulkStockInput">
                         <input 
-                          type="checkbox" 
-                          checked={filteredProducts.length > 0 && selectedProductIds.length === filteredProducts.length}
-                          onChange={handleSelectAllProducts}
+                          type="number" 
+                          placeholder="Set Stock" 
+                          value={bulkStockVal}
+                          onChange={e => setBulkStockVal(e.target.value)}
                         />
-                      </th>
-                      <th>Product Info</th>
-                      <th>SKU</th>
-                      <th>Category</th>
-                      <th>Price & Offer</th>
-                      <th>Stock Level</th>
-                      <th>Stock Status</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredProducts.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                          No products found matching your inventory filters.
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredProducts.map(product => {
-                        const stock = getProductStock(product);
-                        const status = getStockStatus(product);
-                        const isSelected = selectedProductIds.includes(product.id);
+                        <button onClick={handleBulkUpdateStock} className="bulkBtn">Update Stock</button>
+                      </div>
+                      <button onClick={handleBulkDelete} className="bulkBtn delete">
+                        <Trash2 size={16} /> Delete Selected
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                        return (
-                          <tr key={product.id} className={isSelected ? 'selectedRow' : ''}>
-                            <td>
-                              <input 
-                                type="checkbox" 
-                                checked={isSelected}
-                                onChange={() => handleToggleSelectProduct(product.id)}
-                              />
-                            </td>
-                            <td>
-                              <div className="productCell">
-                                <img src={product.image || 'https://via.placeholder.com/40'} alt={product.name} />
-                                <div className="productTitleMeta">
-                                  <strong>{product.name}</strong>
-                                  {product.badge && <span className="invBadgeTag">{product.badge}</span>}
-                                  {product.specifications && Object.keys(product.specifications).length > 0 && (
-                                    <div className="specPreviewList">
-                                      {Object.entries(product.specifications).slice(0, 3).map(([k, v]) => (
-                                        <span key={k} className="specPreviewChip">
-                                          <strong>{k}:</strong> {v}
-                                        </span>
-                                      ))}
-                                      {Object.keys(product.specifications).length > 3 && (
-                                        <span className="specPreviewChip count">+{Object.keys(product.specifications).length - 3} specs</span>
-                                      )}
-                                    </div>
+                {/* INVENTORY PRODUCTS DATA TABLE */}
+                <div className="tableContainer">
+                  <table className="adminTable inventoryTable">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '40px' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={filteredProducts.length > 0 && selectedProductIds.length === filteredProducts.length}
+                            onChange={handleSelectAllProducts}
+                          />
+                        </th>
+                        <th>Product Info</th>
+                        <th>Product ID</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Price & Offer</th>
+                        <th>Stock Level</th>
+                        <th>Stock Status</th>
+                        <th style={{ textAlign: 'right' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                            No products found matching your inventory filters.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredProducts.map((product, pIdx) => {
+                          const prodId = product.productId || product.id || product._id || `PROD-${pIdx}`;
+                          const stock = getProductStock(product);
+                          const status = getStockStatus(product);
+                          const isSelected = selectedProductIds.includes(product.id) || (product._id && selectedProductIds.includes(product._id));
+
+                          return (
+                            <tr key={prodId} className={isSelected ? 'selectedRow' : ''}>
+                              <td>
+                                <input 
+                                  type="checkbox" 
+                                  checked={isSelected}
+                                  onChange={() => handleToggleSelectProduct(product.id || product._id || prodId)}
+                                />
+                              </td>
+                              <td>
+                                <div className="productCell">
+                                  <img src={product.image || 'https://via.placeholder.com/40'} alt={product.name} />
+                                  <div className="productTitleMeta">
+                                    <strong>{product.name}</strong>
+                                    {product.badge && <span className="invBadgeTag">{product.badge}</span>}
+                                    {product.specifications && Object.keys(product.specifications).length > 0 && (
+                                      <div className="specPreviewList">
+                                        {Object.entries(product.specifications).slice(0, 3).map(([k, v], sIdx) => (
+                                          <span key={`${prodId}-${k}-${sIdx}`} className="specPreviewChip">
+                                            <strong>{k}:</strong> {v}
+                                          </span>
+                                        ))}
+                                        {Object.keys(product.specifications).length > 3 && (
+                                          <span className="specPreviewChip count">+{Object.keys(product.specifications).length - 3} specs</span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span className="productIdBadgeTag" title={`Product ID: ${prodId}`}>
+                                  <Hash size={11} /> {prodId}
+                                </span>
+                              </td>
+                              <td>
+                                <code className="skuTag">{product.sku || `SKU-${prodId}`}</code>
+                              </td>
+                              <td>{product.category}</td>
+                              <td>
+                                <div className="priceMeta">
+                                  <strong>₹{product.price.toLocaleString('en-IN')}</strong>
+                                  {product.originalPrice && product.originalPrice > product.price && (
+                                    <span className="origPrice">₹{product.originalPrice.toLocaleString('en-IN')}</span>
                                   )}
                                 </div>
-                              </div>
-                            </td>
-                            <td>
-                              <code className="skuTag">{product.sku || `SKU-${product.id}`}</code>
-                            </td>
-                            <td>{product.category}</td>
-                            <td>
-                              <div className="priceMeta">
-                                <strong>₹{product.price.toLocaleString('en-IN')}</strong>
-                                {product.originalPrice && product.originalPrice > product.price && (
-                                  <span className="origPrice">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                                )}
-                              </div>
-                            </td>
-                            <td>
-                              <div className="stockControlCell" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                <button 
-                                  type="button" 
-                                  className="stockStepBtn" 
-                                  onClick={() => handleQuickStockChange(product, -1)}
-                                  title="Decrease stock by 1"
-                                >
-                                  <Minus size={12} />
-                                </button>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={stock}
-                                  onChange={(e) => handleDirectStockChange(product, e.target.value)}
-                                  className="stockInlineInput"
-                                  style={{
-                                    width: '56px',
-                                    textAlign: 'center',
-                                    padding: '3px 4px',
-                                    fontWeight: '700',
-                                    borderRadius: '6px',
-                                    border: '1px solid #cbd5e1',
-                                    fontSize: '13px',
-                                    background: '#ffffff',
-                                    color: '#0f2b5c',
-                                    outline: 'none'
-                                  }}
-                                  title="Type stock quantity directly"
-                                />
-                                <button 
-                                  type="button" 
-                                  className="stockStepBtn" 
-                                  onClick={() => handleQuickStockChange(product, 1)}
-                                  title="Increase stock by 1"
-                                >
-                                  <Plus size={12} />
-                                </button>
-                              </div>
-                            </td>
-                            <td>
-                              <span className={`stockStatusPill ${status.toLowerCase().replace(/\s+/g, '-')}`}>
-                                {status === 'In Stock' && <CheckCircle2 size={13} />}
-                                {status === 'Low Stock' && <AlertTriangle size={13} />}
-                                {status === 'Out of Stock' && <XCircle size={13} />}
-                                {status}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="actionBtns" style={{ justifyContent: 'flex-end' }}>
-                                <button className="iconBtn specs" title="Edit Technical Specifications" onClick={() => openSpecsModal(product)}>
-                                  <Sliders size={16} />
-                                </button>
-                                <button className="iconBtn edit" title="Edit Product Details" onClick={() => openProductModal(product)}>
-                                  <Edit size={16} />
-                                </button>
-                                <button className="iconBtn delete" title="Delete Product" onClick={() => handleDeleteProduct(product.id)}>
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                              </td>
+                              <td>
+                                <div className="stockControlCell" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                  <button 
+                                    type="button" 
+                                    className="stockStepBtn" 
+                                    onClick={() => handleQuickStockChange(product, -1)}
+                                    title="Decrease stock by 1"
+                                  >
+                                    <Minus size={12} />
+                                  </button>
+                                  <input 
+                                    type="number" 
+                                    min="0" 
+                                    value={stock} 
+                                    onChange={(e) => handleDirectStockChange(product, e.target.value)} 
+                                    className="stockInlineInput" 
+                                    style={{ 
+                                      width: '56px', 
+                                      textAlign: 'center', 
+                                      padding: '3px 4px', 
+                                      fontWeight: '700', 
+                                      borderRadius: '6px', 
+                                      border: '1px solid #cbd5e1', 
+                                      fontSize: '13px', 
+                                      background: '#ffffff', 
+                                      color: '#0f2b5c', 
+                                      outline: 'none' 
+                                    }} 
+                                    title="Type stock quantity directly" 
+                                  />
+                                  <button 
+                                    type="button" 
+                                    className="stockStepBtn" 
+                                    onClick={() => handleQuickStockChange(product, 1)} 
+                                    title="Increase stock by 1"
+                                  >
+                                    <Plus size={12} />
+                                  </button>
+                                </div>
+                              </td>
+                              <td>
+                                <span className={`stockStatusPill ${status.toLowerCase().replace(/\s+/g, '-')}`}>
+                                  {status === 'In Stock' && <CheckCircle2 size={13} />}
+                                  {status === 'Low Stock' && <AlertTriangle size={13} />}
+                                  {status === 'Out of Stock' && <XCircle size={13} />}
+                                  {status}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="actionBtns" style={{ justifyContent: 'flex-end' }}>
+                                  <button className="iconBtn specs" title="Edit Technical Specifications" onClick={() => openSpecsModal(product)}>
+                                    <Sliders size={16} />
+                                  </button>
+                                  <button className="iconBtn edit" title="Edit Product Details" onClick={() => openProductModal(product)}>
+                                    <Edit size={16} />
+                                  </button>
+                                  <button className="iconBtn delete" title="Delete Product" onClick={() => handleDeleteProduct(product.id || product._id)}>
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )
           )}
+
+          {activeTab === 'categories' && (() => {
+            const filteredCategories = availableCategories.filter(cat => 
+              !catSearchTerm || cat.toLowerCase().includes(catSearchTerm.toLowerCase())
+            );
+
+            return (
+              <div className="tabPane fade-in">
+                <div className="paneHeader">
+                  <div>
+                    <h3>Product Category Management</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                      Add new commercial product categories or delete existing categories. Changes sync across product creation, filters, and store catalog.
+                    </p>
+                  </div>
+                </div>
+
+                {/* ADD NEW CATEGORY CARD */}
+                <div className="categoryAddCard">
+                  <div className="categoryAddHeader">
+                    <div className="categoryAddIcon"><FolderPlus size={22} /></div>
+                    <div>
+                      <h4>Add New Product Category</h4>
+                      <p>Create a distinct category group to classify washers, dryers, spare parts, chemicals, and equipment</p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleAddCategory} className="categoryAddForm">
+                    <div className="categoryFormFields">
+                      <div className="categoryFormGroup">
+                        <label>Category Name <span className="reqStar">*</span></label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Industrial Dry Cleaners, Commercial Steamers..."
+                          value={newCatName}
+                          onChange={e => setNewCatName(e.target.value)}
+                        />
+                      </div>
+                      <div className="categoryFormGroup wide">
+                        <label>Category Description / Notes (Optional)</label>
+                        <input
+                          type="text"
+                          placeholder="Brief description for catalog grouping..."
+                          value={newCatDesc}
+                          onChange={e => setNewCatDesc(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <button type="submit" className="addCategorySubmitBtn" disabled={isAddingCategory}>
+                      <Plus size={16} /> {isAddingCategory ? 'Adding...' : 'Add Category'}
+                    </button>
+                  </form>
+                </div>
+
+                {/* CATEGORIES STATS & SEARCH BAR */}
+                <div className="categoryToolbar">
+                  <div className="categorySearchBox">
+                    <Search size={16} className="searchIcon" />
+                    <input 
+                      type="text" 
+                      placeholder="Search categories..." 
+                      value={catSearchTerm}
+                      onChange={e => setCatSearchTerm(e.target.value)}
+                    />
+                    {catSearchTerm && (
+                      <button 
+                        type="button" 
+                        onClick={() => setCatSearchTerm('')}
+                        className="clearSearchBtn"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                  <span className="categoryCountBadge">
+                    Showing <strong>{filteredCategories.length}</strong> of <strong>{availableCategories.length}</strong> categories
+                  </span>
+                </div>
+
+                {/* CATEGORY GRID CARDS */}
+                <div className="categoryCardsGrid">
+                  {filteredCategories.length === 0 ? (
+                    <div className="emptyCategoryNotice">
+                      <FolderTree size={32} style={{ color: '#94a3b8', marginBottom: '8px' }} />
+                      <p>No categories found matching &quot;{catSearchTerm}&quot;.</p>
+                    </div>
+                  ) : (
+                    filteredCategories.map((catName) => {
+                      const count = products.filter(p => (p.category || '').toLowerCase() === catName.toLowerCase()).length;
+                      const isDbCat = dbCategories.some(c => c.name.toLowerCase() === catName.toLowerCase());
+                      const dbItem = dbCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+
+                      return (
+                        <div key={catName} className="categoryCard">
+                          <div className="categoryCardTop">
+                            <div className="categoryCardIcon">
+                              <FolderTree size={20} />
+                            </div>
+                            <button
+                              type="button"
+                              className="categoryDeleteBtn"
+                              onClick={() => handleDeleteCategory(catName)}
+                              title={`Delete category "${catName}"`}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+
+                          <div className="categoryCardContent">
+                            <h4 className="categoryCardTitle">{catName}</h4>
+                            {dbItem?.description && (
+                              <p className="categoryCardDesc">{dbItem.description}</p>
+                            )}
+                            <div className="categoryCardMeta">
+                              <span className="categoryProductCount">
+                                <Package size={13} /> {count} {count === 1 ? 'Product' : 'Products'}
+                              </span>
+                              {isDbCat ? (
+                                <span className="categoryTypeBadge custom">Custom Category</span>
+                              ) : (
+                                <span className="categoryTypeBadge system">System Category</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {activeTab === 'customers' && (() => {
             const filteredOrders = orders.filter(order => {
@@ -1413,14 +2551,15 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredOrders.map(order => {
+                      {filteredOrders.map((order, oIdx) => {
                         const currentStatus = order.status || 'Processing';
                         const normalizedStatus = 
                           currentStatus === 'delivered' ? 'Delivered' : 
                           currentStatus === 'in-transit' ? 'Shipped' : currentStatus;
+                        const orderKey = order.id || order._id || `order-${oIdx}`;
 
                         return (
-                          <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <tr key={orderKey} style={{ borderBottom: '1px solid #f1f5f9' }}>
                             <td style={{ verticalAlign: 'top', padding: '16px 14px' }}>
                               <div className="customerOrderCell">
                                 <span className="orderIdBadge">#{order.id}</span>
@@ -1692,225 +2831,6 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           )}
         </div>
       </main>
-
-      {isProductModalOpen && (
-        <div className="modalOverlay" onClick={() => setIsProductModalOpen(false)}>
-          <div className="modalContent inventoryModalContent" onClick={e => e.stopPropagation()}>
-            <div className="modalHeader">
-              <div>
-                <h3>{editingProduct ? 'Edit Product & Stock' : 'Add New Inventory Product'}</h3>
-                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
-                  {editingProduct ? `Updating inventory details for ID: ${editingProduct.id}` : 'Fill in product specs, pricing, SKU, and stock count'}
-                </p>
-              </div>
-              <button className="closeModalBtn" onClick={() => setIsProductModalOpen(false)}>×</button>
-            </div>
-            
-            <form onSubmit={handleProductSubmit}>
-              <div className="modalBody">
-                <div className="formRow">
-                  <div className="formGroup flex-2">
-                    <label>Product Name *</label>
-                    <input required type="text" value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} placeholder="e.g. LG Titan C Max Commercial Washer" />
-                  </div>
-                  <div className="formGroup flex-1">
-                    <label>SKU Code</label>
-                    <input type="text" value={productForm.sku} onChange={e => setProductForm({...productForm, sku: e.target.value})} placeholder="e.g. SKU-LG-WM15" />
-                  </div>
-                </div>
-
-                <div className="formRow">
-                  <div className="formGroup">
-                    <label>Category *</label>
-                    <select value={productForm.category} onChange={e => setProductForm({...productForm, category: e.target.value})}>
-                      {availableCategories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="formGroup">
-                    <label>Badge Tag</label>
-                    <input type="text" value={productForm.badge || ''} onChange={e => setProductForm({...productForm, badge: e.target.value})} placeholder="e.g. Best Seller, New, 20% OFF" />
-                  </div>
-                </div>
-
-                <div className="formRow">
-                  <div className="formGroup">
-                    <label>Selling Price (₹) *</label>
-                    <input required type="number" min="0" value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value})} placeholder="349000" />
-                  </div>
-                  <div className="formGroup">
-                    <label>Original / MRP Price (₹)</label>
-                    <input type="number" min="0" value={productForm.originalPrice} onChange={e => setProductForm({...productForm, originalPrice: e.target.value})} placeholder="389000" />
-                  </div>
-                </div>
-
-                <div className="formRow">
-                  <div className="formGroup">
-                    <label>Stock Quantity *</label>
-                    <input required type="number" min="0" value={productForm.stock} onChange={e => setProductForm({...productForm, stock: e.target.value})} placeholder="50" />
-                  </div>
-                  <div className="formGroup">
-                    <label>Low Stock Threshold</label>
-                    <input type="number" min="1" value={productForm.lowStockThreshold} onChange={e => setProductForm({...productForm, lowStockThreshold: e.target.value})} placeholder="10" />
-                  </div>
-                </div>
-
-                <div className="formGroup">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <label style={{ margin: 0, fontWeight: '700' }}>Product Images (Primary & Gallery) *</label>
-                    <button
-                      type="button"
-                      onClick={handleAddImageField}
-                      style={{
-                        background: '#f0f9ff',
-                        color: '#0284c7',
-                        border: '1px solid #bae6fd',
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <Plus size={14} /> Add Image URL
-                    </button>
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {(Array.isArray(productForm.images) && productForm.images.length > 0 ? productForm.images : ['']).map((imgUrl, idx) => (
-                      <div key={idx} className="imageUrlInputGroup" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', minWidth: '70px', textTransform: 'uppercase' }}>
-                          {idx === 0 ? 'Cover *' : `Image ${idx + 1}`}
-                        </span>
-                        <input
-                          required={idx === 0}
-                          type="text"
-                          value={imgUrl}
-                          onChange={(e) => handleImageFieldChange(idx, e.target.value)}
-                          placeholder={idx === 0 ? "/10kglggiantwasher.png or https://..." : "Additional image URL..."}
-                          style={{ flex: 1 }}
-                        />
-                        {imgUrl && (
-                          <img 
-                            src={imgUrl} 
-                            alt={`Preview ${idx + 1}`} 
-                            className="inputImgPreview" 
-                            style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                            onError={(e) => e.target.style.display='none'} 
-                          />
-                        )}
-                        {productForm.images && productForm.images.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImageField(idx)}
-                            style={{
-                              background: '#fef2f2',
-                              color: '#dc2626',
-                              border: '1px solid #fecaca',
-                              borderRadius: '6px',
-                              padding: '8px',
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                            title="Remove this image URL"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="formGroup">
-                  <label>Description</label>
-                  <textarea rows="2" value={productForm.description || ''} onChange={e => setProductForm({...productForm, description: e.target.value})} placeholder="Product specifications and key features..." />
-                </div>
-
-                {/* TECHNICAL SPECIFICATIONS EDITOR SECTION */}
-                <div className="formGroup specsFormGroup" style={{ marginTop: '16px', borderTop: '1px dashed #cbd5e1', paddingTop: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <label style={{ margin: 0, fontWeight: '700', fontSize: '14px', color: '#0f2b5c', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Sliders size={16} style={{ color: '#0284c7' }} /> Technical Specifications
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleAddSpecRow}
-                      className="addSpecBtn"
-                    >
-                      <Plus size={14} /> Add Spec Field
-                    </button>
-                  </div>
-                  <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#64748b' }}>
-                    Define technical parameters (e.g., Capacity, Voltage, Loading Type) for product details & comparison pages.
-                  </p>
-
-                  {/* Quick Preset Spec Chips */}
-                  <div className="presetChipsContainer">
-                    <span className="presetChipsLabel">Quick Presets:</span>
-                    {COMMON_SPEC_KEYS.map(preset => (
-                      <button
-                        key={preset}
-                        type="button"
-                        className="presetChip"
-                        onClick={() => handleAddPresetSpec(preset)}
-                      >
-                        + {preset}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Dynamic Key-Value Spec Rows */}
-                  <div className="specRowsContainer">
-                    {(productForm.specRows || []).map((row, idx) => (
-                      <div key={idx} className="specRowInputGroup">
-                        <input
-                          type="text"
-                          value={row.key || ''}
-                          onChange={(e) => handleSpecRowChange(idx, 'key', e.target.value)}
-                          placeholder="Spec Name (e.g. Capacity)"
-                          className="specKeyInput"
-                        />
-                        <input
-                          type="text"
-                          value={row.value || ''}
-                          onChange={(e) => handleSpecRowChange(idx, 'value', e.target.value)}
-                          placeholder="Spec Value (e.g. 15 Kg / 220 V)"
-                          className="specValueInput"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSpecRow(idx)}
-                          className="removeSpecBtn"
-                          title="Remove specification field"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    ))}
-                    {(!productForm.specRows || productForm.specRows.length === 0) && (
-                      <p style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', margin: '4px 0' }}>
-                        No technical specifications added yet. Click "Add Spec Field" or use a quick preset above.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="modalFooter">
-                <button type="button" className="cancelBtn" onClick={() => setIsProductModalOpen(false)}>Cancel</button>
-                <button type="submit" className="saveBtn">Save Product & Inventory</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* DEDICATED QUICK TECHNICAL SPECS MODAL */}
       {isSpecsModalOpen && specsEditingProduct && (

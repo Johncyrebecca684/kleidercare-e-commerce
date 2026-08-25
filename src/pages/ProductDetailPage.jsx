@@ -40,7 +40,9 @@ import {
   RotateCcw,
   Layers,
   Percent,
-  AlertTriangle
+  AlertTriangle,
+  Copy,
+  Hash
 } from 'lucide-react';
 import EmiOptionsModal from '../components/EmiOptionsModal';
 import { getRecommendations, getProductType, getRecommendedTargetType, getProductCapacity, getDryerFuelType } from '../utils/recommendationEngine';
@@ -53,6 +55,8 @@ import EmiButton from '../components/EmiButton';
 import SetupProgramButton from '../components/SetupProgramButton';
 import AmcPlanButton from '../components/AmcPlanButton';
 import WishlistButton from '../components/WishlistButton';
+import FormattedDescription from '../components/FormattedDescription';
+import { useToast } from '../context/ToastContext';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage({
@@ -70,6 +74,7 @@ export default function ProductDetailPage({
 }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showSuccess } = useToast();
 
   const rawProduct = products.find(p => String(p.id) === String(id)) || products[0];
   const product = useMemo(() => {
@@ -543,6 +548,12 @@ export default function ProductDetailPage({
               ))}
             </div>
 
+            {/* IMAGE REPRESENTATION & PACKAGING DISCLAIMER */}
+            <div className="pdp-image-disclaimer">
+              <span className="pdp-disclaimer-star">*</span>
+              <span>Packaging might slightly differ. Image for representation purpose only.</span>
+            </div>
+
             <div className="pdp-guarantee-card">
               <ShieldCheck size={20} className="guarantee-icon" />
               <div>
@@ -555,19 +566,6 @@ export default function ProductDetailPage({
           {/* RIGHT COLUMN: PRODUCT DETAILS & PURCHASING OPTIONS */}
           <div className="pdp-details-panel">
             <h1 className="pdp-page-title">{product.name}</h1>
-
-            {/* STOCK BADGE */}
-            <div className="pdp-rating-strip" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              {isOutOfStock ? (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#fef2f2', color: '#dc2626', fontWeight: '700', fontSize: '13px', border: '1px solid #fecaca' }}>
-                  <AlertTriangle size={15} /> Currently Out of Stock
-                </span>
-              ) : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: '#f0fdf4', color: '#16a34a', fontWeight: '700', fontSize: '13px', border: '1px solid #bbf7d0' }}>
-                  <CheckCircle2 size={15} /> In Stock (Ready to Dispatch)
-                </span>
-              )}
-            </div>
 
             {/* PRICE CARD WITH 18% GST */}
             <div className="pdp-price-hero-card">
@@ -600,6 +598,10 @@ export default function ProductDetailPage({
               <div className="pdp-tax-info">
                 <FileText size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px', color: '#0284c7' }} />
                 Inclusive of 18% GST. Valid Tax Invoice provided for B2B Input Tax Credit (ITC) claims.
+              </div>
+
+              <div className="pdp-price-disclaimer-note">
+                <span className="star">*</span> Packaging might slightly differ. Image for representation purpose only.
               </div>
             </div>
 
@@ -675,7 +677,7 @@ export default function ProductDetailPage({
                 </div>
               ) : (
                 <div className="pdp-description-content">
-                  <p>{product.description}</p>
+                  <FormattedDescription description={product.description} />
                 </div>
               )}
             </div>

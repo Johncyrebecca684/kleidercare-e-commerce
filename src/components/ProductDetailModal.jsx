@@ -26,6 +26,7 @@ import AddToCartButton from './AddToCartButton';
 import BuyNowButton from './BuyNowButton';
 import EmiButton from './EmiButton';
 import WishlistButton from './WishlistButton';
+import FormattedDescription from './FormattedDescription';
 import './ProductDetailModal.css';
 
 export default function ProductDetailModal({
@@ -319,7 +320,7 @@ export default function ProductDetailModal({
                 </div>
               ) : (
                 <div className="pdp-desc-text">
-                  <p>{product.description}</p>
+                  <FormattedDescription description={product.description} />
                 </div>
               )}
             </div>

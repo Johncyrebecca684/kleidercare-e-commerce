@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Sparkles,
   Handshake,
@@ -5,8 +6,14 @@ import {
   Store,
   Crown,
   MonitorCheck,
-  Megaphone
+  Megaphone,
+  X,
+  ExternalLink,
+  RotateCw,
+  Lock,
+  Globe
 } from 'lucide-react';
+import { API_URL } from '../config';
 import './TopServicePills.css';
 
 const SERVICE_BOXES = [
@@ -52,6 +59,14 @@ const SERVICE_BOXES = [
   },
   {
     id: 6,
+    title: 'Salavai Laundry Management System',
+    shortTitle: 'Salavai Laundry Management System',
+    url: 'https://lms.systemcaresolutions.com/',
+    image: '/Untitled design.png',
+    color: '#0284c7'
+  },
+  {
+    id: 7,
     title: 'System Cares IT Solutions',
     shortTitle: 'System Cares IT Solutions',
     url: 'https://systemcaresitsolutions.com/',
@@ -59,7 +74,7 @@ const SERVICE_BOXES = [
     color: '#0f2b5c'
   },
   {
-    id: 7,
+    id: 8,
     title: 'Digital Marketing -> SCS',
     shortTitle: 'Digital Marketing (SCS)',
     url: 'https://systemcaresolutions.com/',
@@ -69,9 +84,36 @@ const SERVICE_BOXES = [
 ];
 
 export default function TopServicePills({ onCategoryChange, selectedCategory }) {
+  const [inAppModal, setInAppModal] = useState(null); // { url, embedUrl, title }
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [iframeBlocked, setIframeBlocked] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
+
+  // Prevent background scrolling when in-app modal is open
+  useEffect(() => {
+    if (inAppModal) {
+      document.body.style.overflow = 'hidden';
+      // Setup a timer: if iframe takes too long to trigger onLoad due to browser blocking sameorigin frames
+      const timer = setTimeout(() => {
+        setIframeLoading(false);
+      }, 3000);
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = '';
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [inAppModal]);
+
   const handleClick = (item) => {
     if (item.url) {
-      window.open(item.url, '_blank', 'noopener,noreferrer');
+      setIframeBlocked(false);
+      setIframeLoading(true);
+      setInAppModal({
+        url: item.url,
+        title: item.title
+      });
       return;
     }
     if (onCategoryChange && item.category) {
@@ -83,42 +125,129 @@ export default function TopServicePills({ onCategoryChange, selectedCategory }) 
     }
   };
 
-  return (
-    <div className="top-service-pills-bar" role="navigation" aria-label="Partner & Brand Services">
-      <div className="top-service-pills-scroll">
-        {SERVICE_BOXES.map((box) => {
-          const Icon = box.icon;
-          const isActive = selectedCategory === box.category && box.id === 1;
+  const handleCloseModal = () => {
+    setInAppModal(null);
+    setIframeBlocked(false);
+  };
 
-          return (
-            <button
-              type="button"
-              key={box.id}
-              className={`service-pill-box ${isActive ? 'active' : ''}`}
-              onClick={() => handleClick(box)}
-              title={box.title}
-              aria-label={box.title}
-            >
-              <div className="service-pill-icon-container">
-                {box.image ? (
-                  <img
-                    src={box.image}
-                    alt={box.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="service-pill-img"
-                  />
-                ) : (
-                  <div className="service-pill-icon-inner" style={{ color: box.color }}>
-                    <Icon size={18} strokeWidth={2.2} />
-                  </div>
-                )}
-              </div>
-              <span className="service-pill-title">{box.shortTitle || box.title}</span>
-            </button>
-          );
-        })}
+  const handleReload = () => {
+    setIframeBlocked(false);
+    setIframeLoading(true);
+    setIframeKey((prev) => prev + 1);
+  };
+
+  const handleOpenExternal = () => {
+    if (inAppModal?.url) {
+      window.open(inAppModal.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  return (
+    <>
+      <div className="top-service-pills-bar" role="navigation" aria-label="Partner & Brand Services">
+        <div className="top-service-pills-scroll">
+          {SERVICE_BOXES.map((box) => {
+            const Icon = box.icon;
+            const isActive = selectedCategory === box.category && box.id === 1;
+
+            return (
+              <button
+                type="button"
+                key={box.id}
+                className={`service-pill-box ${isActive ? 'active' : ''}`}
+                onClick={() => handleClick(box)}
+                title={box.title}
+                aria-label={box.title}
+              >
+                <div className="service-pill-icon-container">
+                  {box.image ? (
+                    <img
+                      src={box.image}
+                      alt={box.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="service-pill-img"
+                    />
+                  ) : (
+                    <div className="service-pill-icon-inner" style={{ color: box.color }}>
+                      {Icon && <Icon size={18} strokeWidth={2.2} />}
+                    </div>
+                  )}
+                </div>
+                <span className="service-pill-title">{box.shortTitle || box.title}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {/* In-App Browser Modal */}
+      {inAppModal && (
+        <div className="inapp-browser-backdrop" onClick={handleCloseModal}>
+          <div className="inapp-browser-modal" onClick={(e) => e.stopPropagation()}>
+            {/* Browser Header Bar */}
+            <div className="inapp-browser-header">
+              <div className="inapp-browser-header-left">
+                <button
+                  type="button"
+                  className="inapp-browser-btn inapp-browser-close-btn"
+                  onClick={handleCloseModal}
+                  aria-label="Close in-app browser"
+                >
+                  <X size={20} />
+                </button>
+                <div className="inapp-browser-info">
+                  <span className="inapp-browser-title">{inAppModal.title}</span>
+                  <span className="inapp-browser-url">
+                    <Lock size={10} className="inapp-browser-lock" />
+                    {inAppModal.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="inapp-browser-header-actions">
+                <button
+                  type="button"
+                  className="inapp-browser-btn"
+                  onClick={handleReload}
+                  title="Reload page"
+                  aria-label="Reload"
+                >
+                  <RotateCw size={18} />
+                </button>
+                <button
+                  type="button"
+                  className="inapp-browser-btn inapp-browser-open-ext-btn"
+                  onClick={handleOpenExternal}
+                  title="Open in new window"
+                  aria-label="Open in new window"
+                >
+                  <ExternalLink size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Browser Content Area */}
+            <div className="inapp-browser-body">
+              {iframeLoading && (
+                <div className="inapp-browser-loader">
+                  <div className="inapp-browser-spinner"></div>
+                  <span>Connecting to {inAppModal.title}...</span>
+                </div>
+              )}
+
+              <iframe
+                key={iframeKey}
+                src={inAppModal.url}
+                title={inAppModal.title}
+                className="inapp-browser-iframe"
+                onLoad={() => setIframeLoading(false)}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

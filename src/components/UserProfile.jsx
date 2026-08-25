@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { updateProfile, updateAddresses, addWalletBalance } from '../services/authService';
+import { useToast } from '../context/ToastContext';
 import Header from './Header';
 import Footer from './Footer';
 import Chatbot from './Chatbot';
@@ -132,6 +133,7 @@ export default function UserProfile({
   };
 
   // Profile Form State
+  const { showSuccess, showError, showWarning } = useToast();
   const [firstName, setFirstName] = useState(userData?.firstName || '');
   const [lastName, setLastName] = useState(userData?.lastName || '');
   const [mobileNumber, setMobileNumber] = useState(userData?.mobileNumber || '');
@@ -254,9 +256,10 @@ export default function UserProfile({
             );
 
             setPaymentMsg(`🎉 Online payment of ₹${targetOrder.total.toLocaleString('en-IN')} for Order #${targetOrder.id} completed successfully via Razorpay!`);
+            showSuccess(`Payment of ₹${targetOrder.total.toLocaleString('en-IN')} for Order #${targetOrder.id} completed successfully!`);
           } catch (err) {
             console.error(err);
-            alert('Payment completed, but order status update failed: ' + err.message);
+            showError('Payment completed, but order status update failed: ' + err.message);
           } finally {
             setPayingOrderId(null);
           }
@@ -280,7 +283,7 @@ export default function UserProfile({
       rzp.open();
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Error launching Razorpay payment window.');
+      showError(err.message || 'Error launching Razorpay payment window.');
       setPayingOrderId(null);
     }
   };
@@ -299,14 +302,18 @@ export default function UserProfile({
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    setProfileMsg({ type: '', text: '' });
     setProfileLoading(true);
+    setProfileMsg({ type: '', text: '' });
     try {
       const response = await updateProfile({ firstName, lastName, mobileNumber });
-      setProfileMsg({ type: 'success', text: response.message || 'Profile updated successfully!' });
-      if (onUpdateUser) onUpdateUser(response.user);
+      setProfileMsg({ type: 'success', text: 'Profile updated successfully!' });
+      showSuccess('Profile updated successfully!');
+      if (onUpdateUser) {
+        onUpdateUser(response.user);
+      }
     } catch (err) {
       setProfileMsg({ type: 'error', text: err.message || 'Failed to update profile' });
+      showError(err.message || 'Failed to update profile');
     } finally {
       setProfileLoading(false);
     }
@@ -315,7 +322,7 @@ export default function UserProfile({
   const handleAddOrEditAddress = async (e) => {
     e.preventDefault();
     if (!addressForm.addressLine || !addressForm.city || !addressForm.state || !addressForm.pincode) {
-      alert('Please fill out all address fields');
+      showWarning('Please fill out all required address fields.');
       return;
     }
 
@@ -337,8 +344,9 @@ export default function UserProfile({
       setShowAddressModal(false);
       setAddressForm({ type: 'Home', addressLine: '', city: '', state: '', pincode: '' });
       setEditingAddressIndex(null);
+      showSuccess('Address saved successfully!');
     } catch (err) {
-      alert('Failed to save address: ' + err.message);
+      showError('Failed to save address: ' + err.message);
     } finally {
       setAddressLoading(false);
     }
@@ -353,8 +361,9 @@ export default function UserProfile({
       if (onUpdateUser) {
         onUpdateUser({ ...userData, addresses: response.addresses });
       }
+      showSuccess('Address deleted successfully.');
     } catch (err) {
-      alert('Failed to delete address: ' + err.message);
+      showError('Failed to delete address: ' + err.message);
     }
   };
 

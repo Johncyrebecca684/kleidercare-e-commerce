@@ -77,14 +77,15 @@ export default function CartPage({
     limit: 4
   });
 
-  const subtotal = Math.round(items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100) / 100;
+  const getItemGstPrice = (item) => {
+    if (item.priceWithGst) return item.priceWithGst;
+    return Math.round(item.price * 1.18);
+  };
+
+  const totalItemGstPrice = Math.round(items.reduce((sum, item) => sum + (getItemGstPrice(item) * item.quantity), 0) * 100) / 100;
   const shipping = 0; // ₹0 collected online because freight is To-Pay upon delivery
-  const tax = items.reduce((sum, item) => {
-    const itemGst = item.priceWithGst ? (item.priceWithGst - item.price) : (Math.round(item.price * 1.18) - item.price);
-    return sum + (itemGst * item.quantity);
-  }, 0);
   const installationFee = installationAddon.selected ? installationAddon.fee : 0;
-  const total = Math.round((subtotal + tax + installationFee) * 100) / 100;
+  const total = Math.round((totalItemGstPrice + installationFee) * 100) / 100;
 
   const handleAddAddon = (addon) => {
     if (onAddToCart) {
@@ -112,7 +113,7 @@ export default function CartPage({
             </div>
             <div className="mobile-top-summary-content">
               <div className="mobile-cart-total-row">
-                <span className="mobile-total-label">Subtotal:</span>
+                <span className="mobile-total-label">Total (Incl. Taxes):</span>
                 <span className="mobile-total-val">₹{total.toLocaleString('en-IN')}</span>
                 <button
                   type="button"
@@ -159,176 +160,198 @@ export default function CartPage({
           <div className="cart-page-content">
             <div className="cart-items-section">
               <div className="cart-items-list">
-                {items.map(item => (
-                  <div key={item.cartItemId || item.id} className="cart-page-item">
-                    <Link to={`/product/${item.id}`} className="cart-page-item-image-link">
-                      <img src={formatImageUrl(item.image)} alt={item.name} className="cart-page-item-image" />
-                    </Link>
+                {items.map(item => {
+                  const itemGstPrice = getItemGstPrice(item);
+                  const itemTotalGstPrice = Math.round((itemGstPrice * item.quantity) * 100) / 100;
 
-                    <div className="cart-page-item-details">
-                      <Link to={`/product/${item.id}`} className="cart-page-item-name-link">
-                        <h3 className="cart-page-item-name">{item.name}</h3>
+                  return (
+                    <div key={item.cartItemId || item.id} className="cart-page-item">
+                      <Link to={`/product/${item.id}`} className="cart-page-item-image-link">
+                        <img src={formatImageUrl(item.image)} alt={item.name} className="cart-page-item-image" />
                       </Link>
-                      {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
-                        <div
-                          className="item-warranty-badge"
-                          style={{
-                            fontSize: '12px',
-                            color: '#0f2b5c',
-                            fontWeight: '600',
-                            marginTop: '4px',
-                            background: '#f0f7ff',
-                            padding: '4px 10px',
-                            borderRadius: '6px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            border: '1px solid #bfdbfe'
-                          }}
-                        >
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                            <ShieldCheck size={14} color="#0f2b5c" /> {item.amcWarrantyInfo.type} (+₹{item.amcWarrantyInfo.price.toLocaleString('en-IN')}/yr)
+
+                      <div className="cart-page-item-details">
+                        <Link to={`/product/${item.id}`} className="cart-page-item-name-link">
+                          <h3 className="cart-page-item-name">{item.name}</h3>
+                        </Link>
+                        
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                          <span className="cart-page-item-price" style={{ margin: 0, fontWeight: '800', color: '#0f2b5c', fontSize: '17px' }}>
+                            ₹{itemGstPrice.toLocaleString('en-IN')}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'warranty')}
+                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '600', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '4px' }}>
+                            MRP (Inclusive of all taxes)
+                          </span>
+                        </div>
+
+                        {item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo && (
+                          <div
+                            className="item-warranty-badge"
                             style={{
-                              background: '#dbeafe',
-                              border: 'none',
-                              color: '#1e40af',
-                              borderRadius: '50%',
-                              width: '18px',
-                              height: '18px',
+                              fontSize: '12px',
+                              color: '#0f2b5c',
+                              fontWeight: '600',
+                              marginTop: '2px',
+                              background: '#f0f7ff',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              marginLeft: '4px'
+                              gap: '6px',
+                              border: '1px solid #bfdbfe'
                             }}
-                            title="Remove AMC Extended Warranty"
                           >
-                            <X size={11} strokeWidth={2.5} />
-                          </button>
-                        </div>
-                      )}
-                      {item.includeProgramSetup && (
-                        <div
-                          className="item-warranty-badge"
-                          style={{
-                            fontSize: '12px',
-                            color: '#0284c7',
-                            fontWeight: '600',
-                            marginTop: '4px',
-                            background: '#f0f9ff',
-                            padding: '4px 10px',
-                            borderRadius: '6px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            border: '1px solid #bae6fd'
-                          }}
-                        >
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                            <Settings size={14} color="#0284c7" /> Machine Program Setup (+₹18,000)
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'setup')}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                              <ShieldCheck size={14} color="#0f2b5c" /> {item.amcWarrantyInfo.type} (+₹{Math.round(item.amcWarrantyInfo.price * 1.18).toLocaleString('en-IN')}/yr Incl. GST)
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'warranty')}
+                              style={{
+                                background: '#dbeafe',
+                                border: 'none',
+                                color: '#1e40af',
+                                borderRadius: '50%',
+                                width: '18px',
+                                height: '18px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                marginLeft: '4px'
+                              }}
+                              title="Remove AMC Extended Warranty"
+                            >
+                              <X size={11} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        )}
+                        {item.includeProgramSetup && (
+                          <div
+                            className="item-warranty-badge"
                             style={{
-                              background: '#e0f2fe',
-                              border: 'none',
-                              color: '#0369a1',
-                              borderRadius: '50%',
-                              width: '18px',
-                              height: '18px',
+                              fontSize: '12px',
+                              color: '#0284c7',
+                              fontWeight: '600',
+                              marginTop: '4px',
+                              background: '#f0f9ff',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              marginLeft: '4px'
+                              gap: '6px',
+                              border: '1px solid #bae6fd'
                             }}
-                            title="Remove Machine Program Setup"
                           >
-                            <X size={11} strokeWidth={2.5} />
-                          </button>
-                        </div>
-                      )}
-                      {/* INLINE AMC ADD-ON SELECTOR FOR APPLICABLE COMMERCIAL MACHINERY */}
-                      {isAmcApplicable(item) && (
-                        <div className="cart-amc-addon-selector" style={{ marginTop: '8px', marginBottom: '6px' }}>
-                          {(!item.selectedWarranty || item.selectedWarranty === 'none') && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <span style={{ fontSize: '11px', fontWeight: '700', color: '#0f2b5c', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <ShieldCheck size={13} color="#0284c7" /> Add Kleider Care AMC Plan:
-                              </span>
-                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                <button
-                                  type="button"
-                                  onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'amc')}
-                                  style={{
-                                    padding: '4px 10px',
-                                    fontSize: '11px',
-                                    fontWeight: '700',
-                                    borderRadius: '5px',
-                                    border: '1px solid #0284c7',
-                                    background: '#f0f9ff',
-                                    color: '#0369a1',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.15s ease'
-                                  }}
-                                >
-                                  + Add AMC Plan (₹{getAmcRatesForItem(item).price.toLocaleString('en-IN')} + 18% GST = ₹{Math.round(getAmcRatesForItem(item).price * 1.18).toLocaleString('en-IN')})
-                                </button>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                              <Settings size={14} color="#0284c7" /> Machine Program Setup (+₹{Math.round(18000 * 1.18).toLocaleString('en-IN')} Incl. GST)
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onRemoveAddon && onRemoveAddon(item.cartItemId || item.id, 'setup')}
+                              style={{
+                                background: '#e0f2fe',
+                                border: 'none',
+                                color: '#0369a1',
+                                borderRadius: '50%',
+                                width: '18px',
+                                height: '18px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                marginLeft: '4px'
+                              }}
+                              title="Remove Machine Program Setup"
+                            >
+                              <X size={11} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        )}
+                        {/* INLINE AMC ADD-ON SELECTOR FOR APPLICABLE COMMERCIAL MACHINERY */}
+                        {isAmcApplicable(item) && (
+                          <div className="cart-amc-addon-selector" style={{ marginTop: '8px', marginBottom: '4px' }}>
+                            {(!item.selectedWarranty || item.selectedWarranty === 'none') && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <span style={{ fontSize: '11px', fontWeight: '700', color: '#0f2b5c', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <ShieldCheck size={13} color="#0284c7" /> Add Kleider Care AMC Plan:
+                                </span>
+                                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'amc')}
+                                    style={{
+                                      padding: '4px 10px',
+                                      fontSize: '11px',
+                                      fontWeight: '700',
+                                      borderRadius: '5px',
+                                      border: '1px solid #0284c7',
+                                      background: '#f0f9ff',
+                                      color: '#0369a1',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s ease'
+                                    }}
+                                  >
+                                    + Add AMC Plan (₹{Math.round(getAmcRatesForItem(item).price * 1.18).toLocaleString('en-IN')} Incl. 18% GST)
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {!item.includeProgramSetup && (
-                            <div style={{ marginTop: '6px' }}>
-                              <SetupProgramButton
-                                active={false}
-                                onToggle={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'setup')}
-                                defaultText="+ Add Machine Program Setup (+₹18,000)"
-                                activeText="✓ Program Setup Added"
-                                style={{ padding: '4px 10px', fontSize: '11px' }}
-                              />
-                            </div>
-                          )}
+                            {!item.includeProgramSetup && (
+                              <div style={{ marginTop: '6px' }}>
+                                <SetupProgramButton
+                                  active={false}
+                                  onToggle={() => onAddAddon && onAddAddon(item.cartItemId || item.id, 'setup')}
+                                  defaultText={`+ Add Machine Program Setup (+₹${Math.round(18000 * 1.18).toLocaleString('en-IN')} Incl. GST)`}
+                                  activeText="✓ Program Setup Added"
+                                  style={{ padding: '4px 10px', fontSize: '11px' }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="cart-page-item-right-col">
+                        <div className="cart-page-item-actions">
+                          <button
+                            className="cart-page-quantity-btn"
+                            onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity - 1)}
+                            disabled={item.quantity === 1}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="cart-page-quantity">{item.quantity}</span>
+                          <button
+                            className="cart-page-quantity-btn"
+                            onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity + 1)}
+                            aria-label="Increase quantity"
+                          >
+                            <Plus size={14} />
+                          </button>
                         </div>
-                      )}
-                      <p className="cart-page-item-price">₹{item.price.toLocaleString('en-IN')}</p>
-                    </div>
 
-                    <div className="cart-page-item-actions">
-                      <button
-                        className="cart-page-quantity-btn"
-                        onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity - 1)}
-                        disabled={item.quantity === 1}
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="cart-page-quantity">{item.quantity}</span>
-                      <button
-                        className="cart-page-quantity-btn"
-                        onClick={() => onUpdateQuantity(item.cartItemId || item.id, item.quantity + 1)}
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
+                        <div className="cart-page-item-total">
+                          <span className="item-total-price">₹{itemTotalGstPrice.toLocaleString('en-IN')}</span>
+                          <span className="item-total-subtext">
+                            Total (Incl. taxes)
+                          </span>
+                        </div>
 
-                    <div className="cart-page-item-total">
-                      ₹{(Math.round((item.price * item.quantity) * 100) / 100).toLocaleString('en-IN')}
+                        <button
+                          className="cart-page-remove-btn"
+                          onClick={() => onRemoveItem(item.cartItemId || item.id)}
+                          title="Remove Item"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
-
-                    <button
-                      className="cart-page-remove-btn"
-                      onClick={() => onRemoveItem(item.cartItemId || item.id)}
-                      title="Remove Item"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* CART RECOMMENDATIONS / UPSELL WIDGET */}
@@ -344,8 +367,9 @@ export default function CartPage({
                 <div className="recommendations-grid">
                   {cartRecommendations.map(({ product: addon, reason }) => {
                     const existing = items.find(i => i.id === addon.id || i.name === addon.name);
-                    const addonOrigPrice = addon.originalPrice || Math.round(addon.price * 1.32);
-                    const discountPct = Math.round(((addonOrigPrice - addon.price) / addonOrigPrice) * 100);
+                    const addonGstPrice = addon.priceWithGst || Math.round(addon.price * 1.18);
+                    const addonOrigPrice = addon.originalPrice ? Math.round(addon.originalPrice * 1.18) : Math.round(addonGstPrice * 1.32);
+                    const discountPct = Math.round(((addonOrigPrice - addonGstPrice) / addonOrigPrice) * 100);
 
                     return (
                       <div key={addon.id} className="addon-recommend-card">
@@ -366,9 +390,12 @@ export default function CartPage({
                           )}
                           <p className="addon-desc">{addon.description || `${addon.category} spare part`}</p>
                           <div className="addon-price-line">
-                            <span className="addon-curr-price">₹{addon.price.toLocaleString('en-IN')}</span>
+                            <span className="addon-curr-price">₹{addonGstPrice.toLocaleString('en-IN')}</span>
                             <span className="addon-orig-price">₹{addonOrigPrice.toLocaleString('en-IN')}</span>
                             <span className="addon-save-tag">Save {discountPct}%</span>
+                          </div>
+                          <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '2px' }}>
+                            MRP (Inclusive of all taxes)
                           </div>
                         </div>
 
@@ -402,49 +429,17 @@ export default function CartPage({
               </div>
 
               <div className="summary-row">
-                <span>Subtotal ({items.length} items)</span>
-                <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>MRP ({items.reduce((s, i) => s + i.quantity, 0)} {items.reduce((s, i) => s + i.quantity, 0) === 1 ? 'item' : 'items'})</span>
+                  <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '600' }}>Inclusive of all taxes</span>
+                </div>
+                <span style={{ fontWeight: '600', color: '#0f2b5c' }}>₹{totalItemGstPrice.toLocaleString('en-IN')}</span>
               </div>
 
               {installationAddon.selected && (
                 <div className="summary-row addon-row">
                   <span>Professional Installation</span>
                   <span>+₹{installationAddon.fee.toLocaleString('en-IN')}</span>
-                </div>
-              )}
-
-              {/* AMC Extended Warranty Breakdown in Order Summary */}
-              {items.some(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo) && (
-                <div className="summary-row addon-row" style={{ color: '#0f2b5c', fontWeight: '600' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                      <ShieldCheck size={14} color="#0f2b5c" /> Extended Warranty &amp; AMC
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'normal' }}>
-                      Base: ₹{items.filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo).reduce((sum, i) => sum + (i.amcWarrantyInfo.price * i.quantity), 0).toLocaleString('en-IN')} | GST @ 18%: ₹{items.filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo).reduce((sum, i) => sum + Math.round(i.amcWarrantyInfo.price * 0.18 * i.quantity), 0).toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  <span>
-                    +₹{items
-                      .filter(i => i.selectedWarranty && i.selectedWarranty !== 'none' && i.amcWarrantyInfo)
-                      .reduce((sum, i) => sum + (Math.round(i.amcWarrantyInfo.price * 1.18) * i.quantity), 0)
-                      .toLocaleString('en-IN')}
-                  </span>
-                </div>
-              )}
-
-              {/* Machine Program Setup Breakdown in Order Summary */}
-              {items.some(i => i.includeProgramSetup) && (
-                <div className="summary-row addon-row" style={{ color: '#0284c7', fontWeight: '600' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                    <Settings size={14} color="#0284c7" /> Machine Program Setup
-                  </span>
-                  <span>
-                    +₹{items
-                      .filter(i => i.includeProgramSetup)
-                      .reduce((sum, i) => sum + (18000 * i.quantity), 0)
-                      .toLocaleString('en-IN')}
-                  </span>
                 </div>
               )}
 
@@ -465,16 +460,12 @@ export default function CartPage({
                 </div>
                 <span style={{ color: '#ea580c', fontWeight: '700', fontSize: '12px' }}>PAY ON DELIVERY</span>
               </div>
-              <div className="summary-row">
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span>Tax (18% GST)</span>
-                  <span style={{ fontSize: '10px', color: '#64748b' }}>Includes 18% GST on Products & AMC</span>
-                </div>
-                <span>₹{tax.toLocaleString('en-IN')}</span>
-              </div>
 
               <div className="summary-row total">
-                <span>Total</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>Total Amount</span>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'normal' }}>Inclusive of all taxes</span>
+                </div>
                 <span>₹{total.toLocaleString('en-IN')}</span>
               </div>
 

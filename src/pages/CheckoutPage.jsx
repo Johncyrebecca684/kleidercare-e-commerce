@@ -5,6 +5,7 @@ import PayAndPlaceOrderButton from '../components/PayAndPlaceOrderButton';
 import './CheckoutPage.css';
 import { API_URL } from '../config';
 import { sendInvoiceEmail } from '../utils/sendInvoiceEmail';
+import { useToast } from '../context/ToastContext';
 
 // Merchant UPI details – change to your actual VPA in production
 const MERCHANT_UPI_ID = 'hariharasudhan81-3@okhdfcbank';
@@ -38,6 +39,7 @@ export default function CheckoutPage({
   installationAddon = { selected: false, fee: 999 }
 }) {
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToast();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
@@ -108,7 +110,7 @@ export default function CheckoutPage({
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
+      showWarning('Geolocation is not supported by your browser.');
       return;
     }
 
@@ -154,17 +156,18 @@ export default function CheckoutPage({
               state: state,
               pincode: pincode
             }));
+            showSuccess('Address auto-detected from your current location!');
           }
         } catch (error) {
           console.error("Error fetching location:", error);
-          alert('Could not fetch address from location. Please enter manually.');
+          showWarning('Could not fetch address details automatically. Please enter address manually.');
         } finally {
           setIsLocating(false);
         }
       },
       (error) => {
         console.error("Geolocation error:", error);
-        alert('Could not access your location. Please check your permissions.');
+        showWarning('Could not access your location. Please check browser location permissions.');
         setIsLocating(false);
       },
       { enableHighAccuracy: true }
