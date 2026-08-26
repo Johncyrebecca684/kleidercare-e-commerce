@@ -163,9 +163,8 @@ const BANK_METADATA = {
   INDB: { name: 'IndusInd Bank Credit Card', feeText: 'Processing Fee of ₹249 by Bank', iconType: 'indusind', noCostTenures: [3, 6], defaultRates: { 3: 13.5, 6: 13.5, 9: 14.5, 12: 14.5, 18: 15.0, 24: 15.0 } },
   INDUSIND: { name: 'IndusInd Bank Credit Card', feeText: 'Processing Fee of ₹249 by Bank', iconType: 'indusind', noCostTenures: [3, 6], defaultRates: { 3: 13.5, 6: 13.5, 9: 14.5, 12: 14.5, 18: 15.0, 24: 15.0 } },
   FDRL: { name: 'Federal Bank Credit Card', feeText: 'Processing Fee of ₹199 by Bank', iconType: 'federal', noCostTenures: [3], defaultRates: { 3: 13.0, 6: 13.0, 9: 14.0, 12: 14.0, 18: 15.0, 24: 15.0 } },
-  FEDERAL: { name: 'Federal Bank Credit Card', feeText: 'Processing Fee of ₹199 by Bank', iconType: 'federal', noCostTenures: [3], defaultRates: { 3: 13.0, 6: 13.0, 9: 14.0, 12: 14.0, 18: 15.0, 24: 15.0 } },
-  SCBL: { name: 'Standard Chartered Bank Credit Card', feeText: 'Processing Fee of ₹249 by Bank', iconType: 'generic', noCostTenures: [3], defaultRates: { 3: 13.5, 6: 13.5, 9: 14.5, 12: 14.5, 18: 15.0, 24: 15.0 } },
-  HSBC: { name: 'HSBC Bank Credit Card', feeText: 'Processing Fee of ₹249 by Bank', iconType: 'generic', noCostTenures: [3], defaultRates: { 3: 13.5, 6: 13.5, 9: 14.5, 12: 14.5, 18: 15.0, 24: 15.0 } }
+  SCBL: { name: 'Standard Chartered Bank Credit Card', feeText: 'Processing Fee of ₹249 by Bank', iconType: 'scbl', noCostTenures: [3], defaultRates: { 3: 13.5, 6: 13.5, 9: 14.5, 12: 14.5, 18: 15.0, 24: 15.0 } },
+  HSBC: { name: 'HSBC Bank Credit Card', feeText: 'Processing Fee of ₹249 by Bank', iconType: 'hsbc', noCostTenures: [3], defaultRates: { 3: 13.5, 6: 13.5, 9: 14.5, 12: 14.5, 18: 15.0, 24: 15.0 } }
 };
 
 const DEBIT_BANK_METADATA = {

@@ -18,68 +18,50 @@ import {
 import { API_URL } from '../config';
 import './EmiOptionsModal.css';
 
-// SVG Bank Logos / Icons matching banking brand colors
-const BankLogo = ({ type, name }) => {
-  switch (type) {
-    case 'amazon_pay':
-      return (
-        <div className="bank-logo-badge amazon-pay-bg" title={name}>
-          <span className="logo-text-pay">pay</span>
-        </div>
-      );
-    case 'hdfc':
-      return (
-        <div className="bank-logo-badge hdfc-bg" title={name}>
-          <div className="hdfc-inner">
-            <span className="hdfc-box"></span>
-          </div>
-        </div>
-      );
-    case 'sbi':
-      return (
-        <div className="bank-logo-badge sbi-bg" title={name}>
-          <div className="sbi-circle">
-            <div className="sbi-cutout"></div>
-          </div>
-        </div>
-      );
-    case 'axis':
-      return (
-        <div className="bank-logo-badge axis-bg" title={name}>
-          <div className="axis-triangle"></div>
-        </div>
-      );
-    case 'icici':
-      return (
-        <div className="bank-logo-badge icici-bg" title={name}>
-          <span className="icici-i">i</span>
-        </div>
-      );
-    case 'bajaj':
-      return (
-        <div className="bank-logo-badge bajaj-bg" title={name}>
-          <span className="bajaj-b">B</span>
-        </div>
-      );
-    case 'rbl':
-      return (
-        <div className="bank-logo-badge rbl-bg" title={name}>
-          <span className="rbl-b">b</span>
-        </div>
-      );
-    case 'kotak':
-      return (
-        <div className="bank-logo-badge kotak-bg" title={name}>
-          <span className="kotak-k">8</span>
-        </div>
-      );
-    default:
-      return (
-        <div className="bank-logo-badge generic-bg" title={name}>
-          <Building size={16} />
-        </div>
-      );
-  }
+// Official Bank Logos from verified official CDN
+const getBankLogoUrl = (type, bankCode, name) => {
+  const t = `${type || ''} ${bankCode || ''} ${name || ''}`.toLowerCase().replace(/_dc/g, '');
+
+  if (t.includes('hdfc')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/hdfc/symbol.svg';
+  if (t.includes('icici') || t.includes('icic')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/icic/symbol.svg';
+  if (t.includes('sbi') || t.includes('sbin')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/sbin/symbol.svg';
+  if (t.includes('axis') || t.includes('utib')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/utib/symbol.svg';
+  if (t.includes('kotak') || t.includes('kkbk')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/kkbk/symbol.svg';
+  if (t.includes('baroda') || t.includes('barb') || t.includes('bob')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/barb/symbol.svg';
+  if (t.includes('indusind') || t.includes('indb')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/indb/symbol.svg';
+  if (t.includes('rbl') || t.includes('ratn')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/ratn/symbol.svg';
+  if (t.includes('federal') || t.includes('fdrl')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/fdrl/symbol.svg';
+  if (t.includes('canara') || t.includes('cnrb')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/cnrb/symbol.svg';
+  if (t.includes('idbi') || t.includes('ibkl')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/ibkl/symbol.svg';
+  if (t.includes('yes') || t.includes('yesb')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/yesb/symbol.svg';
+  if (t.includes('scbl') || t.includes('chartered')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/scbl/symbol.svg';
+  if (t.includes('hsbc')) return 'https://cdn.jsdelivr.net/gh/praveenpuglia/indian-banks@main/assets/logos/hsbc/symbol.svg';
+  if (t.includes('bajaj')) return '/bank-logos/bajaj.svg?v=2';
+  if (t.includes('zest') || t.includes('insta')) return '/bank-logos/zest.svg?v=2';
+  if (t.includes('amazon') || t.includes('pay')) return '/bank-logos/amazonpay.svg?v=2';
+
+  return null;
+};
+
+const BankLogo = ({ type, name, bankCode }) => {
+  const [hasError, setHasError] = useState(false);
+  const logoUrl = getBankLogoUrl(type, bankCode, name);
+
+  return (
+    <div className="bank-logo-badge" title={name || type}>
+      {logoUrl && !hasError ? (
+        <img
+          src={logoUrl}
+          alt={name || 'Bank Logo'}
+          className="bank-logo-img"
+          loading="lazy"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <Building size={20} className="generic-bank-icon" />
+      )}
+    </div>
+  );
 };
 
 // Calculate standard amortized EMI schedule
@@ -403,7 +385,7 @@ export default function EmiOptionsModal({
                         aria-expanded={isExpanded}
                       >
                         <div className="emi-bank-brand-info">
-                          <BankLogo type={bank.iconType} name={bank.name} />
+                          <BankLogo type={bank.iconType} name={bank.name} bankCode={bank.code} />
                           <div className="emi-bank-text-stack">
                             <h4 className="emi-bank-display-name">{bank.name}</h4>
                             <span className="emi-bank-fee-note">{bank.feeText}</span>

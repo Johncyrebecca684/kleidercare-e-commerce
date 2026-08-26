@@ -339,128 +339,45 @@
 
 /* BANK LOGO BADGES */
 .bank-logo-badge {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-weight: 800;
-  font-size: 13px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  box-sizing: border-box;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.amazon-pay-bg {
-  background: #232f3e;
-  color: #ff9900;
+.emi-bank-row-header:hover .bank-logo-badge {
+  transform: scale(1.05);
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.logo-text-pay {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.bank-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-.hdfc-bg {
-  background: #004c8f;
-  color: #ffffff;
+.bank-logo-badge svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-.hdfc-inner {
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid #ed1c24;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hdfc-box {
-  width: 6px;
-  height: 6px;
-  background: #004c8f;
-}
-
-.sbi-bg {
-  background: #280071;
-  color: #ffffff;
-}
-
-.sbi-circle {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #00a5df;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sbi-cutout {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #280071;
-}
-
-.axis-bg {
-  background: #97144d;
-  color: #ffffff;
-}
-
-.axis-triangle {
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 14px solid #ffffff;
-}
-
-.icici-bg {
-  background: #b82a2b;
-  color: #f58220;
-}
-
-.icici-i {
-  font-size: 20px;
-  font-weight: 900;
-  font-family: serif;
-}
-
-.bajaj-bg {
-  background: #005c97;
-  color: #ffffff;
-}
-
-.bajaj-b {
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.rbl-bg {
-  background: #1b365d;
-  color: #ff3333;
-}
-
-.rbl-b {
-  font-size: 19px;
-  font-weight: 900;
-}
-
-.kotak-bg {
-  background: #ed1c24;
-  color: #ffffff;
-}
-
-.kotak-k {
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.generic-bg {
-  background: #f1f5f9;
-  color: #475569;
+.generic-bank-icon {
+  color: #64748b;
 }
 
 /* EXPANDABLE TABLE */

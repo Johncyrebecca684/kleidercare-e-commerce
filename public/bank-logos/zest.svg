@@ -1,0 +1,10 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <!-- Official ZestMoney circular Z emblem from assets.zestmoney.in -->
+  <g transform="translate(18, 10) scale(4.5)">
+    <path d="M12.5845 11.3764C13.1615 10.3868 13.4937 9.23396 13.4937 8.00194C13.4937 6.43711 12.9585 4.99979 12.0649 3.86385L7.57178 11.3764H12.5845Z" fill="#0ACE5F"/>
+    <path d="M11.3402 3.07771C10.1729 2.00409 8.62239 1.35001 6.921 1.35001C4.9625 1.35001 3.20523 2.2174 2.00098 3.59227H8.06416L2.52906 12.9495C3.69319 14.008 5.23242 14.6528 6.921 14.6528C8.87916 14.6528 10.6364 13.7854 11.8405 12.4105H5.75821L11.3402 3.07771Z" fill="#0ACE5F"/>
+    <path d="M0.347168 8.00144C0.347168 9.57944 0.891465 11.0284 1.79892 12.1688L6.26025 4.62697H1.2564C0.679571 5.61634 0.347168 6.76946 0.347168 8.00144Z" fill="#0ACE5F"/>
+  </g>
+  <text x="50" y="88" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="900" fill="#0ACE5F" text-anchor="middle" letter-spacing="-0.3">zest</text>
+</svg>
