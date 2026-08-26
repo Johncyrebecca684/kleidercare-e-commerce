@@ -228,8 +228,9 @@ export default function CheckoutPage({
               })),
               totalAmount: finalTotal,
               paymentMethod: 'UPI',
-              paymentStatus: 'Paid',
-              razorpayPaymentId: data.transactionId,
+              paymentStatus: 'Pending',
+              razorpayPaymentId: data.transactionId || '',
+              appliedCoupons: appliedCoupons || [],
               installationAddon: installationAddon || { selected: false, fee: 0 },
               summaryBreakdown: {
                 subtotal,
@@ -485,6 +486,8 @@ export default function CheckoutPage({
           paymentStatus: 'Paid',
           razorpayOrderId: paymentResponse.razorpay_order_id,
           razorpayPaymentId: paymentResponse.razorpay_payment_id,
+          razorpaySignature: paymentResponse.razorpay_signature,
+          appliedCoupons: appliedCoupons || [],
           installationAddon: installationAddon || { selected: false, fee: 0 },
           summaryBreakdown: {
             subtotal,

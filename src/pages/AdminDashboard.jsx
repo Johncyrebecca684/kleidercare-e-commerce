@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { API_URL } from '../config';
-import { addProduct, updateProduct, deleteProduct, updateProductStock, bulkProductAction } from '../services/productService';
+import { addProduct, updateProduct, deleteProduct, updateProductStock, bulkProductAction, cleanupDuplicateProducts } from '../services/productService';
 import { getAllCategories, addCategory as apiAddCategory, deleteCategory as apiDeleteCategory } from '../services/categoryService';
 import { formatImageUrl } from '../utils/imageUtils';
 import { 
@@ -93,6 +93,75 @@ function specRowsToObj(rows) {
   return obj;
 }
 
+// Helper to auto-parse raw pasted text / feature sheets into structured technical specifications
+export function parseRawSpecsText(rawText) {
+  if (!rawText || typeof rawText !== 'string') return [];
+  
+  const lines = rawText.split(/\r?\n/);
+  const result = [];
+  const sectionHeaders = [
+    'detailed key features',
+    'key features',
+    'features',
+    'specifications',
+    'technical specifications',
+    'technical details',
+    'highlights',
+    'general specifications',
+    'product details',
+    'specs'
+  ];
+
+  for (let line of lines) {
+    let trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Strip leading bullets, asterisks, numbers like "1.", "1)", "•", "-", etc.
+    trimmed = trimmed.replace(/^[\s•\-\*\u2022\u25E6\u25AA\u25BA\d+[\.\)\]]\s*/, '').trim();
+    if (!trimmed) continue;
+
+    // Check if line is just a section title (e.g. "Detailed Key Features:")
+    const lower = trimmed.toLowerCase().replace(/[:\-_]+$/, '').trim();
+    if (sectionHeaders.includes(lower) && !trimmed.includes(': ') && trimmed.endsWith(':')) {
+      continue; // Skip standalone section header line
+    }
+
+    // Split on first ':' or ' - '
+    let key = '';
+    let val = '';
+
+    const colonIdx = trimmed.indexOf(':');
+    const dashIdx = trimmed.indexOf(' - ');
+
+    if (colonIdx > 0 && (dashIdx === -1 || colonIdx < dashIdx)) {
+      key = trimmed.substring(0, colonIdx).trim();
+      val = trimmed.substring(colonIdx + 1).trim();
+    } else if (dashIdx > 0) {
+      key = trimmed.substring(0, dashIdx).trim();
+      val = trimmed.substring(dashIdx + 3).trim();
+    } else if (trimmed.includes('\t')) {
+      const parts = trimmed.split('\t').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        key = parts[0];
+        val = parts.slice(1).join(' ');
+      }
+    }
+
+    if (key) {
+      // Clean up key: remove unwanted leading/trailing symbols
+      key = key.replace(/^[:\-\*\s]+|[:\-\*\s]+$/g, '').trim();
+      if (key) {
+        result.push({ key, value: val || '' });
+      }
+    } else if (result.length > 0) {
+      // Continuation line of previous value
+      result[result.length - 1].value += ` ${trimmed}`;
+    }
+  }
+
+  return result;
+}
+
 // Helper to convert number to Indian currency words
 function numberToWords(num) {
   const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
@@ -126,6 +195,10 @@ function numberToWords(num) {
 }
 
 export default function AdminDashboard({ products, setProducts, users, orders, onUpdateOrderSetup, loggedInUser }) {
+  if (!loggedInUser || loggedInUser.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
@@ -330,11 +403,15 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   const [specsEditingProduct, setSpecsEditingProduct] = useState(null);
   const [specsModalRows, setSpecsModalRows] = useState([]);
   const [specsSaving, setSpecsSaving] = useState(false);
+  const [rawSpecsModalInput, setRawSpecsModalInput] = useState('');
+  const [showRawSpecsModalBox, setShowRawSpecsModalBox] = useState(false);
 
   // Product Form State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [productEditActiveTab, setProductEditActiveTab] = useState('general');
+  const [rawSpecsInput, setRawSpecsInput] = useState('');
+  const [showRawSpecsBox, setShowRawSpecsBox] = useState(false);
   const [productForm, setProductForm] = useState({
     id: '',
     productId: '',
@@ -486,11 +563,58 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     });
   };
 
+  // Auto-Parse Paste Handlers for Technical Specifications
+  const handleParseAndApplySpecs = (mode = 'replace') => {
+    if (!rawSpecsInput.trim()) {
+      showWarning('Please paste some text with specifications first.');
+      return;
+    }
+    const parsedRows = parseRawSpecsText(rawSpecsInput);
+    if (parsedRows.length === 0) {
+      showError('No specifications could be detected. Make sure lines follow "Parameter: Value" format.');
+      return;
+    }
+
+    setProductForm(prev => {
+      const existing = prev.specRows || [];
+      const cleanExisting = existing.filter(r => r.key.trim() || r.value.trim());
+      const newRows = mode === 'append' ? [...cleanExisting, ...parsedRows] : parsedRows;
+      return { ...prev, specRows: newRows };
+    });
+
+    showSuccess(`Successfully extracted ${parsedRows.length} specifications!`);
+    setRawSpecsInput('');
+    setShowRawSpecsBox(false);
+  };
+
+  const handleParseAndApplyModalSpecs = (mode = 'replace') => {
+    if (!rawSpecsModalInput.trim()) {
+      showWarning('Please paste some text with specifications first.');
+      return;
+    }
+    const parsedRows = parseRawSpecsText(rawSpecsModalInput);
+    if (parsedRows.length === 0) {
+      showError('No specifications could be detected. Make sure lines follow "Parameter: Value" format.');
+      return;
+    }
+
+    setSpecsModalRows(prev => {
+      const cleanExisting = prev.filter(r => r.key.trim() || r.value.trim());
+      return mode === 'append' ? [...cleanExisting, ...parsedRows] : parsedRows;
+    });
+
+    showSuccess(`Successfully extracted ${parsedRows.length} specifications!`);
+    setRawSpecsModalInput('');
+    setShowRawSpecsModalBox(false);
+  };
+
   // Specs Modal Handlers (Dedicated Quick Specs Editor)
   const openSpecsModal = (product) => {
     setSpecsEditingProduct(product);
     const rows = objToSpecRows(product.specifications || {});
     setSpecsModalRows(rows.length > 0 ? rows : [{ key: '', value: '' }]);
+    setRawSpecsModalInput('');
+    setShowRawSpecsModalBox(false);
     setIsSpecsModalOpen(true);
   };
 
@@ -722,16 +846,68 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     }
   };
 
-  const handleDeleteProduct = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+  const handleDeleteProduct = async (product, deleteAllDuplicates = false) => {
+    const targetId = typeof product === 'object' ? (product._id || product.mongoId || product.id || product.productId) : product;
+    const productName = typeof product === 'object' ? product.name : 'this product';
+    
+    const confirmPrompt = deleteAllDuplicates 
+      ? `Are you sure you want to delete ALL instances and duplicates of "${productName}" from the database?`
+      : `Are you sure you want to delete "${productName}"?`;
+
+    if (window.confirm(confirmPrompt)) {
       try {
-        await deleteProduct(id);
+        await deleteProduct(targetId, deleteAllDuplicates);
+        
+        // Remove from React state
+        setProducts(prev => prev.filter(p => {
+          if (deleteAllDuplicates) {
+            return (p.name || '').trim().toLowerCase() !== productName.trim().toLowerCase();
+          }
+          return p._id !== targetId && p.id !== targetId && p.mongoId !== targetId && p.productId !== targetId;
+        }));
+
+        setSelectedProductIds(prev => prev.filter(pId => pId !== targetId));
+
+        // Update localStorage cache
+        try {
+          const raw = localStorage.getItem('kc_app_products');
+          if (raw) {
+            const currentList = JSON.parse(raw);
+            const updatedList = currentList.filter(p => {
+              if (deleteAllDuplicates) {
+                return (p.name || '').trim().toLowerCase() !== productName.trim().toLowerCase();
+              }
+              return p._id !== targetId && p.id !== targetId && p.mongoId !== targetId && p.productId !== targetId;
+            });
+            localStorage.setItem('kc_app_products', JSON.stringify(updatedList));
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        showSuccess(`"${productName}" deleted successfully from database.`);
       } catch (error) {
         console.error('Error deleting product from database:', error);
+        showError(`Failed to delete product from database: ${error.message || 'Please check your connection and login.'}`);
       }
-      setProducts(prev => prev.filter(p => p.id !== id && p._id !== id));
-      setSelectedProductIds(prev => prev.filter(pId => pId !== id));
-      showSuccess('Product deleted successfully.');
+    }
+  };
+
+  const handleCleanupDuplicates = async () => {
+    if (window.confirm('Scan database and automatically clean up all duplicate products (keeping the newest copy of each)?')) {
+      try {
+        const result = await cleanupDuplicateProducts();
+        if (result && Array.isArray(result.products)) {
+          setProducts(result.products);
+          try {
+            localStorage.setItem('kc_app_products', JSON.stringify(result.products));
+          } catch (e) {}
+        }
+        showSuccess(result?.message || 'Duplicate products cleaned up successfully!');
+      } catch (err) {
+        console.error('Error cleaning duplicate products:', err);
+        showError('Failed to clean duplicate products: ' + err.message);
+      }
     }
   };
 
@@ -970,6 +1146,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         specRows: [{ key: '', value: '' }]
       });
     }
+    setRawSpecsInput('');
+    setShowRawSpecsBox(false);
     setProductEditActiveTab('general');
     setIsProductModalOpen(true);
   };
@@ -1726,14 +1904,88 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                               <h4>Technical Specifications</h4>
                               <p>Define structured machine parameters (e.g. Capacity, Voltage, Loading Type)</p>
                             </div>
-                            <button
-                              type="button"
-                              onClick={handleAddSpecRow}
-                              className="addSpecBtn"
-                            >
-                              <Plus size={14} /> Add Spec Field
-                            </button>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                onClick={() => setShowRawSpecsBox(prev => !prev)}
+                                className="autoFetchSpecsBtn"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  padding: '7px 14px',
+                                  background: showRawSpecsBox ? '#0284c7' : '#f0f9ff',
+                                  color: showRawSpecsBox ? '#ffffff' : '#0369a1',
+                                  border: '1.5px solid #7dd3fc',
+                                  borderRadius: '8px',
+                                  fontSize: '12.5px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s ease',
+                                  boxShadow: showRawSpecsBox ? '0 2px 8px rgba(2, 132, 199, 0.3)' : 'none'
+                                }}
+                                title="Paste features or specifications text to auto-fetch details"
+                              >
+                                <Sparkles size={14} /> {showRawSpecsBox ? 'Hide Paste Box' : 'Auto-Fetch / Paste Specs'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleAddSpecRow}
+                                className="addSpecBtn"
+                              >
+                                <Plus size={14} /> Add Spec Field
+                              </button>
+                            </div>
                           </div>
+
+                          {/* SMART AUTO-FETCH PASTE BOX */}
+                          {showRawSpecsBox && (
+                            <div className="rawSpecsPasteCard fade-in">
+                              <div className="rawSpecsHeader">
+                                <div className="rawSpecsHeaderTitle">
+                                  <Sparkles size={16} style={{ color: '#0284c7' }} />
+                                  <strong>Smart Technical Specifications Auto-Fetcher</strong>
+                                </div>
+                                <span className="rawSpecsHint">Paste machine features, HSN codes, or specifications text to automatically extract fields</span>
+                              </div>
+                              <textarea
+                                rows="8"
+                                className="rawSpecsTextarea"
+                                value={rawSpecsInput}
+                                onChange={e => setRawSpecsInput(e.target.value)}
+                                placeholder={`Paste features or specifications here, e.g.:\nHSN Code: 84501100\nCapacity: 10 Kg\nCategory: SoftMount\nDetailed Key Features:\nDirect Drive Motor: Minimizes belt wear and noise while maximizing reliability and drum control.\nGyro Balancing System: Real-time vibration sensors adjust drum rotation to ensure smooth, quiet operation.\nMultiheat Treatment: Provides higher wash temperatures to effectively dissolve stubborn stains.\nAuto Dosing System: Automatically measures and injects precise amounts of detergent.`}
+                              />
+                              <div className="rawSpecsActions">
+                                <div className="rawSpecsStats">
+                                  {rawSpecsInput.trim() ? (
+                                    <span className="parsedCountBadge">
+                                      ✓ {parseRawSpecsText(rawSpecsInput).length} parameters detected
+                                    </span>
+                                  ) : (
+                                    <span style={{ fontSize: '11.5px', color: '#64748b' }}>Ready to paste & extract</span>
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button
+                                    type="button"
+                                    className="applyAppendBtn"
+                                    onClick={() => handleParseAndApplySpecs('append')}
+                                    disabled={!rawSpecsInput.trim()}
+                                  >
+                                    + Append to Existing
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="applyReplaceBtn"
+                                    onClick={() => handleParseAndApplySpecs('replace')}
+                                    disabled={!rawSpecsInput.trim()}
+                                  >
+                                    <Check size={14} /> Auto-Fetch & Apply Specs
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           {/* Quick Presets */}
                           <div className="presetChipsContainer">
@@ -1928,6 +2180,28 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </p>
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button" 
+                      className="cleanDuplicatesBtn"
+                      onClick={handleCleanupDuplicates}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '9px 15px',
+                        background: '#f8fafc',
+                        border: '1.5px solid #cbd5e1',
+                        borderRadius: '8px',
+                        color: '#475569',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      title="Scan database and remove any duplicate product records"
+                    >
+                      <Sparkles size={16} style={{ color: '#0284c7' }} /> Clean Duplicate Products
+                    </button>
                     <button className="exportCsvBtn" onClick={handleExportCSV}>
                       <Download size={18} /> Export CSV
                     </button>
@@ -2254,7 +2528,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   <button className="iconBtn edit" title="Edit Product Details" onClick={() => openProductModal(product)}>
                                     <Edit size={16} />
                                   </button>
-                                  <button className="iconBtn delete" title="Delete Product" onClick={() => handleDeleteProduct(product.id || product._id)}>
+                                  <button className="iconBtn delete" title="Delete Product" onClick={() => handleDeleteProduct(product)}>
                                     <Trash2 size={16} />
                                   </button>
                                 </div>
@@ -2849,6 +3123,84 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
             </div>
 
             <div className="modalBody">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                <span className="presetChipsLabel" style={{ fontSize: '13px', fontWeight: '700', color: '#0f2b5c' }}>Parameters & Values:</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowRawSpecsModalBox(prev => !prev)}
+                    className="autoFetchSpecsBtn"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      background: showRawSpecsModalBox ? '#0284c7' : '#f0f9ff',
+                      color: showRawSpecsModalBox ? '#ffffff' : '#0369a1',
+                      border: '1.5px solid #7dd3fc',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: showRawSpecsModalBox ? '0 2px 8px rgba(2, 132, 199, 0.3)' : 'none'
+                    }}
+                    title="Paste features or specifications text to auto-fetch details"
+                  >
+                    <Sparkles size={13} /> {showRawSpecsModalBox ? 'Hide Paste Box' : 'Auto-Fetch / Paste Specs'}
+                  </button>
+                </div>
+              </div>
+
+              {/* SMART AUTO-FETCH PASTE BOX FOR MODAL */}
+              {showRawSpecsModalBox && (
+                <div className="rawSpecsPasteCard fade-in" style={{ marginBottom: '16px' }}>
+                  <div className="rawSpecsHeader">
+                    <div className="rawSpecsHeaderTitle">
+                      <Sparkles size={15} style={{ color: '#0284c7' }} />
+                      <strong>Smart Technical Specifications Auto-Fetcher</strong>
+                    </div>
+                    <span className="rawSpecsHint">Paste machine features or specifications below</span>
+                  </div>
+                  <textarea
+                    rows="7"
+                    className="rawSpecsTextarea"
+                    value={rawSpecsModalInput}
+                    onChange={e => setRawSpecsModalInput(e.target.value)}
+                    placeholder={`Paste features or specifications here, e.g.:\nHSN Code: 84501100\nCapacity: 10 Kg\nCategory: SoftMount\nDetailed Key Features:\nDirect Drive Motor: Minimizes belt wear and noise while maximizing reliability and drum control.\nGyro Balancing System: Real-time vibration sensors adjust drum rotation to ensure smooth, quiet operation.\nMultiheat Treatment: Provides higher wash temperatures to effectively dissolve stubborn stains.\nAuto Dosing System: Automatically measures and injects precise amounts of detergent.`}
+                  />
+                  <div className="rawSpecsActions">
+                    <div className="rawSpecsStats">
+                      {rawSpecsModalInput.trim() ? (
+                        <span className="parsedCountBadge">
+                          ✓ {parseRawSpecsText(rawSpecsModalInput).length} parameters detected
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>Ready to paste & extract</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        className="applyAppendBtn"
+                        onClick={() => handleParseAndApplyModalSpecs('append')}
+                        disabled={!rawSpecsModalInput.trim()}
+                      >
+                        + Append
+                      </button>
+                      <button
+                        type="button"
+                        className="applyReplaceBtn"
+                        onClick={() => handleParseAndApplyModalSpecs('replace')}
+                        disabled={!rawSpecsModalInput.trim()}
+                      >
+                        <Check size={14} /> Auto-Fetch & Apply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="presetChipsContainer" style={{ marginBottom: '16px' }}>
                 <span className="presetChipsLabel">Quick Presets:</span>
                 {COMMON_SPEC_KEYS.map(preset => (

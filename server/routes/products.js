@@ -48,6 +48,7 @@ function formatImageUrl(url) {
 // GET /api/products/categories/all
 router.get('/categories/all', async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
     const categories = await Category.find({}).sort({ name: 1 });
     res.json(categories);
   } catch (error) {
@@ -60,6 +61,7 @@ router.get('/categories/all', async (req, res) => {
 // GET /api/products
 router.get('/', async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
     const products = await Product.find({}).sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
@@ -258,21 +260,80 @@ router.post('/bulk-action', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
+// POST cleanup all duplicate products in MongoDB (Admin only)
+// POST /api/products/cleanup-duplicates
+router.post('/cleanup-duplicates', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const allProducts = await Product.find({}).sort({ createdAt: -1 });
+    const seenNames = new Map();
+    const duplicateIdsToDelete = [];
+
+    for (const prod of allProducts) {
+      // Normalize name to identify exact duplicates
+      const normalizedName = (prod.name || '').trim().toLowerCase();
+      if (!normalizedName) continue;
+
+      if (seenNames.has(normalizedName)) {
+        // Already kept the newest one; mark this older duplicate for deletion
+        duplicateIdsToDelete.push(prod._id);
+      } else {
+        seenNames.set(normalizedName, prod._id);
+      }
+    }
+
+    if (duplicateIdsToDelete.length > 0) {
+      await Product.deleteMany({ _id: { $in: duplicateIdsToDelete } });
+      console.log(`🧹 Cleaned up ${duplicateIdsToDelete.length} duplicate products from MongoDB`);
+    }
+
+    const remainingProducts = await Product.find({}).sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      message: `Cleaned up ${duplicateIdsToDelete.length} duplicate product records`,
+      removedCount: duplicateIdsToDelete.length,
+      products: remainingProducts
+    });
+  } catch (error) {
+    console.error('Error cleaning duplicate products:', error);
+    res.status(500).json({ message: 'Server error while cleaning duplicate products' });
+  }
+});
+
 // DELETE a product (Admin only)
 router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    let query;
-    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      query = { $or: [{ _id: req.params.id }, { id: req.params.id }] };
-    } else {
-      query = { id: req.params.id };
+    const rawId = req.params.id;
+    const { deleteAllDuplicates } = req.query;
+
+    const queries = [];
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      queries.push({ _id: rawId });
+    }
+    queries.push({ id: rawId });
+    queries.push({ productId: rawId });
+    queries.push({ sku: rawId });
+
+    // 1. Find product to delete
+    const product = await Product.findOne({ $or: queries });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found in database' });
     }
 
-    const product = await Product.findOneAndDelete(query);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+    const productName = product.name;
+
+    // 2. If deleteAllDuplicates is true, or if there are other copies with identical name, remove all
+    if (deleteAllDuplicates === 'true') {
+      const result = await Product.deleteMany({ name: productName });
+      return res.json({ 
+        success: true, 
+        message: `Deleted ${result.deletedCount} instance(s) of "${productName}" successfully`,
+        deletedCount: result.deletedCount
+      });
     }
-    res.json({ success: true, message: 'Product deleted successfully' });
+
+    // 3. Otherwise delete this specific matched product
+    await Product.findByIdAndDelete(product._id);
+    res.json({ success: true, message: `Product "${productName}" deleted successfully` });
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ message: 'Server error while deleting product' });

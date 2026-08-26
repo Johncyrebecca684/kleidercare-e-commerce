@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   X,
   Heart,
@@ -11,6 +11,8 @@ import {
   MapPin,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Camera,
   Upload,
   Image as ImageIcon,
@@ -88,7 +90,22 @@ export default function ProductDetailModal({
     product.specifications?.Capacity || 'Standard Capacity'
   );
   const [activeTab, setActiveTab] = useState('specs');
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
   const [showShareNotice, setShowShareNotice] = useState(false);
+
+  // Technical specifications entries and truncated preview calculations
+  const specsEntries = useMemo(() => {
+    if (!product?.specifications) return [];
+    return Object.entries(product.specifications).filter(
+      ([k, v]) => k && v !== undefined && v !== null && String(v).trim() !== ''
+    );
+  }, [product?.specifications]);
+
+  const SPECS_PREVIEW_LIMIT = 4;
+  const hasMoreSpecs = specsEntries.length > SPECS_PREVIEW_LIMIT;
+  const displayedSpecs = showAllSpecs || !hasMoreSpecs
+    ? specsEntries
+    : specsEntries.slice(0, SPECS_PREVIEW_LIMIT);
 
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
   const isOutOfStock = (product.stock !== undefined && Number(product.stock) <= 0) || product.stockStatus === 'Out of Stock';
@@ -289,33 +306,53 @@ export default function ProductDetailModal({
               </div>
 
               {activeTab === 'specs' ? (
-                <div className="pdp-specs-table">
-                  {product.specifications ? (
-                    Object.entries(product.specifications).map(([key, val]) => (
-                      <div key={key} className="pdp-spec-row">
-                        <span className="pdp-spec-key">{key}</span>
-                        <span className="pdp-spec-val">{val}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="pdp-spec-row">
-                        <span className="pdp-spec-key">Category</span>
-                        <span className="pdp-spec-val">{product.category}</span>
-                      </div>
-                      <div className="pdp-spec-row">
-                        <span className="pdp-spec-key">Build Grade</span>
-                        <span className="pdp-spec-val">Industrial Commercial Heavy-Duty</span>
-                      </div>
-                      <div className="pdp-spec-row">
-                        <span className="pdp-spec-key">Warranty</span>
-                        <span className="pdp-spec-val">2 Years Commercial Warranty Included</span>
-                      </div>
-                      <div className="pdp-spec-row">
-                        <span className="pdp-spec-key">Installation</span>
-                        <span className="pdp-spec-val">Free in South India region (Location charges apply for North region)</span>
-                      </div>
-                    </>
+                <div className="pdp-modal-specs-container">
+                  <div className="pdp-specs-table">
+                    {specsEntries.length > 0 ? (
+                      displayedSpecs.map(([key, val]) => (
+                        <div key={key} className="pdp-spec-row">
+                          <span className="pdp-spec-key">{key}</span>
+                          <span className="pdp-spec-val">{val}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="pdp-spec-row">
+                          <span className="pdp-spec-key">Category</span>
+                          <span className="pdp-spec-val">{product.category}</span>
+                        </div>
+                        <div className="pdp-spec-row">
+                          <span className="pdp-spec-key">Build Grade</span>
+                          <span className="pdp-spec-val">Industrial Commercial Heavy-Duty</span>
+                        </div>
+                        <div className="pdp-spec-row">
+                          <span className="pdp-spec-key">Warranty</span>
+                          <span className="pdp-spec-val">2 Years Commercial Warranty Included</span>
+                        </div>
+                        <div className="pdp-spec-row">
+                          <span className="pdp-spec-key">Installation</span>
+                          <span className="pdp-spec-val">Free in South India region (Location charges apply for North region)</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {hasMoreSpecs && (
+                    <div className="pdp-modal-specs-expand-wrapper">
+                      <button
+                        type="button"
+                        className="pdp-modal-specs-view-more-btn"
+                        onClick={() => setShowAllSpecs(prev => !prev)}
+                        aria-expanded={showAllSpecs}
+                      >
+                        <span>
+                          {showAllSpecs
+                            ? 'Show Less Specifications'
+                            : `View More Specifications (${specsEntries.length - SPECS_PREVIEW_LIMIT} more)`}
+                        </span>
+                        {showAllSpecs ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (

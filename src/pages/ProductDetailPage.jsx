@@ -61,6 +61,7 @@ import './ProductDetailPage.css';
 
 export default function ProductDetailPage({
   products = [],
+  productsLoading = false,
   onAddToCart,
   cartCount,
   wishlistItems = [],
@@ -94,11 +95,26 @@ export default function ProductDetailPage({
     product?.specifications?.Capacity || 'Standard Capacity'
   );
   const [activeTab, setActiveTab] = useState('specs');
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
   const [selectedWarranty, setSelectedWarranty] = useState('none'); // 'none', 'non-comprehensive', 'comprehensive'
   const [includeProgramSetup, setIncludeProgramSetup] = useState(false);
   const [showAmcScheduleModal, setShowAmcScheduleModal] = useState(false);
   const [showAmcDetails, setShowAmcDetails] = useState(true);
   const [showEmiModal, setShowEmiModal] = useState(false);
+
+  // Technical specifications entries and truncated preview calculations
+  const specsEntries = useMemo(() => {
+    if (!product?.specifications) return [];
+    return Object.entries(product.specifications).filter(
+      ([k, v]) => k && v !== undefined && v !== null && String(v).trim() !== ''
+    );
+  }, [product?.specifications]);
+
+  const SPECS_PREVIEW_LIMIT = 5;
+  const hasMoreSpecs = specsEntries.length > SPECS_PREVIEW_LIMIT;
+  const displayedSpecs = showAllSpecs || !hasMoreSpecs
+    ? specsEntries
+    : specsEntries.slice(0, SPECS_PREVIEW_LIMIT);
 
   // Check if EMI is applicable to the current product (LG & Speed Queen products)
   const isEmiApplicable = () => {
@@ -266,13 +282,32 @@ export default function ProductDetailPage({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (product) {
-      setSelectedImage(product.image);
-      setSelectedVariant(product.specifications?.Capacity || 'Standard Capacity');
-    }
   }, [id, product]);
 
   if (!product) {
+    if (productsLoading) {
+      return (
+        <div className="product-detail-page">
+          <Header
+            cartCount={cartCount}
+            wishlistCount={wishlistItems.length}
+            searchTerm={searchTerm}
+            onSearchChange={onSearchChange}
+            onSigninClick={onLoginOpen}
+            loggedInUser={loggedInUser}
+            selectedCategory={selectedCategory}
+            onCategoryChange={onCategoryChange}
+            products={products}
+          />
+          <div className="pdp-not-found" style={{ minHeight: '50vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+            <div className="skeleton-shimmer" style={{ width: '60px', height: '60px', borderRadius: '50%' }}></div>
+            <p style={{ color: '#64748b', fontSize: '15px' }}>Loading product details...</p>
+          </div>
+          <Footer />
+        </div>
+      );
+    }
+
     return (
       <div className="pdp-page-container">
         <Header
@@ -639,7 +674,7 @@ export default function ProductDetailPage({
                   className={`pdp-tab ${activeTab === 'specs' ? 'active' : ''}`}
                   onClick={() => setActiveTab('specs')}
                 >
-                  Technical Specifications
+                  Technical Specifications {specsEntries.length > 0 && `(${specsEntries.length})`}
                 </button>
                 <button
                   className={`pdp-tab ${activeTab === 'desc' ? 'active' : ''}`}
@@ -650,29 +685,49 @@ export default function ProductDetailPage({
               </div>
 
               {activeTab === 'specs' ? (
-                <div className="pdp-specs-grid">
-                  {product.specifications ? (
-                    Object.entries(product.specifications).map(([key, val]) => (
-                      <div key={key} className="pdp-spec-item">
-                        <span className="spec-label">{key}</span>
-                        <span className="spec-value">{val}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="pdp-spec-item">
-                        <span className="spec-label">Category</span>
-                        <span className="spec-value">{product.category}</span>
-                      </div>
-                      <div className="pdp-spec-item">
-                        <span className="spec-label">Build Grade</span>
-                        <span className="spec-value">Industrial Heavy Duty</span>
-                      </div>
-                      <div className="pdp-spec-item">
-                        <span className="spec-label">Warranty</span>
-                        <span className="spec-value">2 Years Commercial Support</span>
-                      </div>
-                    </>
+                <div className="pdp-specs-container">
+                  <div className="pdp-specs-grid">
+                    {specsEntries.length > 0 ? (
+                      displayedSpecs.map(([key, val]) => (
+                        <div key={key} className="pdp-spec-item">
+                          <span className="spec-label">{key}</span>
+                          <span className="spec-value">{val}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="pdp-spec-item">
+                          <span className="spec-label">Category</span>
+                          <span className="spec-value">{product.category}</span>
+                        </div>
+                        <div className="pdp-spec-item">
+                          <span className="spec-label">Build Grade</span>
+                          <span className="spec-value">Industrial Heavy Duty</span>
+                        </div>
+                        <div className="pdp-spec-item">
+                          <span className="spec-label">Warranty</span>
+                          <span className="spec-value">2 Years Commercial Support</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {hasMoreSpecs && (
+                    <div className="pdp-specs-expand-wrapper">
+                      <button
+                        type="button"
+                        className="pdp-specs-view-more-btn"
+                        onClick={() => setShowAllSpecs(prev => !prev)}
+                        aria-expanded={showAllSpecs}
+                      >
+                        <span>
+                          {showAllSpecs
+                            ? 'Show Less Specifications'
+                            : `View More Specifications (${specsEntries.length - SPECS_PREVIEW_LIMIT} more)`}
+                        </span>
+                        {showAllSpecs ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -906,117 +961,186 @@ export default function ProductDetailPage({
         </div>
 
         {/* FREQUENTLY BOUGHT TOGETHER BUNDLE SECTION */}
-        <section className="frequently-bought-section">
-          <div className="fbt-header">
-            <div className="fbt-title-group">
-              <PackageCheck size={22} className="fbt-icon" />
-              <div>
-                <h2 className="fbt-heading">Frequently Bought Together</h2>
-                <p className="fbt-subheading">Bundle these complementary items with your product and save an extra 10% on the total order</p>
+        {(bundleAddon1 || bundleAddon2) && (
+          <section className="frequently-bought-section">
+            <div className="fbt-header">
+              <div className="fbt-title-group">
+                <div className="fbt-icon-bubble">
+                  <PackageCheck size={22} className="fbt-icon" />
+                </div>
+                <div className="fbt-title-text">
+                  <div className="fbt-heading-row">
+                    <h2 className="fbt-heading">Frequently Bought Together</h2>
+                    <span className="fbt-discount-badge">
+                      <Zap size={13} />
+                      10% Bundle Discount
+                    </span>
+                  </div>
+                  <p className="fbt-subheading">
+                    Bundle these complementary items with your product to save an extra 10% on your total order.
+                  </p>
+                </div>
               </div>
             </div>
-            <span className="fbt-discount-badge">
-              <Zap size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-              10% Extra Bundle Discount
-            </span>
-          </div>
 
-          <div className="fbt-content-grid">
-            {/* IMAGES COMBO ROW */}
-            <div className="fbt-images-combo">
-              <div className="fbt-img-box main">
-                <img src={product.image} alt={product.name} />
-                <span className="fbt-item-tag">This item</span>
-              </div>
-
-              {checkedBundleItems.item1 && bundleAddon1 && (
-                <>
-                  <span className="fbt-plus-symbol">+</span>
-                  <div className="fbt-img-box">
-                    <img src={bundleAddon1.image} alt={bundleAddon1.name} />
-                  </div>
-                </>
-              )}
-
-              {checkedBundleItems.item2 && bundleAddon2 && (
-                <>
-                  <span className="fbt-plus-symbol">+</span>
-                  <div className="fbt-img-box">
-                    <img src={bundleAddon2.image} alt={bundleAddon2.name} />
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* CHECKBOXES & PRICE SUMMARY */}
-            <div className="fbt-details-summary">
-              <div className="fbt-checkbox-list">
-                <label className="fbt-checkbox-row disabled">
-                  <input type="checkbox" checked disabled />
-                  <span>
-                    <strong>This item:</strong> {product.name} — <span className="fbt-item-price">₹{product.price.toLocaleString('en-IN')}</span>
-                  </span>
-                </label>
+            <div className="fbt-content-grid">
+              {/* IMAGES COMBO ROW */}
+              <div className="fbt-images-combo">
+                <div className="fbt-img-box main">
+                  <img src={product.image} alt={product.name} />
+                  <span className="fbt-item-tag main">This item</span>
+                </div>
 
                 {bundleAddon1 && (
-                  <label className="fbt-checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={checkedBundleItems.item1}
-                      onChange={(e) => setCheckedBundleItems(prev => ({ ...prev, item1: e.target.checked }))}
-                    />
-                    <span>
-                      <strong>Add-on 1:</strong> {bundleAddon1.name} — <span className="fbt-item-price">₹{bundleAddon1.price.toLocaleString('en-IN')}</span>
-                      {bundleAddon1Reason && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>
-                          <Sparkles size={12} /> {bundleAddon1Reason}
-                        </span>
-                      )}
-                    </span>
-                  </label>
+                  <>
+                    <span className={`fbt-plus-symbol ${!checkedBundleItems.item1 ? 'inactive' : ''}`}>+</span>
+                    <div className={`fbt-img-box ${!checkedBundleItems.item1 ? 'inactive' : ''}`}>
+                      <img src={bundleAddon1.image} alt={bundleAddon1.name} />
+                      <span className="fbt-item-tag addon">Add-on 1</span>
+                    </div>
+                  </>
                 )}
 
                 {bundleAddon2 && (
-                  <label className="fbt-checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={checkedBundleItems.item2}
-                      onChange={(e) => setCheckedBundleItems(prev => ({ ...prev, item2: e.target.checked }))}
-                    />
-                    <span>
-                      <strong>Add-on 2:</strong> {bundleAddon2.name} — <span className="fbt-item-price">₹{bundleAddon2.price.toLocaleString('en-IN')}</span>
-                      {bundleAddon2Reason && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>
-                          <Sparkles size={12} /> {bundleAddon2Reason}
-                        </span>
-                      )}
-                    </span>
-                  </label>
+                  <>
+                    <span className={`fbt-plus-symbol ${!checkedBundleItems.item2 ? 'inactive' : ''}`}>+</span>
+                    <div className={`fbt-img-box ${!checkedBundleItems.item2 ? 'inactive' : ''}`}>
+                      <img src={bundleAddon2.image} alt={bundleAddon2.name} />
+                      <span className="fbt-item-tag addon">Add-on 2</span>
+                    </div>
+                  </>
                 )}
               </div>
 
-              {/* BUNDLE TOTAL & 1-CLICK ADD BUTTON */}
-              <div className="fbt-summary-action-box">
-                <div className="fbt-price-total">
-                  <span className="fbt-total-label">Total Bundle Price ({selectedBundleCount} items):</span>
-                  <div className="fbt-price-numbers">
-                    <span className="fbt-strike">₹{rawBundleTotal.toLocaleString('en-IN')}</span>
-                    <span className="fbt-final">₹{finalBundleTotal.toLocaleString('en-IN')}</span>
-                    <span className="fbt-save-pill">Save 10% Extra</span>
+              {/* CHECKBOXES & PRICE SUMMARY */}
+              <div className="fbt-details-summary">
+                <div className="fbt-checkbox-list">
+                  {/* MAIN ITEM CARD */}
+                  <div className="fbt-item-card main-card">
+                    <div className="fbt-card-check">
+                      <input type="checkbox" checked disabled id="fbt-main-check" aria-label={product.name} />
+                    </div>
+                    <div className="fbt-card-thumb">
+                      <img src={product.image} alt={product.name} />
+                    </div>
+                    <div className="fbt-card-info">
+                      <div className="fbt-card-tag-row">
+                        <span className="fbt-card-tag main">This item (Main)</span>
+                      </div>
+                      <span className="fbt-card-name">{product.name}</span>
+                      <div className="fbt-card-price-row">
+                        <span className="fbt-item-price">₹{product.price.toLocaleString('en-IN')}</span>
+                        <span className="fbt-tax-note">+ 18% GST applicable</span>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* ADD-ON 1 CARD */}
+                  {bundleAddon1 && (
+                    <label
+                      className={`fbt-item-card ${checkedBundleItems.item1 ? 'selected' : ''}`}
+                      htmlFor="fbt-addon1-check"
+                    >
+                      <div className="fbt-card-check">
+                        <input
+                          type="checkbox"
+                          id="fbt-addon1-check"
+                          checked={checkedBundleItems.item1}
+                          onChange={(e) => setCheckedBundleItems(prev => ({ ...prev, item1: e.target.checked }))}
+                        />
+                      </div>
+                      <div className="fbt-card-thumb">
+                        <img src={bundleAddon1.image} alt={bundleAddon1.name} />
+                      </div>
+                      <div className="fbt-card-info">
+                        <div className="fbt-card-tag-row">
+                          <span className="fbt-card-tag addon">Add-on 1</span>
+                          {bundleAddon1Reason && (
+                            <span className="fbt-reason-pill">
+                              <Sparkles size={11} /> {bundleAddon1Reason}
+                            </span>
+                          )}
+                        </div>
+                        <span className="fbt-card-name">{bundleAddon1.name}</span>
+                        <div className="fbt-card-price-row">
+                          <span className="fbt-item-price">₹{bundleAddon1.price.toLocaleString('en-IN')}</span>
+                          <span className="fbt-tax-note">+ 18% GST applicable</span>
+                        </div>
+                      </div>
+                    </label>
+                  )}
+
+                  {/* ADD-ON 2 CARD */}
+                  {bundleAddon2 && (
+                    <label
+                      className={`fbt-item-card ${checkedBundleItems.item2 ? 'selected' : ''}`}
+                      htmlFor="fbt-addon2-check"
+                    >
+                      <div className="fbt-card-check">
+                        <input
+                          type="checkbox"
+                          id="fbt-addon2-check"
+                          checked={checkedBundleItems.item2}
+                          onChange={(e) => setCheckedBundleItems(prev => ({ ...prev, item2: e.target.checked }))}
+                        />
+                      </div>
+                      <div className="fbt-card-thumb">
+                        <img src={bundleAddon2.image} alt={bundleAddon2.name} />
+                      </div>
+                      <div className="fbt-card-info">
+                        <div className="fbt-card-tag-row">
+                          <span className="fbt-card-tag addon">Add-on 2</span>
+                          {bundleAddon2Reason && (
+                            <span className="fbt-reason-pill">
+                              <Sparkles size={11} /> {bundleAddon2Reason}
+                            </span>
+                          )}
+                        </div>
+                        <span className="fbt-card-name">{bundleAddon2.name}</span>
+                        <div className="fbt-card-price-row">
+                          <span className="fbt-item-price">₹{bundleAddon2.price.toLocaleString('en-IN')}</span>
+                          <span className="fbt-tax-note">+ 18% GST applicable</span>
+                        </div>
+                      </div>
+                    </label>
+                  )}
                 </div>
 
-                <AddToCartButton
-                  className="fbt-add-all-btn-animated"
-                  onClick={handleAddBundleToCart}
-                  defaultText={`Add Selected (${selectedBundleCount} items) to Cart`}
-                  addedText={`Added ${selectedBundleCount} items to Cart!`}
-                  size="md"
-                />
+                {/* BUNDLE TOTAL & 1-CLICK ADD BUTTON */}
+                <div className="fbt-summary-action-box">
+                  <div className="fbt-price-total">
+                    <span className="fbt-total-label">Total Bundle Price ({selectedBundleCount} items):</span>
+                    <div className="fbt-price-numbers">
+                      {rawBundleTotal > finalBundleTotal && (
+                        <span className="fbt-strike">₹{rawBundleTotal.toLocaleString('en-IN')}</span>
+                      )}
+                      <span className="fbt-final">₹{finalBundleTotal.toLocaleString('en-IN')}</span>
+                      {selectedBundleCount > 1 && (
+                        <span className="fbt-save-pill">
+                          Save ₹{(rawBundleTotal - finalBundleTotal).toLocaleString('en-IN')} (10% OFF)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <AddToCartButton
+                    className="fbt-add-all-btn-animated"
+                    onClick={handleAddBundleToCart}
+                    defaultText={`Add Selected (${selectedBundleCount} items) to Cart`}
+                    addedText={`Added ${selectedBundleCount} items to Cart!`}
+                    size="md"
+                  />
+                </div>
+
+                {bundleNotice && (
+                  <div className="fbt-bundle-notice-toast">
+                    <CheckCircle2 size={16} /> Bundle added to your cart with 10% discount applied!
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* SIMILAR & RECOMMENDED PRODUCTS SECTION */}
         {similarProducts.length > 0 && (

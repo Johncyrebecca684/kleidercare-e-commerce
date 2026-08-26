@@ -32,6 +32,7 @@ export default function Home({
   onSignupSuccess,
   onLogout,
   products,
+  productsLoading = false,
   wishlistItems,
   onToggleWishlist
 }) {
@@ -55,6 +56,7 @@ export default function Home({
         <MobileBannerCarousel onCategoryChange={onCategoryChange} />
         <ProductList
           products={products}
+          loading={productsLoading}
           onAddToCart={onAddToCart}
           selectedCategory={selectedCategory}
           onCategoryChange={onCategoryChange}

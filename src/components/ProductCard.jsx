@@ -78,6 +78,10 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
               alt={product.name}
               loading="lazy"
               decoding="async"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/kc-logo.png';
+              }}
               className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
             />
             <WishlistButton
@@ -186,6 +190,10 @@ export default function ProductCard({ product, onAddToCart, wishlistItems = [], 
           alt={product.name}
           loading="lazy"
           decoding="async"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = '/kc-logo.png';
+          }}
           className={`product-image ${product.category && product.category.includes('Speed Queen') ? 'speed-queen-image' : ''} ${product.category === 'Seko' ? 'seko-image' : ''}`}
         />
 

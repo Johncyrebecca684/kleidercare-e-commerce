@@ -47,7 +47,8 @@ const SORT_OPTIONS = [
 ];
 
 export default function ProductList({
-  products,
+  products = [],
+  loading = false,
   onAddToCart,
   selectedCategory,
   onCategoryChange,
@@ -657,7 +658,27 @@ export default function ProductList({
 
         {/* RIGHT PRODUCTS COLUMN */}
         <div className="catalog-products-main">
-          {sortedProducts.length > 0 ? (
+          {loading && sortedProducts.length === 0 ? (
+            <div className={viewMode === 'grid' ? 'products-grid' : 'products-list-wrapper'}>
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div key={`skel-${idx}`} className={`product-card product-card-skeleton ${viewMode === 'list' ? 'list-mode-card' : ''}`}>
+                  <div className={viewMode === 'list' ? 'list-col-left' : 'grid-image-wrapper'}>
+                    <div className="skeleton-shimmer skeleton-image-box"></div>
+                  </div>
+                  <div className={viewMode === 'list' ? 'list-col-mid' : 'grid-content-wrapper'}>
+                    <div className="skeleton-shimmer skeleton-badge-box"></div>
+                    <div className="skeleton-shimmer skeleton-title-box"></div>
+                    <div className="skeleton-shimmer skeleton-title-box short"></div>
+                    <div className="skeleton-shimmer skeleton-spec-line"></div>
+                  </div>
+                  <div className={viewMode === 'list' ? 'list-col-right' : 'grid-bottom-row'}>
+                    <div className="skeleton-shimmer skeleton-price-box"></div>
+                    <div className="skeleton-shimmer skeleton-button-box"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : sortedProducts.length > 0 ? (
             <div className="products-container">
               {selectedCategory === 'Genuine Spare Parts' ? (
                 <>

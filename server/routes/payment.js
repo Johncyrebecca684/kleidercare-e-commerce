@@ -98,9 +98,6 @@ router.post('/verify-payment', (req, res) => {
   }
 });
 
-// Simple in-memory session store for tracking simulated direct UPI payments
-const upiSessions = new Map();
-
 // GET /api/payment/check-upi-status
 // Query params: sessionId
 router.get('/check-upi-status', (req, res) => {
@@ -109,31 +106,10 @@ router.get('/check-upi-status', (req, res) => {
     return res.status(400).json({ message: 'Session ID is required' });
   }
 
-  const now = Date.now();
-  if (!upiSessions.has(sessionId)) {
-    // First time checking status for this session, store the start timestamp
-    upiSessions.set(sessionId, now);
-    return res.json({ status: 'Pending', message: 'Waiting for payment receipt confirmation...' });
-  }
-
-  const startTime = upiSessions.get(sessionId);
-  const elapsedSeconds = (now - startTime) / 1000;
-
-  // Simulate 120 seconds (2 minutes) bank verification delay
-  if (elapsedSeconds >= 120) {
-    // Delete session from memory to clean up
-    upiSessions.delete(sessionId);
-    console.log(`💰 Direct UPI payment verified successfully for session ${sessionId}`);
-    return res.json({
-      status: 'Paid',
-      transactionId: `UPI${Math.floor(100000000000 + Math.random() * 900000000000)}`, // 12-digit UTR
-      message: 'Payment received. Order confirmed.'
-    });
-  }
-
+  // Direct manual P2P UPI transfers remain in Pending status until verified by the merchant
   return res.json({
     status: 'Pending',
-    message: `Waiting for payment confirmation (${Math.round(120 - elapsedSeconds)}s remaining)...`
+    message: 'Manual UPI transfer logged. Our billing team will verify bank receipt before dispatch.'
   });
 });
 

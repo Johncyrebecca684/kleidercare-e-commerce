@@ -1,11 +1,17 @@
 import { API_URL } from '../config';
+import { categories as defaultCategoriesList } from '../data/products';
+
 const API_BASE = `${API_URL}/api/categories`;
 
 function getToken() {
-  return localStorage.getItem('kc_auth_token');
+  try {
+    return localStorage.getItem('kc_auth_token');
+  } catch {
+    return null;
+  }
 }
 
-async function apiCall(endpoint = '', options = {}) {
+async function apiCall(endpoint = '', options = {}, timeoutMs = 8000) {
   try {
     const token = getToken();
     const headers = {
@@ -14,10 +20,19 @@ async function apiCall(endpoint = '', options = {}) {
       ...options.headers
     };
 
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response;
+    try {
+      response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       return [];
@@ -29,24 +44,33 @@ async function apiCall(endpoint = '', options = {}) {
       return Array.isArray(data) ? data : (data.categories || data);
     }
     return [];
-  } catch (err) {
+  } catch {
     return [];
   }
 }
 
 export async function getAllCategories() {
-  return await apiCall();
+  const data = await apiCall();
+  if (Array.isArray(data) && data.length > 0) {
+    return data;
+  }
+  // Return formatted default categories on fallback
+  return defaultCategoriesList.filter(c => c !== 'All').map(c => ({
+    name: c,
+    slug: c.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+    description: `Commercial catalog category for ${c}`
+  }));
 }
 
 export async function addCategory(categoryData) {
   return await apiCall('', {
     method: 'POST',
     body: JSON.stringify(categoryData)
-  });
+  }, 10000);
 }
 
 export async function deleteCategory(id) {
   return await apiCall(`/${encodeURIComponent(id)}`, {
     method: 'DELETE'
-  });
+  }, 10000);
 }

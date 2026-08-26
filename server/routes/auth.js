@@ -22,51 +22,6 @@ const ALLOWED_RESELLER_NUMBERS = [
 ];
 
 // ─────────────────────────────────────────────
-// IN-MEMORY PENDING SIGNUP STORE
-// Stores pending signup data + OTP hash until email is verified.
-// No MongoDB touch during signup — response is instant.
-// Entries auto-expire after 5 minutes.
-// ─────────────────────────────────────────────
-const pendingSignups = new Map();
-
-function setPendingSignup(email, data) {
-  // Clear any previous pending signup for this email
-  clearPendingSignup(email);
-  const entry = {
-    ...data,
-    otpHash: crypto.createHash('sha256').update(data.otp).digest('hex'),
-    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
-  };
-  delete entry.otp; // never store plaintext OTP
-  pendingSignups.set(email, entry);
-  // Auto-delete after 5 minutes
-  entry._timer = setTimeout(() => pendingSignups.delete(email), 5 * 60 * 1000);
-}
-
-function getPendingSignup(email) {
-  const entry = pendingSignups.get(email);
-  if (!entry) return null;
-  if (Date.now() > entry.expiresAt) {
-    clearPendingSignup(email);
-    return null;
-  }
-  return entry;
-}
-
-function clearPendingSignup(email) {
-  const entry = pendingSignups.get(email);
-  if (entry?._timer) clearTimeout(entry._timer);
-  pendingSignups.delete(email);
-}
-
-function verifyPendingOtp(email, otp) {
-  const entry = getPendingSignup(email);
-  if (!entry) return false;
-  const hash = crypto.createHash('sha256').update(otp).digest('hex');
-  return hash === entry.otpHash;
-}
-
-// ─────────────────────────────────────────────
 // EMAIL DELIVERY (Resend with Nodemailer SMTP Fallback)
 // ─────────────────────────────────────────────
 const EMAIL_FROM = process.env.RESEND_FROM || 'Kleider Care <onboarding@resend.dev>';
@@ -74,8 +29,8 @@ const EMAIL_FROM = process.env.RESEND_FROM || 'Kleider Care <onboarding@resend.d
 const getSmtpTransporter = () => {
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(process.env.SMTP_PORT || '465', 10);
-  const user = process.env.SMTP_USER || 'thesalavailaundry@gmail.com';
-  const pass = process.env.SMTP_PASS || 'seue jwpf jkth qqyw';
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
 
   if (!user || !pass) return null;
 
@@ -379,58 +334,76 @@ export function authMiddleware(req, res, next) {
 
 // ─────────────────────────────────────────────
 // POST /api/auth/signup
-// Pure in-memory: zero DB calls, responds in <10ms.
-// User record is ONLY created after OTP is verified.
+// Uses MongoDB Otp collection with TTL index (5-min auto expiry)
+// Works reliably across serverless instances and cold starts.
 // ─────────────────────────────────────────────
 router.post('/signup', async (req, res) => {
   const { firstName, lastName, email, password, role, mobileNumber } = req.body;
 
-  // --- Synchronous validation ---
+  // --- Input validation ---
   if (!firstName || !email || !password || !mobileNumber) {
     return res.status(400).json({ message: 'First name, email, password, and mobile number are required' });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ message: 'Please enter a valid email address' });
   }
+
   const normalizedRole = (role || 'customer').toLowerCase();
   const cleanedMobile = mobileNumber.replace(/\D/g, '');
   const isAllowedReseller = ALLOWED_RESELLER_NUMBERS.some(num => cleanedMobile.endsWith(num));
+
+  // Security: Prevent unauthorized role escalation
   if (normalizedRole === 'reseller' && !isAllowedReseller) {
     return res.status(400).json({ message: 'You are not an authorized reseller. Please register as a customer.' });
+  }
+  if (normalizedRole === 'admin') {
+    return res.status(403).json({ message: 'Admin accounts cannot be registered publicly.' });
   }
   if (password.length < 6) {
     return res.status(400).json({ message: 'Password must be at least 6 characters' });
   }
 
+  const normalizedEmail = email.toLowerCase().trim();
+
   try {
-    // Check if user already exists
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    // Check if user already exists and is verified
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing && existing.isVerified) {
       return res.status(400).json({ message: 'Email is already registered and verified. Please log in.' });
     }
 
-    // Generate OTP and store everything in memory
-    const otpCode = generateOtp();
-    setPendingSignup(email.toLowerCase(), {
-      otp: otpCode,
-      firstName,
-      lastName: lastName || '',
-      password,
-      role: normalizedRole,
-      mobileNumber
-    });
+    // Clean any prior pending signup OTPs for this email in MongoDB
+    await Otp.deleteMany({ email: normalizedEmail, purpose: 'signup' });
 
-    console.log(`📧 [DEV] Signup OTP for ${email}: ${otpCode}`);
+    // Generate OTP
+    const otpCode = generateOtp();
+
+    // Store in MongoDB with TTL index
+    const otpDoc = new Otp({
+      email: normalizedEmail,
+      otp: otpCode,
+      purpose: 'signup',
+      pendingUser: {
+        firstName: firstName.trim(),
+        lastName: (lastName || '').trim(),
+        password: password,
+        role: normalizedRole,
+        mobileNumber: mobileNumber.trim()
+      }
+    });
+    await otpDoc.save();
+
+    console.log(`📧 [DEV] Signup OTP for ${normalizedEmail}: ${otpCode}`);
 
     // Respond that verification email is sent
     res.status(201).json({
       success: true,
       message: 'Verification email sent! Please check your inbox for the OTP.',
-      email: email.toLowerCase()
+      email: normalizedEmail
     });
 
     // Send OTP email in background
-    sendOtpEmail(email.toLowerCase(), otpCode).catch(err =>
+    sendOtpEmail(normalizedEmail, otpCode).catch(err =>
       console.error('❌ Background OTP email error:', err.message)
     );
   } catch (error) {
@@ -491,8 +464,7 @@ router.post('/login', async (req, res) => {
 
 // ─────────────────────────────────────────────
 // POST /api/auth/verify-otp
-// For signup: checks in-memory store, creates User on success.
-// For other flows: checks MongoDB OTP.
+// Verified via MongoDB Otp TTL index
 // ─────────────────────────────────────────────
 router.post('/verify-otp', async (req, res) => {
   try {
@@ -502,57 +474,50 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(400).json({ message: 'Email and OTP are required' });
     }
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.toLowerCase().trim();
     let user;
 
-    // --- SIGNUP FLOW: use in-memory store ---
-    const pendingSignup = getPendingSignup(normalizedEmail);
-    if (pendingSignup || purpose === 'signup') {
-      if (!pendingSignup) {
+    // Query MongoDB for the OTP
+    const otpDoc = await Otp.findOne({
+      email: normalizedEmail,
+      ...(purpose && { purpose })
+    }).sort({ createdAt: -1 });
+
+    if (!otpDoc) {
+      return res.status(400).json({ message: 'OTP has expired or does not exist. Please request a new one.' });
+    }
+
+    if (!otpDoc.compareOtp(otp)) {
+      return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
+    }
+
+    if (otpDoc.purpose === 'signup') {
+      const pending = otpDoc.pendingUser;
+      if (!pending) {
         return res.status(400).json({ message: 'Signup session expired. Please sign up again.' });
       }
 
-      // Verify OTP from memory
-      if (!verifyPendingOtp(normalizedEmail, otp)) {
-        return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
-      }
-
-      // OTP valid — now create the User in DB for the first time
       const existing = await User.findOne({ email: normalizedEmail });
       if (existing && existing.isVerified) {
         user = existing;
       } else {
         await User.deleteOne({ email: normalizedEmail, isVerified: false }); // clean stale
         user = new User({
-          firstName: pendingSignup.firstName,
-          lastName: pendingSignup.lastName || '',
+          firstName: pending.firstName,
+          lastName: pending.lastName || '',
           email: normalizedEmail,
-          password: pendingSignup.password, // plain — bcrypt-hashed by User pre-save hook
-          role: pendingSignup.role || 'customer',
-          mobileNumber: pendingSignup.mobileNumber,
+          password: pending.password, // bcrypt-hashed by User pre-save hook
+          role: pending.role || 'customer',
+          mobileNumber: pending.mobileNumber,
           isVerified: true
         });
         await user.save();
         console.log(`✅ New user created after OTP verification: ${normalizedEmail}`);
       }
 
-      clearPendingSignup(normalizedEmail); // cleanup memory
-
+      // Cleanup used OTPs
+      await Otp.deleteMany({ email: normalizedEmail });
     } else {
-      // --- OTHER FLOWS (password_reset, login): use MongoDB OTP ---
-      const { default: Otp } = await import('../models/Otp.js');
-      const otpDoc = await Otp.findOne({
-        email: normalizedEmail,
-        ...(purpose && { purpose })
-      }).sort({ createdAt: -1 });
-
-      if (!otpDoc) {
-        return res.status(400).json({ message: 'OTP has expired or does not exist. Please request a new one.' });
-      }
-      if (!otpDoc.compareOtp(otp)) {
-        return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
-      }
-
       user = await User.findOne({ email: normalizedEmail });
       if (!user) {
         return res.status(400).json({ message: 'User not found' });
@@ -580,7 +545,7 @@ router.post('/verify-otp', async (req, res) => {
 
 // ─────────────────────────────────────────────
 // POST /api/auth/resend-otp
-// Resend a new OTP
+// Resend a new OTP using MongoDB Otp TTL index
 // ─────────────────────────────────────────────
 router.post('/resend-otp', async (req, res) => {
   try {
@@ -590,21 +555,25 @@ router.post('/resend-otp', async (req, res) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.toLowerCase().trim();
     const otpCode = generateOtp();
 
-    // 1. If this is a pending signup (in-memory flow)
-    const pendingSignup = getPendingSignup(normalizedEmail);
-    if (pendingSignup || purpose === 'signup') {
-      if (!pendingSignup) {
+    // 1. If this is a pending signup flow
+    if (purpose === 'signup') {
+      const existingPending = await Otp.findOne({ email: normalizedEmail, purpose: 'signup' }).sort({ createdAt: -1 });
+      if (!existingPending || !existingPending.pendingUser) {
         return res.status(400).json({ message: 'Signup session expired. Please sign up again.' });
       }
 
-      // Update in-memory OTP
-      setPendingSignup(normalizedEmail, {
-        ...pendingSignup,
-        otp: otpCode
+      // Replace old OTP with new one
+      await Otp.deleteMany({ email: normalizedEmail, purpose: 'signup' });
+      const newOtpDoc = new Otp({
+        email: normalizedEmail,
+        otp: otpCode,
+        purpose: 'signup',
+        pendingUser: existingPending.pendingUser
       });
+      await newOtpDoc.save();
 
       console.log(`📧 [DEV] Resent Signup OTP for ${normalizedEmail}: ${otpCode}`);
 

@@ -24,6 +24,7 @@ const adminMiddleware = async (req, res, next) => {
 // GET /api/categories
 router.get('/', async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
     const categories = await Category.find({}).sort({ name: 1 });
     res.json(categories);
   } catch (error) {

@@ -40,24 +40,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS Configuration (supports Bluehost domain, local dev, and Vercel)
+// CORS Configuration (supports production domains, local dev, and Vercel deployments)
 const allowedOrigins = [
   'https://www.laundryecommerce.com',
   'https://laundryecommerce.com',
+  'https://kleidercare.com',
+  'https://www.kleidercare.com',
+  'https://kleidercare-e-commerce.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
-  'http://127.0.0.1:5173',
-  'https://kleidercare-e-commerce.vercel.app'
+  'http://127.0.0.1:5173'
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
     if (!origin) return callback(null, true);
+
     if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
       return callback(null, true);
     }
-    return callback(null, true);
+
+    return callback(new Error('CORS request blocked: Origin not allowed.'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
@@ -72,21 +77,69 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 
+// Whitelist of allowed partner domains for in-app proxy embedding
+const ALLOWED_PROXY_DOMAINS = [
+  'thesalavailaundry.com',
+  'nammudelaundry.com',
+  'systemcaresitsolutions.com',
+  'systemcaresolutions.com',
+  'theamlanlaundry.com',
+  'kleidercare.com',
+  'laundryecommerce.com'
+];
+
+function isAllowedProxyUrl(urlString) {
+  try {
+    const parsed = new URL(urlString);
+
+    // 1. Enforce HTTPS or HTTP protocol
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return { allowed: false, reason: 'Invalid protocol. Only HTTP/HTTPS URLs are permitted.' };
+    }
+
+    const hostname = parsed.hostname.toLowerCase();
+
+    // 2. Block localhost, loopbacks, link-local, and private IP patterns
+    const privateIpRegex = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|0\.0\.0\.0|::1|fe80:|fc00:)/i;
+    if (privateIpRegex.test(hostname)) {
+      return { allowed: false, reason: 'Access to internal or private addresses is strictly prohibited.' };
+    }
+
+    // 3. Check if hostname matches allowed whitelist domains (or subdomains)
+    const isMatched = ALLOWED_PROXY_DOMAINS.some(domain =>
+      hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+
+    if (!isMatched) {
+      return { allowed: false, reason: 'Domain is not in the allowed partner proxy whitelist.' };
+    }
+
+    return { allowed: true, parsedUrl: parsed };
+  } catch {
+    return { allowed: false, reason: 'Malformed URL provided.' };
+  }
+}
+
 // In-app proxy endpoint to allow embedding third-party pages with X-Frame-Options headers
 app.get('/api/proxy-embed', async (req, res) => {
   try {
     const targetUrl = req.query.url;
     if (!targetUrl) {
-      return res.status(400).send('Missing url parameter');
+      return res.status(400).json({ error: 'Missing url parameter' });
     }
 
-    const parsedUrl = new URL(targetUrl);
-    const response = await fetch(targetUrl, {
+    const { allowed, reason, parsedUrl } = isAllowedProxyUrl(targetUrl);
+    if (!allowed) {
+      return res.status(403).json({ error: 'Forbidden', message: reason });
+    }
+
+    const response = await fetch(parsedUrl.href, {
       headers: {
         'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5'
-      }
+      },
+      signal: AbortSignal.timeout(10000) // 10-second timeout to prevent connection exhaustion
     });
 
     const contentType = response.headers.get('content-type') || 'text/html';

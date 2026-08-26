@@ -14,8 +14,8 @@ function removeToken() {
   localStorage.removeItem('kc_auth_token');
 }
 
-// Helper for API calls
-async function apiCall(endpoint, options = {}) {
+// Helper for API calls with timeout
+async function apiCall(endpoint, options = {}, timeoutMs = 8000) {
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -23,10 +23,19 @@ async function apiCall(endpoint, options = {}) {
     ...options.headers
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   let data = {};
   const contentType = response.headers.get('content-type');

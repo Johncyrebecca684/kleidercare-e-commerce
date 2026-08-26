@@ -2,10 +2,8 @@
    COMPARE PAGE — Premium Side-by-Side Comparison
    ═══════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 .compare-page {
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
   background: linear-gradient(180deg, #f0f4f8 0%, #e2e8f0 100%);
   min-height: 100vh;
   padding: 32px 24px 80px;

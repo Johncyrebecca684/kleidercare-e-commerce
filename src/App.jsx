@@ -6,7 +6,7 @@ import ForgotPassword from './components/ForgotPassword';
 import Home from './pages/Home';
 import BottomNav from './components/BottomNav';
 import { getCurrentUser, logout as authLogout, updateCartWishlist } from './services/authService';
-import { getAllProducts } from './services/productService';
+import { getAllProducts, getLocalCachedProducts } from './services/productService';
 import Loader from './components/Loader';
 import './App.css';
 import { API_URL } from './config';
@@ -128,30 +128,13 @@ function App() {
     }
   }, [searchTerm, selectedCategory]);
 
-  // App Data States - Loaded dynamically from MongoDB Database / API
+  // App Data States - Loaded dynamically from local cache/bundle immediately (0ms TTFP) then synced with API
   const [appProducts, setAppProducts] = useState(() => {
-    try {
-      const raw = localStorage.getItem('kc_app_products');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.error('Error parsing kc_app_products from localStorage:', e);
-    }
-    return [];
+    return getLocalCachedProducts();
   });
   const [productsLoading, setProductsLoading] = useState(() => {
-    try {
-      const raw = localStorage.getItem('kc_app_products');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return false;
-      }
-    } catch {
-      // ignore
-    }
-    return true;
+    const initial = getLocalCachedProducts();
+    return !Array.isArray(initial) || initial.length === 0;
   });
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -165,13 +148,13 @@ function App() {
         const raw = localStorage.getItem('kc_app_products');
         if (raw) localSaved = JSON.parse(raw);
       } catch (e) {
-        console.error('Error parsing kc_app_products from localStorage:', e);
+        console.warn('Error reading kc_app_products from localStorage:', e);
       }
 
       try {
         const data = await getAllProducts();
         if (!isMounted) return;
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           if (localSaved && Array.isArray(localSaved) && localSaved.length > 0) {
             const stockMap = {};
             localSaved.forEach(p => {
@@ -198,7 +181,7 @@ function App() {
           }
         }
       } catch (error) {
-        console.warn('Error fetching products from database API:', error.message || error);
+        console.warn('Error syncing products with API:', error.message || error);
       } finally {
         if (isMounted) setProductsLoading(false);
       }
@@ -594,6 +577,7 @@ function App() {
                   onSignupSuccess={handleSignupSuccess}
                   onLogout={handleLogout}
                   products={appProducts}
+                  productsLoading={productsLoading}
                   wishlistItems={wishlistItems}
                   onToggleWishlist={handleToggleWishlist}
                 />
@@ -605,6 +589,7 @@ function App() {
               element={
                 <ProductDetailPage
                   products={appProducts}
+                  productsLoading={productsLoading}
                   onAddToCart={handleAddToCart}
                   cartCount={cartCount}
                   wishlistItems={wishlistItems}
@@ -662,14 +647,20 @@ function App() {
             <Route
               path="/admin"
               element={
-                <AdminDashboard
-                  products={appProducts}
-                  setProducts={setAppProducts}
-                  users={appUsers}
-                  orders={userOrders}
-                  onUpdateOrderSetup={handleUpdateOrderSetup}
-                  loggedInUser={loggedInUser}
-                />
+                authLoading ? (
+                  <Loader title="Kleider Care" subtitle="Verifying Admin Access..." fullPage />
+                ) : loggedInUser?.role === 'admin' ? (
+                  <AdminDashboard
+                    products={appProducts}
+                    setProducts={setAppProducts}
+                    users={appUsers}
+                    orders={userOrders}
+                    onUpdateOrderSetup={handleUpdateOrderSetup}
+                    loggedInUser={loggedInUser}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
               }
             />
             <Route
