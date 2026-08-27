@@ -77,7 +77,18 @@ export default function ProductDetailPage({
   const navigate = useNavigate();
   const { showSuccess } = useToast();
 
-  const rawProduct = products.find(p => String(p.id) === String(id)) || products[0];
+  const rawProduct = useMemo(() => {
+    if (!products || products.length === 0) return null;
+    return (
+      products.find(
+        p =>
+          String(p.id) === String(id) ||
+          String(p._id) === String(id) ||
+          String(p.sku) === String(id)
+      ) || (productsLoading ? null : products[0])
+    );
+  }, [products, id, productsLoading]);
+
   const product = useMemo(() => {
     if (!rawProduct) return null;
     return {
@@ -101,6 +112,16 @@ export default function ProductDetailPage({
   const [showAmcScheduleModal, setShowAmcScheduleModal] = useState(false);
   const [showAmcDetails, setShowAmcDetails] = useState(true);
   const [showEmiModal, setShowEmiModal] = useState(false);
+
+  useEffect(() => {
+    if (product) {
+      setSelectedImage(product.image || '');
+      setSelectedVariant(product.specifications?.Capacity || 'Standard Capacity');
+      setSelectedWarranty('none');
+      setIncludeProgramSetup(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [id, product?.id, product?._id]);
 
   // Technical specifications entries and truncated preview calculations
   const specsEntries = useMemo(() => {
@@ -1166,12 +1187,13 @@ export default function ProductDetailPage({
                   const isTargetRecommended = targetRecommendedType && getProductType(simProd) === targetRecommendedType;
                   const isBestseller = idx % 2 === 0;
 
+                  const simTargetId = simProd.id ?? simProd._id ?? simProd.sku;
                   return (
                     <div
-                      key={simProd.id + '-' + idx}
+                      key={(simTargetId || 'sim') + '-' + idx}
                       className="similar-product-card"
                       onClick={() => {
-                        navigate(`/product/${simProd.id}`);
+                        navigate(`/product/${simTargetId}`);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                     >

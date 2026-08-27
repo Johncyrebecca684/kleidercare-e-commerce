@@ -79,6 +79,20 @@ export default function Header({
     return getSearchResultsWithSimilar(products, searchTerm);
   }, [products, searchTerm]);
 
+  const handleSelectSuggestion = (product) => {
+    setShowSuggestions(false);
+    const targetId = product.id ?? product._id ?? product.sku;
+    if (targetId !== undefined && targetId !== null) {
+      navigate(`/product/${targetId}`);
+    }
+  };
+
+  const handleSearchSubmit = () => {
+    setShowSuggestions(false);
+    navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
+    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const fetchLocation = async () => {
     setIsLocating(true);
     // Priority 1: User's saved address
@@ -209,62 +223,78 @@ export default function Header({
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  setShowSuggestions(false);
-                  navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
-                  document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                  handleSearchSubmit();
                 }
               }}
               aria-label="Search products"
             />
             {showSuggestions && searchTerm && searchTerm.trim().length > 0 && (
-              <div className="searchSuggestionsDropdown">
+              <div 
+                className="searchSuggestionsDropdown"
+                onMouseDown={(e) => {
+                  // Prevent input blur when clicking anywhere inside dropdown
+                  e.preventDefault();
+                }}
+              >
                 {liveSearchResults.exactMatches.length > 0 ? (
                   <>
                     <div className="suggestionSectionHeader">Matching Products</div>
-                    {liveSearchResults.exactMatches.slice(0, 5).map((product) => (
-                      <div
-                        key={product.id}
-                        className="suggestionItem"
-                        onClick={() => {
-                          setShowSuggestions(false);
-                          navigate(`/product/${product.id}`);
-                        }}
-                      >
-                        <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
-                        <div className="suggestionItemInfo">
-                          <div className="suggestionItemTitle">{product.name}</div>
-                          <div className="suggestionItemMeta">
-                            <span className="suggestionItemCategory">{product.category}</span>
-                            <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                    {liveSearchResults.exactMatches.slice(0, 5).map((product) => {
+                      const productId = product.id ?? product._id ?? product.sku;
+                      return (
+                        <div
+                          key={productId}
+                          className="suggestionItem"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSelectSuggestion(product);
+                          }}
+                          onClick={() => {
+                            handleSelectSuggestion(product);
+                          }}
+                        >
+                          <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
+                          <div className="suggestionItemInfo">
+                            <div className="suggestionItemTitle">{product.name}</div>
+                            <div className="suggestionItemMeta">
+                              <span className="suggestionItemCategory">{product.category}</span>
+                              <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {liveSearchResults.similarProducts.length > 0 && (
                       <>
                         <div className="suggestionSectionHeader suggestionSectionSimilar">Similar Products You May Like</div>
-                        {liveSearchResults.similarProducts.slice(0, 3).map((product) => (
-                          <div
-                            key={product.id}
-                            className="suggestionItem suggestionItemSimilar"
-                            onClick={() => {
-                              setShowSuggestions(false);
-                              navigate(`/product/${product.id}`);
-                            }}
-                          >
-                            <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
-                            <div className="suggestionItemInfo">
-                              <div className="suggestionItemTitle">{product.name}</div>
-                              <div className="suggestionItemMeta">
-                                <span className="suggestionItemBadge">Similar</span>
-                                <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                        {liveSearchResults.similarProducts.slice(0, 3).map((product) => {
+                          const productId = product.id ?? product._id ?? product.sku;
+                          return (
+                            <div
+                              key={productId}
+                              className="suggestionItem suggestionItemSimilar"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleSelectSuggestion(product);
+                              }}
+                              onClick={() => {
+                                handleSelectSuggestion(product);
+                              }}
+                            >
+                              <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
+                              <div className="suggestionItemInfo">
+                                <div className="suggestionItemTitle">{product.name}</div>
+                                <div className="suggestionItemMeta">
+                                  <span className="suggestionItemBadge">Similar</span>
+                                  <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </>
                     )}
                   </>
@@ -278,35 +308,43 @@ export default function Header({
                         <div className="suggestionSectionHeader suggestionSectionSimilar">
                           Similar Products You Might Like
                         </div>
-                        {liveSearchResults.similarProducts.slice(0, 5).map((product) => (
-                          <div
-                            key={product.id}
-                            className="suggestionItem suggestionItemSimilar"
-                            onClick={() => {
-                              setShowSuggestions(false);
-                              navigate(`/product/${product.id}`);
-                            }}
-                          >
-                            <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
-                            <div className="suggestionItemInfo">
-                              <div className="suggestionItemTitle">{product.name}</div>
-                              <div className="suggestionItemMeta">
-                                <span className="suggestionItemCategory">{product.category}</span>
-                                <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                        {liveSearchResults.similarProducts.slice(0, 5).map((product) => {
+                          const productId = product.id ?? product._id ?? product.sku;
+                          return (
+                            <div
+                              key={productId}
+                              className="suggestionItem suggestionItemSimilar"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleSelectSuggestion(product);
+                              }}
+                              onClick={() => {
+                                handleSelectSuggestion(product);
+                              }}
+                            >
+                              <img src={formatImageUrl(product.image)} alt={product.name} className="suggestionItemImg" />
+                              <div className="suggestionItemInfo">
+                                <div className="suggestionItemTitle">{product.name}</div>
+                                <div className="suggestionItemMeta">
+                                  <span className="suggestionItemCategory">{product.category}</span>
+                                  <span className="suggestionItemPrice">₹{product.price?.toLocaleString('en-IN')}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </>
                     )}
                   </>
                 )}
                 <div 
                   className="suggestionViewAllBtn"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSearchSubmit();
+                  }}
                   onClick={() => {
-                    setShowSuggestions(false);
-                    navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
-                    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                    handleSearchSubmit();
                   }}
                 >
                   View all results for &quot;{searchTerm}&quot; &rarr;
@@ -318,10 +356,12 @@ export default function Header({
             className="headerSearchBtn"
             type="button"
             aria-label="Search"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleSearchSubmit();
+            }}
             onClick={() => {
-              setShowSuggestions(false);
-              navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
-              document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+              handleSearchSubmit();
             }}
           >
             <Search size={20} />

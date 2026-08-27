@@ -72,7 +72,10 @@ export default function ProductList({
   };
 
   const handleProductSelect = (product) => {
-    navigate(`/product/${product.id}`);
+    const targetId = product.id ?? product._id ?? product.sku;
+    if (targetId !== undefined && targetId !== null) {
+      navigate(`/product/${targetId}`);
+    }
   };
 
   // Sidebar Filter States
@@ -209,11 +212,12 @@ export default function ProductList({
 
     let matchesSearch = true;
     if (searchTerm && searchTerm.trim()) {
+      const currentProdId = String(product.id ?? product._id ?? product.sku);
       if (searchResultsData.exactMatches.length > 0) {
-        matchesSearch = searchResultsData.exactMatches.some(p => p.id === product.id);
+        matchesSearch = searchResultsData.exactMatches.some(p => String(p.id ?? p._id ?? p.sku) === currentProdId);
       } else {
         // If no exact matches, show top similar products in main grid
-        matchesSearch = searchResultsData.similarProducts.some(p => p.id === product.id);
+        matchesSearch = searchResultsData.similarProducts.some(p => String(p.id ?? p._id ?? p.sku) === currentProdId);
       }
     }
 
