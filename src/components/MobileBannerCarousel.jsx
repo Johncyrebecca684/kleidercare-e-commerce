@@ -7,34 +7,32 @@ const MOBILE_BANNERS = [
   {
     id: 1,
     image: '/c7.jpeg',
-    alt: 'LG Machine Stacker 15kg',
-    // Links directly to Titan Electric 15kg Stacker (id: 121) or category
-    productId: 121,
+    alt: 'Upgrade your laundry with LG Washer-Dryer stacker',
     category: 'Stacker'
   },
   {
     id: 2,
     image: '/c2.jpeg',
-    alt: 'Speed Queen Commercial Laundry Machines',
+    alt: 'SPEED QUEEN SOFT-MOUNT Washer-Extractors & Tumble Dryers',
     category: 'Speed Queen Commercial Laundry Machines'
   },
   {
     id: 3,
     image: '/c3.jpeg',
-    alt: 'Speed Queen Commercial Laundry Machines',
+    alt: 'Take your laundry business to the next level - Speed Queen',
     category: 'Speed Queen Commercial Laundry Machines'
   },
   {
     id: 4,
     image: '/c4.jpeg',
-    alt: 'PONY Finishing Equipments',
-    category: 'PONY Finishing Equipments'
+    alt: 'Kerala Business Partner Program',
+    category: 'Packages'
   },
   {
     id: 5,
     image: '/c8.jpeg',
-    alt: 'Genuine Spare Parts',
-    category: 'Genuine Spare Parts'
+    alt: 'LG Genuine Spare Parts',
+    category: 'LG Genuine Spare Parts'
   },
   {
     id: 6,
@@ -48,6 +46,19 @@ export default function MobileBannerCarousel({ onCategoryChange }) {
   const navigate = useNavigate();
   const scrollContainerRef = useRef(null);
 
+  const scrollToResults = () => {
+    const targetElement = document.getElementById('category-results-bar') || document.getElementById('products');
+    if (targetElement) {
+      const headerOffset = 80;
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const handleBannerClick = (banner) => {
     if (banner.productId) {
       navigate(`/product/${banner.productId}`);
@@ -55,10 +66,13 @@ export default function MobileBannerCarousel({ onCategoryChange }) {
       if (onCategoryChange) {
         onCategoryChange(banner.category);
       }
-      const productSection = document.getElementById('products');
-      if (productSection) {
-        productSection.scrollIntoView({ behavior: 'smooth' });
-      }
+      setTimeout(() => {
+        scrollToResults();
+      }, 50);
+    } else {
+      setTimeout(() => {
+        scrollToResults();
+      }, 50);
     }
   };
 

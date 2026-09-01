@@ -52,7 +52,7 @@ export default function Home({
       />
       <main role="main">
         <TopServicePills onCategoryChange={onCategoryChange} selectedCategory={selectedCategory} />
-        <Hero />
+        <Hero onCategoryChange={onCategoryChange} />
         <MobileBannerCarousel onCategoryChange={onCategoryChange} />
         <ProductList
           products={products}

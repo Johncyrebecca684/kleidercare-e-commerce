@@ -6,32 +6,38 @@ const desktopSlides = [
   {
     id: 0,
     image: '/emi_banner.png',
-    alt: 'Kleider Care EMI Offers'
+    alt: 'Kleider Care EMI Offers',
+    category: 'All'
   },
   {
     id: 1,
     image: '/spare_carousal.jpg',
-    alt: 'Genuine spare parts for commercial laundry machine'
+    alt: 'Genuine spare parts for commercial laundry machine',
+    category: 'LG Genuine Spare Parts'
   },
   {
     id: 2,
     image: '/lg_commercial_laundry_new.jpg',
-    alt: 'LG Commercial Laundry'
+    alt: 'LG Commercial Laundry',
+    category: 'LG Commercial Laundry Machines'
   },
   {
     id: 3,
     image: '/speedqueen_carousal.jpg',
-    alt: 'Speed Queen Commercial Laundry'
+    alt: 'Speed Queen Commercial Laundry',
+    category: 'Speed Queen Commercial Laundry Machines'
   },
   {
     id: 4,
     image: '/pony_carousal.jpg',
-    alt: 'Pony Finishing Equipment'
+    alt: 'Pony Finishing Equipment',
+    category: 'PONY Finishing Equipments'
   },
   {
     id: 5,
     image: '/slms_banner.jpeg',
-    alt: 'Smart Laundry Management System'
+    alt: 'Smart Laundry Management System',
+    category: 'Packages'
   }
 ];
 
@@ -39,39 +45,67 @@ const mobileSlides = [
   {
     id: 0,
     image: '/ecom-slider.png',
-    alt: 'Kleider Care EMI Offers'
+    alt: 'Kleider Care EMI Offers',
+    category: 'All'
   },
   {
     id: 1,
     image: '/ecom-slider (1).png',
-    alt: 'Genuine spare parts for commercial laundry machine'
+    alt: 'Genuine spare parts for commercial laundry machine',
+    category: 'LG Genuine Spare Parts'
   },
   {
     id: 2,
     image: '/ecom-slider (2).png',
-    alt: 'LG Commercial Laundry Machines'
+    alt: 'LG Commercial Laundry Machines',
+    category: 'LG Commercial Laundry Machines'
   },
   {
     id: 3,
     image: '/ecom-slider (3).png',
-    alt: 'Speed Queen Commercial Laundry Machines'
+    alt: 'Speed Queen Commercial Laundry Machines',
+    category: 'Speed Queen Commercial Laundry Machines'
   },
   {
     id: 4,
     image: '/ecom-slider (4).png',
-    alt: 'Pony Commercial Ironing Tables'
+    alt: 'Pony Commercial Ironing Tables',
+    category: 'PONY Finishing Equipments'
   },
   {
     id: 5,
     image: '/ecom-slider (5).png',
-    alt: 'Salavai Laundry Management System (SLMS)'
+    alt: 'Salavai Laundry Management System (SLMS)',
+    category: 'Packages'
   }
 ];
 
-export default function Hero() {
+export default function Hero({ onCategoryChange }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentMobileSlide, setCurrentMobileSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  const scrollToResults = () => {
+    const targetElement = document.getElementById('category-results-bar') || document.getElementById('products');
+    if (targetElement) {
+      const headerOffset = 80;
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleSlideClick = (slideItem) => {
+    if (slideItem?.category && onCategoryChange) {
+      onCategoryChange(slideItem.category);
+    }
+    setTimeout(() => {
+      scrollToResults();
+    }, 50);
+  };
 
   // Desktop touch swipe
   const [desktopTouchStart, setDesktopTouchStart] = useState(null);
@@ -180,7 +214,12 @@ export default function Hero() {
             }}
           >
             {mobileSlides.map((item, idx) => (
-              <div className="heroMobileSlideItem" key={item.id}>
+              <div 
+                className="heroMobileSlideItem" 
+                key={item.id}
+                onClick={() => handleSlideClick(item)}
+                style={{ cursor: 'pointer' }}
+              >
                 <img
                   src={item.image}
                   alt={item.alt}
@@ -224,7 +263,12 @@ export default function Hero() {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          <div className="carouselBackground animate-fade-in" key={`bg-${slide.id}`}>
+          <div 
+            className="carouselBackground animate-fade-in" 
+            key={`bg-${slide.id}`}
+            onClick={() => handleSlideClick(slide)}
+            style={{ cursor: 'pointer' }}
+          >
             <img
               src={slide.image}
               alt={slide.alt || 'Banner'}

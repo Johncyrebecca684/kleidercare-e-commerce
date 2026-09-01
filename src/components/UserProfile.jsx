@@ -825,240 +825,342 @@ export default function UserProfile({
 
             {/* Printable Invoice Sheet */}
             <div className="invoice-sheet" id="invoice-print-area">
-              <div className="invoice-header-section">
-                <div className="invoice-logo-container">
-                  <div className="logo-box">
-                    <span className="logo-text-bold">KC</span>
-                    <span className="logo-subtext">KLEIDER CARE</span>
+              <div className="top-strip"></div>
+
+              {/* HEADER */}
+              <div className="header">
+                <div className="company-section">
+                  <img src="/kc-logo.png" className="logo" alt="Kleider Care Logo" />
+                  <div className="company-info">
+                    <h1>KLEIDER CARE PVT LTD</h1>
+                    <div className="tagline">Garment Cleaning Expert</div>
+                    <div className="company-details">
+                      📍 No 1, 181, First Floor,<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;ECR Road, Palavakkam,<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;Chennai - 600041, Tamil Nadu.<br />
+                      ☎ +91 81488 14205 | 044 4860 6351<br />
+                      ✉ info@kleidercare.com<br />
+                      <strong>CIN:</strong> U96010TN2024PTC173997<br />
+                      <strong>GSTIN:</strong> 33AALCK336501ZX
+                    </div>
                   </div>
                 </div>
-                <div className="invoice-company-details">
-                  <h4>KLEIDER CARE PVT LTD</h4>
-                  <p>NO 1, 1/91, First Floor,</p>
-                  <p>ECR Road, Palavakkam,</p>
-                  <p>Chennai - 600041, Tamil Nadu.</p>
-                  <p>Mobile no: +91 8148814205, Phone no: 04448606351,</p>
-                  <p>Email: support@kleidercare.com</p>
-                  <p>Company's CIN: U96010TN2024PTC173997</p>
-                  <p>Company's GSTIN: 33AALCK3365Q1ZX</p>
+
+                {/* INVOICE INFORMATION */}
+                <div className="invoice-info">
+                  <div className="invoice-title">TAX INVOICE</div>
+                  <div className="invoice-meta">
+                    <span className="label">TAX INVOICE NO.</span>
+                    <span>:</span>
+                    <span>KC {selectedInvoice.orderId?.substring(3) || selectedInvoice.id || '759724'}</span>
+
+                    <span className="label">TAX INVOICE DATE</span>
+                    <span>:</span>
+                    <span>{selectedInvoice.date || new Date().toLocaleDateString('en-IN')}</span>
+
+                    <span className="label">SUPPLIERS REF.</span>
+                    <span>:</span>
+                    <span>-</span>
+
+                    <span className="label">DELIVERY NOTE</span>
+                    <span>:</span>
+                    <span>-</span>
+
+                    <span className="label">OTHER REFERENCE</span>
+                    <span>:</span>
+                    <span>-</span>
+
+                    <span className="label">REVERSE CHARGE (Y/N)</span>
+                    <span>:</span>
+                    <span>N</span>
+
+                    <span className="label">PLACE OF SUPPLY</span>
+                    <span>:</span>
+                    <span>{selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29 - Karnataka' : '33 - Tamil Nadu'}</span>
+
+                    <span className="label">STATE</span>
+                    <span>:</span>
+                    <span>{selectedInvoice.shippingAddress?.state || 'Tamil Nadu'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="invoice-title-banner">
-                Tax Invoice
-              </div>
+              {/* BILL / SHIP */}
+              <div className="customer-grid">
+                <div className="customer-box">
+                  <div className="box-title">BILL TO PARTY</div>
+                  <div className="customer-box-inner">
+                    <div className="customer-icon-wrap"></div>
+                    <div className="customer-content">
+                      <span className="label">Name</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.customerName || `${userData.firstName} ${userData.lastName || ''}`.trim() || 'Martin David M'}</span>
 
-              <div className="invoice-meta-grid">
-                <div className="meta-cell"><span className="label">Tax Invoice No:</span> <span className="value">KC {selectedInvoice.orderId?.substring(3) || '203075'}</span></div>
-                <div className="meta-cell"><span className="label">Supplier's Ref:</span> <span className="value"></span></div>
-                <div className="meta-cell"><span className="label">Tax Invoice Date:</span> <span className="value">{selectedInvoice.date}</span></div>
-                <div className="meta-cell"><span className="label">Delivery Note:</span> <span className="value"></span></div>
-                <div className="meta-cell"><span className="label">Reverse Charge (Y/N):</span> <span className="value">N</span></div>
-                <div className="meta-cell"><span className="label">Other Reference:</span> <span className="value"></span></div>
-                <div className="meta-cell"><span className="label">State:</span> <span className="value">Tamil Nadu (Code: 33)</span></div>
-                <div className="meta-cell"><span className="label">Place of Supply:</span> <span className="value">{selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29-Karnataka' : '33-Tamil Nadu'}</span></div>
-              </div>
+                      <span className="label">Address</span>
+                      <span>:</span>
+                      <span>
+                        {selectedInvoice.shippingAddress?.address || 'CMWSSB Division 109, ward 109.'}<br />
+                        {selectedInvoice.shippingAddress?.city || 'Chennai'} - {selectedInvoice.shippingAddress?.pincode || '600094'}
+                      </span>
 
-              <div className="invoice-parties-grid">
-                <div className="party-column">
-                  <div className="party-header">Bill to Party</div>
-                  <p className="party-name"><strong>Name:</strong> {selectedInvoice.customerName}</p>
-                  {selectedInvoice.companyName && <p className="party-company"><strong>Company:</strong> {selectedInvoice.companyName}</p>}
-                  <p className="party-address"><strong>Address:</strong> {selectedInvoice.shippingAddress?.address || 'N/A'}</p>
-                  <p className="party-city-pincode">{selectedInvoice.shippingAddress?.city || ''} - {selectedInvoice.shippingAddress?.pincode || ''}</p>
-                  <p className="party-state"><strong>State:</strong> {selectedInvoice.shippingAddress?.state || 'N/A'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</p>
-                  <p className="party-phone"><strong>Mobile:</strong> {selectedInvoice.phone || userData.mobileNumber}</p>
-                  <p className="party-gstin"><strong>GSTIN:</strong> {selectedInvoice.gstNumber || 'N/A'}</p>
+                      <span className="label">State</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.shippingAddress?.state || 'Tamil Nadu'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</span>
+
+                      <span className="label">Mobile</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.phone || userData.mobileNumber || '7904309363'}</span>
+
+                      <span className="label">GSTIN</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.gstNumber || 'N/A'}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="party-column">
-                  <div className="party-header">Ship to Party</div>
-                  <p className="party-name"><strong>Name:</strong> {selectedInvoice.customerName}</p>
-                  {selectedInvoice.companyName && <p className="party-company"><strong>Company:</strong> {selectedInvoice.companyName}</p>}
-                  <p className="party-address"><strong>Address:</strong> {selectedInvoice.shippingAddress?.address || 'N/A'}</p>
-                  <p className="party-city-pincode">{selectedInvoice.shippingAddress?.city || ''} - {selectedInvoice.shippingAddress?.pincode || ''}</p>
-                  <p className="party-state"><strong>State:</strong> {selectedInvoice.shippingAddress?.state || 'N/A'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</p>
-                  <p className="party-phone"><strong>Mobile:</strong> {selectedInvoice.phone || userData.mobileNumber}</p>
-                  <p className="party-gstin"><strong>GSTIN:</strong> {selectedInvoice.gstNumber || 'N/A'}</p>
+
+                <div className="customer-box">
+                  <div className="box-title">SHIP TO PARTY</div>
+                  <div className="customer-box-inner">
+                    <div className="customer-icon-wrap"></div>
+                    <div className="customer-content">
+                      <span className="label">Name</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.customerName || `${userData.firstName} ${userData.lastName || ''}`.trim() || 'Martin David M'}</span>
+
+                      <span className="label">Address</span>
+                      <span>:</span>
+                      <span>
+                        {selectedInvoice.shippingAddress?.address || 'CMWSSB Division 109, ward 109.'}<br />
+                        {selectedInvoice.shippingAddress?.city || 'Chennai'} - {selectedInvoice.shippingAddress?.pincode || '600094'}
+                      </span>
+
+                      <span className="label">State</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.shippingAddress?.state || 'Tamil Nadu'} (Code: {selectedInvoice.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</span>
+
+                      <span className="label">Mobile</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.phone || userData.mobileNumber || '7904309363'}</span>
+
+                      <span className="label">GSTIN</span>
+                      <span>:</span>
+                      <span>{selectedInvoice.gstNumber || 'N/A'}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <table className="invoice-items-table">
+              {/* PRODUCT TABLE */}
+              <table className="items-table">
                 <thead>
                   <tr>
-                    <th>S.No</th>
-                    <th>Description of Goods</th>
-                    <th>HSN/SAC</th>
-                    <th>Qty</th>
-                    <th>Unit</th>
-                    <th>Rate</th>
-                    <th>Amount</th>
-                    <th colSpan="2">IGST</th>
-                    <th>Total</th>
-                  </tr>
-                  <tr className="sub-headers">
-                    <th colSpan="7"></th>
-                    <th>%</th>
-                    <th>Amt</th>
-                    <th></th>
+                    <th style={{ width: '7%' }}>S.NO.</th>
+                    <th style={{ width: '29%' }}>DESCRIPTION OF GOODS</th>
+                    <th style={{ width: '14%' }}>HSN/SAC</th>
+                    <th style={{ width: '9%' }}>QTY</th>
+                    <th style={{ width: '11%' }}>UNIT</th>
+                    <th style={{ width: '15%' }}>RATE (₹)</th>
+                    <th style={{ width: '15%' }}>AMOUNT (₹)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedInvoice.items.flatMap((item, idx) => {
-                    const hsnCode = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? '34029019' : '84502000';
-                    const unitLabel = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? 'Ltr' : 'Nos';
+                  {selectedInvoice.items && selectedInvoice.items.length > 0 ? (
+                    selectedInvoice.items.flatMap((item, idx) => {
+                      const hsnCode = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? '34029019' : '84502000';
+                      const unitLabel = item.name.toLowerCase().includes('chemical') || item.name.toLowerCase().includes('stain') ? 'Ltr' : 'Nos';
 
-                    const rows = [];
+                      const rows = [];
+                      const amcPrice = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
+                      const progPrice = item.includeProgramSetup ? 18000 : 0;
+                      const baseItemPrice = item.basePrice || Math.max(0, item.price - amcPrice - progPrice);
 
-                    // Main Item (Base product)
-                    const amcPrice = (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo?.price) ? item.amcWarrantyInfo.price : 0;
-                    const progPrice = item.includeProgramSetup ? 18000 : 0;
-                    const baseItemPrice = item.basePrice || Math.max(0, item.price - amcPrice - progPrice);
-
-                    const baseItemTotal = baseItemPrice * item.quantity;
-                    const baseBeforeTax = Math.round((baseItemTotal / 1.18) * 100) / 100;
-                    const baseIgstAmt = Math.round((baseItemTotal - baseBeforeTax) * 100) / 100;
-                    const baseRateBeforeTax = Math.round((baseItemPrice / 1.18) * 100) / 100;
-
-                    rows.push(
-                      <tr key={`main-${idx}`} className="item-row">
-                        <td>{idx + 1}</td>
-                        <td className="desc-cell">
-                          <strong>{item.name}</strong>
-                          {item.amcWarrantyInfo && (
-                            <div style={{ fontSize: '11px', color: '#0f2b5c', marginTop: '2px', fontWeight: '600' }}>
-                              [Covered under {item.amcWarrantyInfo.type}]
-                            </div>
-                          )}
-                        </td>
-                        <td>{hsnCode}</td>
-                        <td>{item.quantity}</td>
-                        <td>{unitLabel}</td>
-                        <td>{baseRateBeforeTax.toFixed(2)}</td>
-                        <td>{baseBeforeTax.toFixed(2)}</td>
-                        <td>18</td>
-                        <td>{baseIgstAmt.toFixed(2)}</td>
-                        <td>{baseItemTotal.toFixed(2)}</td>
-                      </tr>
-                    );
-
-                    // AMC Warranty Line Item in Invoice
-                    if (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo) {
-                      const amcTotal = amcPrice * item.quantity;
-                      const amcBeforeTax = Math.round((amcTotal / 1.18) * 100) / 100;
-                      const amcIgstAmt = Math.round((amcTotal - amcBeforeTax) * 100) / 100;
-                      const amcRateBeforeTax = Math.round((amcPrice / 1.18) * 100) / 100;
+                      const baseItemTotal = baseItemPrice * item.quantity;
+                      const baseBeforeTax = Math.round((baseItemTotal / 1.18) * 100) / 100;
+                      const baseRateBeforeTax = Math.round((baseItemPrice / 1.18) * 100) / 100;
 
                       rows.push(
-                        <tr key={`amc-${idx}`} className="item-row amc-invoice-line" style={{ background: '#f0f7ff' }}>
-                          <td></td>
-                          <td className="desc-cell" style={{ paddingLeft: '16px' }}>
-                            <strong style={{ color: '#0f2b5c' }}>🛡️ Kleider Care AMC - {item.amcWarrantyInfo.type}</strong>
-                            <div style={{ fontSize: '11px', color: '#475569' }}>
-                              1 Year Maintenance Contract (3 PM Visits/Yr + 24–48h Priority Hotline)
+                        <tr key={`main-${idx}`}>
+                          <td>{idx + 1}</td>
+                          <td>
+                            <div className="description">
+                              {item.name}
+                              {item.amcWarrantyInfo && (
+                                <div style={{ fontSize: '10px', color: '#073b78', marginTop: '2px', fontWeight: 'bold' }}>
+                                  [Covered under {item.amcWarrantyInfo.type}]
+                                </div>
+                              )}
                             </div>
                           </td>
-                          <td>998721</td>
+                          <td>{hsnCode}</td>
                           <td>{item.quantity}</td>
-                          <td>Yr</td>
-                          <td>{amcRateBeforeTax.toFixed(2)}</td>
-                          <td>{amcBeforeTax.toFixed(2)}</td>
-                          <td>18</td>
-                          <td>{amcIgstAmt.toFixed(2)}</td>
-                          <td>{amcTotal.toFixed(2)}</td>
+                          <td>{unitLabel}</td>
+                          <td>{baseRateBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td>{baseBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         </tr>
                       );
-                    }
 
-                    // Machine Program Setup Line Item in Invoice
-                    if (item.includeProgramSetup) {
-                      const setupTotal = progPrice * item.quantity;
-                      const setupBeforeTax = Math.round((setupTotal / 1.18) * 100) / 100;
-                      const setupIgstAmt = Math.round((setupTotal - setupBeforeTax) * 100) / 100;
-                      const setupRateBeforeTax = Math.round((progPrice / 1.18) * 100) / 100;
+                      if (item.selectedWarranty && item.selectedWarranty !== 'none' && item.amcWarrantyInfo) {
+                        const amcTotal = amcPrice * item.quantity;
+                        const amcBeforeTax = Math.round((amcTotal / 1.18) * 100) / 100;
+                        const amcRateBeforeTax = Math.round((amcPrice / 1.18) * 100) / 100;
 
-                      rows.push(
-                        <tr key={`prog-${idx}`} className="item-row amc-invoice-line" style={{ background: '#f8fafc' }}>
-                          <td></td>
-                          <td className="desc-cell" style={{ paddingLeft: '16px' }}>
-                            <strong style={{ color: '#0284c7' }}>⚙️ Machine Program Parameter Setup Add-on</strong>
-                            <div style={{ fontSize: '11px', color: '#475569' }}>
-                              Custom programming up to 10 programs in LG commercial unit
-                            </div>
-                          </td>
-                          <td>998313</td>
-                          <td>{item.quantity}</td>
-                          <td>Job</td>
-                          <td>{setupRateBeforeTax.toFixed(2)}</td>
-                          <td>{setupBeforeTax.toFixed(2)}</td>
-                          <td>18</td>
-                          <td>{setupIgstAmt.toFixed(2)}</td>
-                          <td>{setupTotal.toFixed(2)}</td>
-                        </tr>
-                      );
-                    }
+                        rows.push(
+                          <tr key={`amc-${idx}`}>
+                            <td></td>
+                            <td>
+                              <div className="description" style={{ color: '#073b78' }}>
+                                🛡️ Kleider Care AMC - {item.amcWarrantyInfo.type}<br />
+                                <span style={{ fontSize: '10px', fontWeight: 'normal', color: '#555' }}>1 Year Maintenance Contract</span>
+                              </div>
+                            </td>
+                            <td>998721</td>
+                            <td>{item.quantity}</td>
+                            <td>Yr</td>
+                            <td>{amcRateBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>{amcBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          </tr>
+                        );
+                      }
 
-                    return rows;
-                  })}
+                      if (item.includeProgramSetup) {
+                        const setupTotal = progPrice * item.quantity;
+                        const setupBeforeTax = Math.round((setupTotal / 1.18) * 100) / 100;
+                        const setupRateBeforeTax = Math.round((progPrice / 1.18) * 100) / 100;
 
-                  {/* Totals Row */}
-                  {(() => {
-                    const totalQty = selectedInvoice.items.reduce((sum, item) => sum + item.quantity, 0);
-                    const totalBeforeTax = Math.round((selectedInvoice.total / 1.18) * 100) / 100;
-                    const totalIgst = Math.round((selectedInvoice.total - totalBeforeTax) * 100) / 100;
-                    const roundedTotal = Math.round(selectedInvoice.total);
-                    const roundOff = Math.round((roundedTotal - selectedInvoice.total) * 100) / 100;
+                        rows.push(
+                          <tr key={`prog-${idx}`}>
+                            <td></td>
+                            <td>
+                              <div className="description" style={{ color: '#0284c7' }}>
+                                ⚙️ Machine Program Setup Add-on<br />
+                                <span style={{ fontSize: '10px', fontWeight: 'normal', color: '#555' }}>Custom parameter configuration</span>
+                              </div>
+                            </td>
+                            <td>998313</td>
+                            <td>{item.quantity}</td>
+                            <td>Job</td>
+                            <td>{setupRateBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>{setupBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          </tr>
+                        );
+                      }
 
-                    return (
-                      <>
-                        <tr className="totals-row">
-                          <td colSpan="3"><strong>Total</strong></td>
-                          <td><strong>{totalQty}</strong></td>
-                          <td colSpan="2"></td>
-                          <td><strong>{totalBeforeTax.toFixed(2)}</strong></td>
-                          <td></td>
-                          <td><strong>{totalIgst.toFixed(2)}</strong></td>
-                          <td><strong>{selectedInvoice.total.toFixed(2)}</strong></td>
-                        </tr>
-
-                        <tr className="summary-bottom-row">
-                          <td colSpan="6" className="words-cell">
-                            <strong>Total Amount in Words:</strong><br />
-                            {numberToWords(roundedTotal)}
-                          </td>
-                          <td colSpan="3" className="breakdown-labels">
-                            <p>Total Amount before Tax (Rs)</p>
-                            <p>OUTPUT IGST - 18 (18%)</p>
-                            <p>Add: Round Off (Rs)</p>
-                            <p className="final-label">Total Amount After Tax (Rs)</p>
-                          </td>
-                          <td className="breakdown-values">
-                            <p>{totalBeforeTax.toFixed(2)}</p>
-                            <p>{totalIgst.toFixed(2)}</p>
-                            <p>{roundOff.toFixed(2)}</p>
-                            <p className="final-value"><strong>{roundedTotal.toFixed(2)}</strong></p>
-                          </td>
-                        </tr>
-                      </>
-                    );
-                  })()}
+                      return rows;
+                    })
+                  ) : (
+                    <tr>
+                      <td>1</td>
+                      <td>
+                        <div className="description">
+                          Speed Queen<br />
+                          Quantum Touch<br />
+                          Washer Extractor<br />
+                          18kg
+                        </div>
+                      </td>
+                      <td>84502000</td>
+                      <td>1</td>
+                      <td>Nos</td>
+                      <td>406,779.66</td>
+                      <td>406,779.66</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
 
-              <div className="invoice-footer-section">
-                <div className="bank-notes-column">
-                  <h5>Notes</h5>
-                  <p>Account Name: M/s Kleider Care Private Limited</p>
-                  <p>Account Number: 50200105053612</p>
-                  <p>IFSC Code: HDFC0007018</p>
-                  <p>Bank Branch: HDFC Bank, Palavakkam Branch,</p>
-                  <p>ECR, Chennai, Tamil Nadu</p>
+              {/* TOTALS */}
+              {(() => {
+                const totalAmount = selectedInvoice.total || 480000;
+                const totalBeforeTax = Math.round((totalAmount / 1.18) * 100) / 100;
+                const totalTaxAmount = Math.round((totalAmount - totalBeforeTax) * 100) / 100;
+                const roundedTotal = Math.round(totalAmount);
+
+                return (
+                  <div className="total-section">
+                    <div className="amount-words">
+                      <h4>Total Amount in Words:</h4>
+                      <p>{numberToWords(roundedTotal)}</p>
+                    </div>
+
+                    <div className="totals">
+                      <div className="total-row">
+                        <span>TOTAL AMOUNT</span>
+                        <span>₹ {totalBeforeTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+
+                      <div className="total-row">
+                        <span>OUTPUT IGST @18%</span>
+                        <span>₹ {totalTaxAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+
+                      <div className="total-row highlight">
+                        <span>TOTAL TAX AMOUNT</span>
+                        <span>₹ {totalTaxAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+
+                      <div className="total-row">
+                        <span className="grand-total">TOTAL AMOUNT AFTER TAX (₹)</span>
+                        <span className="grand-total">₹ {roundedTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* BANK + NOTES */}
+              <div className="lower-grid">
+                <div className="info-box">
+                  <h3>BANK DETAILS</h3>
+                  <div className="bank-row">
+                    <strong>Account Name</strong>
+                    <span>:</span>
+                    <span>M/s Kleider Care Private Limited</span>
+
+                    <strong>Account Number</strong>
+                    <span>:</span>
+                    <span>50200105053612</span>
+
+                    <strong>IFSC Code</strong>
+                    <span>:</span>
+                    <span>HDFC0007018</span>
+
+                    <strong>Bank Branch</strong>
+                    <span>:</span>
+                    <span>
+                      HDFC Bank, Palavakkam Branch,<br />
+                      Chennai, Tamil Nadu
+                    </span>
+                  </div>
                 </div>
-                <div className="seal-column">
-                  <div className="seal-box">Common Seal</div>
+
+                <div className="info-box">
+                  <h3>PLEASE NOTE</h3>
+                  <ul className="notes">
+                    <li>Goods once sold will not be taken back or exchanged.</li>
+                    <li>Interest @ 24% p.a. will be charged on overdue payments.</li>
+                    <li>All disputes are subject to Chennai jurisdiction only.</li>
+                  </ul>
                 </div>
-                <div className="signature-column">
-                  <p>* Computer Generated Invoice. No signature is required.</p>
+              </div>
+
+              {/* BLANK SEAL & SIGNATURE */}
+              <div className="approval-section">
+                <div className="approval-box">
+                  <div className="approval-title">COMPANY SEAL</div>
+                  <div className="blank-box"></div>
                 </div>
+
+                <div className="divider"></div>
+
+                <div className="approval-box">
+                  <div className="approval-title">AUTHORISED SIGNATURE</div>
+                  <div className="blank-box"></div>
+                </div>
+              </div>
+
+              {/* FOOTER */}
+              <div className="footer">
+                • &nbsp; This is a computer generated invoice. No signature required. &nbsp; •
               </div>
             </div>
           </div>
