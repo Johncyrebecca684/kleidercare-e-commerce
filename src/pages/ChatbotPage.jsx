@@ -39,7 +39,8 @@ export default function ChatbotPage({
   onSearchChange,
   onSigninClick,
   selectedCategory,
-  onCategoryChange
+  onCategoryChange,
+  products = []
 }) {
   const navigate = useNavigate();
   const { showInfo } = useToast();
@@ -239,6 +240,7 @@ export default function ChatbotPage({
           loggedInUser={loggedInUser}
           selectedCategory={selectedCategory}
           onCategoryChange={onCategoryChange}
+          products={products}
         />
       </div>
 

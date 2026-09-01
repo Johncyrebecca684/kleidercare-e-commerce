@@ -502,7 +502,7 @@ export default function ProductList({
       </div>
 
       {/* CATEGORY TITLE & VIEW TOGGLE BAR */}
-      <div className="category-results-bar">
+      <div id="category-results-bar" className="category-results-bar">
         <div className="category-title-heading">
           <h3>
             {selectedCategory === 'All' ? 'All Products' : selectedCategory === 'For You' ? 'Recommended For You' : selectedCategory}

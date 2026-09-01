@@ -11,7 +11,8 @@ export default function TermsPage({
   searchTerm,
   onSearchChange,
   selectedCategory,
-  onCategoryChange
+  onCategoryChange,
+  products = []
 }) {
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -48,6 +49,7 @@ export default function TermsPage({
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
         wishlistCount={wishlistCount}
+        products={products}
       />
 
       <main className="terms-container animate-fade-in">

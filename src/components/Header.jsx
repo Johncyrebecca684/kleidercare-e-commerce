@@ -79,6 +79,33 @@ export default function Header({
     return getSearchResultsWithSimilar(products, searchTerm);
   }, [products, searchTerm]);
 
+  const scrollToResults = () => {
+    const targetElement = document.getElementById('category-results-bar') || document.getElementById('products');
+    if (targetElement) {
+      const headerOffset = 100;
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleCategorySelect = (categoryLabel) => {
+    onCategoryChange(categoryLabel);
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        scrollToResults();
+      }, 150);
+    } else {
+      setTimeout(() => {
+        scrollToResults();
+      }, 50);
+    }
+  };
+
   const handleSelectSuggestion = (product) => {
     setShowSuggestions(false);
     const targetId = product.id ?? product._id ?? product.sku;
@@ -90,7 +117,9 @@ export default function Header({
   const handleSearchSubmit = () => {
     setShowSuggestions(false);
     navigate(`/?q=${encodeURIComponent(searchTerm || '')}`);
-    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      scrollToResults();
+    }, 150);
   };
 
   const fetchLocation = async () => {
@@ -186,10 +215,7 @@ export default function Header({
             <select
               className="headerSearchCategorySelect"
               value={selectedCategory || "All"}
-              onChange={(e) => {
-                onCategoryChange(e.target.value);
-                document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onChange={(e) => handleCategorySelect(e.target.value)}
               aria-label="Select category"
             >
               {activeCategories.map(c => (
@@ -445,8 +471,9 @@ export default function Header({
                     key={c.label}
                     className={`categoryLink ${selectedCategory === c.label ? 'active' : ''}`}
                     href={c.href}
-                    onClick={() => {
-                      onCategoryChange(c.label);
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCategorySelect(c.label);
                       setIsMenuOpen(false);
                     }}
                   >

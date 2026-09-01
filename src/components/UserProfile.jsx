@@ -69,7 +69,8 @@ export default function UserProfile({
   onCategoryChange,
   searchTerm,
   onSearchChange,
-  onLoginOpen
+  onLoginOpen,
+  products = []
 }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('orders'); // default tab is orders like zepto
@@ -410,6 +411,7 @@ export default function UserProfile({
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
         wishlistCount={wishlistCount}
+        products={products}
       />
 
       <div className="profile-page-content-wrapper">

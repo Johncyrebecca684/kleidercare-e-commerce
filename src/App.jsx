@@ -615,6 +615,7 @@ function App() {
                   onSearchChange={setSearchTerm}
                   selectedCategory={selectedCategory}
                   onCategoryChange={setSelectedCategory}
+                  products={appProducts}
                 />
               }
             />
@@ -641,6 +642,7 @@ function App() {
                   onSigninClick={() => setIsLoginOpen(true)}
                   selectedCategory={selectedCategory}
                   onCategoryChange={setSelectedCategory}
+                  products={appProducts}
                 />
               }
             />
@@ -730,6 +732,7 @@ function App() {
                     searchTerm={searchTerm}
                     onSearchChange={setSearchTerm}
                     onLoginOpen={() => setIsLoginOpen(true)}
+                    products={appProducts}
                   />
                 ) : (
                   <Navigate to="/" replace />
