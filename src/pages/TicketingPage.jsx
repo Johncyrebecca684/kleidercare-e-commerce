@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowLeft, Phone, Mail, MapPin, Package, Truck, Calendar, Shield, Download, User, FileText, Printer } from 'lucide-react';
 import Chatbot from '../components/Chatbot';
+import { printInvoiceElement } from '../utils/invoicePrint';
 import '../components/UserProfile.css';
 import './TicketingPage.css';
 
@@ -707,11 +708,18 @@ export default function TicketingPage({ isAdmin = false, loggedInUser, userOrder
       {selectedInvoiceOrder && (
         <div className="invoice-modal-overlay" onClick={() => setSelectedInvoiceOrder(null)}>
           <div className="invoice-modal-card" onClick={e => e.stopPropagation()}>
-              <div className="invoice-modal-actions-bar">
-              <button className="print-btn" onClick={() => window.print()}>
+            <div className="invoice-modal-actions-bar">
+              <button 
+                className="print-btn" 
+                onClick={() => {
+                  const invId = selectedInvoiceOrder.orderId || selectedInvoiceOrder.id || '203075';
+                  const docTitle = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
+                  printInvoiceElement('invoice-print-area', docTitle);
+                }}
+              >
                 <Printer size={16} /> Print Tax Invoice
               </button>
-              <button className="close-btn" onClick={() => setSelectedInvoiceOrder(null)}>Close</button>
+              <button className="invoice-close-btn" onClick={() => setSelectedInvoiceOrder(null)}>Close</button>
             </div>
             
             {/* Printable Invoice Sheet */}

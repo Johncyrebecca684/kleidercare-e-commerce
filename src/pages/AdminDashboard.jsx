@@ -4,6 +4,7 @@ import { API_URL } from '../config';
 import { addProduct, updateProduct, deleteProduct, updateProductStock, bulkProductAction, cleanupDuplicateProducts } from '../services/productService';
 import { getAllCategories, addCategory as apiAddCategory, deleteCategory as apiDeleteCategory } from '../services/categoryService';
 import { formatImageUrl } from '../utils/imageUtils';
+import { printInvoiceElement } from '../utils/invoicePrint';
 import { 
   Users, 
   ShoppingBag, 
@@ -3279,10 +3280,17 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         <div className="invoice-modal-overlay" onClick={() => setSelectedInvoiceOrder(null)}>
           <div className="invoice-modal-card" onClick={e => e.stopPropagation()}>
             <div className="invoice-modal-actions-bar">
-              <button className="print-btn" onClick={() => window.print()}>
+              <button 
+                className="print-btn" 
+                onClick={() => {
+                  const invId = selectedInvoiceOrder.orderId || selectedInvoiceOrder.id || '203075';
+                  const docTitle = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
+                  printInvoiceElement('invoice-print-area', docTitle);
+                }}
+              >
                 <Printer size={16} /> Print Tax Invoice
               </button>
-              <button className="close-btn" onClick={() => setSelectedInvoiceOrder(null)}>Close</button>
+              <button className="invoice-close-btn" onClick={() => setSelectedInvoiceOrder(null)}>Close</button>
             </div>
             
             {/* Printable Invoice Sheet */}

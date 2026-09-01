@@ -23,6 +23,7 @@ import { updateProfile, updateAddresses, addWalletBalance } from '../services/au
 import { useToast } from '../context/ToastContext';
 import Header from './Header';
 import Footer from './Footer';
+import { printInvoiceElement } from '../utils/invoicePrint';
 import Chatbot from './Chatbot';
 import './UserProfile.css';
 
@@ -78,13 +79,9 @@ export default function UserProfile({
 
   const handlePrint = (invoice = selectedInvoice) => {
     if (!invoice) return;
-    const originalTitle = document.title;
     const invId = invoice.orderId || invoice.id || '203075';
-    document.title = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
-    window.print();
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1000);
+    const docTitle = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
+    printInvoiceElement('invoice-print-area', docTitle);
   };
 
   const downloadAsPdf = (invoice = selectedInvoice) => {
