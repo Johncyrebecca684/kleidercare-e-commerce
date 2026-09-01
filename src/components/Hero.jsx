@@ -35,7 +35,7 @@ const desktopSlides = [
   },
   {
     id: 5,
-    image: '/slms_banner.jpeg',
+    image: '/slms_banner.png',
     alt: 'Smart Laundry Management System',
     category: 'Packages'
   }
