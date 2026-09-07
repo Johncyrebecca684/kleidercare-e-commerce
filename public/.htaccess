@@ -1,9 +1,28 @@
+# Enable Rewrite Engine and Single Page Application (SPA) routing
+DirectoryIndex index.html
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # Serve index.html directly if requested
   RewriteRule ^index\.html$ - [L]
+
+  # If requested resource is not an existing file, directory, or symlink, route to index.html
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
   RewriteRule . /index.html [L]
+</IfModule>
+
+# Prevent directory browsing
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
+
+# Allow access to web resources
+<IfModule mod_authz_core.c>
+  <Files "*">
+    Require all granted
+  </Files>
 </IfModule>

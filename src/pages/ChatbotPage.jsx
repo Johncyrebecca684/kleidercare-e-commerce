@@ -48,7 +48,6 @@ export default function ChatbotPage({
   const [activeCategory, setActiveCategory] = useState('technical');
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [isHumanAgent, setIsHumanAgent] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -57,8 +56,8 @@ export default function ChatbotPage({
       id: 1,
       sender: 'bot',
       text: loggedInUser
-        ? `Hello ${loggedInUser.firstName || 'there'}! Welcome to Kleider Care Full-Screen Technical Support. I am your AI Equipment Assistant. How can I help resolve your industrial washer or commercial dryer issue today?`
-        : 'Hello! Welcome to Kleider Care Full-Screen Technical Support. How can I assist you with your commercial laundry equipment today?',
+        ? `Hello ${loggedInUser.firstName || 'there'}! Welcome to Kleider Care Technical Support. I am your AI Equipment Assistant. How can I help resolve your industrial washer or commercial dryer issue today?`
+        : 'Hello! Welcome to Kleider Care Technical Support. How can I assist you with your commercial laundry equipment today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -67,8 +66,7 @@ export default function ChatbotPage({
     { id: 'technical', title: 'Washer & Dryer Diagnostics', icon: Wrench, prompt: 'I need help diagnosing an issue with my commercial laundry machine.' },
     { id: 'amc', title: 'AMC Extended Warranty', icon: ShieldCheck, prompt: 'Tell me about Kleider Care AMC plans, preventive maintenance visits, and coverage.' },
     { id: 'orders', title: 'Order & Shipment Tracking', icon: Package, prompt: 'How do I track my commercial equipment shipment?' },
-    { id: 'invoice', title: 'GST Invoice & SAC Codes', icon: FileText, prompt: 'I need assistance with my GST Tax Invoice and business claims.' },
-    { id: 'engineer', title: 'Connect to Live Engineer', icon: Headphones, prompt: 'Please connect me directly to a Kleider Care certified service engineer.' }
+    { id: 'invoice', title: 'GST Invoice & SAC Codes', icon: FileText, prompt: 'I need assistance with my GST Tax Invoice and business claims.' }
   ];
 
   const scrollToBottom = () => {
@@ -139,19 +137,10 @@ export default function ChatbotPage({
       setIsTyping(false);
       const lower = textToSend.toLowerCase();
 
-      if (isHumanAgent) {
+      if (lower.includes('engineer') || lower.includes('human') || lower.includes('connect') || lower.includes('live') || lower.includes('talk') || lower.includes('call') || lower.includes('technician')) {
         addMessage(
-          'agent',
-          'Engineer Rajesh: Thank you for the details. I am cross-referencing your query with our technical service dispatch database for your equipment model. One moment please...'
-        );
-        return;
-      }
-
-      if (lower.includes('engineer') || lower.includes('human') || lower.includes('connect') || lower.includes('live') || lower.includes('talk')) {
-        setIsHumanAgent(true);
-        addMessage(
-          'agent',
-          '🎧 **Connected to Senior Technical Support Engineer** (Ref #KC-ENG-8492)\n\nHello! I am Senior Service Engineer Rajesh from Kleider Care Technical Hub. I have reviewed your request and am here to assist with your commercial equipment diagnostics directly.'
+          'bot',
+          '📞 **Kleider Care Technical Helpline & Service Support**:\n\n• For on-site equipment servicing, breakdown inspections, or direct customer assistance, please contact our technical coordination desk:\n  - **Direct Hotline**: +91 93848 14933 / +91 97890 20311\n  - **Support Email**: support@kleidercare.com\n  - **Working Hours**: Monday – Saturday, 9:00 AM – 7:00 PM IST\n\nOur team is available to assist you directly by phone and email.'
         );
         return;
       }
@@ -291,12 +280,12 @@ export default function ChatbotPage({
             <div className="cb-chat-header desktop-only">
               <div className="cb-agent-info">
                 <div className="cb-avatar-circle">
-                  {isHumanAgent ? <Headphones size={20} color="#fff" /> : <Bot size={20} color="#fff" />}
+                  <Bot size={20} color="#fff" />
                 </div>
                 <div>
-                  <h4>{isHumanAgent ? 'Senior Technical Service Engineer (Rajesh)' : 'Kleider Care Technical AI Assistant'}</h4>
+                  <h4>Kleider Care Technical AI Assistant</h4>
                   <span className="online-indicator">
-                    <span className="dot"></span> {isHumanAgent ? 'Live Engineer Connected' : 'Online • 24/7 Equipment Support'}
+                    <span className="dot"></span> Online • 24/7 Equipment Support
                   </span>
                 </div>
               </div>
@@ -321,8 +310,7 @@ export default function ChatbotPage({
                       'Tell me about AMC extended warranty',
                       'Washer / Dryer error code diagnostics',
                       'GST Tax Invoice & SAC Codes',
-                      'Machine Program Setup on LG',
-                      'Connect with certified service engineer'
+                      'Machine Program Setup on LG'
                     ].map((promptText, pIdx) => (
                       <button
                         key={pIdx}
@@ -345,11 +333,11 @@ export default function ChatbotPage({
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`cb-msg-row ${msg.sender === 'user' ? 'user' : msg.sender === 'agent' ? 'agent' : 'bot'}`}
+                  className={`cb-msg-row ${msg.sender === 'user' ? 'user' : 'bot'}`}
                 >
                   {msg.sender !== 'user' && (
                     <div className="cb-msg-avatar">
-                      {msg.sender === 'agent' ? <Headphones size={15} /> : <Bot size={15} />}
+                      <Bot size={15} />
                     </div>
                   )}
 
@@ -380,8 +368,7 @@ export default function ChatbotPage({
                   { label: 'AMC Plans & Coverage', prompt: 'Tell me about Kleider Care AMC plans, preventive maintenance visits, and coverage.' },
                   { label: 'Machine Program Setup', prompt: 'How do I configure 10-program parameter setup on LG machines?' },
                   { label: 'GST Invoice & Business Claims', prompt: 'I need assistance with my GST Tax Invoice and business claims.' },
-                  { label: 'Washer & Dryer Diagnostics', prompt: 'I need help diagnosing an issue with my commercial laundry machine.' },
-                  { label: 'Talk to Certified Engineer', prompt: 'Please connect me directly to a Kleider Care certified service engineer.' }
+                  { label: 'Washer & Dryer Diagnostics', prompt: 'I need help diagnosing an issue with my commercial laundry machine.' }
                 ].map((chip, idx) => (
                   <button
                     key={idx}
@@ -401,7 +388,7 @@ export default function ChatbotPage({
             <form className="cb-chat-input-form mobile-rufus-input-form" onSubmit={handleSendMessage}>
               <input
                 type="text"
-                placeholder={isHumanAgent ? 'Type message to certified engineer...' : 'Ask a question or describe your issue...'}
+                placeholder="Ask a question or describe your issue..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
               />

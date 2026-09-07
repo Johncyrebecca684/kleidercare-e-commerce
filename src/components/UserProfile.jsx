@@ -719,7 +719,7 @@ export default function UserProfile({
                     <Info size={16} /> Need further technical help with industrial washers or commercial equipment?
                   </div>
                   <p style={{ marginTop: '8px', color: '#475569' }}>
-                    Launch our full-screen AI & certified engineer technical support portal for instant equipment diagnostics and live assistance.
+                    Launch our AI & certified engineer technical support portal for instant equipment diagnostics and live assistance.
                   </p>
                   <button
                     onClick={() => navigate('/chatbot')}
