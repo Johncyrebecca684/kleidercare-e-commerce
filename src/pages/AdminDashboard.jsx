@@ -1,18 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Navigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import { addProduct, updateProduct, deleteProduct, updateProductStock, bulkProductAction, cleanupDuplicateProducts } from '../services/productService';
 import { getAllCategories, addCategory as apiAddCategory, deleteCategory as apiDeleteCategory } from '../services/categoryService';
 import { formatImageUrl } from '../utils/imageUtils';
 import { printInvoiceElement } from '../utils/invoicePrint';
-import { 
-  Users, 
-  ShoppingBag, 
-  DollarSign, 
-  TrendingUp, 
-  Package, 
-  Edit, 
-  Trash2, 
+import {
+  Users,
+  ShoppingBag,
+  DollarSign,
+  TrendingUp,
+  Package,
+  Edit,
+  Trash2,
   Plus,
   ShieldCheck,
   CheckCircle2,
@@ -53,7 +54,16 @@ import {
   FolderPlus,
   FolderTree,
   ExternalLink,
-  Hash
+  Hash,
+  MapPin,
+  Phone,
+  Wallet,
+  Heart,
+  ShoppingCart,
+  Calendar,
+  Clock,
+  ShieldAlert,
+  UserCheck
 } from 'lucide-react';
 import TicketingPage from './TicketingPage';
 import { useToast } from '../context/ToastContext';
@@ -97,7 +107,7 @@ function specRowsToObj(rows) {
 // Helper to auto-parse raw pasted text / feature sheets into structured technical specifications
 export function parseRawSpecsText(rawText) {
   if (!rawText || typeof rawText !== 'string') return [];
-  
+
   const lines = rawText.split(/\r?\n/);
   const result = [];
   const sectionHeaders = [
@@ -203,12 +213,19 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
-  
+
   // Customer Orders Search & Filter State
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
   const [orderPaymentFilter, setOrderPaymentFilter] = useState('All');
   const [orderWarrantyFilter, setOrderWarrantyFilter] = useState('All');
   const [orderFulfillmentFilter, setOrderFulfillmentFilter] = useState('All');
+
+  // User Management & Customer Details Modal State
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('All');
+  const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [customerActiveTab, setCustomerActiveTab] = useState('overview');
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     // 1. Optimistically update local React state so status changes in the UI immediately
@@ -636,7 +653,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
       setProducts(prev => prev.map(p => {
         const isMatch = (p.id && (p.id === specsEditingProduct.id || p.id === specsEditingProduct._id)) ||
-                        (p._id && (p._id === specsEditingProduct.id || p._id === specsEditingProduct._id));
+          (p._id && (p._id === specsEditingProduct.id || p._id === specsEditingProduct._id));
         if (isMatch) {
           return { ...p, specifications: cleanSpecs, ...(updatedProduct || {}) };
         }
@@ -709,7 +726,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     const badge = (product.badge || '').toLowerCase();
     const search = productSearchTerm.trim().toLowerCase();
 
-    const matchesSearch = 
+    const matchesSearch =
       !search ||
       name.includes(search) ||
       sku.includes(search) ||
@@ -717,12 +734,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
       prodId.includes(search) ||
       badge.includes(search);
 
-    const matchesCategory = 
-      productCategoryFilter === 'All' || 
+    const matchesCategory =
+      productCategoryFilter === 'All' ||
       category === productCategoryFilter.toLowerCase();
 
-    const matchesStock = 
-      productStockFilter === 'All' || 
+    const matchesStock =
+      productStockFilter === 'All' ||
       status === productStockFilter;
 
     return matchesSearch && matchesCategory && matchesStock;
@@ -750,7 +767,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     const salesMap = {};
     const now = new Date();
     const last6Months = [];
-    
+
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthName = months[d.getMonth()];
@@ -850,15 +867,15 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   const handleDeleteProduct = async (product, deleteAllDuplicates = false) => {
     const targetId = typeof product === 'object' ? (product._id || product.mongoId || product.id || product.productId) : product;
     const productName = typeof product === 'object' ? product.name : 'this product';
-    
-    const confirmPrompt = deleteAllDuplicates 
+
+    const confirmPrompt = deleteAllDuplicates
       ? `Are you sure you want to delete ALL instances and duplicates of "${productName}" from the database?`
       : `Are you sure you want to delete "${productName}"?`;
 
     if (window.confirm(confirmPrompt)) {
       try {
         await deleteProduct(targetId, deleteAllDuplicates);
-        
+
         // Remove from React state
         setProducts(prev => prev.filter(p => {
           if (deleteAllDuplicates) {
@@ -902,7 +919,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           setProducts(result.products);
           try {
             localStorage.setItem('kc_app_products', JSON.stringify(result.products));
-          } catch (e) {}
+          } catch (e) { }
         }
         showSuccess(result?.message || 'Duplicate products cleaned up successfully!');
       } catch (err) {
@@ -919,9 +936,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
     // Optimistically update React state
     setProducts(prev => prev.map(p => {
-      const isMatch = (p.id && (p.id === product.id || p.id === product._id)) || 
-                      (p._id && (p._id === product.id || p._id === product._id)) || 
-                      (p.sku && product.sku && p.sku === product.sku);
+      const isMatch = (p.id && (p.id === product.id || p.id === product._id)) ||
+        (p._id && (p._id === product.id || p._id === product._id)) ||
+        (p.sku && product.sku && p.sku === product.sku);
       if (isMatch) {
         const s = newStock;
         const t = p.lowStockThreshold || 10;
@@ -947,9 +964,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     const targetId = product.mongoId || product._id || product.id;
 
     setProducts(prev => prev.map(p => {
-      const isMatch = (p.id && (p.id === product.id || p.id === product._id)) || 
-                      (p._id && (p._id === product.id || p._id === product._id)) || 
-                      (p.sku && product.sku && p.sku === product.sku);
+      const isMatch = (p.id && (p.id === product.id || p.id === product._id)) ||
+        (p._id && (p._id === product.id || p._id === product._id)) ||
+        (p.sku && product.sku && p.sku === product.sku);
       if (isMatch) {
         const t = p.lowStockThreshold || 10;
         let stockStatus = 'In Stock';
@@ -1001,7 +1018,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
   };
 
   const handleToggleSelectProduct = (id) => {
-    setSelectedProductIds(prev => 
+    setSelectedProductIds(prev =>
       prev.includes(id) ? prev.filter(pId => pId !== id) : [...prev, id]
     );
   };
@@ -1109,7 +1126,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         : (product.image ? [product.image] : ['']);
       const specsObj = product.specifications || {};
       const specRows = objToSpecRows(specsObj);
-      setProductForm({ 
+      setProductForm({
         id: product.id || product._id || '',
         productId: product.productId || product.id || product._id || '',
         name: product.name || '',
@@ -1129,7 +1146,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     } else {
       setEditingProduct(null);
       const newProdId = `PROD-${Date.now()}`;
-      setProductForm({ 
+      setProductForm({
         id: newProdId,
         productId: newProdId,
         name: '',
@@ -1167,42 +1184,42 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         </div>
 
         <nav className="adminNav">
-          <button 
+          <button
             className={`navBtn ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
             <BarChart3 size={20} />
             Overview Analytics
           </button>
-          <button 
+          <button
             className={`navBtn ${activeTab === 'products' ? 'active' : ''}`}
             onClick={() => setActiveTab('products')}
           >
             <Package size={20} />
             Product Inventory
           </button>
-          <button 
+          <button
             className={`navBtn ${activeTab === 'categories' ? 'active' : ''}`}
             onClick={() => setActiveTab('categories')}
           >
             <FolderTree size={20} />
             Category Manager
           </button>
-          <button 
+          <button
             className={`navBtn ${activeTab === 'customers' ? 'active' : ''}`}
             onClick={() => setActiveTab('customers')}
           >
             <ShoppingBag size={20} />
             Orders & Invoices
           </button>
-          <button 
+          <button
             className={`navBtn ${activeTab === 'users' ? 'active' : ''}`}
             onClick={() => setActiveTab('users')}
           >
             <Users size={20} />
             User Management
           </button>
-          <button 
+          <button
             className={`navBtn ${activeTab === 'ticketing' ? 'active' : ''}`}
             onClick={() => setActiveTab('ticketing')}
           >
@@ -1276,29 +1293,29 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           <stop offset="100%" stopColor="rgba(0, 168, 232, 0.0)" />
                         </linearGradient>
                       </defs>
-                      
+
                       {/* Grid Lines */}
                       <line x1="0" y1="250" x2="800" y2="250" className="gridLine" />
                       <line x1="0" y1="187.5" x2="800" y2="187.5" className="gridLine" />
                       <line x1="0" y1="125" x2="800" y2="125" className="gridLine" />
                       <line x1="0" y1="62.5" x2="800" y2="62.5" className="gridLine" />
-                      
+
                       {/* Area Fill */}
-                      <path 
-                        d={areaPathStr} 
-                        fill="url(#gradientFill)" 
+                      <path
+                        d={areaPathStr}
+                        fill="url(#gradientFill)"
                       />
-                      
+
                       {/* Line connecting points */}
-                      <path 
-                        d={linePathStr} 
-                        fill="none" 
-                        stroke="#00a8e8" 
-                        strokeWidth="4" 
+                      <path
+                        d={linePathStr}
+                        fill="none"
+                        stroke="#00a8e8"
+                        strokeWidth="4"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
-                      
+
                       {/* Data Points and Amounts */}
                       <g className="dataPoints">
                         {chartPoints.map((p, i) => (
@@ -1310,7 +1327,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           </g>
                         ))}
                       </g>
-                      
+
                       {/* X Axis Labels */}
                       <g className="axisLabels">
                         {chartPoints.map((p, i) => (
@@ -1339,10 +1356,10 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
               const currentStockNum = Number(productForm.stock) || 0;
               const lowStockThresh = Number(productForm.lowStockThreshold) || 10;
-              const stockStatusTag = currentStockNum === 0 
-                ? { text: 'Out of Stock', class: 'danger', icon: XCircle } 
-                : currentStockNum <= lowStockThresh 
-                  ? { text: 'Low Stock Alert', class: 'warning', icon: AlertTriangle } 
+              const stockStatusTag = currentStockNum === 0
+                ? { text: 'Out of Stock', class: 'danger', icon: XCircle }
+                : currentStockNum <= lowStockThresh
+                  ? { text: 'Low Stock Alert', class: 'warning', icon: AlertTriangle }
                   : { text: 'In Stock', class: 'success', icon: CheckCircle2 };
               const StatusIcon = stockStatusTag.icon;
 
@@ -1367,8 +1384,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   {/* TOP NAVIGATION / BREADCRUMB BAR */}
                   <div className="editorTopBar">
                     <div className="editorBreadcrumbGroup">
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="backToInventoryBtn"
                         onClick={() => setIsProductModalOpen(false)}
                       >
@@ -1381,22 +1398,22 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
 
                     <div className="editorTopActions">
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="editorCancelBtn"
                         onClick={() => setIsProductModalOpen(false)}
                       >
                         Cancel
                       </button>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="editorPreviewBtn"
                         onClick={() => setProductEditActiveTab('preview')}
                       >
                         <Eye size={15} /> Storefront Preview
                       </button>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="editorSaveHeaderBtn"
                         onClick={handleProductSubmit}
                       >
@@ -1423,8 +1440,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           <span className="editorCatBadge">{productForm.category || 'General Equipment'}</span>
                         </div>
                         <p>
-                          {editingProduct 
-                            ? `Full screen control: Update catalog information, pricing structure, live stock level, high-res photos, and technical parameters for ${editingProduct.name || 'this product'}` 
+                          {editingProduct
+                            ? `Full screen control: Update catalog information, pricing structure, live stock level, high-res photos, and technical parameters for ${editingProduct.name || 'this product'}`
                             : 'Fill in catalog attributes, SKU identifier, pricing structure, initial warehouse stock, and technical specifications'}
                         </p>
                       </div>
@@ -1467,12 +1484,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           <div className="formGrid">
                             <div className="formGroup fullWidth">
                               <label>Product Name <span className="reqStar">*</span></label>
-                              <input 
-                                required 
-                                type="text" 
-                                value={productForm.name} 
-                                onChange={e => setProductForm({...productForm, name: e.target.value})} 
-                                placeholder="e.g. LG Titan C Max Commercial Front Load Washer (15 Kg)" 
+                              <input
+                                required
+                                type="text"
+                                value={productForm.name}
+                                onChange={e => setProductForm({ ...productForm, name: e.target.value })}
+                                placeholder="e.g. LG Titan C Max Commercial Front Load Washer (15 Kg)"
                               />
                             </div>
 
@@ -1488,12 +1505,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   <RefreshCw size={11} /> Auto-Generate
                                 </button>
                               </div>
-                              <input 
+                              <input
                                 required
-                                type="text" 
-                                value={productForm.productId || ''} 
-                                onChange={e => setProductForm({...productForm, productId: e.target.value})} 
-                                placeholder="e.g. PRD-LG-101 or PROD-1725890" 
+                                type="text"
+                                value={productForm.productId || ''}
+                                onChange={e => setProductForm({ ...productForm, productId: e.target.value })}
+                                placeholder="e.g. PRD-LG-101 or PROD-1725890"
                               />
                             </div>
 
@@ -1509,11 +1526,11 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   <RefreshCw size={11} /> Auto-Generate
                                 </button>
                               </div>
-                              <input 
-                                type="text" 
-                                value={productForm.sku} 
-                                onChange={e => setProductForm({...productForm, sku: e.target.value})} 
-                                placeholder="e.g. SKU-LG-WM15" 
+                              <input
+                                type="text"
+                                value={productForm.sku}
+                                onChange={e => setProductForm({ ...productForm, sku: e.target.value })}
+                                placeholder="e.g. SKU-LG-WM15"
                               />
                             </div>
 
@@ -1529,9 +1546,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   <FolderPlus size={11} /> Manage Categories
                                 </button>
                               </div>
-                              <select 
-                                value={productForm.category} 
-                                onChange={e => setProductForm({...productForm, category: e.target.value})}
+                              <select
+                                value={productForm.category}
+                                onChange={e => setProductForm({ ...productForm, category: e.target.value })}
                               >
                                 {availableCategories.map(cat => (
                                   <option key={cat} value={cat}>{cat}</option>
@@ -1544,11 +1561,11 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                 <label style={{ margin: 0 }}>Badge / Promotional Tag</label>
                                 <span style={{ fontSize: '11px', color: '#64748b' }}>Quick suggestions:</span>
                               </div>
-                              <input 
-                                type="text" 
-                                value={productForm.badge || ''} 
-                                onChange={e => setProductForm({...productForm, badge: e.target.value})} 
-                                placeholder="e.g. Best Seller, New Arrival, 20% OFF, Commercial Heavy Duty" 
+                              <input
+                                type="text"
+                                value={productForm.badge || ''}
+                                onChange={e => setProductForm({ ...productForm, badge: e.target.value })}
+                                placeholder="e.g. Best Seller, New Arrival, 20% OFF, Commercial Heavy Duty"
                               />
                               <div className="quickTagChips">
                                 {['Best Seller', 'New Arrival', 'Commercial Pick', '20% OFF', 'Heavy Duty', 'Energy Efficient'].map(tag => (
@@ -1599,13 +1616,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                               <label>Selling Price (₹) <span className="reqStar">*</span></label>
                               <div className="inputWithPrefix">
                                 <span className="inputPrefix">₹</span>
-                                <input 
-                                  required 
-                                  type="number" 
-                                  min="0" 
-                                  value={productForm.price} 
-                                  onChange={e => setProductForm({...productForm, price: e.target.value})} 
-                                  placeholder="349000" 
+                                <input
+                                  required
+                                  type="number"
+                                  min="0"
+                                  value={productForm.price}
+                                  onChange={e => setProductForm({ ...productForm, price: e.target.value })}
+                                  placeholder="349000"
                                 />
                               </div>
                             </div>
@@ -1614,12 +1631,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                               <label>Original / MRP Price (₹)</label>
                               <div className="inputWithPrefix">
                                 <span className="inputPrefix">₹</span>
-                                <input 
-                                  type="number" 
-                                  min="0" 
-                                  value={productForm.originalPrice} 
-                                  onChange={e => setProductForm({...productForm, originalPrice: e.target.value})} 
-                                  placeholder="389000" 
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={productForm.originalPrice}
+                                  onChange={e => setProductForm({ ...productForm, originalPrice: e.target.value })}
+                                  placeholder="389000"
                                 />
                               </div>
                             </div>
@@ -1659,13 +1676,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                 >
                                   <Minus size={14} />
                                 </button>
-                                <input 
-                                  required 
-                                  type="number" 
-                                  min="0" 
-                                  value={productForm.stock} 
-                                  onChange={e => setProductForm({...productForm, stock: e.target.value})} 
-                                  placeholder="50" 
+                                <input
+                                  required
+                                  type="number"
+                                  min="0"
+                                  value={productForm.stock}
+                                  onChange={e => setProductForm({ ...productForm, stock: e.target.value })}
+                                  placeholder="50"
                                 />
                                 <button
                                   type="button"
@@ -1679,12 +1696,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
                             <div className="formGroup">
                               <label>Low Stock Alert Threshold</label>
-                              <input 
-                                type="number" 
-                                min="1" 
-                                value={productForm.lowStockThreshold} 
-                                onChange={e => setProductForm({...productForm, lowStockThreshold: e.target.value})} 
-                                placeholder="10" 
+                              <input
+                                type="number"
+                                min="1"
+                                value={productForm.lowStockThreshold}
+                                onChange={e => setProductForm({ ...productForm, lowStockThreshold: e.target.value })}
+                                placeholder="10"
                               />
                             </div>
 
@@ -1694,10 +1711,10 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                 <div className="stockStatusInfo">
                                   <strong>Current Status: {stockStatusTag.text}</strong>
                                   <span>
-                                    {currentStockNum === 0 
-                                      ? 'Item will show as Out of Stock and cannot be added to customer carts.' 
-                                      : currentStockNum <= lowStockThresh 
-                                        ? `Item is in Low Stock zone (≤${lowStockThresh} units). Consider reordering.` 
+                                    {currentStockNum === 0
+                                      ? 'Item will show as Out of Stock and cannot be added to customer carts.'
+                                      : currentStockNum <= lowStockThresh
+                                        ? `Item is in Low Stock zone (≤${lowStockThresh} units). Consider reordering.`
                                         : `Item has sufficient inventory (${currentStockNum} available units).`}
                                   </span>
                                 </div>
@@ -1727,9 +1744,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           {/* Cover Image Feature Card */}
                           <div className="coverImageFeatureCard">
                             <div className="coverPreviewWrapper">
-                              <img 
-                                src={Array.isArray(productForm.images) && productForm.images[0] ? productForm.images[0] : (productForm.image || '/10kglggiantwasher.png')} 
-                                alt="Cover Preview" 
+                              <img
+                                src={Array.isArray(productForm.images) && productForm.images[0] ? productForm.images[0] : (productForm.image || '/10kglggiantwasher.png')}
+                                alt="Cover Preview"
                                 className="coverPreviewImg"
                                 onError={(e) => { e.target.src = 'https://via.placeholder.com/160?text=No+Image'; }}
                               />
@@ -1764,9 +1781,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                     <div key={realIdx} className="galleryRowCard">
                                       <span className="galleryIndexBadge">#{realIdx + 1}</span>
                                       {imgUrl ? (
-                                        <img 
-                                          src={imgUrl} 
-                                          alt={`Gallery ${realIdx + 1}`} 
+                                        <img
+                                          src={imgUrl}
+                                          alt={`Gallery ${realIdx + 1}`}
                                           className="galleryRowThumb"
                                           onError={(e) => { e.target.style.display = 'none'; }}
                                         />
@@ -2057,9 +2074,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
                           <div className="storeLivePreviewCard">
                             <div className="previewImageCol">
-                              <img 
-                                src={Array.isArray(productForm.images) && productForm.images[0] ? productForm.images[0] : (productForm.image || '/10kglggiantwasher.png')} 
-                                alt={productForm.name || 'Product'} 
+                              <img
+                                src={Array.isArray(productForm.images) && productForm.images[0] ? productForm.images[0] : (productForm.image || '/10kglggiantwasher.png')}
+                                alt={productForm.name || 'Product'}
                                 className="previewProductImg"
                                 onError={(e) => { e.target.src = 'https://via.placeholder.com/260?text=Kleider+Care'; }}
                               />
@@ -2132,8 +2149,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           Discard Changes
                         </button>
                         {productEditActiveTab !== 'preview' && (
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             className="previewShortcutBtn"
                             onClick={() => setProductEditActiveTab('preview')}
                           >
@@ -2181,8 +2198,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </p>
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="cleanDuplicatesBtn"
                       onClick={handleCleanupDuplicates}
                       style={{
@@ -2214,7 +2231,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
                 {/* INVENTORY METRICS CARDS */}
                 <div className="inventoryKpiGrid">
-                  <div 
+                  <div
                     className={`inventoryKpiCard ${productStockFilter === 'All' && productCategoryFilter === 'All' && !productSearchTerm ? 'active' : ''}`}
                     onClick={() => { setProductStockFilter('All'); setProductCategoryFilter('All'); setProductSearchTerm(''); }}
                     style={{ cursor: 'pointer' }}
@@ -2230,7 +2247,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     className={`inventoryKpiCard success ${productStockFilter === 'In Stock' ? 'active' : ''}`}
                     onClick={() => setProductStockFilter(productStockFilter === 'In Stock' ? 'All' : 'In Stock')}
                     style={{ cursor: 'pointer' }}
@@ -2246,7 +2263,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     className={`inventoryKpiCard warning ${productStockFilter === 'Low Stock' ? 'active' : ''}`}
                     onClick={() => setProductStockFilter(productStockFilter === 'Low Stock' ? 'All' : 'Low Stock')}
                     style={{ cursor: 'pointer' }}
@@ -2262,7 +2279,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     className={`inventoryKpiCard danger ${productStockFilter === 'Out of Stock' ? 'active' : ''}`}
                     onClick={() => setProductStockFilter(productStockFilter === 'Out of Stock' ? 'All' : 'Out of Stock')}
                     style={{ cursor: 'pointer' }}
@@ -2294,15 +2311,15 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                 <div className="inventoryFilterBar">
                   <div className="searchBox">
                     <Search size={18} className="searchIcon" />
-                    <input 
-                      type="text" 
-                      placeholder="Search product name, SKU, category, ID..." 
+                    <input
+                      type="text"
+                      placeholder="Search product name, SKU, category, ID..."
                       value={productSearchTerm}
                       onChange={e => setProductSearchTerm(e.target.value)}
                     />
                     {productSearchTerm && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setProductSearchTerm('')}
                         style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 'bold', padding: '0 4px' }}
                         title="Clear search"
@@ -2348,8 +2365,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   </div>
 
                   {(productSearchTerm || productCategoryFilter !== 'All' || productStockFilter !== 'All') && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => { setProductSearchTerm(''); setProductCategoryFilter('All'); setProductStockFilter('All'); setProductSortBy('name-asc'); }}
                       style={{
                         padding: '8px 14px',
@@ -2375,9 +2392,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     <span>Selected <strong>{selectedProductIds.length}</strong> items</span>
                     <div className="bulkControls">
                       <div className="bulkStockInput">
-                        <input 
-                          type="number" 
-                          placeholder="Set Stock" 
+                        <input
+                          type="number"
+                          placeholder="Set Stock"
                           value={bulkStockVal}
                           onChange={e => setBulkStockVal(e.target.value)}
                         />
@@ -2396,8 +2413,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     <thead>
                       <tr>
                         <th style={{ width: '40px' }}>
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             checked={filteredProducts.length > 0 && selectedProductIds.length === filteredProducts.length}
                             onChange={handleSelectAllProducts}
                           />
@@ -2429,8 +2446,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           return (
                             <tr key={prodId} className={isSelected ? 'selectedRow' : ''}>
                               <td>
-                                <input 
-                                  type="checkbox" 
+                                <input
+                                  type="checkbox"
                                   checked={isSelected}
                                   onChange={() => handleToggleSelectProduct(product.id || product._id || prodId)}
                                 />
@@ -2475,38 +2492,38 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                               </td>
                               <td>
                                 <div className="stockControlCell" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                  <button 
-                                    type="button" 
-                                    className="stockStepBtn" 
+                                  <button
+                                    type="button"
+                                    className="stockStepBtn"
                                     onClick={() => handleQuickStockChange(product, -1)}
                                     title="Decrease stock by 1"
                                   >
                                     <Minus size={12} />
                                   </button>
-                                  <input 
-                                    type="number" 
-                                    min="0" 
-                                    value={stock} 
-                                    onChange={(e) => handleDirectStockChange(product, e.target.value)} 
-                                    className="stockInlineInput" 
-                                    style={{ 
-                                      width: '56px', 
-                                      textAlign: 'center', 
-                                      padding: '3px 4px', 
-                                      fontWeight: '700', 
-                                      borderRadius: '6px', 
-                                      border: '1px solid #cbd5e1', 
-                                      fontSize: '13px', 
-                                      background: '#ffffff', 
-                                      color: '#0f2b5c', 
-                                      outline: 'none' 
-                                    }} 
-                                    title="Type stock quantity directly" 
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={stock}
+                                    onChange={(e) => handleDirectStockChange(product, e.target.value)}
+                                    className="stockInlineInput"
+                                    style={{
+                                      width: '56px',
+                                      textAlign: 'center',
+                                      padding: '3px 4px',
+                                      fontWeight: '700',
+                                      borderRadius: '6px',
+                                      border: '1px solid #cbd5e1',
+                                      fontSize: '13px',
+                                      background: '#ffffff',
+                                      color: '#0f2b5c',
+                                      outline: 'none'
+                                    }}
+                                    title="Type stock quantity directly"
                                   />
-                                  <button 
-                                    type="button" 
-                                    className="stockStepBtn" 
-                                    onClick={() => handleQuickStockChange(product, 1)} 
+                                  <button
+                                    type="button"
+                                    className="stockStepBtn"
+                                    onClick={() => handleQuickStockChange(product, 1)}
                                     title="Increase stock by 1"
                                   >
                                     <Plus size={12} />
@@ -2546,7 +2563,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           )}
 
           {activeTab === 'categories' && (() => {
-            const filteredCategories = availableCategories.filter(cat => 
+            const filteredCategories = availableCategories.filter(cat =>
               !catSearchTerm || cat.toLowerCase().includes(catSearchTerm.toLowerCase())
             );
 
@@ -2603,15 +2620,15 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                 <div className="categoryToolbar">
                   <div className="categorySearchBox">
                     <Search size={16} className="searchIcon" />
-                    <input 
-                      type="text" 
-                      placeholder="Search categories..." 
+                    <input
+                      type="text"
+                      placeholder="Search categories..."
                       value={catSearchTerm}
                       onChange={e => setCatSearchTerm(e.target.value)}
                     />
                     {catSearchTerm && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setCatSearchTerm('')}
                         className="clearSearchBtn"
                       >
@@ -2680,7 +2697,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
           {activeTab === 'customers' && (() => {
             const filteredOrders = orders.filter(order => {
-              const matchesSearch = 
+              const matchesSearch =
                 (order.customerName || '').toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
                 (order.companyName || '').toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
                 (order.gstNumber || '').toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
@@ -2758,8 +2775,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   <div className="adminFilterGroup">
                     <div className="filterSelectWrapper">
                       <Filter size={16} className="filterIcon" />
-                      <select 
-                        value={orderFulfillmentFilter} 
+                      <select
+                        value={orderFulfillmentFilter}
                         onChange={e => setOrderFulfillmentFilter(e.target.value)}
                         className="adminSelect"
                       >
@@ -2772,8 +2789,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
 
                     <div className="filterSelectWrapper">
-                      <select 
-                        value={orderPaymentFilter} 
+                      <select
+                        value={orderPaymentFilter}
                         onChange={e => setOrderPaymentFilter(e.target.value)}
                         className="adminSelect"
                       >
@@ -2785,8 +2802,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
 
                     <div className="filterSelectWrapper">
-                      <select 
-                        value={orderWarrantyFilter} 
+                      <select
+                        value={orderWarrantyFilter}
                         onChange={e => setOrderWarrantyFilter(e.target.value)}
                         className="adminSelect"
                       >
@@ -2798,7 +2815,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     </div>
 
                     {(orderSearchTerm || orderPaymentFilter !== 'All' || orderWarrantyFilter !== 'All' || orderFulfillmentFilter !== 'All') && (
-                      <button 
+                      <button
                         className="resetFiltersBtn"
                         onClick={() => {
                           setOrderSearchTerm('');
@@ -2828,9 +2845,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     <tbody>
                       {filteredOrders.map((order, oIdx) => {
                         const currentStatus = order.status || 'Processing';
-                        const normalizedStatus = 
-                          currentStatus === 'delivered' ? 'Delivered' : 
-                          currentStatus === 'in-transit' ? 'Shipped' : currentStatus;
+                        const normalizedStatus =
+                          currentStatus === 'delivered' ? 'Delivered' :
+                            currentStatus === 'in-transit' ? 'Shipped' : currentStatus;
                         const orderKey = order.id || order._id || `order-${oIdx}`;
 
                         return (
@@ -2908,17 +2925,17 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   background: normalizedStatus === 'Delivered'
                                     ? '#dcfce7'
                                     : normalizedStatus === 'Shipped' || normalizedStatus === 'in-transit'
-                                    ? '#e0f2fe'
-                                    : normalizedStatus === 'Cancelled'
-                                    ? '#fef2f2'
-                                    : '#fef9c3',
+                                      ? '#e0f2fe'
+                                      : normalizedStatus === 'Cancelled'
+                                        ? '#fef2f2'
+                                        : '#fef9c3',
                                   color: normalizedStatus === 'Delivered'
                                     ? '#15803d'
                                     : normalizedStatus === 'Shipped' || normalizedStatus === 'in-transit'
-                                    ? '#0369a1'
-                                    : normalizedStatus === 'Cancelled'
-                                    ? '#dc2626'
-                                    : '#a16207',
+                                      ? '#0369a1'
+                                      : normalizedStatus === 'Cancelled'
+                                        ? '#dc2626'
+                                        : '#a16207',
                                   cursor: 'pointer',
                                   outline: 'none',
                                   width: '100%',
@@ -2972,13 +2989,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                   background: (order.setup || '').includes('Completed') || (order.setup || '').includes('Installed')
                                     ? '#dcfce7'
                                     : (order.setup || '').includes('Scheduled') || (order.setup || '').includes('Progress')
-                                    ? '#fef9c3'
-                                    : '#f1f5f9',
+                                      ? '#fef9c3'
+                                      : '#f1f5f9',
                                   color: (order.setup || '').includes('Completed') || (order.setup || '').includes('Installed')
                                     ? '#15803d'
                                     : (order.setup || '').includes('Scheduled') || (order.setup || '').includes('Progress')
-                                    ? '#a16207'
-                                    : '#475569',
+                                      ? '#a16207'
+                                      : '#475569',
                                   cursor: 'pointer',
                                   outline: 'none',
                                   width: '100%',
@@ -3011,97 +3028,647 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
             );
           })()}
 
-          {activeTab === 'users' && (
-            <div className="tabPane fade-in">
-              <div className="paneHeader">
-                <div>
-                  <h3>User Account Management</h3>
-                  <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                    View registered store customers, administrative accounts, and user registration data ({users.length} total users)
-                  </p>
-                </div>
-              </div>
+          {activeTab === 'users' && (() => {
+            const safeUsers = Array.isArray(users) ? users : [];
 
-              {/* USER METRICS CARDS */}
-              <div className="inventoryKpiGrid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                <div className="inventoryKpiCard">
-                  <div className="kpiIcon"><Users size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Total Users</span>
-                    <strong className="kpiValue">{users.length}</strong>
-                    <span className="subVal">Registered store accounts</span>
+            // If a customer is selected, display FULL PAGE Customer View inside User Account Management section
+            if (selectedCustomerDetails) {
+              const u = selectedCustomerDetails;
+              const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Valued Customer';
+              const email = u.email || 'No email registered';
+              const phone = u.mobileNumber || u.phone || 'No phone recorded';
+              const role = u.role || 'customer';
+              const isVerified = u.isVerified || false;
+              const joinedDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A';
+
+              // Match customer orders
+              const customerOrders = (orders || []).filter(o =>
+                (o.userEmail && o.userEmail.toLowerCase() === email.toLowerCase()) ||
+                (o.userId && (o.userId === u._id || o.userId === u.id))
+              );
+
+              const totalSpent = customerOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+              const walletBalance = u.walletBalance || 0;
+              const savedAddresses = Array.isArray(u.addresses) ? u.addresses : [];
+              const cartItems = Array.isArray(u.cart) ? u.cart : [];
+              const wishlistItems = Array.isArray(u.wishlist) ? u.wishlist : [];
+
+              return (
+                <div className="tabPane fade-in fullPageCustomerPane" style={{ padding: '0' }}>
+                  {/* TOP HEADER WITH BACK BUTTON */}
+                  <div className="paneHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCustomerDetails(null)}
+                        className="backToUsersBtn"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 18px',
+                          background: '#ffffff',
+                          color: '#0f2b5c',
+                          border: '1.5px solid #cbd5e1',
+                          borderRadius: '10px',
+                          fontSize: '13.5px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+                        }}
+                        title="Return to Users List Table"
+                      >
+                        <ArrowLeft size={17} /> Back to Users List
+                      </button>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: '22px', color: '#0f2b5c', fontWeight: '800' }}>Customer Full Account View</h3>
+                        <p style={{ margin: '2px 0 0', fontSize: '13px', color: '#64748b' }}>
+                          Inspecting details for: <strong style={{ color: '#0284c7' }}>{fullName}</strong> ({email})
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCustomerDetails(null)}
+                      style={{
+                        padding: '8px 14px',
+                        background: '#f8fafc',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '8px',
+                        color: '#475569',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Close Details View
+                    </button>
                   </div>
-                </div>
 
-                <div className="inventoryKpiCard success">
-                  <div className="kpiIcon success"><ShoppingBag size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Customers</span>
-                    <strong className="kpiValue" style={{ color: '#10b981' }}>{users.filter(u => u.role === 'customer' || !u.role).length}</strong>
-                    <span className="subVal">Active buyer accounts</span>
+                  {/* FULL PAGE HEADER BANNER */}
+                  <div className="customerModalHeaderBanner" style={{ borderRadius: '14px', marginBottom: '24px' }}>
+                    <div className="customerHeaderProfileRow">
+                      <div className="customerBigAvatar">
+                        {(u.firstName || email || 'C')[0].toUpperCase()}
+                      </div>
+                      <div className="customerHeaderMeta">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                          <h2 className="customerHeaderName">{fullName}</h2>
+                          <span className={`customerRoleBadge ${role}`}>
+                            {role === 'admin' ? <ShieldCheck size={13} /> : role === 'reseller' ? <Sparkles size={13} /> : <Users size={13} />}
+                            {role === 'admin' ? 'Super Admin' : role === 'reseller' ? 'Reseller' : 'Customer Account'}
+                          </span>
+                          {isVerified ? (
+                            <span className="customerVerifiedBadge verified">
+                              <CheckCircle2 size={13} /> Email Verified
+                            </span>
+                          ) : (
+                            <span className="customerVerifiedBadge pending">
+                              <ShieldAlert size={13} /> Unverified
+                            </span>
+                          )}
+                        </div>
+                        <div className="customerContactSubRow">
+                          <span><Mail size={13} /> {email}</span>
+                          <span><Phone size={13} /> {phone}</span>
+                          <span><Calendar size={13} /> Joined: {joinedDate}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* QUICK STATS CARDS BAR */}
+                    <div className="customerQuickStatsBar">
+                      <div className="customerStatBox">
+                        <span className="statLabel">Total Orders</span>
+                        <strong className="statValue">{customerOrders.length}</strong>
+                        <span className="statSub">Lifetime purchases</span>
+                      </div>
+                      <div className="customerStatBox highlight">
+                        <span className="statLabel">Total Money Spent</span>
+                        <strong className="statValue">₹{totalSpent.toLocaleString('en-IN')}</strong>
+                        <span className="statSub">Combined order value</span>
+                      </div>
+                      <div className="customerStatBox">
+                        <span className="statLabel">Wallet Balance</span>
+                        <strong className="statValue">₹{walletBalance.toLocaleString('en-IN')}</strong>
+                        <span className="statSub">Store credit available</span>
+                      </div>
+                      <div className="customerStatBox">
+                        <span className="statLabel">Cart & Wishlist</span>
+                        <strong className="statValue">{cartItems.length} Cart / {wishlistItems.length} Wishlist</strong>
+                        <span className="statSub">Saved items count</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="inventoryKpiCard primary">
-                  <div className="kpiIcon primary"><ShieldCheck size={22} /></div>
-                  <div className="kpiContent">
-                    <span className="kpiLabel">Administrators</span>
-                    <strong className="kpiValue" style={{ color: '#0284c7' }}>{users.filter(u => u.role === 'admin').length}</strong>
-                    <span className="subVal">Super Admin access</span>
+                  {/* FULL PAGE TABS NAVIGATION */}
+                  <div className="customerModalTabNav" style={{ borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px', background: '#f8fafc' }}>
+                    <button
+                      className={`custTabBtn ${customerActiveTab === 'overview' ? 'active' : ''}`}
+                      onClick={() => setCustomerActiveTab('overview')}
+                    >
+                      <Users size={15} /> Overview & Profile
+                    </button>
+                    <button
+                      className={`custTabBtn ${customerActiveTab === 'addresses' ? 'active' : ''}`}
+                      onClick={() => setCustomerActiveTab('addresses')}
+                    >
+                      <MapPin size={15} /> Saved Delivery Addresses ({savedAddresses.length})
+                    </button>
+                    <button
+                      className={`custTabBtn ${customerActiveTab === 'orders' ? 'active' : ''}`}
+                      onClick={() => setCustomerActiveTab('orders')}
+                    >
+                      <ShoppingBag size={15} /> Order History ({customerOrders.length})
+                    </button>
+                    <button
+                      className={`custTabBtn ${customerActiveTab === 'cart_wishlist' ? 'active' : ''}`}
+                      onClick={() => setCustomerActiveTab('cart_wishlist')}
+                    >
+                      <ShoppingCart size={15} /> Cart & Wishlist ({cartItems.length + wishlistItems.length})
+                    </button>
                   </div>
-                </div>
-              </div>
 
-              {/* USER TABLE */}
-              <div className="tableContainer">
-                <table className="adminTable inventoryTable">
-                  <thead>
-                    <tr>
-                      <th>User Info</th>
-                      <th>Email Address</th>
-                      <th>Account Role</th>
-                      <th>Date Joined</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u, idx) => (
-                      <tr key={u.id || idx}>
-                        <td>
-                          <div className="productCell">
-                            <div className="adminAvatar" style={{ width: '38px', height: '38px', fontSize: '14px', borderRadius: '50%' }}>
-                              {(u.firstName || u.email || 'U')[0].toUpperCase()}
-                            </div>
-                            <div className="productTitleMeta">
-                              <strong>{u.firstName || ''} {u.lastName || ''}</strong>
-                              <span className="customerMeta">{u.phone || 'No phone recorded'}</span>
-                            </div>
+                  {/* TAB CONTENT PANES */}
+                  <div className="customerModalBodyContent" style={{ padding: 0, background: 'transparent' }}>
+                    {/* TAB 1: OVERVIEW & PROFILE */}
+                    {customerActiveTab === 'overview' && (
+                      <div className="custTabPane fade-in">
+                        <h4 className="custSectionTitle"><UserCheck size={16} /> Personal Account Information</h4>
+                        <div className="custProfileGrid">
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">First Name</span>
+                            <strong className="custFieldValue">{u.firstName || 'Not provided'}</strong>
                           </div>
-                        </td>
-                        <td>
-                          <code className="skuTag">{u.email}</code>
-                        </td>
-                        <td>
-                          <span className={`stockStatusPill ${u.role === 'admin' ? 'in-stock' : 'low-stock'}`}>
-                            {u.role === 'admin' ? <ShieldCheck size={13} /> : <Users size={13} />}
-                            {u.role === 'admin' ? 'Super Admin' : 'Customer'}
-                          </span>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: '13px', color: '#64748b' }}>
-                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : 'Recent'}
-                          </span>
-                        </td>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Last Name</span>
+                            <strong className="custFieldValue">{u.lastName || 'Not provided'}</strong>
+                          </div>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Email Address</span>
+                            <strong className="custFieldValue">{email}</strong>
+                          </div>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Mobile / Phone</span>
+                            <strong className="custFieldValue">{phone}</strong>
+                          </div>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Account Role</span>
+                            <strong className="custFieldValue">{role === 'admin' ? 'Super Administrator' : role === 'reseller' ? 'Authorized Reseller' : 'Customer'}</strong>
+                          </div>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Email Verification Status</span>
+                            <strong className="custFieldValue" style={{ color: isVerified ? '#10b981' : '#f59e0b' }}>
+                              {isVerified ? '✓ Verified Email' : 'Pending Verification'}
+                            </strong>
+                          </div>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Wallet Balance</span>
+                            <strong className="custFieldValue" style={{ color: '#0284c7' }}>₹{walletBalance.toLocaleString('en-IN')}</strong>
+                          </div>
+                          <div className="custFieldCard">
+                            <span className="custFieldLabel">Database User ID</span>
+                            <code className="custFieldValueCode">{u._id || u.id || 'N/A'}</code>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TAB 2: SAVED ADDRESSES */}
+                    {customerActiveTab === 'addresses' && (
+                      <div className="custTabPane fade-in">
+                        <h4 className="custSectionTitle"><MapPin size={16} /> Saved Delivery & Billing Addresses</h4>
+                        {savedAddresses.length > 0 ? (
+                          <div className="custAddressGrid">
+                            {savedAddresses.map((addr, aIdx) => (
+                              <div key={aIdx} className="custAddressCard">
+                                <div className="custAddressHeader">
+                                  <span className="custAddrTag">{addr.addressType || addr.type || `Address #${aIdx + 1}`}</span>
+                                  {addr.isDefault && <span className="defaultAddrPill">Default</span>}
+                                </div>
+                                <strong className="custAddrName">{addr.fullName || addr.name || fullName}</strong>
+                                <p className="custAddrLine">{addr.street || addr.address || addr.addressLine1}</p>
+                                {addr.addressLine2 && <p className="custAddrLine">{addr.addressLine2}</p>}
+                                <p className="custAddrCity">
+                                  {[addr.city, addr.state, addr.pincode || addr.zipCode].filter(Boolean).join(', ')}
+                                </p>
+                                <p className="custAddrCountry">{addr.country || 'India'}</p>
+                                {addr.phone && <p className="custAddrPhone">Phone: {addr.phone}</p>}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="emptyCustState">
+                            <MapPin size={36} style={{ color: '#cbd5e1' }} />
+                            <p>No saved delivery addresses on record for this customer.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* TAB 3: ORDER HISTORY */}
+                    {customerActiveTab === 'orders' && (
+                      <div className="custTabPane fade-in">
+                        <h4 className="custSectionTitle"><ShoppingBag size={16} /> Complete Customer Order History</h4>
+                        {customerOrders.length > 0 ? (
+                          <div className="tableContainer" style={{ overflowX: 'auto' }}>
+                            <table className="adminTable inventoryTable" style={{ width: '100%' }}>
+                              <thead>
+                                <tr>
+                                  <th>Order ID</th>
+                                  <th>Date</th>
+                                  <th>Items Purchased</th>
+                                  <th>Total Amount</th>
+                                  <th>Fulfillment Status</th>
+                                  <th>Payment</th>
+                                  <th>Invoice</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {customerOrders.map((ord, oIdx) => (
+                                  <tr key={ord.id || ord._id || oIdx}>
+                                    <td>
+                                      <span className="orderIdBadge">#{ord.id}</span>
+                                    </td>
+                                    <td>
+                                      <span style={{ fontSize: '12.5px', color: '#64748b' }}>{ord.date}</span>
+                                    </td>
+                                    <td>
+                                      <div className="orderItemsList">
+                                        {(ord.items || []).map((it, iIdx) => (
+                                          <div key={iIdx} className="orderItemRow">
+                                            <span className="itemName">• {it.name}</span>
+                                            <span className="itemQty">x{it.quantity}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <strong style={{ fontSize: '14px', color: '#0f2b5c' }}>
+                                        ₹{Number(ord.total || 0).toLocaleString('en-IN')}
+                                      </strong>
+                                    </td>
+                                    <td>
+                                      <span className={`stockStatusPill ${ord.status === 'delivered' || ord.status === 'Delivered' ? 'in-stock' : 'low-stock'}`}>
+                                        {ord.status || 'Processing'}
+                                      </span>
+                                    </td>
+                                    <td>
+                                      <span style={{ fontSize: '12px', fontWeight: '700', color: ord.paymentStatus === 'Paid' ? '#15803d' : '#a16207' }}>
+                                        {ord.paymentStatus || 'Pending'}
+                                      </span>
+                                    </td>
+                                    <td>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedInvoiceOrder(ord);
+                                        }}
+                                        style={{
+                                          padding: '5px 12px',
+                                          fontSize: '11px',
+                                          fontWeight: '700',
+                                          borderRadius: '6px',
+                                          border: '1px solid #0284c7',
+                                          background: '#f0f9ff',
+                                          color: '#0369a1',
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px'
+                                        }}
+                                        title="View & Print Official GST Tax Invoice"
+                                      >
+                                        <FileText size={12} /> Invoice
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <div className="emptyCustState">
+                            <ShoppingBag size={36} style={{ color: '#cbd5e1' }} />
+                            <p>This customer has not placed any store orders yet.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* TAB 4: ACTIVE CART & WISHLIST */}
+                    {customerActiveTab === 'cart_wishlist' && (
+                      <div className="custTabPane fade-in">
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                          {/* Active Cart */}
+                          <div>
+                            <h4 className="custSectionTitle"><ShoppingCart size={16} /> Saved Cart Items ({cartItems.length})</h4>
+                            {cartItems.length > 0 ? (
+                              <div className="custCartList">
+                                {cartItems.map((cItem, cIdx) => (
+                                  <div key={cIdx} className="custCartItemRow">
+                                    <img
+                                      src={cItem.image || '/10kglggiantwasher.png'}
+                                      alt={cItem.name || 'Product'}
+                                      className="custCartImg"
+                                      onError={e => { e.target.src = 'https://via.placeholder.com/50?text=Product'; }}
+                                    />
+                                    <div className="custCartMeta">
+                                      <strong>{cItem.name || 'Product'}</strong>
+                                      <span>Qty: {cItem.quantity || 1} × ₹{Number(cItem.price || 0).toLocaleString('en-IN')}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="emptyCustState compact">
+                                <p>Cart is currently empty.</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Active Wishlist */}
+                          <div>
+                            <h4 className="custSectionTitle"><Heart size={16} /> Wishlist Favorites ({wishlistItems.length})</h4>
+                            {wishlistItems.length > 0 ? (
+                              <div className="custCartList">
+                                {wishlistItems.map((wItem, wIdx) => (
+                                  <div key={wIdx} className="custCartItemRow">
+                                    <img
+                                      src={wItem.image || '/10kglggiantwasher.png'}
+                                      alt={wItem.name || 'Product'}
+                                      className="custCartImg"
+                                      onError={e => { e.target.src = 'https://via.placeholder.com/50?text=Product'; }}
+                                    />
+                                    <div className="custCartMeta">
+                                      <strong>{wItem.name || 'Product'}</strong>
+                                      <span>₹{Number(wItem.price || 0).toLocaleString('en-IN')}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="emptyCustState compact">
+                                <p>Wishlist is currently empty.</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            // Standard Users List Table View
+            const filteredUsers = safeUsers.filter(u => {
+              const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+              const email = (u.email || '').toLowerCase();
+              const phone = (u.mobileNumber || u.phone || '').toLowerCase();
+              const term = userSearchTerm.toLowerCase().trim();
+
+              const matchesSearch = !term || fullName.includes(term) || email.includes(term) || phone.includes(term);
+              const matchesRole = userRoleFilter === 'All' ||
+                (userRoleFilter === 'customer' && (u.role === 'customer' || !u.role)) ||
+                (userRoleFilter === 'admin' && u.role === 'admin') ||
+                (userRoleFilter === 'reseller' && u.role === 'reseller');
+
+              return matchesSearch && matchesRole;
+            });
+
+            const customerCount = safeUsers.filter(u => u.role === 'customer' || !u.role).length;
+            const adminCount = safeUsers.filter(u => u.role === 'admin').length;
+            const resellerCount = safeUsers.filter(u => u.role === 'reseller').length;
+
+            return (
+              <div className="tabPane fade-in">
+                <div className="paneHeader">
+                  <div>
+                    <h3>User Account Management</h3>
+                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                      View registered store customers, administrative accounts, order histories, and profile details ({safeUsers.length} total users)
+                    </p>
+                  </div>
+                </div>
+
+                {/* USER METRICS CARDS */}
+                <div className="inventoryKpiGrid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                  <div
+                    className={`inventoryKpiCard ${userRoleFilter === 'All' && !userSearchTerm ? 'active' : ''}`}
+                    onClick={() => { setUserRoleFilter('All'); setUserSearchTerm(''); }}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to view all registered users"
+                  >
+                    <div className="kpiIcon"><Users size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Total Users</span>
+                      <strong className="kpiValue">{safeUsers.length}</strong>
+                      <span className="subVal">All registered store accounts</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`inventoryKpiCard success ${userRoleFilter === 'customer' ? 'active' : ''}`}
+                    onClick={() => setUserRoleFilter(userRoleFilter === 'customer' ? 'All' : 'customer')}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to filter Store Customers"
+                  >
+                    <div className="kpiIcon success"><ShoppingBag size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Store Customers</span>
+                      <strong className="kpiValue" style={{ color: '#10b981' }}>{customerCount}</strong>
+                      <span className="subVal">Active buyer accounts</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`inventoryKpiCard primary ${userRoleFilter === 'admin' ? 'active' : ''}`}
+                    onClick={() => setUserRoleFilter(userRoleFilter === 'admin' ? 'All' : 'admin')}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to filter Administrators"
+                  >
+                    <div className="kpiIcon primary"><ShieldCheck size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Administrators</span>
+                      <strong className="kpiValue" style={{ color: '#0284c7' }}>{adminCount}</strong>
+                      <span className="subVal">Super Admin access</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`inventoryKpiCard warning ${userRoleFilter === 'reseller' ? 'active' : ''}`}
+                    onClick={() => setUserRoleFilter(userRoleFilter === 'reseller' ? 'All' : 'reseller')}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to filter Resellers"
+                  >
+                    <div className="kpiIcon warning"><Sparkles size={22} /></div>
+                    <div className="kpiContent">
+                      <span className="kpiLabel">Resellers</span>
+                      <strong className="kpiValue" style={{ color: '#f59e0b' }}>{resellerCount}</strong>
+                      <span className="subVal">Partner accounts</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* USER SEARCH & ROLE FILTER BAR */}
+                <div className="inventoryFilterBar" style={{ marginBottom: '20px' }}>
+                  <div className="searchBox" style={{ flex: 1 }}>
+                    <Search size={18} className="searchIcon" />
+                    <input
+                      type="text"
+                      placeholder="Search customer by name, email address, phone number..."
+                      value={userSearchTerm}
+                      onChange={e => setUserSearchTerm(e.target.value)}
+                    />
+                    {userSearchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => setUserSearchTerm('')}
+                        style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 'bold', padding: '0 4px' }}
+                        title="Clear search"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="filterGroup">
+                    <Filter size={16} />
+                    <select value={userRoleFilter} onChange={e => setUserRoleFilter(e.target.value)}>
+                      <option value="All">All User Roles ({safeUsers.length})</option>
+                      <option value="customer">Store Customers ({customerCount})</option>
+                      <option value="admin">Administrators ({adminCount})</option>
+                      <option value="reseller">Resellers ({resellerCount})</option>
+                    </select>
+                  </div>
+
+                  {(userSearchTerm || userRoleFilter !== 'All') && (
+                    <button
+                      type="button"
+                      onClick={() => { setUserSearchTerm(''); setUserRoleFilter('All'); }}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        background: '#f8fafc',
+                        color: '#475569',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                      title="Reset search and filters"
+                    >
+                      Reset Filters
+                    </button>
+                  )}
+                </div>
+
+                {/* USER TABLE */}
+                <div className="tableContainer">
+                  <table className="adminTable inventoryTable">
+                    <thead>
+                      <tr>
+                        <th>Customer / User</th>
+                        <th>Email Address</th>
+                        <th>Phone Number</th>
+                        <th>Account Role</th>
+                        <th>Date Joined</th>
+                        <th style={{ textAlign: 'center' }}>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.map((u, idx) => {
+                        const userEmail = u.email || '';
+                        const phone = u.mobileNumber || u.phone || 'No phone recorded';
+                        const isAdmin = u.role === 'admin';
+
+                        return (
+                          <tr key={u._id || u.id || idx}>
+                            <td>
+                              <div className="productCell">
+                                <div
+                                  className="adminAvatar"
+                                  style={{
+                                    width: '38px',
+                                    height: '38px',
+                                    fontSize: '14px',
+                                    borderRadius: '50%',
+                                    background: isAdmin ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)' : 'linear-gradient(135deg, #059669 0%, #34d399 100%)'
+                                  }}
+                                >
+                                  {(u.firstName || userEmail || 'U')[0].toUpperCase()}
+                                </div>
+                                <div className="productTitleMeta">
+                                  <strong style={{ fontSize: '14px', color: '#0f2b5c' }}>
+                                    {u.firstName || 'User'} {u.lastName || ''}
+                                  </strong>
+                                  <span className="customerMeta">
+                                    {u.isVerified ? '✓ Verified Account' : 'Standard User'}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <code className="skuTag">{userEmail}</code>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '13px', color: '#475569', fontWeight: '500' }}>
+                                {phone}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`stockStatusPill ${isAdmin ? 'in-stock' : u.role === 'reseller' ? 'low-stock' : 'in-stock'}`} style={{
+                                background: isAdmin ? '#e0f2fe' : u.role === 'reseller' ? '#fef9c3' : '#dcfce7',
+                                color: isAdmin ? '#0369a1' : u.role === 'reseller' ? '#a16207' : '#15803d'
+                              }}>
+                                {isAdmin ? <ShieldCheck size={13} /> : u.role === 'reseller' ? <Sparkles size={13} /> : <Users size={13} />}
+                                {isAdmin ? 'Super Admin' : u.role === 'reseller' ? 'Reseller' : 'Customer'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '13px', color: '#64748b' }}>
+                                {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent'}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCustomerDetails(u);
+                                  setCustomerActiveTab('overview');
+                                }}
+                                className="viewCustomerDetailsBtn"
+                                title="View Full Customer Details, Order History & Addresses"
+                              >
+                                <Eye size={15} /> View Details
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+
+                      {filteredUsers.length === 0 && (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                            <Users size={32} style={{ color: '#cbd5e1', marginBottom: '8px' }} />
+                            <p style={{ margin: 0, fontWeight: '600' }}>No registered users found matching your search.</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {activeTab === 'ticketing' && (
             <div className="tabPane fade-in">
-              <TicketingPage isAdmin={true} />
+              <TicketingPage isAdmin={true} userOrders={orders} loggedInUser={loggedInUser} />
             </div>
           )}
         </div>
@@ -3275,26 +3842,145 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         </div>
       )}
 
-      {/* TAX INVOICE MODAL OVERLAY FOR ADMIN */}
-      {selectedInvoiceOrder && (
-        <div className="invoice-modal-overlay" onClick={() => setSelectedInvoiceOrder(null)}>
-          <div className="invoice-modal-card" onClick={e => e.stopPropagation()}>
-            <div className="invoice-modal-actions-bar">
-              <button 
-                className="print-btn" 
-                onClick={() => {
-                  const invId = selectedInvoiceOrder.orderId || selectedInvoiceOrder.id || '203075';
-                  const docTitle = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
-                  printInvoiceElement('invoice-print-area', docTitle);
-                }}
-              >
-                <Printer size={16} /> Print Tax Invoice
-              </button>
-              <button className="invoice-close-btn" onClick={() => setSelectedInvoiceOrder(null)}>Close</button>
+      {/* FULL SCREEN TAX INVOICE MODAL OVERLAY (PORTAL DIRECTLY TO BODY) */}
+      {selectedInvoiceOrder && createPortal(
+        <div 
+          className="invoice-modal-overlay fullScreenInvoiceOverlay" 
+          onClick={() => setSelectedInvoiceOrder(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: '#071630',
+            display: 'flex',
+            flexDirection: 'column',
+            justify: 'flex-start',
+            alignItems: 'stretch',
+            zIndex: 99999999,
+            padding: 0,
+            margin: 0,
+            boxSizing: 'border-box'
+          }}
+        >
+          <div 
+            className="invoice-modal-card fullScreenInvoiceCard" 
+            onClick={e => e.stopPropagation()}
+            style={{
+              backgroundColor: '#f1f5f9',
+              borderRadius: 0,
+              width: '100vw',
+              maxWidth: '100vw',
+              height: '100vh',
+              maxHeight: '100vh',
+              padding: '16px 28px 24px',
+              boxShadow: 'none',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              boxSizing: 'border-box',
+              overflow: 'hidden',
+              zIndex: 100000000
+            }}
+          >
+            {/* FULL SCREEN TOP NAVIGATION BAR */}
+            <div className="invoice-modal-actions-bar" style={{ flexShrink: 0, marginBottom: 0, justifyContent: 'space-between', background: '#ffffff', padding: '12px 20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button
+                  type="button"
+                  className="invoice-close-btn"
+                  onClick={() => setSelectedInvoiceOrder(null)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    background: '#f1f5f9',
+                    color: '#0f2b5c',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <ArrowLeft size={16} /> Back to Dashboard
+                </button>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '16px', color: '#0f2b5c', fontWeight: '800' }}>
+                    Official GST Tax Invoice (#{selectedInvoiceOrder.orderId || selectedInvoiceOrder.id})
+                  </h4>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    Customer: {selectedInvoiceOrder.customerName || selectedInvoiceOrder.userEmail || 'Valued Customer'}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  className="print-btn"
+                  onClick={() => {
+                    const invId = selectedInvoiceOrder.orderId || selectedInvoiceOrder.id || '203075';
+                    const docTitle = `Invoice_KC_${invId.toString().replace(/#/g, '')}`;
+                    printInvoiceElement('invoice-print-area', docTitle);
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '10px 20px',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '13.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    boxShadow: '0 3px 10px rgba(2, 132, 199, 0.3)'
+                  }}
+                >
+                  <Printer size={16} /> Print Tax Invoice
+                </button>
+                <button 
+                  className="invoice-close-btn" 
+                  onClick={() => setSelectedInvoiceOrder(null)}
+                  style={{
+                    padding: '10px 18px',
+                    background: '#f8fafc',
+                    color: '#475569',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
-            
+
             {/* Printable Invoice Sheet */}
-            <div className="invoice-sheet" id="invoice-print-area">
+            <div 
+              className="invoice-sheet" 
+              id="invoice-print-area"
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                width: '100%',
+                maxWidth: '920px',
+                margin: '0 auto',
+                background: '#ffffff',
+                padding: '32px 36px 28px',
+                borderRadius: '12px',
+                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
+                boxSizing: 'border-box'
+              }}
+            >
               <div className="top-strip"></div>
 
               {/* HEADER */}
@@ -3317,38 +4003,34 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                 </div>
 
                 {/* INVOICE INFORMATION */}
-                <div className="invoice-info">
-                  <div className="invoice-title">TAX INVOICE</div>
-                  <div className="invoice-meta">
-                    <span className="label">TAX INVOICE NO.</span>
+                <div className="invoice-meta">
+                  <h2>TAX INVOICE</h2>
+                  <div className="meta-grid">
+                    <strong>INVOICE NO.</strong>
                     <span>:</span>
-                    <span>KC {selectedInvoiceOrder.orderId?.substring(3) || selectedInvoiceOrder.id || '759724'}</span>
+                    <span className="highlight-text">KC/INV/2026-27/{selectedInvoiceOrder.orderId || selectedInvoiceOrder.id}</span>
 
-                    <span className="label">TAX INVOICE DATE</span>
+                    <strong>DATE</strong>
                     <span>:</span>
                     <span>{new Date(selectedInvoiceOrder.date || selectedInvoiceOrder.rawDate || Date.now()).toLocaleDateString('en-IN')}</span>
 
-                    <span className="label">SUPPLIERS REF.</span>
+                    <strong>DELIVERY NOTE</strong>
                     <span>:</span>
                     <span>-</span>
 
-                    <span className="label">DELIVERY NOTE</span>
+                    <strong>OTHER REFERENCE</strong>
                     <span>:</span>
                     <span>-</span>
 
-                    <span className="label">OTHER REFERENCE</span>
-                    <span>:</span>
-                    <span>-</span>
-
-                    <span className="label">REVERSE CHARGE (Y/N)</span>
+                    <strong>REVERSE CHARGE (Y/N)</strong>
                     <span>:</span>
                     <span>N</span>
 
-                    <span className="label">PLACE OF SUPPLY</span>
+                    <strong>PLACE OF SUPPLY</strong>
                     <span>:</span>
                     <span>{selectedInvoiceOrder.shippingAddress?.state === 'Karnataka' ? '29 - Karnataka' : '33 - Tamil Nadu'}</span>
 
-                    <span className="label">STATE</span>
+                    <strong>STATE</strong>
                     <span>:</span>
                     <span>{selectedInvoiceOrder.shippingAddress?.state || 'Tamil Nadu'} (Code: {selectedInvoiceOrder.shippingAddress?.state === 'Karnataka' ? '29' : '33'})</span>
                   </div>
@@ -3634,7 +4316,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -1,55 +1,69 @@
 .ticketingPageContainer {
   min-height: 100vh;
-  background: transparent;
-  padding: 40px 24px;
+  background: #f8fafc;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
   font-family: inherit;
 }
 
 .ticketingHeader {
-  max-width: 1100px;
+  max-width: 1200px;
   width: 100%;
-  margin: 0 auto 40px;
+  margin: 0 auto 28px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
   position: relative;
 }
 
-.backBtn {
+.headerTitleBlock {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.backBtn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   background: #ffffff;
   color: #0f2b5c;
-  border: 1px solid #e5e7eb;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
+  border: 1px solid #cbd5e1;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .backBtn:hover {
-  background: #f9fafb;
+  background: #f1f5f9;
   border-color: #0f2b5c;
 }
 
 .pageTitle {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: #0f2b5c;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   margin: 0;
   letter-spacing: -0.5px;
+  position: static;
+  transform: none;
+}
+
+.pageSubtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
 }
 
 .ticketingContent {
-  max-width: 1100px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   flex: 1;
@@ -164,6 +178,30 @@
   background: #1a365d;
 }
 
+.smallSearchBtn {
+  padding: 8px 16px;
+  background: #0f2b5c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(15, 43, 92, 0.15);
+}
+
+.smallSearchBtn:hover {
+  background: #1a365d;
+  box-shadow: 0 4px 8px rgba(15, 43, 92, 0.22);
+  transform: translateY(-1px);
+}
+
 .sampleTickets {
   font-size: 14px;
   color: #6b7280;
@@ -244,9 +282,9 @@
 
 .customerDetails {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .detailItem.address {
@@ -256,15 +294,15 @@
 .detailItem {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  background: #f9fafb;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
 }
 
 .detailItem svg {
-  color: #6b7280;
+  color: #0284c7;
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -272,23 +310,25 @@
 .detailText {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .label {
   display: block;
-  font-size: 11px;
-  color: #6b7280;
+  font-size: 10px;
+  color: #64748b;
   text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 6px;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  letter-spacing: 0.4px;
 }
 
 .value {
-  font-size: 15px;
-  color: #111111;
+  font-size: 13px;
+  color: #0f172a;
   font-weight: 600;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 .customerStats {
@@ -585,7 +625,11 @@
     margin: 0;
   }
   .downloadBtn,
-  .backBtn {
+  .backBtn,
+  .ticketingTabsBar,
+  .ticketSearchBtn,
+  .smallSearchBtn,
+  .modalActions {
     display: none !important;
   }
   .ticketingPageContainer {
@@ -593,3 +637,1335 @@
     padding: 0;
   }
 }
+
+/* ==========================================================================
+   CUSTOMER DASHBOARD TABS & EXPANDED SUPPORT STYLING
+   ========================================================================== */
+
+.customerBadgeId {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #bae6fd;
+  letter-spacing: 0.5px;
+}
+
+.customerStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #cbd5e1;
+  width: 100%;
+}
+
+.customerStatsGrid .statBox {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: all 0.2s ease;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.customerStatsGrid .statBox:hover {
+  transform: translateY(-2px);
+  border-color: #0f2b5c;
+  box-shadow: 0 4px 12px rgba(15, 43, 92, 0.08);
+}
+
+.customerStatsGrid .statBoxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+}
+
+.customerStatsGrid .statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customerStatsGrid .statIcon {
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.customerStatsGrid .statBox.amc-active {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.customerStatsGrid .statBox.amc-inactive {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.customerStatsGrid .statNumber {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f2b5c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
+.statusPillTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.statusPillTag.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.statusPillTag.inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ORDER SEARCH BAR IN PURCHASE HISTORY */
+.orderSearchBox {
+  display: flex;
+  align-items: center;
+}
+
+.orderSearchInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.orderSearchIcon {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.orderSearchInput {
+  padding: 9px 34px 9px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #0f172a;
+  background: #ffffff;
+  width: 280px;
+  transition: all 0.2s ease;
+}
+
+.orderSearchInput:focus {
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+  width: 320px;
+}
+
+.clearOrderSearchBtn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.clearOrderSearchBtn:hover {
+  color: #ef4444;
+}
+
+/* TABS NAVIGATION BAR (SINGLE LINE FLEX FIT) */
+.ticketingTabsBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  width: 100%;
+}
+
+.ticketingTabsBar .tabItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 10px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.ticketingTabsBar .tabItem svg {
+  flex-shrink: 0;
+}
+
+.ticketingTabsBar .tabItem:hover {
+  color: #0f2b5c;
+  background: #f1f5f9;
+}
+
+.ticketingTabsBar .tabItem.active {
+  background: #0f2b5c;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 43, 92, 0.2);
+}
+
+.tabContentSection {
+  margin-bottom: 32px;
+}
+
+.sectionHeaderFlex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f2b5c;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+/* EMPTY STATE */
+.emptyStateBox {
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #64748b;
+}
+
+.emptyStateBox .emptyIcon {
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.emptyStateBox h4 {
+  font-size: 18px;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+/* ORDER CARD ENHANCEMENTS */
+.orderMetaBadgeRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.orderIdPill {
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.paymentIdPill {
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.datePill {
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.orderHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.viewInvoiceBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid #0284c7;
+  background: #f0f9ff;
+  color: #0369a1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewInvoiceBtn:hover {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.priceHighlight {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #0f2b5c !important;
+}
+
+.orderedItemsTableWrapper {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.tableTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.miniItemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.miniItemsTable th {
+  text-align: left;
+  background: #f8fafc;
+  padding: 8px 12px;
+  color: #475569;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.miniItemsTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.amcInlineTag {
+  display: block;
+  font-size: 11px;
+  color: #0284c7;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* AMC CARD & PM TIMELINE (MINIMALIST) */
+.amcSectionHeader {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.amcTagPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f4f8;
+  color: #0f2b5c;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.amcTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f2b5c;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.2px;
+}
+
+.amcSubtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Minimal Card Container */
+.amcCardMinimal {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.amcCardMinimal:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+/* Top Bar: Equipment + Status */
+.amcCardTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.amcEquipmentInfo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.amcIconWrapper {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #0f2b5c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.amcTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.amcEquipName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.amcContractIdPill {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  letter-spacing: 0.3px;
+}
+
+.amcPlanMeta {
+  font-size: 13px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+  font-weight: 500;
+}
+
+.metaDivider {
+  color: #cbd5e1;
+  margin: 0 4px;
+}
+
+/* Minimal Status Pill */
+.amcStatusPillMinimal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.amcStatusPillMinimal.active {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.amcStatusPillMinimal.expired {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Minimal Metrics Bar */
+.amcMetricsBar {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.amcMetricItem {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.amcMetricLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.amcMetricValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.amcMetricValue.highlightBlue {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.amcMetricValue.highlightGreen {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.amcMetricDivider {
+  width: 1px;
+  height: 28px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+/* PM Section */
+.amcPmSection {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 18px;
+}
+
+.amcPmSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.amcPmTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.amcPmCountPill {
+  font-size: 11px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.amcPmGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.amcPmCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.amcPmCard.completed {
+  border-left: 3px solid #10b981;
+  background: #fafdfb;
+}
+
+.amcPmCard.scheduled {
+  border-left: 3px solid #0284c7;
+  background: #ffffff;
+}
+
+.amcPmCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.amcPmVisitNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.amcPmStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.amcPmStatusBadge.completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.amcPmStatusBadge.scheduled {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.amcPmCardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.amcPmDateRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.amcDateIcon {
+  color: #64748b;
+}
+
+.amcPmDetailsText {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.pmBadge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.pmBadge.completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.pmBadge.scheduled {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.pmTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f2b5c;
+  margin: 0 0 4px 0;
+}
+
+.pmDate {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.pmDetails {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* WARRANTY CARDS */
+.warrantyCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.warrantyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.warrantyBadge {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.warrantyBadge.active {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.warrantyBadge.expired {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.warrantyMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  background: #f8fafc;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.compTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #334155;
+  margin: 0 0 10px 0;
+}
+
+.compList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.compList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #334155;
+}
+
+/* PARTS REPLACEMENT TABLE */
+.partsTableContainer {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow-x: auto;
+}
+
+.partsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.partsTable th {
+  background: #f8fafc;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 800;
+  color: #0f2b5c;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.partsTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.partHighlightName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0f2b5c;
+}
+
+.partsWarrantyTag {
+  background: #f0f9ff;
+  color: #0369a1;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
+.partsStatusPill {
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.partsStatusPill.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.partsStatusPill.expired {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* SUPPORT TICKET CARDS */
+.ticketRecordCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.ticketRecordHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.ticketIdTag {
+  background: #0f2b5c;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.ticketSubject {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f2b5c;
+  margin: 0;
+}
+
+.ticketSubMeta {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.ticketStatusBadge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.ticketStatusBadge.open {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.ticketStatusBadge.inprogress {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.ticketStatusBadge.resolved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ticketBody {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.ticketDesc {
+  margin: 0 0 10px 0;
+  color: #1e293b;
+}
+
+.ticketAssignedRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  color: #475569;
+  font-size: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+/* MODALS STYLING */
+.ticketingModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ticketingModalCard {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 650px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  padding: 32px;
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modalHeader h4 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f2b5c;
+  margin: 0;
+}
+
+.closeX {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeX:hover {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+.modalForm .formGroup {
+  margin-bottom: 18px;
+}
+
+.modalForm label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.modalForm input,
+.modalForm select,
+.modalForm textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #ffffff;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.modalForm input:focus,
+.modalForm select:focus,
+.modalForm textarea:focus {
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+}
+
+.disabledInput {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  font-weight: 700;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modalActions .cancelBtn {
+  padding: 12px 24px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modalActions .saveBtn {
+  padding: 12px 28px;
+  background: #0f2b5c;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalActions .saveBtn:hover {
+  background: #1e3a8a;
+}
+
+/* FULL-SCREEN TAX INVOICE OVERLAY FOR TICKETING PAGE */
+.ticketingPageContainer .invoice-modal-overlay,
+.invoice-modal-overlay.fullScreenInvoiceOverlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(7, 15, 30, 0.96) !important;
+  backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  z-index: 99999999 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.ticketingPageContainer .invoice-modal-card,
+.invoice-modal-card.fullScreenInvoiceCard {
+  background-color: #0b172a !important;
+  border-radius: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  padding: 16px 24px 24px !important;
+  box-shadow: none !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  overflow: hidden !important;
+  z-index: 100000000 !important;
+  margin: 0 !important;
+}
+
+.ticketingPageContainer .fullScreenInvoiceCard .invoice-sheet,
+.fullScreenInvoiceCard .invoice-sheet {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  max-width: 920px !important;
+  margin: 0 auto !important;
+  background: #ffffff !important;
+  padding: 32px 36px 28px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+.ticketingPageContainer .invoice-modal-actions-bar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 920px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding-bottom: 8px !important;
+}
+
+/* ==========================================================================
+   FULL SCREEN RAISE SUPPORT TICKET MODAL STYLING
+   ========================================================================== */
+
+.fullScreenTicketModalOverlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(6px) !important;
+  z-index: 99999999 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+}
+
+.fullScreenTicketModalCard {
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #f8fafc !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+}
+
+.fullScreenModalHeader {
+  background: #0f2b5c !important;
+  color: white !important;
+  padding: 24px 40px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 16px rgba(15, 43, 92, 0.2) !important;
+}
+
+.fullScreenModalTitleBlock h2 {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 6px 0 2px 0 !important;
+  letter-spacing: -0.3px !important;
+}
+
+.fullScreenModalTitleBlock p {
+  font-size: 14px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+}
+
+.fullScreenBadge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #38bdf8 !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.fullScreenCloseBtn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.fullScreenCloseBtn:hover {
+  background: rgba(239, 68, 68, 0.9) !important;
+  border-color: rgba(239, 68, 68, 1) !important;
+}
+
+.fullScreenModalBody {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 32px 40px !important;
+  max-width: 1240px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.fullScreenTicketForm {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+}
+
+.formSectionCard {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 28px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+}
+
+.formSectionTitle {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #0f2b5c !important;
+  margin: 0 0 20px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.formGridTwo {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 20px !important;
+}
+
+@media (max-width: 768px) {
+  .formGridTwo {
+    grid-template-columns: 1fr !important;
+  }
+  .fullScreenModalHeader,
+  .fullScreenModalBody,
+  .fullScreenModalFooter {
+    padding: 20px !important;
+  }
+}
+
+.fullScreenModalFooter {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 18px 40px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.fullScreenCancelBtn {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 12px 24px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.fullScreenCancelBtn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.fullScreenSubmitBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #0f2b5c !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 32px !important;
+  border-radius: 10px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(15, 43, 92, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+.fullScreenSubmitBtn:hover {
+  background: #1a365d !important;
+  box-shadow: 0 6px 16px rgba(15, 43, 92, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+

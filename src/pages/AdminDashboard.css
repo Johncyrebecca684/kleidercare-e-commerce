@@ -184,8 +184,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* METRICS CARDS */
@@ -225,9 +232,20 @@
   flex-shrink: 0;
 }
 
-.metricIcon.success { background: #ecfdf5; color: #059669; }
-.metricIcon.warning { background: #fffbeb; color: #d97706; }
-.metricIcon.info { background: #f0f9ff; color: #0284c7; }
+.metricIcon.success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.metricIcon.warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.metricIcon.info {
+  background: #f0f9ff;
+  color: #0284c7;
+}
 
 .metricData h4 {
   margin: 0 0 6px 0;
@@ -254,8 +272,13 @@
   gap: 4px;
 }
 
-.trend.positive { color: #10b981; }
-.trend.negative { color: #ef4444; }
+.trend.positive {
+  color: #10b981;
+}
+
+.trend.negative {
+  color: #ef4444;
+}
 
 /* CHARTS SECTION */
 .chartsSection {
@@ -542,8 +565,15 @@
   font-weight: 700;
 }
 
-.statusBadge.success { background: #ecfdf5; color: #059669; }
-.statusBadge.warning { background: #fffbeb; color: #d97706; }
+.statusBadge.success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.statusBadge.warning {
+  background: #fffbeb;
+  color: #d97706;
+}
 
 .warrantyBadge {
   background: #f0f7ff;
@@ -577,10 +607,23 @@
   transition: all 0.2s ease;
 }
 
-.iconBtn.edit { color: #0f2b5c; }
-.iconBtn.edit:hover { background: #f0f7ff; border-color: #0f2b5c; }
-.iconBtn.delete { color: #ef4444; }
-.iconBtn.delete:hover { background: #fef2f2; border-color: #ef4444; }
+.iconBtn.edit {
+  color: #0f2b5c;
+}
+
+.iconBtn.edit:hover {
+  background: #f0f7ff;
+  border-color: #0f2b5c;
+}
+
+.iconBtn.delete {
+  color: #ef4444;
+}
+
+.iconBtn.delete:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
 
 /* MODAL OVERLAY */
 .adminModalOverlay {
@@ -605,8 +648,15 @@
 }
 
 @keyframes modalIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modalHeader {
@@ -820,10 +870,12 @@
   .adminContainer {
     flex-direction: column;
   }
+
   .adminSidebar {
     width: 100%;
     padding: 16px 0;
   }
+
   .adminContent {
     padding: 20px;
   }
@@ -870,6 +922,7 @@
   .inventoryKpiGrid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .valuationCard {
     grid-column: span 2;
   }
@@ -879,6 +932,7 @@
   .inventoryKpiGrid {
     grid-template-columns: 1fr;
   }
+
   .valuationCard {
     grid-column: span 1;
   }
@@ -1292,7 +1346,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .backToInventoryBtn:hover {
@@ -1471,7 +1525,7 @@
   color: #0f2b5c;
   border-color: #cbd5e1;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .fullScreenTabBtn.active {
@@ -1552,6 +1606,7 @@
     opacity: 0;
     transform: translateY(20px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -2411,28 +2466,35 @@
     width: 100%;
     margin: 10px;
   }
+
   .formGrid {
     grid-template-columns: 1fr;
   }
+
   .formGrid .fullWidth {
     grid-column: span 1;
   }
+
   .coverImageFeatureCard {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .storeLivePreviewCard {
     flex-direction: column;
   }
+
   .previewImageCol {
     width: 100%;
     height: 180px;
   }
+
   .productEditModalFooter {
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
   }
+
   .footerLeftGroup,
   .footerRightGroup {
     justify-content: space-between;
@@ -3193,6 +3255,452 @@
   cursor: not-allowed;
 }
 
+/* =========================================================
+   CUSTOMER FULL DETAILS MODAL & ACCOUNT MANAGEMENT STYLES
+   ========================================================= */
 
+.customerDetailsModalContent {
+  background: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(15, 43, 92, 0.25);
+  border: 1px solid #e2e8f0;
+}
 
+.customerModalHeaderBanner {
+  background: linear-gradient(135deg, #071630 0%, #0f2b5c 100%);
+  padding: 24px 28px 20px;
+  color: #ffffff;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
 
+.customerHeaderProfileRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.customerBigAvatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+  flex-shrink: 0;
+}
+
+.customerHeaderMeta {
+  flex: 1;
+}
+
+.customerHeaderName {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.customerRoleBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.customerRoleBadge.admin {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.customerRoleBadge.customer {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.customerRoleBadge.reseller {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.customerVerifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.customerVerifiedBadge.verified {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+
+.customerVerifiedBadge.pending {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+}
+
+.customerContactSubRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.customerContactSubRow span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.closeCustomerModalBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+}
+
+.closeCustomerModalBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.customerQuickStatsBar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.customerStatBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.customerStatBox .statLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.customerStatBox .statValue {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 3px 0 1px;
+}
+
+.customerStatBox.highlight .statValue {
+  color: #38bdf8;
+}
+
+.customerStatBox .statSub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* MODAL TABS NAVIGATION */
+.customerModalTabNav {
+  display: flex;
+  gap: 4px;
+  background: #f8fafc;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.custTabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custTabBtn:hover {
+  background: #e2e8f0;
+  color: #0f2b5c;
+}
+
+.custTabBtn.active {
+  background: #ffffff;
+  color: #0284c7;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.customerModalBodyContent {
+  padding: 24px 28px;
+  min-height: 280px;
+}
+
+.custSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f2b5c;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+.custProfileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.custFieldCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.custFieldLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.custFieldValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2b5c;
+}
+
+.custFieldValueCode {
+  font-family: monospace;
+  font-size: 12px;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #334155;
+  width: fit-content;
+  word-break: break-all;
+}
+
+/* SAVED ADDRESSES */
+.custAddressGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.custAddressCard {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.custAddressCard:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.1);
+}
+
+.custAddressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.custAddrTag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #0284c7;
+  background: #f0f9ff;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.defaultAddrPill {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.custAddrName {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2b5c;
+  margin-bottom: 4px;
+}
+
+.custAddrLine {
+  margin: 0 0 2px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.custAddrCity {
+  margin: 4px 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.custAddrCountry {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.custAddrPhone {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0284c7;
+}
+
+.emptyCustState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+.emptyCustState.compact {
+  padding: 24px;
+}
+
+.emptyCustState p {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* CART & WISHLIST ITEMS LIST */
+.custCartList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.custCartItemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.custCartImg {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.custCartMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.custCartMeta strong {
+  font-size: 13px;
+  color: #0f2b5c;
+}
+
+.custCartMeta span {
+  font-size: 12px;
+  color: #0284c7;
+  font-weight: 600;
+}
+
+.customerModalFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.viewCustomerDetailsBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+  white-space: nowrap;
+}
+
+.viewCustomerDetailsBtn:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.45) !important;
+  transform: translateY(-1px);
+}
