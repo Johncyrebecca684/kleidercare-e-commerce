@@ -34,13 +34,28 @@ const getSmtpTransporter = () => {
 
   if (!user || !pass) return null;
 
+  const cleanPass = pass.replace(/\s+/g, '');
+
+  if (host.includes('gmail') || (user && user.endsWith('@gmail.com'))) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user,
+        pass: cleanPass
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+  }
+
   return nodemailer.createTransport({
     host,
     port,
     secure: port === 465,
     auth: {
       user,
-      pass: pass.replace(/\s+/g, '') // remove spaces from Gmail app passwords
+      pass: cleanPass
     },
     tls: {
       rejectUnauthorized: false
