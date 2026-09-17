@@ -63,7 +63,8 @@ import {
   Calendar,
   Clock,
   ShieldAlert,
-  UserCheck
+  UserCheck,
+  LogOut
 } from 'lucide-react';
 import TicketingPage from './TicketingPage';
 import { useToast } from '../context/ToastContext';
@@ -205,13 +206,24 @@ function numberToWords(num) {
   return words ? words + ' Rupees Only' : 'Zero Rupees Only';
 }
 
-export default function AdminDashboard({ products, setProducts, users, orders, onUpdateOrderSetup, loggedInUser }) {
+export default function AdminDashboard({ products, setProducts, users, orders, onUpdateOrderSetup, loggedInUser, onLogout }) {
   if (!loggedInUser || loggedInUser.role !== 'admin') {
     return <Navigate to="/" replace />;
   }
 
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      localStorage.removeItem('kc_auth_token');
+      localStorage.removeItem('kc_cart_items');
+      localStorage.removeItem('kc_wishlist_items');
+      window.location.href = '/';
+    }
+  };
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
 
   // Customer Orders Search & Filter State
@@ -1192,13 +1204,6 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
             Overview Analytics
           </button>
           <button
-            className={`navBtn ${activeTab === 'products' ? 'active' : ''}`}
-            onClick={() => setActiveTab('products')}
-          >
-            <Package size={20} />
-            Product Inventory
-          </button>
-          <button
             className={`navBtn ${activeTab === 'categories' ? 'active' : ''}`}
             onClick={() => setActiveTab('categories')}
           >
@@ -1227,13 +1232,20 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
             Support Tickets
           </button>
         </nav>
+
+        <div className="adminSidebarFooter">
+          <button className="navBtn logoutBtn" onClick={handleLogout} title="Log out of Admin Dashboard">
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       <main className="adminMain">
         <header className="adminHeader">
           <div>
             <h2>Admin Dashboard</h2>
-            <p>Manage your commercial laundry store, inventory, orders, and customer accounts</p>
+            <p>Manage store analytics, categories, orders, user accounts, and support tickets</p>
           </div>
           <div className="headerBadge">
             <span className="pulse-dot"></span> Store System Active

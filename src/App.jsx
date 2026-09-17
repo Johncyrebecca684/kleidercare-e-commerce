@@ -553,34 +553,38 @@ function App() {
             <Route
               path="/"
               element={
-                <Home
-                  cartItems={cartItems}
-                  selectedCategory={selectedCategory}
-                  onCategoryChange={setSelectedCategory}
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  cartCount={cartCount}
-                  onAddToCart={handleAddToCart}
-                  onRemoveItem={handleRemoveItem}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  isLoginOpen={isLoginOpen}
-                  onLoginOpen={() => setIsLoginOpen(true)}
-                  onLoginClose={() => setIsLoginOpen(false)}
-                  isSignupOpen={isSignupOpen}
-                  onSignupOpen={() => setIsSignupOpen(true)}
-                  onSignupClose={() => setIsSignupOpen(false)}
-                  isForgotPasswordOpen={isForgotPasswordOpen}
-                  onForgotPasswordOpen={() => setIsForgotPasswordOpen(true)}
-                  onForgotPasswordClose={() => setIsForgotPasswordOpen(false)}
-                  loggedInUser={loggedInUser}
-                  onLoginSuccess={handleLoginSuccess}
-                  onSignupSuccess={handleSignupSuccess}
-                  onLogout={handleLogout}
-                  products={appProducts}
-                  productsLoading={productsLoading}
-                  wishlistItems={wishlistItems}
-                  onToggleWishlist={handleToggleWishlist}
-                />
+                loggedInUser?.role === 'admin' ? (
+                  <Navigate to="/admin" replace />
+                ) : (
+                  <Home
+                    cartItems={cartItems}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    cartCount={cartCount}
+                    onAddToCart={handleAddToCart}
+                    onRemoveItem={handleRemoveItem}
+                    onUpdateQuantity={handleUpdateQuantity}
+                    isLoginOpen={isLoginOpen}
+                    onLoginOpen={() => setIsLoginOpen(true)}
+                    onLoginClose={() => setIsLoginOpen(false)}
+                    isSignupOpen={isSignupOpen}
+                    onSignupOpen={() => setIsSignupOpen(true)}
+                    onSignupClose={() => setIsSignupOpen(false)}
+                    isForgotPasswordOpen={isForgotPasswordOpen}
+                    onForgotPasswordOpen={() => setIsForgotPasswordOpen(true)}
+                    onForgotPasswordClose={() => setIsForgotPasswordOpen(false)}
+                    loggedInUser={loggedInUser}
+                    onLoginSuccess={handleLoginSuccess}
+                    onSignupSuccess={handleSignupSuccess}
+                    onLogout={handleLogout}
+                    products={appProducts}
+                    productsLoading={productsLoading}
+                    wishlistItems={wishlistItems}
+                    onToggleWishlist={handleToggleWishlist}
+                  />
+                )
               }
             />
             <Route path="/track-order" element={<TrackOrderPage userOrders={userOrders} />} />
@@ -659,6 +663,7 @@ function App() {
                     orders={userOrders}
                     onUpdateOrderSetup={handleUpdateOrderSetup}
                     loggedInUser={loggedInUser}
+                    onLogout={handleLogout}
                   />
                 ) : (
                   <Navigate to="/" replace />
@@ -719,6 +724,8 @@ function App() {
               element={
                 authLoading ? (
                   <Loader title="Kleider Care" subtitle="Authenticating..." fullPage />
+                ) : loggedInUser?.role === 'admin' ? (
+                  <Navigate to="/admin" replace />
                 ) : loggedInUser ? (
                   <UserProfile
                     userData={loggedInUser}

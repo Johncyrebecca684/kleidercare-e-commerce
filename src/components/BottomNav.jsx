@@ -7,6 +7,10 @@ export default function BottomNav({ cartCount = 0, wishlistCount = 0, loggedInUs
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
+  if (currentPath === '/admin') {
+    return null;
+  }
+
   const handleNav = (path, requiresAuth = false) => {
     if (requiresAuth && !loggedInUser) {
       if (onLoginOpen) {

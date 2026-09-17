@@ -119,6 +119,24 @@
   border-left: 4px solid #38bdf8;
 }
 
+.adminSidebarFooter {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.navBtn.logoutBtn {
+  color: #f87171;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.navBtn.logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  transform: translateX(3px);
+}
+
 /* MAIN CONTENT */
 .adminMain {
   flex: 1;
