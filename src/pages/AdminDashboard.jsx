@@ -1204,6 +1204,13 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
             Overview Analytics
           </button>
           <button
+            className={`navBtn ${activeTab === 'products' ? 'active' : ''}`}
+            onClick={() => setActiveTab('products')}
+          >
+            <Package size={20} />
+            Product Inventory
+          </button>
+          <button
             className={`navBtn ${activeTab === 'categories' ? 'active' : ''}`}
             onClick={() => setActiveTab('categories')}
           >
@@ -1245,7 +1252,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
         <header className="adminHeader">
           <div>
             <h2>Admin Dashboard</h2>
-            <p>Manage store analytics, categories, orders, user accounts, and support tickets</p>
+            <p>Manage store analytics, product inventory, categories, orders, user accounts, and support tickets</p>
           </div>
           <div className="headerBadge">
             <span className="pulse-dot"></span> Store System Active
@@ -1256,7 +1263,25 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
           {activeTab === 'overview' && (
             <div className="tabPane fade-in">
               <div className="metricGrid">
-                <div className="metricCard">
+                <div
+                  className="metricCard"
+                  onClick={() => setActiveTab('products')}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to manage Product Inventory"
+                >
+                  <div className="metricIcon primary"><Package size={24} /></div>
+                  <div className="metricData">
+                    <h4>Product Inventory</h4>
+                    <h2>{products.length} Items</h2>
+                    <span className="trend positive">{totalStockItems} units in stock</span>
+                  </div>
+                </div>
+                <div
+                  className="metricCard"
+                  onClick={() => setActiveTab('users')}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view User Management"
+                >
                   <div className="metricIcon"><Users size={24} /></div>
                   <div className="metricData">
                     <h4>Active Customers</h4>
@@ -1271,7 +1296,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     <span className="trend positive">↑ 18.2% vs last month</span>
                   </div>
                 </div>
-                <div className="metricCard">
+                <div
+                  className="metricCard"
+                  onClick={() => setActiveTab('customers')}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view Orders & Invoices"
+                >
                   <div className="metricIcon warning"><ShoppingBag size={24} /></div>
                   <div className="metricData">
                     <h4>Total Orders</h4>
