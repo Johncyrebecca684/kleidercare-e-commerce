@@ -1195,6 +1195,7 @@ export const categories = [
   "LG Commercial Laundry Machines",
   "Speed Queen Commercial Laundry Machines",
   "PONY Finishing Equipments",
+  "Laundry Packing Materials",
   "LG Genuine Spare Parts",
   "Laundry Chemicals",
   "Seko"

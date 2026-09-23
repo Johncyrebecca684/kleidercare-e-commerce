@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Package,
+  PackageCheck,
   Layers,
   ChevronDown,
   ChevronUp,
@@ -33,6 +34,7 @@ const CATEGORY_ITEMS = [
   { name: 'LG Commercial Laundry Machines', icon: WashingMachine, image: '/10kglggiantwasher.png' },
   { name: 'Speed Queen Commercial Laundry Machines', icon: Zap, image: '/Speed Queen Quantum Touch Washer Extractor 18kg.png' },
   { name: 'PONY Finishing Equipments', icon: Shirt, image: '/PONY FVC Utility Ironing Tables.png' },
+  { name: 'Laundry Packing Materials', icon: PackageCheck, image: '/laundry-packing-materials.png' },
   { name: 'LG Genuine Spare Parts', icon: Wrench, image: '/Motor Assembly.png' },
   { name: 'Laundry Chemicals', icon: FlaskConical, image: '/chemical 1.png' },
   { name: 'Seko', icon: SlidersHorizontal, image: '/seko-3p.png' }
@@ -177,6 +179,22 @@ export default function ProductList({
       matchesCategory = product.category === 'Laundry Chemicals' || product.category === 'Chemicals' || (product.category === 'Packages' && !isMachinePackage && (product.name.toLowerCase().includes('chemical') || product.name === 'Retail Laundry Package'));
     } else if (selectedCategory === 'LG Genuine Spare Parts' || selectedCategory === 'Genuine Spare Parts') {
       matchesCategory = product.category === 'LG Genuine Spare Parts' || product.category === 'Genuine Spare Parts';
+    } else if (
+      selectedCategory === 'Laundry Packing Materials' ||
+      selectedCategory === 'Packing Materials' ||
+      selectedCategory === 'Packaging Materials'
+    ) {
+      const pCat = (product.category || '').toLowerCase();
+      const pName = (product.name || '').toLowerCase();
+      matchesCategory =
+        pCat.includes('packing') ||
+        pCat.includes('packaging') ||
+        pName.includes('packing') ||
+        pName.includes('packaging') ||
+        pName.includes('paper bag') ||
+        pName.includes('garment cover') ||
+        pName.includes('cover') ||
+        product.category === 'Laundry Packing Materials';
     } else if (
       selectedCategory === 'Speed Queen Commercial Laundry Machines' ||
       selectedCategory === 'Speed Queen' ||

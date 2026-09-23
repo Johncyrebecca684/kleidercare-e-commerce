@@ -333,6 +333,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     'LG Commercial Laundry Machines',
     'Speed Queen Commercial Laundry Machines',
     'PONY Finishing Equipments',
+    'Laundry Packing Materials',
     'LG Genuine Spare Parts',
     'Laundry Chemicals',
     'Stacker',
