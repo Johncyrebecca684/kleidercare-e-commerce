@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['customer', 'admin', 'reseller'],
+    enum: ['customer', 'admin', 'reseller', 'employee'],
     default: 'customer'
   },
   mobileNumber: {
@@ -53,6 +53,32 @@ const userSchema = new mongoose.Schema({
   walletBalance: {
     type: Number,
     default: 0
+  },
+  customerType: {
+    type: String,
+    enum: ['Regular', 'VIP', 'High-Value', 'Corporate', 'New', 'Inactive'],
+    default: 'Regular'
+  },
+  status: {
+    type: String,
+    enum: ['ACTIVE', 'INACTIVE', 'BLOCKED'],
+    default: 'ACTIVE'
+  },
+  outstandingAmount: {
+    type: Number,
+    default: 0
+  },
+  companyName: {
+    type: String,
+    default: ''
+  },
+  gstNumber: {
+    type: String,
+    default: ''
+  },
+  notes: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

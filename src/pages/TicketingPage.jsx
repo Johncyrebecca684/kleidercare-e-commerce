@@ -132,7 +132,7 @@ export default function TicketingPage({ isAdmin = false, loggedInUser, userOrder
     if (allOrdersList.length === 0) {
       try {
         const token = localStorage.getItem('kc_auth_token');
-        const endpoint = isAdmin || (loggedInUser && loggedInUser.role === 'admin')
+        const endpoint = isAdmin || (loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.role === 'employee'))
           ? `${API_URL}/api/orders/admin-all`
           : `${API_URL}/api/orders/my-orders`;
 

@@ -22,6 +22,8 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const ChatbotPage = lazy(() => import('./pages/ChatbotPage'));
 const UserProfile = lazy(() => import('./components/UserProfile'));
+const EmployeeLoginPage = lazy(() => import('./pages/EmployeeLoginPage'));
+const ErpPortal = lazy(() => import('./pages/ErpPortal'));
 
 const mergeCarts = (localCart, serverCart) => {
   const server = serverCart || [];
@@ -59,6 +61,15 @@ function NavigateToCartAndLogin({ onLoginOpen }) {
   useEffect(() => {
     onLoginOpen();
     navigate('/cart', { replace: true });
+  }, [onLoginOpen, navigate]);
+  return null;
+}
+
+function NavigateToHomeAndLogin({ onLoginOpen }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    onLoginOpen();
+    navigate('/', { replace: true });
   }, [onLoginOpen, navigate]);
   return null;
 }
@@ -242,11 +253,15 @@ function App() {
   // Sync cart/wishlist to MongoDB backend for logged-in users
   useEffect(() => {
     const syncCartAndWishlist = async () => {
-      if (!loggedInUser) return;
+      const token = localStorage.getItem('kc_auth_token');
+      if (!loggedInUser || !token) return;
       try {
         await updateCartWishlist({ cart: cartItems, wishlist: wishlistItems });
       } catch (error) {
-        console.error('Error syncing cart/wishlist to server:', error);
+        if (error.message?.includes('401') || error.message?.includes('token') || error.message?.includes('expired')) {
+          return;
+        }
+        console.warn('Notice syncing cart/wishlist to server:', error.message);
       }
     };
 
@@ -282,11 +297,18 @@ function App() {
         return;
       }
 
-      const token = localStorage.getItem('kc_auth_token');
+      const token = localStorage.getItem('kc_auth_token') || localStorage.getItem('kc_erp_token');
+      if (!token) {
+        setUserOrders([]);
+        setAppUsers([]);
+        return;
+      }
 
       // Fetch orders
       try {
-        const endpoint = loggedInUser.role === 'admin' ? `${API_URL}/api/orders/admin-all` : `${API_URL}/api/orders/my-orders`;
+        const endpoint = (loggedInUser.role === 'admin' || loggedInUser.role === 'employee')
+          ? `${API_URL}/api/orders/admin-all`
+          : `${API_URL}/api/orders/my-orders`;
         const response = await fetch(endpoint, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -323,8 +345,8 @@ function App() {
         console.error('Error fetching database orders:', error);
       }
 
-      // Fetch users (admin only)
-      if (loggedInUser.role === 'admin') {
+      // Fetch users (admin & employee)
+      if (loggedInUser.role === 'admin' || loggedInUser.role === 'employee') {
         try {
           const response = await fetch(`${API_URL}/api/auth/users`, {
             headers: {
@@ -511,6 +533,9 @@ function App() {
     setIsLoginOpen(false);
     setCartItems(prev => mergeCarts(prev, user.cart));
     setWishlistItems(prev => mergeWishlists(prev, user.wishlist));
+    if (user && (user.role === 'admin' || user.role === 'employee' || user.email === 'kleidercare@gmail.com')) {
+      window.location.href = '/employee/portal';
+    }
   };
 
   const handleSignupSuccess = (user) => {
@@ -553,8 +578,8 @@ function App() {
             <Route
               path="/"
               element={
-                loggedInUser?.role === 'admin' ? (
-                  <Navigate to="/admin" replace />
+                (loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
+                  <Navigate to="/employee/portal" replace />
                 ) : (
                   <Home
                     cartItems={cartItems}
@@ -626,7 +651,7 @@ function App() {
             <Route
               path="/support"
               element={
-                loggedInUser?.role === 'admin' ? (
+                (loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
                   <TicketingPage loggedInUser={loggedInUser} userOrders={userOrders} isAdmin={true} />
                 ) : (
                   <Navigate to="/" replace />
@@ -651,20 +676,36 @@ function App() {
               }
             />
             <Route
+              path="/login"
+              element={<NavigateToHomeAndLogin onLoginOpen={() => setIsLoginOpen(true)} />}
+            />
+            <Route
+              path="/employee/login"
+              element={<EmployeeLoginPage />}
+            />
+            <Route
+              path="/erp/login"
+              element={<EmployeeLoginPage />}
+            />
+            <Route
+              path="/employee/portal/*"
+              element={<ErpPortal />}
+            />
+            <Route
+              path="/employee"
+              element={<Navigate to="/employee/portal" replace />}
+            />
+            <Route
+              path="/erp"
+              element={<Navigate to="/employee/portal" replace />}
+            />
+            <Route
               path="/admin"
               element={
                 authLoading ? (
-                  <Loader title="Kleider Care" subtitle="Verifying Admin Access..." fullPage />
-                ) : loggedInUser?.role === 'admin' ? (
-                  <AdminDashboard
-                    products={appProducts}
-                    setProducts={setAppProducts}
-                    users={appUsers}
-                    orders={userOrders}
-                    onUpdateOrderSetup={handleUpdateOrderSetup}
-                    loggedInUser={loggedInUser}
-                    onLogout={handleLogout}
-                  />
+                  <Loader title="Kleider Care" subtitle="Verifying Access..." fullPage />
+                ) : (loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
+                  <Navigate to="/employee/portal" replace />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -724,8 +765,8 @@ function App() {
               element={
                 authLoading ? (
                   <Loader title="Kleider Care" subtitle="Authenticating..." fullPage />
-                ) : loggedInUser?.role === 'admin' ? (
-                  <Navigate to="/admin" replace />
+                ) : (loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
+                  <Navigate to="/employee/portal" replace />
                 ) : loggedInUser ? (
                   <UserProfile
                     userData={loggedInUser}

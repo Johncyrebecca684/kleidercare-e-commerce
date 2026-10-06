@@ -7,7 +7,7 @@ export default function BottomNav({ cartCount = 0, wishlistCount = 0, loggedInUs
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  if (currentPath === '/admin') {
+  if (currentPath === '/admin' || currentPath.startsWith('/employee') || currentPath.startsWith('/erp')) {
     return null;
   }
 
@@ -52,18 +52,18 @@ export default function BottomNav({ cartCount = 0, wishlistCount = 0, loggedInUs
           <span className="bottom-nav-label">You</span>
         </button>
 
-        {/* 3. Wishlist (or Admin for admins) */}
-        {loggedInUser?.role === 'admin' ? (
+        {/* 3. Wishlist (or Admin/Dashboard for staff/admins) */}
+        {(loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
           <button
             type="button"
-            className={`bottom-nav-item ${currentPath === '/admin' ? 'active' : ''}`}
-            onClick={() => handleNav('/admin')}
-            aria-label="Admin Dashboard"
+            className={`bottom-nav-item ${currentPath.startsWith('/employee') ? 'active' : ''}`}
+            onClick={() => handleNav('/employee/portal')}
+            aria-label="Employee ERP Portal"
           >
             <div className="nav-icon-wrapper">
-              <Shield size={22} strokeWidth={currentPath === '/admin' ? 2.3 : 1.8} />
+              <Shield size={22} strokeWidth={currentPath.startsWith('/employee') ? 2.3 : 1.8} />
             </div>
-            <span className="bottom-nav-label">Admin</span>
+            <span className="bottom-nav-label">ERP</span>
           </button>
         ) : (
           <button

@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import User from '../models/User.js';
 import Otp from '../models/Otp.js';
+import Employee from '../models/Employee.js';
 
 const router = express.Router();
 
@@ -66,8 +67,8 @@ const getSmtpTransporter = () => {
 async function sendMail({ to, subject, text, html }) {
   // 1. Try Resend if a real API key is configured
   const hasResendKey = process.env.RESEND_API_KEY &&
-                       process.env.RESEND_API_KEY !== 're_REPLACE_WITH_YOUR_API_KEY' &&
-                       process.env.RESEND_API_KEY.startsWith('re_');
+    process.env.RESEND_API_KEY !== 're_REPLACE_WITH_YOUR_API_KEY' &&
+    process.env.RESEND_API_KEY.startsWith('re_');
 
   if (hasResendKey) {
     try {
@@ -256,8 +257,8 @@ async function sendResetPasswordEmail(email, otp) {
               <p style="margin:0 0 16px;font-size:12px;font-weight:700;color:#64748b;letter-spacing:2px;text-transform:uppercase;">Your Password Reset Code</p>
               <table cellpadding="0" cellspacing="0" style="margin:0 auto 18px;">
                 <tr>${otp.split('').map(d =>
-                  `<td style="padding:0 5px;"><div style="width:44px;height:52px;line-height:52px;text-align:center;font-size:26px;font-weight:700;color:#991b1b;background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;display:inline-block;">${d}</div></td>`
-                ).join('')}</tr>
+    `<td style="padding:0 5px;"><div style="width:44px;height:52px;line-height:52px;text-align:center;font-size:26px;font-weight:700;color:#991b1b;background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;display:inline-block;">${d}</div></td>`
+  ).join('')}</tr>
               </table>
               <p style="margin:0;font-size:12px;color:#94a3b8;">Enter this code in the password reset screen</p>
             </div>
@@ -440,8 +441,61 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const inputEmail = email.toLowerCase().trim();
+    const envEmployeeEmail = (process.env.EMPLOYEE_EMAIL || process.env.VITE_EMPLOYEE_EMAIL || 'kleidercare@gmail.com').toLowerCase().trim();
+    const envEmployeePassword = (process.env.EMPLOYEE_PASSWORD || process.env.VITE_EMPLOYEE_PASSWORD || 'emp@123').trim();
+    const inputPassword = (password || '').trim();
+
+    // 1. Employee Login Check (Dynamic credentials from environment variables)
+    if (inputEmail === envEmployeeEmail) {
+      if (inputPassword !== envEmployeePassword) {
+        return res.status(400).json({ message: 'Incorrect password. Please try again.' });
+      }
+
+      // Find or create employee user record in MongoDB
+      let employeeUser = await User.findOne({ email: envEmployeeEmail });
+      if (!employeeUser) {
+        employeeUser = new User({
+          firstName: 'Kleider Care',
+          lastName: 'Staff',
+          email: envEmployeeEmail,
+          password: envEmployeePassword,
+          role: 'employee',
+          mobileNumber: '9900398532',
+          isVerified: true
+        });
+        await employeeUser.save();
+        console.log(`👔 Initialized employee account in DB for: ${envEmployeeEmail}`);
+      } else {
+        let changed = false;
+        if (employeeUser.role !== 'employee' && employeeUser.role !== 'admin') {
+          employeeUser.role = 'employee';
+          changed = true;
+        }
+        if (!employeeUser.isVerified) {
+          employeeUser.isVerified = true;
+          changed = true;
+        }
+        // Update password if changed
+        employeeUser.password = envEmployeePassword;
+        changed = true;
+
+        if (changed) {
+          await employeeUser.save();
+        }
+      }
+
+      const token = generateToken(employeeUser._id);
+      return res.json({
+        success: true,
+        message: 'Employee login successful!',
+        token,
+        user: employeeUser.toJSON()
+      });
+    }
+
+    // 2. Standard user login
+    const user = await User.findOne({ email: inputEmail });
     if (!user) {
       return res.status(400).json({ message: 'No account found with this email. Please sign up first.' });
     }
@@ -843,12 +897,24 @@ router.post('/update-profile', authMiddleware, async (req, res) => {
 });
 
 // GET /api/auth/users
-// Get all users (Admin only)
+// Get all users (Admin, Staff, and Employee)
 router.get('/users', authMiddleware, async (req, res) => {
   try {
-    const adminUser = await User.findById(req.userId);
-    if (!adminUser || adminUser.role !== 'admin') {
-      return res.status(403).json({ message: 'Forbidden: Admin access required' });
+    let adminUser = await User.findById(req.userId);
+    if (!adminUser && req.userId && String(req.userId).startsWith('emp_')) {
+      const empId = String(req.userId).replace('emp_', '');
+      if (empId === 'root') {
+        adminUser = { role: 'employee' };
+      } else {
+        const emp = await Employee.findById(empId);
+        if (emp && emp.status === 'ACTIVE') {
+          adminUser = { role: emp.role || 'employee' };
+        }
+      }
+    }
+
+    if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'employee' && adminUser.role !== 'SUPER_ADMIN')) {
+      return res.status(403).json({ message: 'Forbidden: Staff or Admin access required' });
     }
     const users = await User.find({});
     res.json(users);

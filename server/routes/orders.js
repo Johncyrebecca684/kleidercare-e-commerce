@@ -263,13 +263,13 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
   }
 });
 
-// Get all orders (Admin Dashboard)
+// Get all orders (Admin & Staff Dashboard)
 // GET /api/orders/admin-all
 router.get('/admin-all', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
+      return res.status(403).json({ message: 'Access denied. Admin or Staff role required.' });
     }
 
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -280,13 +280,13 @@ router.get('/admin-all', authMiddleware, async (req, res) => {
   }
 });
 
-// Update order status, setup, or paymentStatus (Admin only)
+// Update order status, setup, or paymentStatus (Admin & Staff)
 // PUT /api/orders/:id
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
+      return res.status(403).json({ message: 'Access denied. Admin or Staff role required.' });
     }
 
     const { status, setup, paymentStatus } = req.body;
@@ -339,10 +339,10 @@ router.put('/pay-online/:id', authMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Authorization check: User must be the owner of the order or an Admin
+    // Authorization check: User must be the owner of the order or an Admin/Staff
     const user = await User.findById(req.userId);
     const isOwner = order.user && String(order.user) === String(req.userId);
-    const isAdmin = user && user.role === 'admin';
+    const isAdmin = user && (user.role === 'admin' || user.role === 'employee');
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Unauthorized: You can only pay for your own orders' });
     }

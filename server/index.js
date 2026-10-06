@@ -11,6 +11,7 @@ import paymentRoutes from './routes/payment.js';
 import orderRoutes from './routes/orders.js';
 import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
+import erpRoutes from './routes/erp.js';
 import Product from './models/Product.js';
 import Category from './models/Category.js';
 import { products as defaultProducts, categories as defaultCategoriesList } from '../src/data/products.js';
@@ -76,6 +77,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/erp', erpRoutes);
 
 // Whitelist of allowed partner domains for in-app proxy embedding
 const ALLOWED_PROXY_DOMAINS = [

@@ -413,10 +413,10 @@ export default function Header({
               </button>
             </>
           )}
-          {loggedInUser?.role === 'admin' ? (
-            <button className="trackOrderBtn adminBtn" type="button" onClick={() => navigate('/admin')} title="Admin Dashboard" aria-label="Admin Dashboard">
+          {(loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
+            <button className="trackOrderBtn adminBtn" type="button" onClick={() => navigate('/employee/portal')} title="Employee ERP Dashboard" aria-label="ERP Dashboard">
               <LayoutDashboard size={22} />
-              <span className="trackLabel">Dashboard</span>
+              <span className="trackLabel">ERP Portal</span>
             </button>
           ) : (
             <>
@@ -491,17 +491,17 @@ export default function Header({
 
           <div className="mobileNavSection quickLinksSection">
             <span className="mobileNavSectionTitle">Quick Links</span>
-            {loggedInUser?.role === 'admin' ? (
+            {(loggedInUser?.role === 'admin' || loggedInUser?.role === 'employee') ? (
               <button
                 className="mobileNavLink adminBtn"
                 type="button"
                 onClick={() => {
-                  navigate('/admin');
+                  navigate('/employee/portal');
                   setIsMenuOpen(false);
                 }}
               >
                 <LayoutDashboard size={18} />
-                <span>Admin Dashboard</span>
+                <span>Employee ERP Portal</span>
               </button>
             ) : (
               <>

@@ -7,16 +7,16 @@ import { authMiddleware } from './auth.js';
 
 const router = express.Router();
 
-// Helper middleware to check if user is admin
+// Helper middleware to check if user is admin or employee
 const adminMiddleware = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Forbidden: Admin access required' });
+    if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
+      return res.status(403).json({ message: 'Forbidden: Staff or Admin access required' });
     }
     next();
   } catch (error) {
-    res.status(500).json({ message: 'Server error in admin authorization' });
+    res.status(500).json({ message: 'Server error in staff/admin authorization' });
   }
 };
 

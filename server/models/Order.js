@@ -93,9 +93,34 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Processing'
-  }
+    default: 'CONFIRMED'
+  },
+  branch: {
+    type: String,
+    default: 'Main Branch - Mumbai'
+  },
+  assignedDeliveryExecutive: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Employee',
+    required: false
+  },
+  assignedDeliveryExecutiveName: {
+    type: String,
+    default: 'Unassigned'
+  },
+  internalNotes: {
+    type: String,
+    default: ''
+  },
+  timeline: [
+    {
+      status: { type: String, required: true },
+      employeeId: { type: String, default: 'System' },
+      employeeName: { type: String, default: 'System' },
+      timestamp: { type: Date, default: Date.now },
+      remarks: { type: String, default: '' }
+    }
+  ]
 }, {
   timestamps: true
 });

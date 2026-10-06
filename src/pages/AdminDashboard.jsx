@@ -207,7 +207,7 @@ function numberToWords(num) {
 }
 
 export default function AdminDashboard({ products, setProducts, users, orders, onUpdateOrderSetup, loggedInUser, onLogout }) {
-  if (!loggedInUser || loggedInUser.role !== 'admin') {
+  if (!loggedInUser || (loggedInUser.role !== 'admin' && loggedInUser.role !== 'employee')) {
     return <Navigate to="/" replace />;
   }
 
@@ -707,7 +707,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
     });
   };
 
-  if (!loggedInUser || loggedInUser.role !== 'admin') {
+  if (!loggedInUser || (loggedInUser.role !== 'admin' && loggedInUser.role !== 'employee')) {
     return <Navigate to="/" replace />;
   }
 
@@ -3160,8 +3160,8 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                           <h2 className="customerHeaderName">{fullName}</h2>
                           <span className={`customerRoleBadge ${role}`}>
-                            {role === 'admin' ? <ShieldCheck size={13} /> : role === 'reseller' ? <Sparkles size={13} /> : <Users size={13} />}
-                            {role === 'admin' ? 'Super Admin' : role === 'reseller' ? 'Reseller' : 'Customer Account'}
+                            {role === 'admin' ? <ShieldCheck size={13} /> : role === 'employee' ? <ShieldCheck size={13} /> : role === 'reseller' ? <Sparkles size={13} /> : <Users size={13} />}
+                            {role === 'admin' ? 'Super Admin' : role === 'employee' ? 'Staff Employee' : role === 'reseller' ? 'Reseller' : 'Customer Account'}
                           </span>
                           {isVerified ? (
                             <span className="customerVerifiedBadge verified">
@@ -3259,7 +3259,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                           </div>
                           <div className="custFieldCard">
                             <span className="custFieldLabel">Account Role</span>
-                            <strong className="custFieldValue">{role === 'admin' ? 'Super Administrator' : role === 'reseller' ? 'Authorized Reseller' : 'Customer'}</strong>
+                            <strong className="custFieldValue">{role === 'admin' ? 'Super Administrator' : role === 'employee' ? 'Staff Employee' : role === 'reseller' ? 'Authorized Reseller' : 'Customer'}</strong>
                           </div>
                           <div className="custFieldCard">
                             <span className="custFieldLabel">Email Verification Status</span>
@@ -3477,6 +3477,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
               const matchesRole = userRoleFilter === 'All' ||
                 (userRoleFilter === 'customer' && (u.role === 'customer' || !u.role)) ||
                 (userRoleFilter === 'admin' && u.role === 'admin') ||
+                (userRoleFilter === 'employee' && u.role === 'employee') ||
                 (userRoleFilter === 'reseller' && u.role === 'reseller');
 
               return matchesSearch && matchesRole;
@@ -3484,6 +3485,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
 
             const customerCount = safeUsers.filter(u => u.role === 'customer' || !u.role).length;
             const adminCount = safeUsers.filter(u => u.role === 'admin').length;
+            const employeeCount = safeUsers.filter(u => u.role === 'employee').length;
             const resellerCount = safeUsers.filter(u => u.role === 'reseller').length;
 
             return (
@@ -3492,7 +3494,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   <div>
                     <h3>User Account Management</h3>
                     <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
-                      View registered store customers, administrative accounts, order histories, and profile details ({safeUsers.length} total users)
+                      View registered store customers, staff & administrative accounts, order histories, and profile details ({safeUsers.length} total users)
                     </p>
                   </div>
                 </div>
@@ -3535,9 +3537,9 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                   >
                     <div className="kpiIcon primary"><ShieldCheck size={22} /></div>
                     <div className="kpiContent">
-                      <span className="kpiLabel">Administrators</span>
-                      <strong className="kpiValue" style={{ color: '#0284c7' }}>{adminCount}</strong>
-                      <span className="subVal">Super Admin access</span>
+                      <span className="kpiLabel">Staff & Admins</span>
+                      <strong className="kpiValue" style={{ color: '#0284c7' }}>{adminCount + employeeCount}</strong>
+                      <span className="subVal">{adminCount} Admins · {employeeCount} Staff</span>
                     </div>
                   </div>
 
@@ -3583,6 +3585,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                     <select value={userRoleFilter} onChange={e => setUserRoleFilter(e.target.value)}>
                       <option value="All">All User Roles ({safeUsers.length})</option>
                       <option value="customer">Store Customers ({customerCount})</option>
+                      <option value="employee">Staff Employees ({employeeCount})</option>
                       <option value="admin">Administrators ({adminCount})</option>
                       <option value="reseller">Resellers ({resellerCount})</option>
                     </select>
@@ -3628,6 +3631,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                         const userEmail = u.email || '';
                         const phone = u.mobileNumber || u.phone || 'No phone recorded';
                         const isAdmin = u.role === 'admin';
+                        const isEmployee = u.role === 'employee';
 
                         return (
                           <tr key={u._id || u.id || idx}>
@@ -3640,7 +3644,7 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                                     height: '38px',
                                     fontSize: '14px',
                                     borderRadius: '50%',
-                                    background: isAdmin ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)' : 'linear-gradient(135deg, #059669 0%, #34d399 100%)'
+                                    background: isAdmin ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)' : isEmployee ? 'linear-gradient(135deg, #4f46e5 0%, #818cf8 100%)' : 'linear-gradient(135deg, #059669 0%, #34d399 100%)'
                                   }}
                                 >
                                   {(u.firstName || userEmail || 'U')[0].toUpperCase()}
@@ -3664,12 +3668,12 @@ export default function AdminDashboard({ products, setProducts, users, orders, o
                               </span>
                             </td>
                             <td>
-                              <span className={`stockStatusPill ${isAdmin ? 'in-stock' : u.role === 'reseller' ? 'low-stock' : 'in-stock'}`} style={{
-                                background: isAdmin ? '#e0f2fe' : u.role === 'reseller' ? '#fef9c3' : '#dcfce7',
-                                color: isAdmin ? '#0369a1' : u.role === 'reseller' ? '#a16207' : '#15803d'
+                              <span className={`stockStatusPill ${isAdmin || isEmployee ? 'in-stock' : u.role === 'reseller' ? 'low-stock' : 'in-stock'}`} style={{
+                                background: isAdmin ? '#e0f2fe' : isEmployee ? '#ede9fe' : u.role === 'reseller' ? '#fef9c3' : '#dcfce7',
+                                color: isAdmin ? '#0369a1' : isEmployee ? '#6d28d9' : u.role === 'reseller' ? '#a16207' : '#15803d'
                               }}>
-                                {isAdmin ? <ShieldCheck size={13} /> : u.role === 'reseller' ? <Sparkles size={13} /> : <Users size={13} />}
-                                {isAdmin ? 'Super Admin' : u.role === 'reseller' ? 'Reseller' : 'Customer'}
+                                {isAdmin ? <ShieldCheck size={13} /> : isEmployee ? <ShieldCheck size={13} /> : u.role === 'reseller' ? <Sparkles size={13} /> : <Users size={13} />}
+                                {isAdmin ? 'Super Admin' : isEmployee ? 'Staff Employee' : u.role === 'reseller' ? 'Reseller' : 'Customer'}
                               </span>
                             </td>
                             <td>

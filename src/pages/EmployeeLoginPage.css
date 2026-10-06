@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════════════
+   EMPLOYEE LOGIN PAGE - SAME UI & COLOR SCHEME AS LOGIN
+   ═══════════════════════════════════════════════════ */
+
+.emp-page-overlay {
+  min-height: 100vh;
+  width: 100%;
+  background: #f1f5f9;
+  background: radial-gradient(circle at 50% 10%, #e2e8f0 0%, #f1f5f9 60%, #cbd5e1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.emp-auth-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  animation: authSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.emp-auth-content {
+  padding: 36px 28px 28px;
+}
+
+.emp-header-block {
+  text-align: left;
+  margin-bottom: 22px;
+}
+
+.emp-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.emp-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+.emp-checkbox-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.emp-checkbox-wrap input {
+  accent-color: #0f2b5c;
+  cursor: pointer;
+}
+
+.emp-store-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #0f2b5c;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  margin-top: 4px;
+}
+
+.emp-store-link:hover {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .emp-page-overlay {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .emp-auth-card {
+    max-width: 100%;
+    border-radius: 18px;
+    margin-top: 20px;
+  }
+
+  .emp-auth-content {
+    padding: 28px 20px 22px;
+  }
+}
